@@ -1,6 +1,6 @@
 # K-Learn VN Mobile PWA
 
-Bản gộp mobile-first từ các màn hình HTML mẫu: Trang chủ/Lộ trình, Bài học ngữ pháp, Luyện phát âm, Cá nhân.
+MVP mobile-first học tiếng Hàn dành cho người Việt, triển khai dạng static SPA/PWA.
 
 ## Chạy trên máy tính
 Dùng một web server cục bộ (không mở trực tiếp file bằng `file://` nếu muốn Service Worker/Microphone hoạt động đúng):
@@ -18,13 +18,20 @@ Sau đó mở `http://localhost:8080`.
 4. iPhone/Safari: Share → **Add to Home Screen**.
 
 ## Tính năng hiện có
-- Điều hướng SPA giữa 4 khu vực chính.
-- Lộ trình học và mục tiêu ngày.
+- Welcome, đăng ký/đăng nhập và session persistence bằng localStorage.
+- Onboarding mục tiêu, trình độ và Placement Test 10 câu.
+- Dashboard/lộ trình cá nhân hóa theo người học.
+- Điều hướng SPA giữa Trang chủ, Học, Ôn tập, Luyện tập và Cá nhân.
 - Bài học 은/는, đọc câu tiếng Hàn bằng Web Speech Synthesis.
 - Bài sắp xếp câu bằng thao tác chạm (tối ưu mobile).
-- Ghi âm qua microphone bằng MediaRecorder.
-- Hồ sơ, kỹ năng, huy hiệu, lịch sử thi thử.
-- PWA manifest + service worker để cài như app và cache giao diện.
+- SRS flashcard MVP với lịch ôn 10 phút / 1 ngày / 3 ngày / 7 ngày.
+- Ghi âm qua MediaRecorder và chấm tương đồng văn bản bằng Speech Recognition khi trình duyệt hỗ trợ.
+- Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
+- PWA manifest + service worker network-first để cài app, dùng offline và nhận bản deploy mới.
+
+## Dữ liệu MVP
+
+Dữ liệu được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_settings`. Đây chưa phải hệ thống auth/backend production; cấu trúc code được chia section để có thể thay lớp storage/auth bằng Supabase sau này.
 
 ## Chưa phải AI thật
-Phần “Tailored Feedback” hiện là feedback demo theo giao diện mẫu. Để chấm phát âm thật cần backend/API speech-to-text + pronunciation scoring.
+Điểm phát âm hiện dựa trên Speech-to-Text và độ giống văn bản. Đây không phải chấm âm vị AI chính xác; bản production vẫn cần backend/API pronunciation scoring.

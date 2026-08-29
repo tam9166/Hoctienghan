@@ -8,31 +8,33 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="K-Learn VN" />
   <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=3" />
   <title>K-Learn VN</title>
 </head>
 <body>
   <div id="app-shell">
-    <header class="topbar">
+    <header class="topbar hidden" id="topbar">
       <button class="avatar-btn" id="avatarBtn" aria-label="Mở trang cá nhân">
         <span class="avatar">한</span>
       </button>
       <div class="brand">K-Learn VN</div>
-      <div class="streak"><span id="streakCount">15</span> 🔥</div>
+      <div class="streak"><span id="streakCount">0</span> 🔥</div>
     </header>
 
     <main id="app" class="app-content" aria-live="polite"></main>
 
-    <nav class="bottom-nav" aria-label="Điều hướng chính">
-      <button data-route="home" class="nav-item active"><span class="nav-icon">⌂</span><span>Trang chủ</span></button>
-      <button data-route="lessons" class="nav-item"><span class="nav-icon">▤</span><span>Bài học</span></button>
-      <button data-route="practice" class="nav-item"><span class="nav-icon">◉</span><span>Luyện tập</span></button>
-      <button data-route="profile" class="nav-item"><span class="nav-icon">●</span><span>Cá nhân</span></button>
+    <nav class="bottom-nav hidden" id="bottomNav" aria-label="Điều hướng chính">
+      <button data-route="home" class="nav-item active"><span class="nav-icon">🏠</span><span>Trang chủ</span></button>
+      <button data-route="lessons" class="nav-item"><span class="nav-icon">📖</span><span>Học</span></button>
+      <button data-route="review" class="nav-item"><span class="nav-icon">🧠</span><span>Ôn tập</span></button>
+      <button data-route="practice" class="nav-item"><span class="nav-icon">🎙</span><span>Luyện tập</span></button>
+      <button data-route="profile" class="nav-item"><span class="nav-icon">👤</span><span>Cá nhân</span></button>
     </nav>
   </div>
 
   <div id="toast" class="toast" role="status"></div>
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
