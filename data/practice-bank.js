@@ -2,14 +2,20 @@
   'use strict';
 
   const vocabulary = global.KLEARN_VOCABULARY || [];
-  const levelLabels = { Beginner: 'Beginner', TOPIK_I: 'TOPIK I', TOPIK_II: 'TOPIK II', EPS: 'EPS-TOPIK', VOCABULARY: 'Theo chủ đề' };
+  const practiceTypes = global.KLEARN_MODULE_DATA?.practiceTypes || [];
+  const levelLabels = { Beginner: 'Beginner', TOPIK_1: 'TOPIK 1', TOPIK_2: 'TOPIK 2', TOPIK_3: 'TOPIK 3', TOPIK_4: 'TOPIK 4', TOPIK_5: 'TOPIK 5', TOPIK_6: 'TOPIK 6', EPS: 'EPS-TOPIK', VOCABULARY: 'Từ vựng', GRAMMAR: 'Ngữ pháp' };
   const skillLabels = { vocabulary: 'Từ vựng', grammar: 'Ngữ pháp', listening: 'Nghe', reading: 'Đọc', mixed: 'Tổng hợp' };
   const levelTopics = {
     Beginner: ['Hangul', 'Chào hỏi', 'Gia đình', 'Đồ ăn', 'Số đếm', 'Thời gian', 'Mua sắm', 'Hỏi đường', 'Nhà ở', 'Sức khỏe'],
-    TOPIK_I: ['Trợ từ', 'Thì của động từ', 'Hội thoại', 'Biển báo', 'Thông báo', 'Đọc hiểu', 'Kính ngữ', 'Mua sắm', 'Giao thông', 'Đời sống'],
-    TOPIK_II: ['Từ học thuật', 'Liên kết câu', 'Suy luận', 'Bài báo ngắn', 'Công sở', 'Email', 'Phỏng vấn', 'Văn hóa xã hội', 'Giáo dục', 'Việc làm'],
+    TOPIK_1: ['Chào hỏi', 'Gia đình', 'Trợ từ', 'Số đếm', 'Sinh hoạt', 'Mua sắm', 'Thời gian', 'Giao thông', 'Biển báo', 'Đọc ngắn'],
+    TOPIK_2: ['Ngữ pháp cơ bản', 'Kính ngữ', 'Hội thoại', 'Thông báo', 'Đọc hiểu', 'Trường học', 'Du lịch', 'Sức khỏe', 'Công việc', 'Đời sống'],
+    TOPIK_3: ['Từ trung cấp', 'Liên kết câu', 'Email', 'Công sở', 'Suy luận', 'Văn hóa', 'Giáo dục', 'Việc làm', 'Xã hội', 'Đọc trung bình'],
+    TOPIK_4: ['Từ học thuật', 'Sắc thái', 'Bài báo', 'Logic đoạn văn', 'Kinh tế', 'Môi trường', 'Công nghệ', 'Phỏng vấn', 'Công sở', 'Đọc dài'],
+    TOPIK_5: ['Ngữ pháp khó', 'Thành ngữ', 'Báo chí', 'Kinh tế', 'Xã hội', 'Giáo dục', 'Môi trường', 'Công nghệ', 'Học thuật', 'Suy luận sâu'],
+    TOPIK_6: ['Quán ngữ', 'Sắc thái nâng cao', 'Nghiên cứu', 'Chính sách', 'Văn học', 'Ngôn ngữ học', 'Khoa học', 'Phản biện', 'Logic học thuật', 'Đọc chuyên sâu'],
     EPS: ['Công xưởng', 'Máy móc', 'Dụng cụ', 'An toàn', 'PPE', 'Tăng ca', 'Lương', 'Ký túc xá', 'Báo lỗi', 'Phòng cháy'],
-    VOCABULARY: ['Chào hỏi', 'Gia đình', 'Trường học', 'Du học', 'Nhà ở', 'Ăn uống', 'Nhà hàng', 'Mua sắm', 'Giao thông', 'Thời tiết', 'Sức khỏe', 'Bệnh viện', 'Công việc', 'Công sở', 'Phỏng vấn', 'Du lịch', 'Ngân hàng', 'Bưu điện', 'Hẹn gặp', 'Điện thoại', 'K-Drama/K-Pop', 'Đời sống tại Hàn Quốc', 'EPS', 'TOPIK']
+    VOCABULARY: ['Chào hỏi', 'Gia đình', 'Trường học', 'Du học', 'Nhà ở', 'Ăn uống', 'Mua sắm', 'Giao thông', 'Sức khỏe', 'Công việc'],
+    GRAMMAR: ['Trợ từ', 'Đuôi câu', 'Thì', 'Liên kết câu', 'Kính ngữ', 'Biểu hiện', 'Sắc thái', 'Suy luận', 'Thành ngữ', 'Ngữ pháp học thuật']
   };
   const topicKeys = ['greetings', 'family', 'school', 'study_abroad', 'housing', 'food', 'restaurant', 'shopping', 'transport', 'weather', 'health', 'hospital', 'work', 'office', 'interview', 'travel', 'banking', 'post_office', 'appointments', 'phone', 'entertainment', 'daily_life', 'eps_factory', 'topik'];
 
@@ -115,7 +121,8 @@
   }
 
   function grammarQuestion(context, index) {
-    const level = context.level === 'VOCABULARY' ? 'Beginner' : context.level;
+    const numericLevel = Number(String(context.level).replace('TOPIK_', '')) || 1;
+    const level = context.level === 'Beginner' ? 'Beginner' : numericLevel <= 2 || context.level === 'GRAMMAR' ? 'TOPIK_I' : context.level === 'EPS' ? 'EPS' : 'TOPIK_II';
     const templates = grammarTemplates[level] || grammarTemplates.TOPIK_I;
     const template = templates[(context.seed + index) % templates.length];
     return {
@@ -135,7 +142,7 @@
 
   function readingQuestion(context, index) {
     const item = context.vocabPool[(context.seed * 3 + index * 5) % context.vocabPool.length] || vocabulary[index % vocabulary.length];
-    const isAdvanced = context.level === 'TOPIK_II';
+    const isAdvanced = Number(String(context.level).replace('TOPIK_', '')) >= 3;
     const isEps = context.level === 'EPS';
     const passages = isEps
       ? [
@@ -173,12 +180,14 @@
       seed: set.seed,
       vocabPool: set.vocabPool
     };
-    const skillCycle = set.skill === 'mixed' ? ['vocabulary', 'grammar', 'listening', 'reading'] : [set.skill, 'vocabulary', set.skill, 'grammar', 'reading'];
+    const skillCycle = set.skill === 'mixed' ? ['vocabulary', 'grammar', 'listening', 'reading'] : [set.skill, set.skill, set.skill, set.skill, set.skill];
     const selectedSkill = skillCycle[questionIndex % skillCycle.length];
     let content;
     if (selectedSkill === 'grammar' && set.level !== 'VOCABULARY') content = grammarQuestion(context, questionIndex);
     else if (selectedSkill === 'reading' || selectedSkill === 'listening') content = readingQuestion({ ...context, skill: selectedSkill }, questionIndex);
     else content = vocabularyQuestion(context, questionIndex);
+    const typePool = practiceTypes.filter((type) => type.skill === content.skill || (set.skill === 'mixed' && ['vocabulary', 'grammar', 'listening', 'reading'].includes(type.skill)));
+    const practiceType = typePool[(set.seed + questionIndex) % Math.max(1, typePool.length)] || { id: content.questionType, label: content.questionType };
     return Object.freeze({
       id: `${set.id}-q${String(questionIndex + 1).padStart(2, '0')}`,
       setId: set.id,
@@ -187,7 +196,8 @@
       skill: content.skill,
       topic: content.topic,
       difficulty: set.difficulty,
-      questionType: content.questionType,
+      questionType: practiceType.id,
+      questionTypeLabel: practiceType.label,
       prompt: content.prompt,
       options: content.options,
       correctAnswer: content.correctAnswer,
@@ -201,31 +211,45 @@
 
   const groupConfigs = [
     { level: 'Beginner', count: 20, prefix: 'beg', category: 'level' },
-    { level: 'TOPIK_I', count: 30, prefix: 't1', category: 'topik' },
-    { level: 'TOPIK_II', count: 25, prefix: 't2', category: 'topik' },
-    { level: 'EPS', count: 15, prefix: 'eps', category: 'eps' },
-    { level: 'VOCABULARY', count: 24, prefix: 'voc', category: 'topic' }
+    { level: 'TOPIK_1', count: 30, prefix: 't1', category: 'topik' },
+    { level: 'TOPIK_2', count: 30, prefix: 't2', category: 'topik' },
+    { level: 'TOPIK_3', count: 30, prefix: 't3', category: 'topik' },
+    { level: 'TOPIK_4', count: 30, prefix: 't4', category: 'topik' },
+    { level: 'TOPIK_5', count: 20, prefix: 't5', category: 'advanced' },
+    { level: 'TOPIK_6', count: 20, prefix: 't6', category: 'advanced' },
+    { level: 'EPS', count: 30, prefix: 'eps', category: 'eps' },
+    { level: 'VOCABULARY', count: 30, prefix: 'voc', category: 'vocabulary' },
+    { level: 'GRAMMAR', count: 30, prefix: 'gra', category: 'grammar' }
   ];
   const skills = ['vocabulary', 'grammar', 'listening', 'reading', 'mixed'];
   const sets = [];
 
   groupConfigs.forEach((config, groupIndex) => {
     for (let index = 0; index < config.count; index += 1) {
-      const skill = config.level === 'VOCABULARY' ? 'vocabulary' : skills[index % skills.length];
+      const skill = config.level === 'VOCABULARY' ? 'vocabulary' : config.level === 'GRAMMAR' ? 'grammar' : skills[index % skills.length];
       const topic = levelTopics[config.level][index % levelTopics[config.level].length];
       const topicKey = config.level === 'VOCABULARY' ? topicKeys[index % topicKeys.length] : config.level === 'EPS' ? (index % 2 ? 'safety' : 'eps_factory') : null;
-      const filtered = vocabulary.filter((item) => topicKey ? item.topic === topicKey : config.level === 'Beginner' ? item.level === 'Beginner' : config.level === 'EPS' ? item.level === 'EPS' : item.level !== 'EPS');
+      const topikNumber = Number(config.level.replace('TOPIK_', '')) || 0;
+      const filtered = vocabulary.filter((item) => topicKey ? item.topic === topicKey : config.level === 'Beginner' ? item.topikLevel === 1 : config.level === 'EPS' ? item.level === 'EPS' : topikNumber ? item.topikLevel === topikNumber : true);
+      const typePool = practiceTypes.filter((type) => type.skill === skill || (skill === 'mixed' && ['vocabulary', 'grammar', 'listening', 'reading'].includes(type.skill)));
+      const practiceType = typePool[index % Math.max(1, typePool.length)] || { id: 'mixed_exam', label: 'Đề tổng hợp' };
       sets.push(Object.freeze({
         id: `${config.prefix}-${String(index + 1).padStart(2, '0')}`,
-        title: `${levelLabels[config.level]} · ${skillLabels[skill]} ${String(index + 1).padStart(2, '0')}`,
+        examNumber: index + 1,
+        title: `${levelLabels[config.level]} · Đề ${String(index + 1).padStart(2, '0')}`,
         level: config.level,
         levelLabel: levelLabels[config.level],
         category: config.category,
         skill,
         skillLabel: skillLabels[skill],
+        skills: skill === 'mixed' ? ['vocabulary', 'grammar', 'listening', 'reading'] : [skill],
+        practiceTypeId: practiceType.id,
+        practiceTypeLabel: practiceType.label,
         topic,
-        difficulty: (index % 3) + 1,
+        difficulty: ['TOPIK_5', 'TOPIK_6'].includes(config.level) ? (index % 2) + 4 : (index % 3) + 1,
+        difficultyLabel: config.level === 'TOPIK_6' ? 'Very Advanced' : config.level === 'TOPIK_5' ? 'Advanced' : ['','Dễ','Trung bình','Khó'][(index % 3) + 1],
         questionCount: 15,
+        estimatedMinutes: skill === 'reading' ? 15 : skill === 'listening' ? 13 : 12,
         seed: groupIndex * 100 + index + 1,
         vocabPool: filtered.length >= 8 ? filtered : vocabulary
       }));
@@ -238,6 +262,8 @@
     sets: Object.freeze(publicSets),
     totalSetCount: sets.length,
     totalQuestionCount: sets.length * 15,
+    practiceTypeCount: practiceTypes.length,
+    practiceTypes: Object.freeze(practiceTypes),
     distribution: Object.freeze(groupConfigs.reduce((result, config) => ({ ...result, [config.level]: config.count }), {})),
     getQuestions(setId) {
       const set = internalById.get(setId);

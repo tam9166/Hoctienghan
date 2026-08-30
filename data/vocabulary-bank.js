@@ -37,18 +37,46 @@
     topik: ['사회:xã hội','문화:văn hóa','경제:kinh tế','환경:môi trường','교육:giáo dục','기술:công nghệ','정보:thông tin','연구:nghiên cứu','결과:kết quả','원인:nguyên nhân','문제점:vấn đề tồn tại','해결:giải quyết','변화:thay đổi','증가:tăng','감소:giảm','영향:ảnh hưởng','관계:quan hệ','경험:kinh nghiệm','의견:ý kiến','목적:mục đích']
   };
 
+  Object.assign(topicSources, {
+    community: ['공동체:cộng đồng','주민:cư dân','복지:phúc lợi','봉사:tình nguyện','갈등:xung đột','협력:hợp tác','소속감:cảm giác thuộc về','다문화:đa văn hóa','세대:thế hệ','계층:tầng lớp','지역:địa phương','참여:sự tham gia','기부:quyên góp','배려:sự quan tâm','연대:tinh thần đoàn kết','고립:sự cô lập','불평등:bất bình đẳng','공익:lợi ích công','시민:công dân','자치:tự quản'],
+    environment_advanced: ['기후:khí hậu','온실가스:khí nhà kính','탄소중립:trung hòa carbon','재생에너지:năng lượng tái tạo','생태계:hệ sinh thái','생물다양성:đa dạng sinh học','오염:ô nhiễm','미세먼지:bụi mịn','폐기물:chất thải','재활용:tái chế','자원:tài nguyên','가뭄:hạn hán','홍수:lũ lụt','해수면:mực nước biển','멸종:tuyệt chủng','보존:bảo tồn','친환경:thân thiện môi trường','지속가능성:tính bền vững','배출량:lượng phát thải','환경정책:chính sách môi trường'],
+    economy_advanced: ['경기:tình hình kinh tế','물가:giá cả','인플레이션:lạm phát','금리:lãi suất','투자:đầu tư','소비:tiêu dùng','수요:nhu cầu','공급:nguồn cung','수출:xuất khẩu','수입:nhập khẩu','무역:thương mại','환율:tỷ giá','성장률:tốc độ tăng trưởng','실업률:tỷ lệ thất nghiệp','소득:thu nhập','세금:thuế','재정:tài chính công','예산:ngân sách','부채:nợ','경기침체:suy thoái kinh tế'],
+    technology_advanced: ['인공지능:trí tuệ nhân tạo','알고리즘:thuật toán','데이터:dữ liệu','자동화:tự động hóa','로봇:robot','플랫폼:nền tảng','보안:bảo mật','개인정보:thông tin cá nhân','가상현실:thực tế ảo','반도체:chất bán dẫn','통신:viễn thông','혁신:đổi mới','디지털화:số hóa','접근성:khả năng tiếp cận','정보격차:khoảng cách số','저작권:bản quyền','개발자:nhà phát triển','사용자:người dùng','기술윤리:đạo đức công nghệ','상용화:thương mại hóa'],
+    education_advanced: ['교육과정:chương trình giáo dục','평가:đánh giá','입시:thi tuyển sinh','학습자:người học','교수법:phương pháp giảng dạy','문해력:năng lực đọc hiểu','창의성:tính sáng tạo','비판적사고:tư duy phản biện','평생교육:giáo dục suốt đời','의무교육:giáo dục bắt buộc','사교육:giáo dục tư','공교육:giáo dục công','학업성취:thành tích học tập','교육격차:khoảng cách giáo dục','진로:định hướng nghề nghiệp','장학제도:chế độ học bổng','토론:thảo luận','교재:giáo trình','학습동기:động lực học tập','교육철학:triết lý giáo dục'],
+    society_advanced: ['고령화:già hóa','저출산:tỷ lệ sinh thấp','도시화:đô thị hóa','인구:nhân khẩu','이주:di cư','노동시장:thị trường lao động','복지제도:hệ thống phúc lợi','양극화:phân cực xã hội','주거문제:vấn đề nhà ở','범죄:tội phạm','안전망:mạng lưới an sinh','가구:hộ gia đình','세대갈등:xung đột thế hệ','성평등:bình đẳng giới','사회통합:hòa nhập xã hội','인권:nhân quyền','편견:định kiến','차별:phân biệt đối xử','사회적책임:trách nhiệm xã hội','삶의질:chất lượng cuộc sống'],
+    culture_advanced: ['전통:truyền thống','유산:di sản','정체성:bản sắc','관습:phong tục','의례:nghi lễ','대중문화:văn hóa đại chúng','문화재:di sản văn hóa','보존하다:bảo tồn','계승하다:kế thừa','창작:sáng tác','예술성:tính nghệ thuật','다양성:tính đa dạng','세계화:toàn cầu hóa','지역문화:văn hóa địa phương','문화교류:giao lưu văn hóa','가치관:hệ giá trị','상징:biểu tượng','해석:diễn giải','미학:mỹ học','문화산업:công nghiệp văn hóa'],
+    media: ['언론:truyền thông báo chí','보도:đưa tin','기사:bài báo','취재:tác nghiệp','편집:biên tập','여론:dư luận','사실확인:xác minh sự thật','가짜뉴스:tin giả','매체:phương tiện truyền thông','방송사:đài truyền hình','독자:độc giả','시청자:khán giả','광고:quảng cáo','논평:bình luận','보도자료:thông cáo báo chí','언론자유:tự do báo chí','공정성:tính công bằng','신뢰도:độ tin cậy','확산:sự lan truyền','구독:đăng ký theo dõi'],
+    law: ['법률:pháp luật','제도:chế độ','권리:quyền lợi','의무:nghĩa vụ','규정:quy định','위반:vi phạm','처벌:xử phạt','재판:xét xử','판결:phán quyết','증거:bằng chứng','변호사:luật sư','검사:công tố viên','법원:tòa án','소송:tố tụng','계약법:luật hợp đồng','보호하다:bảo vệ','합법적:hợp pháp','불법:bất hợp pháp','책임:trách nhiệm','법치주의:pháp quyền'],
+    public_policy: ['정책:chính sách','행정:hành chính','정부:chính phủ','지방정부:chính quyền địa phương','공공기관:cơ quan công','규제:quản lý quy định','개혁:cải cách','시행:thực thi','지원책:biện pháp hỗ trợ','정책효과:hiệu quả chính sách','이해관계:lợi ích liên quan','합의:đồng thuận','공청회:điều trần công khai','투명성:tính minh bạch','책무성:trách nhiệm giải trình','의사결정:ra quyết định','우선순위:thứ tự ưu tiên','복지정책:chính sách phúc lợi','산업정책:chính sách công nghiệp','공공서비스:dịch vụ công'],
+    research: ['가설:giả thuyết','이론:lý thuyết','방법론:phương pháp luận','분석:phân tích','자료수집:thu thập dữ liệu','표본:mẫu nghiên cứu','변수:biến số','상관관계:tương quan','인과관계:quan hệ nhân quả','검증:kiểm chứng','관찰:quan sát','실험:thí nghiệm','설문조사:khảo sát','통계:thống kê','결론:kết luận','한계:hạn chế','선행연구:nghiên cứu trước','학술지:tạp chí học thuật','논문:luận văn bài báo','연구윤리:đạo đức nghiên cứu'],
+    business_advanced: ['경영:quản trị','전략:chiến lược','마케팅:marketing','브랜드:thương hiệu','고객가치:giá trị khách hàng','시장점유율:thị phần','경쟁력:năng lực cạnh tranh','수익:lợi nhuận','비용:chi phí','매출:doanh thu','조직문화:văn hóa tổ chức','인사관리:quản trị nhân sự','성과:hiệu suất','협상:đàm phán','창업:khởi nghiệp','기업가:tinh thần doanh nhân','공급망:chuỗi cung ứng','품질관리:quản lý chất lượng','지배구조:cơ cấu quản trị','사회공헌:đóng góp xã hội'],
+    psychology: ['심리:tâm lý','인지:nhận thức','감정:cảm xúc','동기:động lực','행동:hành vi','기억:trí nhớ','주의력:sự chú ý','스트레스:căng thẳng','자존감:lòng tự trọng','공감:sự đồng cảm','성격:tính cách','습관:thói quen','편향:thiên kiến','의사소통:giao tiếp','대인관계:quan hệ cá nhân','회복탄력성:khả năng phục hồi','불안:lo âu','만족감:cảm giác hài lòng','욕구:nhu cầu','자기효능감:niềm tin năng lực bản thân'],
+    linguistics: ['언어학:ngôn ngữ học','음운:âm vị','형태소:hình vị','통사론:cú pháp học','의미론:ngữ nghĩa học','화용론:ngữ dụng học','방언:phương ngữ','억양:ngữ điệu','어휘력:vốn từ','문맥:ngữ cảnh','담화:diễn ngôn','언어습득:tiếp thu ngôn ngữ','모국어:tiếng mẹ đẻ','외래어:từ ngoại lai','번역:biên dịch','통역:phiên dịch','언어변화:biến đổi ngôn ngữ','표준어:ngôn ngữ chuẩn','존댓말:kính ngữ','뉘앙스:sắc thái'],
+    idioms: ['손이 크다:hào phóng','눈이 높다:kén chọn','귀가 얇다:dễ nghe theo','입이 무겁다:kín miệng','발이 넓다:quan hệ rộng','마음이 놓이다:yên lòng','고개를 끄덕이다:gật đầu đồng ý','한숨을 쉬다:thở dài','눈길을 끌다:thu hút chú ý','발 벗고 나서다:tích cực đứng ra','손에 익다:quen tay','입을 모으다:đồng thanh','귀를 기울이다:lắng nghe','마음을 먹다:quyết tâm','기를 쓰다:cố hết sức','선을 넘다:vượt giới hạn','빛을 보다:gặt hái kết quả','뿌리를 내리다:bén rễ','고비를 넘기다:vượt qua thời điểm khó','머리를 맞대다:cùng bàn bạc'],
+    literature: ['문학:văn học','소설:tiểu thuyết','시:thơ','수필:tản văn','작가:tác giả','화자:người kể','서술:tự sự','인물:nhân vật','배경:bối cảnh','갈등:mâu thuẫn','주제:chủ đề','상징성:tính biểu tượng','비유:ẩn dụ so sánh','운율:nhịp điệu','문체:văn phong','독창성:tính độc đáo','감상:thưởng thức cảm nhận','비평:phê bình','서사:cốt truyện tự sự','고전:tác phẩm kinh điển'],
+    science: ['과학:khoa học','물질:vật chất','에너지:năng lượng','중력:trọng lực','유전자:gene','세포:tế bào','진화:tiến hóa','우주:vũ trụ','행성:hành tinh','기후변화:biến đổi khí hậu','관측:quan trắc','측정:đo lường','현상:hiện tượng','원리:nguyên lý','증명:chứng minh','발견:phát hiện','생명체:sinh vật','화학반응:phản ứng hóa học','물리학:vật lý học','과학기술:khoa học công nghệ']
+  });
+
   const topicLabels = {
     hangul: 'Hangul cơ bản', greetings: 'Chào hỏi', numbers: 'Số', family: 'Gia đình', time: 'Thời gian', school: 'Trường học',
     study_abroad: 'Du học', food: 'Đồ ăn', restaurant: 'Nhà hàng', shopping: 'Mua sắm', transport: 'Giao thông', housing: 'Nhà ở',
     weather: 'Thời tiết', health: 'Sức khỏe', hospital: 'Bệnh viện', work: 'Công việc', office: 'Công sở', eps_factory: 'EPS / Nhà máy',
     safety: 'An toàn lao động', travel: 'Du lịch', banking: 'Ngân hàng', phone: 'Điện thoại', emotions: 'Cảm xúc', verbs: 'Động từ',
     adjectives: 'Tính từ', body: 'Cơ thể', post_office: 'Bưu điện', appointments: 'Hẹn gặp', entertainment: 'K-Drama / K-Pop',
-    daily_life: 'Đời sống tại Hàn Quốc', adverbs: 'Trạng từ', interview: 'Phỏng vấn', topik: 'TOPIK'
+    daily_life: 'Đời sống tại Hàn Quốc', adverbs: 'Trạng từ', interview: 'Phỏng vấn', topik: 'TOPIK', community: 'Cộng đồng',
+    environment_advanced: 'Môi trường nâng cao', economy_advanced: 'Kinh tế', technology_advanced: 'Công nghệ', education_advanced: 'Giáo dục',
+    society_advanced: 'Xã hội', culture_advanced: 'Văn hóa', media: 'Truyền thông', law: 'Pháp luật', public_policy: 'Chính sách công',
+    research: 'Nghiên cứu', business_advanced: 'Kinh doanh', psychology: 'Tâm lý học', linguistics: 'Ngôn ngữ học', idioms: 'Thành ngữ', literature: 'Văn học', science: 'Khoa học'
   };
 
   const verbTopics = new Set(['verbs', 'work', 'office']);
   const adjectiveTopics = new Set(['adjectives', 'emotions', 'weather']);
   const beginnerTopics = new Set(['hangul', 'greetings', 'numbers', 'family', 'time', 'school', 'food', 'restaurant', 'shopping', 'transport', 'housing', 'weather', 'health']);
+  const topik2Topics = new Set(['study_abroad', 'hospital', 'work', 'office', 'eps_factory', 'safety', 'travel', 'banking', 'phone', 'emotions']);
+  const topik4Topics = new Set(['community', 'environment_advanced', 'economy_advanced', 'technology_advanced', 'education_advanced', 'society_advanced']);
+  const topik5Topics = new Set(['culture_advanced', 'media', 'law', 'public_policy', 'research', 'business_advanced']);
+  const synonymMap = { 행복하다: ['기쁘다'], 기쁘다: ['행복하다'], 증가: ['늘어남'], 감소: ['줄어듦'], 중요하다: ['중대하다'], 협력: ['협동'], 해결: ['해소'], 의견: ['견해'] };
+  const antonymMap = { 좋다: ['나쁘다'], 크다: ['작다'], 많다: ['적다'], 빠르다: ['느리다'], 쉽다: ['어렵다'], 증가: ['감소'], 수출: ['수입'], 합법적: ['불법'] };
   const items = [];
 
   Object.entries(topicSources).forEach(([topic, entries], topicIndex) => {
@@ -56,7 +84,8 @@
       const separator = entry.indexOf(':');
       const korean = entry.slice(0, separator);
       const meaningVi = entry.slice(separator + 1);
-      const level = beginnerTopics.has(topic) ? 'Beginner' : topic === 'topik' ? 'TOPIK II' : topic.startsWith('eps') || topic === 'safety' ? 'EPS' : 'TOPIK I';
+      const topikLevel = beginnerTopics.has(topic) ? 1 : topik2Topics.has(topic) ? 2 : topik4Topics.has(topic) ? 4 : topik5Topics.has(topic) ? 5 : topic in topicLabels && ['culture_advanced','media','law','public_policy','research','business_advanced','psychology','linguistics','idioms','literature','science'].includes(topic) ? 6 : 3;
+      const level = topic.startsWith('eps') || topic === 'safety' ? 'EPS' : topikLevel <= 2 ? 'TOPIK I' : 'TOPIK II';
       const partOfSpeech = topic === 'adverbs' ? 'adverb' : verbTopics.has(topic) || korean.endsWith('하다') || korean.includes(' ')
         ? 'verb'
         : adjectiveTopics.has(topic) || /다$/.test(korean) ? 'adjective' : 'noun';
@@ -65,13 +94,17 @@
         korean,
         meaningVi,
         level,
+        topikLevel,
         topic,
         topicLabel: topicLabels[topic],
         partOfSpeech,
         exampleKo: `오늘의 표현은 “${korean}”입니다.`,
         exampleVi: `Biểu đạt hôm nay là “${meaningVi}”.`,
         audioText: korean,
-        tags: [topic, level.toLowerCase().replace(/\s+/g, '-')]
+        synonyms: synonymMap[korean] || [],
+        antonyms: antonymMap[korean] || [],
+        difficulty: topikLevel <= 2 ? 1 : topikLevel <= 4 ? 2 : 3,
+        tags: [topic, `topik-${topikLevel}`, level.toLowerCase().replace(/\s+/g, '-')]
       });
     });
   });

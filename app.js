@@ -10,7 +10,9 @@ const STORAGE_KEYS = Object.freeze({
   srs: 'klearn_srs',
   settings: 'klearn_settings',
   practice: 'klearn_practice',
-  practiceHistory: 'klearn_practice_history'
+  practiceHistory: 'klearn_practice_history',
+  speaking: 'klearn_speaking',
+  writing: 'klearn_writing'
 });
 
 const storage = {
@@ -41,7 +43,7 @@ const storage = {
 function migrateLegacyStorage() {
   ['role', 'userRole', 'selectedRole', 'klearn_role', 'currentRole'].forEach((key) => storage.remove(key));
   const settings = storage.get(STORAGE_KEYS.settings, {});
-  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 4, language: settings.language || 'vi', updatedAt: new Date().toISOString() });
+  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 5, language: settings.language || 'vi', updatedAt: new Date().toISOString() });
 }
 
 // ============================================================
@@ -138,10 +140,23 @@ const state = {
   reviewSelectionCount: 10,
   reviewSession: null,
   pretestSession: null,
-  vocabularyTest: null
+  vocabularyTest: null,
+  practiceSearch: '',
+  vocabularyFilters: { topikLevel: 'all', topic: 'all', partOfSpeech: 'all', status: 'all', search: '', page: 1 },
+  reviewSource: 'due',
+  reviewTopic: 'all',
+  selectedSkillHub: 'listening',
+  speakingMode: 'sentence',
+  speakingPrompt: null,
+  speakingResult: null,
+  writingLevel: 3,
+  writingMode: 'paragraph',
+  writingPrompt: null,
+  writingSubmission: null,
+  selectedLessonPreview: ''
 };
 
-const MAIN_VIEWS = ['home', 'lessons', 'lesson', 'review', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'practice', 'practice-hub', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
+const MAIN_VIEWS = ['home', 'lessons', 'lesson', 'lesson-preview', 'review', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'placement', 'onboarding-result'];
 
@@ -196,10 +211,22 @@ function shuffleArray(items) {
 function sampleItems(items, count) { return shuffleArray(items).slice(0, Math.max(0, Math.min(count, items.length))); }
 
 function userPracticeLevel(level = '') {
-  if (level.includes('TOPIK II')) return 'TOPIK_II';
-  if (level.includes('TOPIK')) return 'TOPIK_I';
+  const explicit = String(level).match(/[1-6]/)?.[0];
+  if (explicit) return `TOPIK_${explicit}`;
+  if (level.includes('TOPIK II')) return 'TOPIK_3';
+  if (level.includes('TOPIK I')) return 'TOPIK_2';
   return 'Beginner';
 }
+
+function inferredTopikLevel(level = '') {
+  const explicit = Number(String(level).match(/[1-6]/)?.[0]);
+  if (explicit) return explicit;
+  if (level.includes('TOPIK II')) return 3;
+  if (level.includes('TOPIK I')) return 2;
+  return 1;
+}
+
+function topikLabel(level) { return `TOPIK ${Math.max(1, Math.min(6, Number(level) || 1))}`; }
 
 function ratingText(percentage) {
   if (percentage >= 90) return 'Rất tốt';
@@ -221,7 +248,7 @@ const PracticeService = {
     const all = storage.get(STORAGE_KEYS.practice, {});
     return all?.[state.currentUser?.id] && typeof all[state.currentUser.id] === 'object'
       ? all[state.currentUser.id]
-      : { recentQuestionIds: [], weakTopics: {}, activeSession: null };
+      : { recentQuestionIds: [], weakTopics: {}, wrongPriorities: {}, savedSetIds: [], activeSession: null };
   },
   saveMeta(meta) {
     const all = storage.get(STORAGE_KEYS.practice, {});
@@ -231,10 +258,10 @@ const PracticeService = {
   },
   setSummary(setId) {
     const attempts = this.getHistory().filter((attempt) => attempt.setId === setId);
-    if (!attempts.length) return { status: 'not_started', best: null, latest: null };
+    if (!attempts.length) return { status: 'not_started', best: null, latest: null, attemptCount: 0 };
     const latest = [...attempts].sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))[0];
     const best = Math.max(...attempts.map((attempt) => attempt.score));
-    return { status: latest.percentage < 60 ? 'needs_review' : 'completed', best, latest };
+    return { status: latest.percentage < 60 ? 'needs_review' : 'completed', best, latest, attemptCount: attempts.length };
   },
   filteredSets(filters = state.practiceFilters) {
     const sets = this.bank?.sets || [];
@@ -244,7 +271,8 @@ const PracticeService = {
         && (filters.skill === 'all' || set.skill === filters.skill || set.skill === 'mixed')
         && (filters.difficulty === 'all' || set.difficulty === Number(filters.difficulty))
         && (filters.status === 'all' || summary.status === filters.status)
-        && (filters.topic === 'all' || set.topic === filters.topic);
+        && (filters.topic === 'all' || set.topic === filters.topic)
+        && (!state.practiceSearch || `${set.title} ${set.topic} ${set.practiceTypeLabel}`.toLowerCase().includes(state.practiceSearch.toLowerCase()));
     });
   },
   prioritizeQuestions(questions, count) {
@@ -268,7 +296,7 @@ const PracticeService = {
     return true;
   },
   startQuick(count, skill) {
-    const level = userPracticeLevel(state.currentUser.level);
+    const level = `TOPIK_${state.currentUser.currentTopikLevel || inferredTopikLevel(state.currentUser.level)}`;
     let sets = this.bank.sets.filter((set) => set.level === level && (skill === 'mixed' || set.skill === skill || set.skill === 'mixed'));
     if (!sets.length) sets = this.bank.sets.filter((set) => set.level === level);
     const pool = sets.flatMap((set) => this.bank.getQuestions(set.id));
@@ -278,6 +306,36 @@ const PracticeService = {
     this.saveMeta({ ...this.getMeta(), activeSession: state.practiceSession });
     setView('practice-session');
   },
+  startRandom({ level, count, skill, difficulty }) {
+    const resolvedLevel = level === 'current' ? `TOPIK_${state.currentUser.currentTopikLevel}` : level;
+    let sets = this.bank.sets.filter((set) => set.level === resolvedLevel);
+    if (skill !== 'mixed') sets = sets.filter((set) => set.skill === skill || set.skill === 'mixed');
+    if (difficulty !== 'mixed') sets = sets.filter((set) => set.difficulty === Number(difficulty));
+    if (!sets.length) sets = this.bank.sets.filter((set) => set.level === resolvedLevel);
+    const pool = sets.flatMap((set) => this.bank.getQuestions(set.id));
+    const questions = this.prioritizeQuestions(pool, count);
+    const set = { id: `random-${resolvedLevel}-${Date.now()}`, title: `Đề ngẫu nhiên · ${resolvedLevel.replace('_', ' ')}`, level: resolvedLevel, levelLabel: resolvedLevel.replace('_', ' '), skill, topic: 'Đề ngẫu nhiên', difficulty: difficulty === 'mixed' ? 2 : Number(difficulty), questionCount: questions.length };
+    state.practiceSession = { id: uniqueId(), set, questions, index: 0, answers: [], selected: '', checked: false, startedAt: new Date().toISOString(), random: true };
+    this.saveMeta({ ...this.getMeta(), activeSession: state.practiceSession });
+    setView('practice-session');
+  },
+  startQuestions(questions, title, source = 'custom') {
+    const selected = this.prioritizeQuestions(questions, questions.length);
+    if (!selected.length) return false;
+    const set = { id: `${source}-${Date.now()}`, title, level: 'CUSTOM', levelLabel: 'Cá nhân', skill: 'mixed', topic: title, difficulty: 2, questionCount: selected.length };
+    state.practiceSession = { id: uniqueId(), set, questions: selected, index: 0, answers: [], selected: '', checked: false, startedAt: new Date().toISOString(), source };
+    this.saveMeta({ ...this.getMeta(), activeSession: state.practiceSession });
+    setView('practice-session');
+    return true;
+  },
+  toggleSaved(setId) {
+    const meta = this.getMeta();
+    const current = new Set(meta.savedSetIds || []);
+    if (current.has(setId)) current.delete(setId); else current.add(setId);
+    this.saveMeta({ ...meta, savedSetIds: [...current] });
+    return current.has(setId);
+  },
+  isSaved(setId) { return (this.getMeta().savedSetIds || []).includes(setId); },
   restoreActive() {
     const active = this.getMeta().activeSession;
     if (active?.questions?.length && active.index < active.questions.length) state.practiceSession = active;
@@ -304,8 +362,10 @@ const PracticeService = {
       userId: state.currentUser.id,
       setId: session.set.id,
       setTitle: session.set.title,
+      level: session.set.level,
       startedAt: session.startedAt,
       completedAt: new Date().toISOString(),
+      durationSeconds: Math.max(1, Math.round((Date.now() - new Date(session.startedAt).getTime()) / 1000)),
       score: correct,
       total,
       percentage,
@@ -321,8 +381,14 @@ const PracticeService = {
     const meta = this.getMeta();
     const recent = [...(meta.recentQuestionIds || []), ...session.questions.map((question) => question.id)].slice(-150);
     const weakTopics = { ...(meta.weakTopics || {}) };
+    const wrongPriorities = { ...(meta.wrongPriorities || {}) };
+    session.answers.forEach((answer) => { wrongPriorities[answer.questionId] = Math.max(0, (wrongPriorities[answer.questionId] || 0) + (answer.correct ? -1 : 2)); });
     Object.entries(attempt.topicBreakdown).forEach(([topic, score]) => { weakTopics[topic] = score; });
-    this.saveMeta({ ...meta, recentQuestionIds: recent, weakTopics, activeSession: null });
+    this.saveMeta({ ...meta, recentQuestionIds: recent, weakTopics, wrongPriorities, activeSession: null });
+    const progress = getUserProgress();
+    progress.daily.tasks.practice = true;
+    if (session.questions.some((question) => question.skill === 'listening')) progress.daily.tasks.listening = true;
+    saveUserProgress(progress);
     state.practiceResult = { attempt, questions: session.questions, set: session.set };
     state.practiceSession = null;
     setView('practice-result');
@@ -331,9 +397,15 @@ const PracticeService = {
     const history = this.getHistory();
     const completed = history.length;
     const average = completed ? Math.round(history.reduce((sum, attempt) => sum + attempt.percentage, 0) / completed) : 0;
-    const topik = history.filter((attempt) => /^t[12]-/.test(attempt.setId));
+    const topik = history.filter((attempt) => /^t[1-6]-/.test(attempt.setId));
     const bestTopik = topik.length ? Math.max(...topik.map((attempt) => attempt.score)) : 0;
-    return { completed, average, bestTopik, latest: history[0] || null, weakTopics: Object.entries(this.getMeta().weakTopics || {}).sort((a, b) => a[1] - b[1]).slice(0, 3) };
+    const byTopik = Object.fromEntries([1,2,3,4,5,6].map((level) => {
+      const attempts = history.filter((attempt) => attempt.level === `TOPIK_${level}` || attempt.setId.startsWith(`t${level}-`));
+      const skills = {};
+      attempts.forEach((attempt) => Object.entries(attempt.skillBreakdown || {}).forEach(([skill, score]) => { if (!skills[skill]) skills[skill] = []; skills[skill].push(score); }));
+      return [level, Object.fromEntries(Object.entries(skills).map(([skill, scores]) => [skill, Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)]))];
+    }));
+    return { completed, average, bestTopik, latest: history[0] || null, weakTopics: Object.entries(this.getMeta().weakTopics || {}).sort((a, b) => a[1] - b[1]).slice(0, 3), byTopik };
   }
 };
 
@@ -349,6 +421,7 @@ function saveUsers(users) { storage.set(STORAGE_KEYS.users, users); }
 
 function normalizeUser(user) {
   if (!user || typeof user !== 'object') return null;
+  const currentTopikLevel = Math.max(1, Math.min(6, Number(user.currentTopikLevel) || inferredTopikLevel(user.level)));
   return {
     ...user,
     fullName: typeof user.fullName === 'string' && user.fullName.trim() ? user.fullName : 'Người học K-Learn',
@@ -356,6 +429,8 @@ function normalizeUser(user) {
     avatar: typeof user.avatar === 'string' ? user.avatar : initials(user.fullName || ''),
     goals: Array.isArray(user.goals) ? user.goals : [],
     level: typeof user.level === 'string' ? user.level : 'Beginner',
+    currentTopikLevel,
+    targetTopikLevel: Math.max(currentTopikLevel, Math.min(6, Number(user.targetTopikLevel) || Math.min(6, currentTopikLevel + 1))),
     onboardingCompleted: user.onboardingCompleted === true,
     onboardingStep: typeof user.onboardingStep === 'string' ? user.onboardingStep : 'goals',
     placement: user.placement && typeof user.placement === 'object'
@@ -376,11 +451,12 @@ function updateCurrentUser(changes) {
 
 function defaultProgress() {
   return {
-    daily: { date: todayKey(), tasks: { vocabulary: false, lesson: false, speaking: false } },
+    daily: { date: todayKey(), tasks: { vocabulary: false, lesson: false, practice: false, listening: false, speaking: false, writing: false } },
     lessonProgress: {},
     stats: { lessonsCompleted: 0, learningDays: 1, streak: 1, wordsLearned: 0 },
     skills: { listening: 0, speaking: 0, reading: 0, writing: 0 },
     pronunciationAttempts: [],
+    writingSubmissions: [],
     mockTests: [
       { title: 'TOPIK I - Đề mẫu', date: 'Chưa làm', score: '—/200' },
       { title: 'Đề luyện tập Nghe', date: 'Chưa làm', score: '—/100' }
@@ -403,9 +479,10 @@ function getUserProgress() {
     skills: { ...defaults.skills, ...(progress.skills && typeof progress.skills === 'object' ? progress.skills : {}) },
     lessonProgress: progress.lessonProgress && typeof progress.lessonProgress === 'object' ? progress.lessonProgress : {},
     pronunciationAttempts: Array.isArray(progress.pronunciationAttempts) ? progress.pronunciationAttempts : [],
+    writingSubmissions: Array.isArray(progress.writingSubmissions) ? progress.writingSubmissions : [],
     mockTests: Array.isArray(progress.mockTests) ? progress.mockTests : defaults.mockTests
   };
-  if (progress.daily.date !== todayKey()) progress.daily = { date: todayKey(), tasks: { vocabulary: false, lesson: false, speaking: false } };
+  if (progress.daily.date !== todayKey()) progress.daily = { date: todayKey(), tasks: { ...defaults.daily.tasks } };
   safeProgress[state.currentUser.id] = progress;
   storage.set(STORAGE_KEYS.progress, safeProgress);
   return progress;
@@ -508,10 +585,19 @@ function syncUserData() {
 const VocabularyService = {
   dueCards() { return state.srsData.filter((card) => new Date(card.nextReview).getTime() <= Date.now()); },
   bySource(source) {
+    if (source === 'due') return this.dueCards();
+    if (/^topik-[1-6]$/.test(source)) return state.srsData.filter((card) => card.topikLevel === Number(source.slice(-1)));
     if (source === 'wrong') return state.srsData.filter((card) => card.wrongCount > 0).sort((a, b) => b.wrongCount - a.wrongCount);
     if (source === 'mastered') return state.srsData.filter((card) => card.status === 'mastered');
     if (source === 'review') return state.srsData.filter((card) => ['learning', 'review'].includes(card.status));
     return state.srsData.filter((card) => card.reviewCount > 0 || card.status !== 'new');
+  },
+  filtered(filters = state.vocabularyFilters) {
+    return state.srsData.filter((card) => (filters.topikLevel === 'all' || card.topikLevel === Number(filters.topikLevel))
+      && (filters.topic === 'all' || card.topic === filters.topic)
+      && (filters.partOfSpeech === 'all' || card.partOfSpeech === filters.partOfSpeech)
+      && (filters.status === 'all' || (filters.status === 'wrong' ? card.wrongCount > 0 : filters.status === 'remembered' ? card.mastery >= 60 && card.status !== 'mastered' : card.status === filters.status))
+      && (!filters.search || `${card.korean} ${card.meaningVi}`.toLowerCase().includes(filters.search.toLowerCase())));
   },
   optionsFor(card, direction = 'ko_vi') {
     const seen = new Set();
@@ -550,6 +636,9 @@ const VocabularyService = {
     const days = card.streakCorrect >= 5 ? 30 : card.streakCorrect >= 3 ? 14 : 7;
     return this.updateCard(card.wordId, { skipCurrentSession: true, nextReview: new Date(Date.now() + days * 86400000).toISOString(), status: card.mastery >= 80 ? 'mastered' : 'review' });
   },
+  markMastered(card) {
+    return this.updateCard(card.wordId, { status: 'mastered', mastery: Math.max(90, card.mastery), pretestPassed: true, skipCurrentSession: true, nextReview: new Date(Date.now() + 30 * 86400000).toISOString() });
+  },
   sessionStats() {
     const total = state.srsData.length;
     const mastered = state.srsData.filter((card) => card.status === 'mastered').length;
@@ -569,7 +658,7 @@ const auth = {
     if (users.some((user) => user?.email === email)) throw new Error('Email này đã được đăng ký.');
     const now = new Date().toISOString();
     const user = {
-      id: uniqueId(), fullName, email, passwordHash: await hashPassword(password), avatar: initials(fullName), goals: [], level: '',
+      id: uniqueId(), fullName, email, passwordHash: await hashPassword(password), avatar: initials(fullName), goals: [], level: '', currentTopikLevel: 1, targetTopikLevel: 2,
       onboardingCompleted: false, onboardingStep: 'goals', placement: { index: 0, answers: [], score: 0 }, createdAt: now, updatedAt: now
     };
     users.push(user);
@@ -604,6 +693,10 @@ const auth = {
     state.reviewSession = null;
     state.pretestSession = null;
     state.vocabularyTest = null;
+    state.speakingPrompt = null;
+    state.speakingResult = null;
+    state.writingPrompt = null;
+    state.writingSubmission = null;
     setView('welcome');
   },
   restoreSession() {
@@ -660,13 +753,14 @@ function syncShell() {
     document.getElementById('streakCount').textContent = getUserProgress().stats.streak;
   }
   document.querySelectorAll('.nav-item').forEach((button) => {
-    const reviewViews = ['review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result'];
-    const practiceViews = ['practice-hub', 'practice-session', 'practice-result', 'practice-review', 'quick-practice'];
+    const reviewViews = ['review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub'];
+    const practiceViews = ['practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'skill-hub', 'writing-hub', 'writing-editor', 'writing-result', 'practice-session', 'practice-result', 'practice-review', 'quick-practice'];
+    const speakingViews = ['practice', 'speaking-hub', 'speaking-session', 'speaking-result'];
     const activeView = state.currentView === 'lesson' ? 'lessons'
       : state.currentView === 'edit-profile' ? 'profile'
         : reviewViews.includes(state.currentView) ? 'review'
           : practiceViews.includes(state.currentView) ? 'lessons'
-            : state.currentView;
+            : speakingViews.includes(state.currentView) ? 'practice' : state.currentView;
     const active = button.dataset.route === activeView;
     button.classList.toggle('active', active);
     button.setAttribute('aria-current', active ? 'page' : 'false');
@@ -762,7 +856,8 @@ function onboardingResultView() {
 // ============================================================
 function dailyCompletion(progress) {
   const tasks = progress.daily.tasks;
-  return (tasks.vocabulary ? 30 : 0) + (tasks.lesson ? 40 : 0) + (tasks.speaking ? 30 : 0);
+  const keys = ['vocabulary', 'practice', 'listening', 'speaking', 'writing'];
+  return Math.round((keys.filter((key) => tasks[key]).length / keys.length) * 100);
 }
 
 function roadmapFor(level) {
@@ -779,11 +874,17 @@ function homeView() {
   const roadmap = roadmapFor(state.currentUser.level);
   const dueCount = VocabularyService.dueCards().length;
   const practiceStats = PracticeService.statistics();
+  const recommendedLevel = state.currentUser.targetTopikLevel;
+  const recommendedSet = PracticeService.bank.sets.find((set) => set.level === `TOPIK_${recommendedLevel}`);
+  const recommendVocabulary = dueCount > 0 && !practiceStats.latest;
+  const recommendationTitle = recommendVocabulary ? `Ôn ${Math.min(10, dueCount)} từ đến hạn` : recommendedSet ? recommendedSet.title : topikLabel(recommendedLevel);
+  const recommendationReason = recommendVocabulary ? 'Bắt đầu bằng từ đến hạn để bảo vệ nhịp SRS.' : practiceStats.weakTopics[0] ? `Bạn cần củng cố: ${practiceStats.weakTopics[0][0]}` : `Tiến tới mục tiêu ${topikLabel(recommendedLevel)} từ trình độ ${topikLabel(state.currentUser.currentTopikLevel)}.`;
   const roadmapNames = ['Hangul', 'TOPIK I', 'TOPIK II', 'TOPIK Exam'];
   return `<section class="dashboard-hero section"><p class="eyebrow">Lộ trình cá nhân</p><h1 class="headline">Xin chào, ${escapeHtml(firstName(state.currentUser.fullName))} 👋</h1><p class="korean-motto">오늘도 화이팅!</p></section>
-    <section class="card glass section"><div class="streak-line"><strong>🔥 ${progress.stats.streak} ngày liên tiếp</strong><span>${pct}% hôm nay</span></div><div class="bar large"><span style="width:${pct}%"></span></div><div class="daily-tasks"><span>${progress.daily.tasks.vocabulary ? '✓' : '○'} Học/ôn từ vựng</span><span>${progress.daily.tasks.lesson ? '✓' : '○'} Hoàn thành 1 bài</span><span>${progress.daily.tasks.speaking ? '✓' : '○'} Luyện nói 5 phút</span></div></section>
+    <section class="card glass section"><div class="streak-line"><strong>🔥 ${progress.stats.streak} ngày liên tiếp</strong><span>${pct}% hôm nay</span></div><div class="bar large"><span style="width:${pct}%"></span></div><div class="daily-plan"><button data-view="review"><b>${progress.daily.tasks.vocabulary?'✓':'○'} 10 từ</b><small>Ôn SRS</small></button><button data-view="quick-practice"><b>${progress.daily.tasks.practice?'✓':'○'} 15 câu</b><small>Luyện đề</small></button><button data-open-skill="listening" data-view="skill-hub"><b>${progress.daily.tasks.listening?'✓':'○'} 5 phút</b><small>Nghe</small></button><button data-view="speaking-hub"><b>${progress.daily.tasks.speaking?'✓':'○'} 5 phút</b><small>Nói</small></button><button data-view="writing-hub"><b>${progress.daily.tasks.writing?'✓':'○'} 1 bài</b><small>Viết ngắn</small></button></div><p class="security-note">Không bắt buộc hoàn thành tất cả.</p></section>
     <section class="dashboard-grid section"><article class="feature-card dark-card"><span class="card-kicker">Tiếp tục học</span><h2>${escapeHtml(state.currentUser.level)} · Unit 3</h2><p>은/는 và 이/가</p><button class="btn light" data-open-lesson="topic-particle">Tiếp tục</button></article><article class="feature-card review-card"><span class="card-kicker">Ôn tập hôm nay</span><h2>🧠 ${dueCount} từ cần ôn</h2><p>Ôn đúng lúc để nhớ lâu hơn.</p><button class="btn primary" data-view="review">Ôn ngay</button></article></section>
     <section class="card practice-promo section"><div><p class="eyebrow">Luyện tập hôm nay</p><h2>Luyện đề tiếng Hàn</h2><p>15 câu theo trình độ · 10 từ cần kiểm tra</p><div class="practice-last-score">${practiceStats.latest ? `Điểm gần nhất: <strong>${practiceStats.latest.score}/${practiceStats.latest.total}</strong>` : 'Bạn chưa làm đề nào'}</div></div><div class="practice-promo-actions"><button class="btn primary" data-view="practice-hub">Luyện ngay</button><button class="btn secondary" data-view="quick-practice">Luyện nhanh</button></div></section>
+    <section class="card recommended-card section"><div><p class="eyebrow">Đề xuất cho bạn</p><h2>${escapeHtml(recommendationTitle)}</h2><p>${escapeHtml(recommendationReason)}</p></div><button class="btn primary" ${recommendVocabulary ? 'data-view="review"' : recommendedSet ? `data-start-set="${recommendedSet.id}"` : 'data-view="practice-hub"'}>Bắt đầu</button></section>
     <section class="card section"><div class="section-heading"><div><p class="eyebrow">Lộ trình</p><h2 class="section-title">Từ nền tảng đến kỳ thi</h2></div><span class="level-pill">${escapeHtml(state.currentUser.level)}</span></div><div class="roadmap-list">${roadmapNames.map((name, index) => {
       const value = roadmap[index];
       const status = value === null ? 'locked' : value >= 100 ? 'done' : 'active';
@@ -810,6 +911,71 @@ function lessonView() {
 }
 
 function practiceHubView() {
+  const target = state.currentUser.targetTopikLevel;
+  const historyCount = PracticeService.getHistory().length;
+  const savedCount = (PracticeService.getMeta().savedSetIds || []).length;
+  const groups = [
+    ['📝','Luyện đề','270 bộ đề đánh số','exam-catalog'], ['1–2','TOPIK 1–2','Nền tảng và TOPIK I','exam-catalog','TOPIK_1'],
+    ['3–4','TOPIK 3–4','Trung cấp và TOPIK II','exam-catalog','TOPIK_3'], ['5–6','TOPIK 5–6','Học thuật và chuyên sâu','advanced-practice'],
+    ['🎲','Đề ngẫu nhiên','5–50 câu tùy chọn','random-exam'], ['🔥','Đề nâng cao','Advanced / Very Advanced','advanced-practice'],
+    ['🗂','Từ vựng','1.000 từ TOPIK 1–6','vocabulary-hub'], ['문','Ngữ pháp','30 grammar challenge','skill-hub','grammar'],
+    ['🔊','Nghe','Từ, câu, hội thoại, đoạn','skill-hub','listening'], ['📖','Đọc','Ngắn, trung bình, dài','skill-hub','reading'],
+    ['✍️','Viết','10 mode và TOPIK Writing','writing-hub'], ['🎙','Nói','10 mode luyện nói','speaking-hub'],
+    ['🏭','EPS-TOPIK','30 đề công việc','exam-catalog','EPS'], ['#','Theo chủ đề','Đời sống đến học thuật','exam-catalog','VOCABULARY'],
+    ['↻','Luyện lỗi sai','Ưu tiên câu còn yếu','wrong-practice'], ['★','Đề đã lưu',`${savedCount} đề`,'saved-exams'], ['🕘','Lịch sử',`${historyCount} lượt luyện`,'practice-history']
+  ];
+  return `<section class="section page-heading"><button class="back-link" data-view="home" aria-label="Quay lại">←</button><p class="eyebrow">${PracticeService.bank.practiceTypeCount} dạng bài · ${PracticeService.bank.totalQuestionCount.toLocaleString('vi-VN')} câu</p><h1 class="headline">Trung tâm luyện tập</h1><p class="subtle">Hiện tại ${topikLabel(state.currentUser.currentTopikLevel)} · Mục tiêu ${topikLabel(target)}</p></section>
+    <section class="card recommended-card section"><div><span class="eyebrow">Đề xuất theo mục tiêu</span><h2>${topikLabel(target)} · Đề 01</h2><p>Luyện theo cấp mục tiêu và các chủ đề bạn đang yếu.</p></div><button class="btn primary" data-recommended-set="TOPIK_${target}">Luyện đề xuất</button></section>
+    <section class="hub-grid">${groups.map(([icon,title,description,view,value]) => `<button class="hub-card" data-hub-view="${view}" ${value ? `data-hub-value="${value}"` : ''}><span>${icon}</span><div><b>${title}</b><small>${description}</small></div><i>›</i></button>`).join('')}</section>`;
+}
+
+function randomExamView() {
+  return `<section class="section page-heading"><button class="back-link" data-view="practice-hub" aria-label="Quay lại">←</button><p class="eyebrow">Ưu tiên câu chưa làm và từng sai</p><h1 class="headline">🎲 Đề ngẫu nhiên</h1></section><form id="randomExamForm" class="card choice-form"><fieldset><legend>Cấp độ</legend><select name="level" class="form-select"><option value="current">Theo trình độ hiện tại (${topikLabel(state.currentUser.currentTopikLevel)})</option>${[1,2,3,4,5,6].map((level) => `<option value="TOPIK_${level}">TOPIK ${level}</option>`).join('')}</select></fieldset><fieldset><legend>Số câu</legend><div class="segmented-options">${[5,10,15,20,30,50].map((count) => `<label><input type="radio" name="count" value="${count}" ${count === 20 ? 'checked' : ''}><span>${count}</span></label>`).join('')}</div></fieldset><fieldset><legend>Kỹ năng</legend><div class="radio-list compact">${[['mixed','Tổng hợp'],['vocabulary','Từ vựng'],['grammar','Ngữ pháp'],['listening','Nghe'],['reading','Đọc'],['writing','Viết'],['speaking','Nói']].map(([value,label]) => `<label><input type="radio" name="skill" value="${value}" ${value === 'mixed' ? 'checked' : ''}><span>${label}</span></label>`).join('')}</div></fieldset><fieldset><legend>Độ khó</legend><div class="segmented-options">${[['mixed','Trộn'],['1','Dễ'],['2','Vừa'],['3','Khó']].map(([value,label]) => `<label><input type="radio" name="difficulty" value="${value}" ${value === 'mixed' ? 'checked' : ''}><span>${label}</span></label>`).join('')}</div></fieldset><button class="btn primary full" type="submit">Tạo đề</button></form>`;
+}
+
+function advancedPracticeView() {
+  const lockedWarning = state.currentUser.currentTopikLevel < 3;
+  const sets = PracticeService.bank.sets.filter((set) => ['TOPIK_5','TOPIK_6'].includes(set.level)).slice(0, 12);
+  return `<section class="section page-heading"><button class="back-link" data-view="practice-hub" aria-label="Quay lại">←</button><p class="eyebrow">TOPIK 3–6</p><h1 class="headline">🔥 Thử thách nâng cao</h1><p class="subtle">Ngữ pháp khó, thành ngữ, học thuật, báo chí, suy luận và logic đoạn văn.</p></section>${lockedWarning ? `<section class="support-message advanced-warning"><b>Đề này cao hơn trình độ hiện tại của bạn.</b><span>Bạn vẫn có thể thử; kết quả chỉ dùng để định hướng.</span></section>` : ''}<section class="practice-set-list">${sets.map((set) => { const summary = PracticeService.setSummary(set.id); return `<article class="card practice-set-card"><div class="set-card-top"><div><span class="set-level">${set.levelLabel}</span><h2>Đề ${String(set.examNumber).padStart(2,'0')}</h2></div><button class="save-exam ${PracticeService.isSaved(set.id) ? 'saved' : ''}" data-save-set="${set.id}">${PracticeService.isSaved(set.id) ? '★' : '☆'}</button></div><p>${set.topic} · ${set.difficultyLabel}</p><div class="set-meta"><span>15 câu</span><span>${set.estimatedMinutes} phút</span><span>Tốt nhất ${summary.best ?? '—'}/15</span></div><button class="btn primary full" data-start-set="${set.id}">${lockedWarning ? 'Vẫn thử' : 'Bắt đầu'}</button></article>`; }).join('')}</section>`;
+}
+
+function wrongPracticeView() {
+  const history = PracticeService.getHistory();
+  const ids = [...new Set(history.flatMap((attempt) => attempt.wrongQuestionIds || []))];
+  return `<section class="section page-heading"><button class="back-link" data-view="practice-hub" aria-label="Quay lại">←</button><p class="eyebrow">Từ lịch sử cá nhân</p><h1 class="headline">Luyện lại câu sai</h1><p class="subtle">${ids.length} câu từng sai. Trả lời đúng sẽ giảm độ ưu tiên; sai tiếp sẽ được ưu tiên hơn.</p></section>${ids.length ? `<form id="wrongPracticeForm" class="card choice-form"><fieldset><legend>Số câu</legend><div class="segmented-options">${[5,10,20].filter((count) => count < ids.length).map((count) => `<label><input type="radio" name="count" value="${count}" ${count === Math.min(10, ids.length) ? 'checked' : ''}><span>${count}</span></label>`).join('')}<label><input type="radio" name="count" value="${ids.length}" ${ids.length <= 10 ? 'checked' : ''}><span>Tất cả</span></label></div></fieldset><button class="btn primary full" type="submit">Bắt đầu luyện lỗi sai</button></form>` : '<section class="empty-state compact-empty"><div class="celebration">🎯</div><h2>Bạn chưa có câu sai</h2><button class="btn primary" data-view="exam-catalog">Làm một đề</button></section>'}`;
+}
+
+function savedExamsView() {
+  const ids = PracticeService.getMeta().savedSetIds || [];
+  const sets = ids.map((id) => PracticeService.bank.sets.find((set) => set.id === id)).filter(Boolean);
+  return `<section class="section page-heading"><button class="back-link" data-view="practice-hub" aria-label="Quay lại">←</button><p class="eyebrow">${sets.length} đề</p><h1 class="headline">★ Đề đã lưu</h1></section>${sets.length ? `<section class="practice-set-list">${sets.map((set) => `<article class="card practice-set-card"><div class="set-card-top"><div><span class="set-level">${set.levelLabel}</span><h2>Đề ${String(set.examNumber).padStart(2,'0')}</h2></div><button class="save-exam saved" data-save-set="${set.id}">★</button></div><p>${set.topic} · ${set.practiceTypeLabel}</p><button class="btn primary full" data-start-set="${set.id}">Làm đề</button></article>`).join('')}</section>` : '<section class="empty-state compact-empty"><div class="celebration">☆</div><h2>Chưa lưu đề nào</h2><p class="subtle">Chạm biểu tượng ☆ tại danh sách đề để lưu.</p><button class="btn primary" data-view="exam-catalog">Chọn đề</button></section>'}`;
+}
+
+function practiceHistoryView() {
+  const history = PracticeService.getHistory();
+  return `<section class="section page-heading"><button class="back-link" data-view="practice-hub" aria-label="Quay lại">←</button><p class="eyebrow">${history.length} lượt</p><h1 class="headline">Lịch sử luyện tập</h1></section><section class="history-list">${history.length ? history.map((attempt) => `<article class="card history-card"><div><span class="set-level">${escapeHtml(attempt.level || 'Practice')}</span><h2>${escapeHtml(attempt.setTitle)}</h2><p>${formatDate(attempt.completedAt)} · ${Math.max(1,Math.round((attempt.durationSeconds || 0)/60))} phút · ${attempt.total-attempt.score} câu sai</p></div><strong>${attempt.score}/${attempt.total}</strong><div class="history-actions"><button class="btn secondary" data-view-attempt="${attempt.id}">Xem kết quả</button><button class="btn primary" data-retry-history="${attempt.id}">Làm lại</button></div></article>`).join('') : '<div class="empty-filter card">Chưa có lịch sử. Hãy hoàn thành một đề đầu tiên.</div>'}</section>`;
+}
+
+function skillHubView() {
+  const skill = state.selectedSkillHub;
+  const labels = { grammar: ['문','Ngữ pháp','30 challenge từ trợ từ đến sắc thái học thuật'], listening: ['🔊','Luyện nghe','Nghe từ, câu, hội thoại, thông báo, công sở, EPS và TOPIK'], reading: ['📖','Luyện đọc','Đoạn ngắn, trung bình và dài theo TOPIK 1–6'] };
+  const [icon,title,description] = labels[skill] || labels.listening;
+  const sets = PracticeService.bank.sets.filter((set) => set.skill === skill || (skill === 'grammar' && set.level === 'GRAMMAR')).slice(0, 10);
+  return `<section class="section page-heading"><button class="back-link" data-view="practice-hub" aria-label="Quay lại">←</button><p class="eyebrow">${icon} Theo kỹ năng</p><h1 class="headline">${title}</h1><p class="subtle">${description}</p></section><section class="catalog-levels section">${[1,2,3,4,5,6].map((level) => `<button data-skill-level="${level}">TOPIK ${level}</button>`).join('')}</section><section class="practice-set-list">${sets.map((set) => `<article class="card practice-set-card"><span class="set-level">${set.levelLabel}</span><h2>${set.topic}</h2><p>${set.practiceTypeLabel} · ${set.questionCount} câu</p><button class="btn primary full" data-start-set="${set.id}">Luyện ${skill === 'listening' ? 'nghe' : skill === 'reading' ? 'đọc' : 'ngữ pháp'}</button></article>`).join('')}</section>`;
+}
+
+function vocabularyHubView() {
+  const filters = state.vocabularyFilters;
+  const filtered = VocabularyService.filtered();
+  const pageSize = 20;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  filters.page = Math.min(filters.page, totalPages);
+  const words = filtered.slice((filters.page - 1) * pageSize, filters.page * pageSize);
+  const topics = [...new Set(state.srsData.map((card) => card.topic))].sort();
+  return `<section class="section page-heading"><button class="back-link" data-view="practice-hub" aria-label="Quay lại">←</button><p class="eyebrow">${state.srsData.length.toLocaleString('vi-VN')} từ</p><h1 class="headline">Từ vựng TOPIK 1–6</h1><p class="subtle">Tìm bằng tiếng Hàn hoặc tiếng Việt và lọc theo cấp, chủ đề, loại từ, trạng thái SRS.</p></section><label class="search-box section"><span>⌕</span><input id="vocabularySearch" type="search" placeholder="학교 hoặc trường học" value="${escapeHtml(filters.search)}"></label><section class="card vocabulary-filters section"><select data-vocab-filter="topikLevel"><option value="all">Mọi cấp TOPIK</option>${[1,2,3,4,5,6].map((level) => `<option value="${level}" ${filters.topikLevel == level ? 'selected' : ''}>TOPIK ${level}</option>`).join('')}</select><select data-vocab-filter="topic"><option value="all">Mọi chủ đề</option>${topics.map((topic) => `<option value="${topic}" ${filters.topic === topic ? 'selected' : ''}>${escapeHtml(state.srsData.find((card) => card.topic === topic)?.topicLabel || topic)}</option>`).join('')}</select><select data-vocab-filter="partOfSpeech"><option value="all">Mọi loại từ</option>${[['noun','Danh từ'],['verb','Động từ'],['adjective','Tính từ'],['adverb','Trạng từ']].map(([value,label]) => `<option value="${value}" ${filters.partOfSpeech === value ? 'selected' : ''}>${label}</option>`).join('')}</select><select data-vocab-filter="status"><option value="all">Mọi trạng thái</option>${[['new','Chưa học'],['learning','Đang học'],['review','Cần ôn'],['remembered','Đã nhớ'],['mastered','Mastered'],['wrong','Hay sai']].map(([value,label]) => `<option value="${value}" ${filters.status === value ? 'selected' : ''}>${label}</option>`).join('')}</select></section><div class="results-count">${filtered.length} từ phù hợp</div><section class="vocabulary-list">${words.map((card) => `<article class="vocabulary-row"><button data-speak="${escapeHtml(card.audioText)}">🔊</button><div><b>${escapeHtml(card.korean)}</b><span>${escapeHtml(card.meaningVi)}</span></div><small>TOPIK ${card.topikLevel}<br>${escapeHtml(card.status)}</small></article>`).join('')}</section><div class="pagination"><button class="btn secondary" data-vocab-page="${filters.page-1}" ${filters.page<=1?'disabled':''}>←</button><span>${filters.page} / ${totalPages}</span><button class="btn secondary" data-vocab-page="${filters.page+1}" ${filters.page>=totalPages?'disabled':''}>→</button></div><div class="action-row"><button class="btn secondary" data-view="vocab-test-setup">Kiểm tra từ</button><button class="btn primary" data-view="review">Ôn SRS</button></div>`;
+}
+
+function examCatalogView() {
   const filters = state.practiceFilters;
   const filtered = PracticeService.filteredSets();
   const pageSize = 10;
@@ -818,20 +984,20 @@ function practiceHubView() {
   const visibleSets = filtered.slice((filters.page - 1) * pageSize, filters.page * pageSize);
   const topics = [...new Set((PracticeService.bank?.sets || []).map((set) => set.topic))].sort();
   const statusLabels = { not_started: 'Chưa làm', completed: 'Đã làm', needs_review: 'Cần luyện lại' };
-  return `<section class="section page-heading"><button class="back-link" data-view="home" aria-label="Quay lại">←</button><p class="eyebrow">${PracticeService.bank.totalSetCount} bộ · ${PracticeService.bank.totalQuestionCount.toLocaleString('vi-VN')} câu</p><h1 class="headline">Luyện đề</h1><p class="subtle">Câu hỏi nguyên bản mô phỏng phong cách TOPIK/EPS, có đáp án và giải thích tiếng Việt.</p></section>
-    <section class="practice-mode-grid section"><button data-practice-level="all"><span>🧭</span><b>Theo trình độ</b></button><button data-practice-skill="mixed"><span>🎯</span><b>Theo kỹ năng</b></button><button data-practice-level="TOPIK_I"><span>🏆</span><b>TOPIK</b></button><button data-practice-level="EPS"><span>🏭</span><b>EPS-TOPIK</b></button><button data-practice-level="VOCABULARY"><span>🗂</span><b>Theo chủ đề</b></button></section>
-    <section class="card quick-banner section"><div><p class="eyebrow">Không có nhiều thời gian?</p><h2>Luyện nhanh 5–30 câu</h2></div><button class="btn primary" data-view="quick-practice">Chọn bài nhanh</button></section>
+  return `<section class="section page-heading"><button class="back-link" data-view="practice-hub" aria-label="Quay lại">←</button><p class="eyebrow">${PracticeService.bank.totalSetCount} bộ · ${PracticeService.bank.totalQuestionCount.toLocaleString('vi-VN')} câu</p><h1 class="headline">Chọn đề</h1><p class="subtle">Chọn chính xác số đề TOPIK 1–6, EPS, vocabulary hoặc grammar challenge.</p></section>
+    <section class="catalog-levels section">${[1,2,3,4,5,6].map((level) => `<button data-practice-level="TOPIK_${level}" class="${filters.level === `TOPIK_${level}` ? 'selected' : ''}">TOPIK ${level}</button>`).join('')}<button data-practice-level="EPS" class="${filters.level === 'EPS' ? 'selected' : ''}">EPS</button><button data-practice-level="all" class="${filters.level === 'all' ? 'selected' : ''}">Tất cả</button></section>
+    <label class="search-box section"><span>⌕</span><input id="practiceSearch" type="search" placeholder="Tìm tên đề, chủ đề, dạng bài..." value="${escapeHtml(state.practiceSearch)}"></label>
     <section class="card practice-filters section">
-      <label>Cấp độ<select data-practice-filter="level"><option value="all">Tất cả</option>${[['Beginner','Beginner'],['TOPIK_I','TOPIK I'],['TOPIK_II','TOPIK II'],['EPS','EPS'],['VOCABULARY','Theo chủ đề']].map(([value, label]) => `<option value="${value}" ${filters.level === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
+      <label>Cấp độ<select data-practice-filter="level"><option value="all">Tất cả</option>${[['Beginner','Beginner'],...[1,2,3,4,5,6].map((level) => [`TOPIK_${level}`,`TOPIK ${level}`]),['EPS','EPS'],['VOCABULARY','Vocabulary challenge'],['GRAMMAR','Grammar challenge']].map(([value, label]) => `<option value="${value}" ${filters.level === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
       <label>Kỹ năng<select data-practice-filter="skill"><option value="all">Tất cả</option>${[['vocabulary','Từ vựng'],['grammar','Ngữ pháp'],['listening','Nghe'],['reading','Đọc'],['mixed','Tổng hợp']].map(([value, label]) => `<option value="${value}" ${filters.skill === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
-      <label>Độ khó<select data-practice-filter="difficulty"><option value="all">Tất cả</option><option value="1" ${filters.difficulty === '1' ? 'selected' : ''}>Dễ</option><option value="2" ${filters.difficulty === '2' ? 'selected' : ''}>Trung bình</option><option value="3" ${filters.difficulty === '3' ? 'selected' : ''}>Khó</option></select></label>
+      <label>Độ khó<select data-practice-filter="difficulty"><option value="all">Tất cả</option><option value="1" ${filters.difficulty === '1' ? 'selected' : ''}>Dễ</option><option value="2" ${filters.difficulty === '2' ? 'selected' : ''}>Trung bình</option><option value="3" ${filters.difficulty === '3' ? 'selected' : ''}>Khó</option><option value="4" ${filters.difficulty === '4' ? 'selected' : ''}>Advanced</option><option value="5" ${filters.difficulty === '5' ? 'selected' : ''}>Very Advanced</option></select></label>
       <label>Trạng thái<select data-practice-filter="status"><option value="all">Tất cả</option><option value="not_started" ${filters.status === 'not_started' ? 'selected' : ''}>Chưa làm</option><option value="completed" ${filters.status === 'completed' ? 'selected' : ''}>Đã làm</option><option value="needs_review" ${filters.status === 'needs_review' ? 'selected' : ''}>Cần luyện lại</option></select></label>
       <label class="filter-topic">Chủ đề<select data-practice-filter="topic"><option value="all">Tất cả chủ đề</option>${topics.map((topic) => `<option value="${escapeHtml(topic)}" ${filters.topic === topic ? 'selected' : ''}>${escapeHtml(topic)}</option>`).join('')}</select></label>
     </section>
     <div class="results-count">${filtered.length} bộ đề phù hợp</div>
     <section class="practice-set-list">${visibleSets.length ? visibleSets.map((set) => {
       const summary = PracticeService.setSummary(set.id);
-      return `<article class="card practice-set-card"><div class="set-card-top"><div><span class="set-level">${escapeHtml(set.levelLabel)}</span><h2>${escapeHtml(set.title)}</h2></div><span class="difficulty difficulty-${set.difficulty}">${['','Dễ','Trung bình','Khó'][set.difficulty]}</span></div><p>${escapeHtml(set.topic)} · ${escapeHtml(set.skillLabel)}</p><div class="set-meta"><span>15 câu</span><span>Điểm cao nhất: ${summary.best === null ? '—' : `${summary.best}/15`}</span><span>${summary.latest ? formatDate(summary.latest.completedAt) : statusLabels[summary.status]}</span></div><button class="btn ${summary.status === 'not_started' ? 'primary' : 'secondary'} full" data-start-set="${set.id}">${summary.status === 'not_started' ? 'Bắt đầu' : 'Làm lại'}</button></article>`;
+      return `<article class="card practice-set-card"><div class="set-card-top"><div><span class="set-level">${escapeHtml(set.levelLabel)}</span><h2>Đề ${String(set.examNumber).padStart(2, '0')}</h2></div><button class="save-exam ${PracticeService.isSaved(set.id) ? 'saved' : ''}" data-save-set="${set.id}" aria-label="${PracticeService.isSaved(set.id) ? 'Bỏ lưu đề' : 'Lưu đề'}">${PracticeService.isSaved(set.id) ? '★' : '☆'}</button></div><p>${escapeHtml(set.topic)} · ${escapeHtml(set.practiceTypeLabel)} · ${escapeHtml(set.difficultyLabel)}</p><div class="set-meta"><span>${set.questionCount} câu</span><span>Khoảng ${set.estimatedMinutes} phút</span><span>Điểm cao nhất: ${summary.best === null ? '—' : `${summary.best}/${set.questionCount}`}</span><span>${summary.attemptCount} lượt</span><span>${summary.latest ? formatDate(summary.latest.completedAt) : statusLabels[summary.status]}</span></div><button class="btn ${summary.status === 'not_started' ? 'primary' : 'secondary'} full" data-start-set="${set.id}">${summary.status === 'not_started' ? 'Làm đề' : 'Làm lại'}</button></article>`;
     }).join('') : '<div class="empty-filter card">Không có bộ đề phù hợp. Hãy thử thay đổi bộ lọc.</div>'}</section>
     <div class="pagination"><button class="btn secondary" data-practice-page="${filters.page - 1}" ${filters.page <= 1 ? 'disabled' : ''}>← Trước</button><span>${filters.page} / ${totalPages}</span><button class="btn secondary" data-practice-page="${filters.page + 1}" ${filters.page >= totalPages ? 'disabled' : ''}>Sau →</button></div>`;
 }
@@ -849,7 +1015,7 @@ function practiceSessionView() {
   const correct = selectedAnswer === question.correctAnswer;
   return `<div class="lesson-header"><button class="close-btn" id="leavePractice" aria-label="Thoát bài luyện">×</button><div class="lesson-progress"><div class="bar"><span style="width:${Math.round(((session.index + (session.checked ? 1 : 0)) / session.questions.length) * 100)}%"></span></div></div><span class="subtle">${session.index + 1}/${session.questions.length}</span></div>
     <section class="section practice-session-title"><p class="eyebrow">${escapeHtml(session.set.levelLabel || session.set.level)} · ${escapeHtml(session.set.topic)}</p><h1>${escapeHtml(session.set.title)}</h1></section>
-    <section class="card live-question"><div class="question-tags"><span>${escapeHtml(question.skill)}</span><span>Độ khó ${question.difficulty}</span></div>${question.koreanText ? `<div class="question-korean">${escapeHtml(question.koreanText)}</div>` : ''}<h2>${escapeHtml(question.prompt)}</h2>${question.audioText ? `<button class="audio-inline" data-speak="${escapeHtml(question.audioText)}">🔊 Nghe</button>` : ''}<div class="answer-list">${question.options.map((option, index) => {
+    <section class="card live-question"><div class="question-tags"><span>${escapeHtml(question.skill)}</span><span>${escapeHtml(question.questionTypeLabel || question.questionType)}</span><span>Độ khó ${question.difficulty}</span></div>${question.koreanText ? `<div class="question-korean">${escapeHtml(question.koreanText)}</div>` : ''}<h2>${escapeHtml(question.prompt)}</h2>${question.audioText ? `<button class="audio-inline" data-speak="${escapeHtml(question.audioText)}">🔊 Nghe</button>` : ''}<div class="answer-list">${question.options.map((option, index) => {
       const answerClass = !session.checked ? (selectedAnswer === option ? 'selected' : '') : option === question.correctAnswer ? 'correct' : selectedAnswer === option ? 'wrong' : '';
       return `<button class="answer-button ${answerClass}" data-practice-answer="${escapeHtml(option)}" ${session.checked ? 'disabled' : ''}><span>${String.fromCharCode(65 + index)}</span>${escapeHtml(option)}</button>`;
     }).join('')}</div>${session.checked ? `<div class="answer-feedback ${correct ? 'success' : 'error'}"><strong>${correct ? '✓ Đúng rồi!' : 'Chưa đúng'}</strong>${!correct ? `<p>Đáp án đúng: <b>${escapeHtml(question.correctAnswer)}</b></p>` : ''}<p>${escapeHtml(question.explanationVi)}</p></div>` : ''}</section>
@@ -870,7 +1036,7 @@ function practiceResultView() {
 function practiceReviewView() {
   const result = state.practiceResult;
   if (!result?.attempt) return practiceResultView();
-  const wrongAnswers = result.attempt.answers.filter((answer) => !answer.correct);
+  const wrongAnswers = result.attempt.answers.filter((answer) => !answer.correct && result.questions.some((question) => question.id === answer.questionId));
   return `<section class="section page-heading"><button class="back-link" data-view="practice-result" aria-label="Quay lại">←</button><p class="eyebrow">${wrongAnswers.length} câu cần xem lại</p><h1 class="headline">Giải thích câu sai</h1></section><section class="wrong-review-list">${wrongAnswers.map((answer, index) => {
     const question = result.questions.find((item) => item.id === answer.questionId);
     return `<article class="card wrong-review-card"><span>Câu ${index + 1}</span>${question.koreanText ? `<div class="question-korean small">${escapeHtml(question.koreanText)}</div>` : ''}<h2>${escapeHtml(question.prompt)}</h2><p>Bạn chọn: <b class="wrong-text">${escapeHtml(answer.selectedAnswer)}</b></p><p>Đáp án: <b class="correct-text">${escapeHtml(question.correctAnswer)}</b></p><div class="explanation-box">${escapeHtml(question.explanationVi)}</div></article>`;
@@ -879,17 +1045,24 @@ function practiceReviewView() {
 
 function dueCards() { return VocabularyService.dueCards(); }
 
+function reviewEligibleCards() {
+  let cards = VocabularyService.bySource(state.reviewSource || 'due');
+  if (state.reviewTopic !== 'all') cards = cards.filter((card) => card.topic === state.reviewTopic);
+  return cards;
+}
+
 function reviewView() {
-  const cards = dueCards();
+  const cards = reviewEligibleCards();
   if (!cards.length) {
     const next = [...state.srsData].sort((a, b) => new Date(a.nextReview) - new Date(b.nextReview))[0];
-    return `<section class="empty-state"><div class="celebration">🎉</div><h1 class="headline">Bạn đã ôn xong hôm nay!</h1><p class="subtle">${next ? `Thẻ tiếp theo dự kiến vào ${formatDate(next.nextReview)}.` : 'Hãy quay lại sau khi có từ mới.'}</p><button class="btn secondary" data-view="vocab-test-setup">Kiểm tra vốn từ</button><button class="btn primary" data-view="home">Về trang chủ</button></section>`;
+    return `<section class="empty-state"><div class="celebration">🎉</div><h1 class="headline">Không có từ phù hợp</h1><p class="subtle">${next ? `Thẻ đến hạn tiếp theo dự kiến vào ${formatDate(next.nextReview)}.` : 'Hãy chọn nguồn từ khác.'}</p><button class="btn secondary" id="resetReviewSource">Xem từ đến hạn</button><button class="btn primary" data-view="vocabulary-hub">Mở kho từ vựng</button></section>`;
   }
   const max = cards.length;
-  const choices = [5, 10, 20, 30, 50].filter((count) => count < max);
+  const choices = [5, 10, 20, 30, 50, 100].filter((count) => count < max);
   const selected = Math.min(state.reviewSelectionCount || 10, max);
   state.reviewSelectionCount = selected;
-  return `<section class="section page-heading"><p class="eyebrow">SRS cá nhân</p><h1 class="headline">Ôn tập hôm nay</h1><p class="subtle">Hôm nay bạn có <strong>${max} từ cần ôn</strong>. Bạn không cần ôn tất cả trong một lần.</p></section>
+  const topics = [...new Set(state.srsData.map((card) => card.topic))].sort();
+  return `<section class="section page-heading"><p class="eyebrow">SRS cá nhân</p><h1 class="headline">Ôn tập từ vựng</h1><p class="subtle">Có <strong>${max} từ phù hợp</strong> với nguồn đã chọn.</p></section><section class="card review-source section"><label>Nguồn từ<select id="reviewSource"><option value="due">Từ đến hạn hôm nay</option>${[1,2,3,4,5,6].map((level) => `<option value="topik-${level}" ${state.reviewSource === `topik-${level}` ? 'selected' : ''}>Từ TOPIK ${level}</option>`).join('')}<option value="wrong" ${state.reviewSource==='wrong'?'selected':''}>Từ từng làm sai</option><option value="mastered" ${state.reviewSource==='mastered'?'selected':''}>Từ mastered</option><option value="learned" ${state.reviewSource==='learned'?'selected':''}>Tất cả từ đã học</option></select></label><label>Chủ đề<select id="reviewTopic"><option value="all">Mọi chủ đề</option>${topics.map((topic) => `<option value="${topic}" ${state.reviewTopic===topic?'selected':''}>${escapeHtml(state.srsData.find((card)=>card.topic===topic)?.topicLabel||topic)}</option>`).join('')}</select></label></section>
     <section class="card review-setup-card section"><h2>Bạn muốn ôn bao nhiêu từ?</h2><div class="count-options">${choices.map((count) => `<button class="${selected === count ? 'selected' : ''}" data-review-count="${count}">${count}</button>`).join('')}<button class="${selected === max ? 'selected' : ''}" data-review-count="${max}">Tất cả</button></div><label class="custom-count">Số khác<input id="customReviewCount" type="number" min="1" max="${max}" value="${selected}"></label></section>
     <section class="card start-mode-card section"><h2>Bạn muốn bắt đầu như thế nào?</h2><button class="start-mode recommended" data-review-mode="pretest"><span>✨ Khuyến nghị</span><b>Kiểm tra trước</b><small>Lọc các từ bạn đã nhớ trước khi mở flashcard.</small></button><button class="start-mode" data-review-mode="direct"><b>Ôn ngay</b><small>Mở flashcard với ${selected} từ đã chọn.</small></button></section>
     <button class="btn secondary full" data-view="vocab-test-setup">Kiểm tra vốn từ đã học</button>`;
@@ -916,17 +1089,18 @@ function vocabularyPretestView() {
   const session = state.pretestSession;
   const card = currentPretestCard();
   if (!session || !card) return pretestResultView();
-  const direction = session.index % 3 === 1 ? 'vi_ko' : 'ko_vi';
+  const variant = session.index % 5;
+  const direction = [1, 3].includes(variant) ? 'vi_ko' : 'ko_vi';
   if (!session.currentQuestion || session.currentQuestion.wordId !== card.wordId) {
     const generated = VocabularyService.optionsFor(card, direction);
     session.currentQuestion = { wordId: card.wordId, direction, ...generated };
   }
   const question = session.currentQuestion;
   const result = session.currentResult;
-  const prompt = direction === 'vi_ko' ? `Từ nào có nghĩa là “${card.meaningVi}”?` : session.index % 3 === 2 ? 'Nghe và chọn nghĩa đúng.' : `“${card.korean}” có nghĩa là gì?`;
+  const prompt = variant === 1 ? `Từ nào có nghĩa là “${card.meaningVi}”?` : variant === 2 ? 'Nghe và chọn nghĩa đúng.' : variant === 3 ? `Điền từ: 오늘의 단어는 “___”입니다. (${card.meaningVi})` : variant === 4 ? `Chọn nghĩa gần nhất của “${card.korean}”.` : `“${card.korean}” có nghĩa là gì?`;
   return `<section class="section page-heading"><p class="eyebrow">Kiểm tra trước · ${session.index + 1}/${session.cardIds.length}</p><h1 class="headline">Bạn còn nhớ từ này?</h1><div class="bar"><span style="width:${Math.round((session.index / session.cardIds.length) * 100)}%"></span></div></section>
-    <section class="card pretest-question"><h2>${escapeHtml(prompt)}</h2>${session.index % 3 === 2 ? `<button class="audio-inline" data-speak="${escapeHtml(card.audioText)}">🔊 Nghe từ</button>` : ''}<div class="answer-list">${question.options.map((option, index) => `<button class="answer-button ${result ? option === question.correct ? 'correct' : result.response === option ? 'wrong' : '' : ''}" data-pretest-answer="${escapeHtml(option)}" ${result ? 'disabled' : ''}><span>${String.fromCharCode(65 + index)}</span>${escapeHtml(option)}</button>`).join('')}</div></section>
-    ${result ? `<section class="card pretest-decision ${result.correct ? 'passed' : 'failed'}"><h2>${result.correct ? '✅ Bạn đã nhớ từ này' : 'Bạn cần ôn lại từ này'}</h2><div class="pretest-word"><strong>${escapeHtml(card.korean)}</strong><span>${escapeHtml(card.meaningVi)}</span></div>${result.correct ? '<p>Bạn muốn bỏ qua trong phiên này hay vẫn ôn để củng cố?</p><div class="action-row"><button class="btn secondary" data-pretest-decision="keep">Vẫn nhắc lại</button><button class="btn primary" data-pretest-decision="skip">Bỏ qua lần này</button></div>' : `<p>Đáp án đúng: <b>${escapeHtml(question.correct)}</b>. Từ này sẽ tự động nằm trong phiên ôn.</p><button class="btn primary full" data-pretest-decision="required">Tiếp tục</button>`}</section>` : ''}`;
+    <section class="card pretest-question"><h2>${escapeHtml(prompt)}</h2>${variant === 2 ? `<button class="audio-inline" data-speak="${escapeHtml(card.audioText)}">🔊 Nghe từ</button>` : ''}<div class="answer-list">${question.options.map((option, index) => `<button class="answer-button ${result ? option === question.correct ? 'correct' : result.response === option ? 'wrong' : '' : ''}" data-pretest-answer="${escapeHtml(option)}" ${result ? 'disabled' : ''}><span>${String.fromCharCode(65 + index)}</span>${escapeHtml(option)}</button>`).join('')}</div></section>
+    ${result ? `<section class="card pretest-decision ${result.correct ? 'passed' : 'failed'}"><h2>${result.correct ? '✅ Bạn đã nhớ từ này' : 'Bạn cần ôn lại từ này'}</h2><div class="pretest-word"><strong>${escapeHtml(card.korean)}</strong><span>${escapeHtml(card.meaningVi)}</span></div>${result.correct ? '<p>Chọn cách xử lý cho phiên ôn này.</p><div class="decision-grid"><button class="btn secondary" data-pretest-decision="keep">Vẫn nhắc lại</button><button class="btn primary" data-pretest-decision="skip">Bỏ qua lần này</button><button class="btn mastery-button" data-pretest-decision="mastered">Đánh dấu đã thuộc</button></div>' : `<p>Đáp án đúng: <b>${escapeHtml(question.correct)}</b>. Từ này sẽ tự động nằm trong phiên ôn.</p><button class="btn primary full" data-pretest-decision="required">Tiếp tục</button>`}</section>` : ''}`;
 }
 
 function pretestResultView() {
@@ -934,11 +1108,13 @@ function pretestResultView() {
   if (!session) return reviewView();
   const passed = session.results.filter((result) => result.correct);
   const failed = session.results.filter((result) => !result.correct);
-  return `<section class="result-page pretest-summary"><div class="celebration">🧠</div><p class="eyebrow">Kiểm tra hoàn tất</p><h1 class="headline">${session.results.length} từ</h1><div class="result-counts"><span>Nhớ tốt <b>${passed.length}</b></span><span>Cần ôn <b>${failed.length}</b></span></div><section class="card"><h2>Lựa chọn phiên ôn</h2><button class="summary-choice recommended" data-pretest-summary="failed"><span>Khuyến nghị</span><b>Chỉ ôn ${failed.length} từ chưa nhớ</b><small>Các từ đã đạt được lùi lịch ôn hợp lý.</small></button><button class="summary-choice" data-pretest-summary="decisions"><b>Theo lựa chọn từng từ</b><small>Giữ các từ bạn đã chọn “Vẫn nhắc lại”.</small></button><button class="summary-choice" data-pretest-summary="all"><b>Vẫn ôn tất cả ${session.results.length} từ</b><small>Củng cố toàn bộ danh sách.</small></button></section></section>`;
+  const uncertain = passed.filter((result) => result.decision === 'keep');
+  const strong = passed.length - uncertain.length;
+  return `<section class="result-page pretest-summary"><div class="celebration">🧠</div><p class="eyebrow">Kiểm tra hoàn tất</p><h1 class="headline">${session.results.length} từ</h1><div class="result-counts three"><span>Nhớ tốt <b>${strong}</b></span><span>Chưa chắc <b>${uncertain.length}</b></span><span>Sai <b>${failed.length}</b></span></div><section class="card"><h2>Lựa chọn phiên ôn</h2><button class="summary-choice recommended" data-pretest-summary="decisions"><span>Khuyến nghị</span><b>Chỉ ôn ${failed.length + uncertain.length} từ cần củng cố</b><small>Gồm từ sai và từ bạn chọn vẫn nhắc lại.</small></button><button class="summary-choice" data-pretest-summary="failed"><b>Chỉ ôn ${failed.length} từ sai</b><small>Các từ đã đạt được lùi lịch ôn hợp lý.</small></button><button class="summary-choice" data-pretest-summary="all"><b>Ôn toàn bộ ${session.results.length} từ</b><small>Củng cố toàn bộ danh sách.</small></button></section></section>`;
 }
 
 function vocabularyTestSetupView() {
-  return `<section class="section page-heading"><button class="back-link" data-view="review" aria-label="Quay lại">←</button><p class="eyebrow">Đánh giá độc lập</p><h1 class="headline">Kiểm tra vốn từ</h1><p class="subtle">Chọn nguồn từ và số lượng. Từ sai có thể được thêm ngay vào phiên ôn.</p></section><form id="vocabularyTestForm" class="card choice-form"><fieldset><legend>Số từ</legend><div class="segmented-options">${[10,20,30,50].map((count) => `<label><input type="radio" name="count" value="${count}" ${count === 10 ? 'checked' : ''}><span>${count}</span></label>`).join('')}</div></fieldset><fieldset><legend>Nguồn từ</legend><div class="radio-list">${[['learned','Từ đã học'],['wrong','Từ hay sai'],['mastered','Từ mastered'],['review','Từ đang ôn']].map(([value,label]) => `<label><input type="radio" name="source" value="${value}" ${value === 'review' ? 'checked' : ''}><span>${label}</span></label>`).join('')}</div></fieldset><button class="btn primary full" type="submit">Bắt đầu kiểm tra</button></form>`;
+  return `<section class="section page-heading"><button class="back-link" data-view="review" aria-label="Quay lại">←</button><p class="eyebrow">Đánh giá độc lập</p><h1 class="headline">Kiểm tra vốn từ</h1><p class="subtle">Chọn nguồn từ và số lượng. Từ sai có thể được thêm ngay vào phiên ôn.</p></section><form id="vocabularyTestForm" class="card choice-form"><fieldset><legend>Số từ</legend><div class="segmented-options">${[10,20,30,50,100].map((count) => `<label><input type="radio" name="count" value="${count}" ${count === 20 ? 'checked' : ''}><span>${count}</span></label>`).join('')}</div></fieldset><fieldset><legend>Nguồn từ</legend><div class="radio-list">${[['learned','Từ đã học'],['wrong','Từ hay sai'],['mastered','Từ mastered'],['review','Từ đang ôn'],...[1,2,3,4,5,6].map((level)=>[`topik-${level}`,`Từ TOPIK ${level}`])].map(([value,label]) => `<label><input type="radio" name="source" value="${value}" ${value === `topik-${state.currentUser.currentTopikLevel}` ? 'checked' : ''}><span>${label}</span></label>`).join('')}</div></fieldset><button class="btn primary full" type="submit">Bắt đầu kiểm tra</button></form>`;
 }
 
 function vocabularyTestView() {
@@ -958,6 +1134,53 @@ function vocabularyTestResultView() {
   const wrong = session.results.filter((result) => !result.correct);
   const percentage = Math.round((correct / Math.max(1, session.results.length)) * 100);
   return `<section class="result-page"><div class="result-score-ring" style="--score:${percentage * 3.6}deg"><div><strong>${correct}/${session.results.length}</strong><span>${percentage}%</span></div></div><p class="eyebrow">${ratingText(percentage)}</p><h1 class="headline">Kết quả vốn từ</h1><div class="result-counts"><span>Đúng <b>${correct}</b></span><span>Sai <b>${wrong.length}</b></span></div><section class="card result-analysis"><h2>Từ cần ôn lại</h2>${wrong.length ? `<div class="weak-topic-list">${wrong.map((result) => { const card = state.srsData.find((item) => item.wordId === result.wordId); return `<span>${escapeHtml(card.korean)} · ${escapeHtml(card.meaningVi)}</span>`; }).join('')}</div>` : '<p class="subtle">Bạn đã trả lời đúng tất cả.</p>'}</section>${wrong.length ? '<button class="btn primary full" id="addWrongToReview">Thêm từ sai vào phiên ôn</button>' : ''}<button class="btn secondary full" data-view="review">Về Ôn tập</button></section>`;
+}
+
+function lessonPreviewView() {
+  const lesson = state.selectedLessonPreview || 'Bài học tiếng Hàn';
+  const skill = /Nghe|Listening/.test(lesson) ? 'listening' : /Đọc|Reading/.test(lesson) ? 'reading' : /Viết|Writing|Email|đoạn/.test(lesson) ? 'writing' : /Nói|Speaking|Phỏng vấn/.test(lesson) ? 'speaking' : 'grammar';
+  const route = skill === 'writing' ? 'writing-hub' : skill === 'speaking' ? 'speaking-hub' : 'skill-hub';
+  return `<section class="section page-heading"><button class="back-link" data-view="lessons" aria-label="Quay lại">←</button><p class="eyebrow">Bài học MVP</p><h1 class="headline">${escapeHtml(lesson)}</h1><p class="subtle">Mục tiêu: nhận biết cấu trúc, xem ví dụ và chuyển ngay sang bài luyện phù hợp.</p></section><section class="card section"><h2 class="section-title">Cách học gợi ý</h2><ol class="learning-steps"><li>Đọc hoặc nghe mẫu tiếng Hàn.</li><li>Đối chiếu nghĩa và cách dùng bằng tiếng Việt.</li><li>Làm bài luyện theo kỹ năng để kiểm tra.</li></ol><div class="example"><div><b class="korean">한국어를 꾸준히 연습해요.</b><p class="subtle">Tôi luyện tiếng Hàn đều đặn.</p></div><button class="audio-btn" data-speak="한국어를 꾸준히 연습해요">🔊</button></div></section><button class="btn primary full" data-open-skill="${skill}" data-view="${route}">Bắt đầu luyện ${escapeHtml(lesson)}</button>`;
+}
+
+function speakingHubView() {
+  const modes = window.KLEARN_MODULE_DATA?.speakingModes || [];
+  const attempts = getUserProgress().pronunciationAttempts;
+  const average = attempts.length ? Math.round(attempts.reduce((sum,item)=>sum+item.score,0)/attempts.length) : 0;
+  return `<section class="section page-heading"><button class="back-link" data-view="home" aria-label="Quay lại">←</button><p class="eyebrow">Speech-to-text scoring MVP</p><h1 class="headline">🎙 Luyện nói</h1><p class="subtle">${attempts.length} lượt · Trung bình ${average}/100. Kết quả dựa trên văn bản nhận diện, không phải chấm âm vị AI.</p></section><section class="speaking-mode-grid">${modes.map((mode,index) => `<button data-speaking-mode="${mode.id}"><span>${['🔤','💬','🎧','📖','👥','❓','🎭','⚡','🏆','1–6'][index]}</span><b>${mode.label}</b><small>${mode.vietnamese}</small></button>`).join('')}</section><section class="card section"><h2 class="section-title">Tình huống roleplay</h2><div class="topic-chips">${(window.KLEARN_MODULE_DATA?.roleplays || []).map((role) => `<button data-roleplay="${role.id}">${role.title}</button>`).join('')}</div></section>`;
+}
+
+function speakingSessionView() {
+  const prompt = state.speakingPrompt || window.KLEARN_MODULE_DATA?.speakingModes?.find((mode) => mode.id === state.speakingMode);
+  if (!prompt) return speakingHubView();
+  const result = state.speakingResult;
+  const isRoleplay = state.speakingMode === 'roleplay';
+  return `<section class="section page-heading"><button class="back-link" data-view="speaking-hub" aria-label="Quay lại">←</button><p class="eyebrow">${isRoleplay ? `Roleplay · ${escapeHtml(prompt.title || '')}` : 'Speech-to-text scoring MVP'}</p><h1 class="headline">${isRoleplay ? 'Trả lời tình huống' : escapeHtml(prompt.label || 'Luyện nói')}</h1></section><section class="card speaking-stage section"><span class="card-kicker">${isRoleplay ? 'App nói' : 'Câu mẫu'}</span><div class="question-korean">${escapeHtml(prompt.appLine || prompt.korean)}</div><p>${escapeHtml(prompt.vietnamese || '')}</p><div class="speaking-audio-row"><button class="audio-inline" data-speak="${escapeHtml(prompt.appLine || prompt.korean)}">🔊 Nghe 1x</button><button class="audio-inline" data-speak-rate="0.75" data-speak-text="${escapeHtml(prompt.appLine || prompt.korean)}">0.75x</button></div>${isRoleplay ? `<p class="subtle">Gợi ý từ khóa: ${prompt.keywords.map(escapeHtml).join(' · ')}</p>` : ''}</section>${result ? `<section class="card section pronunciation-result"><p class="eyebrow">Kết quả gần nhất</p><div class="recognized-text">“${escapeHtml(result.transcript)}”</div><div class="score-display"><span>${isRoleplay ? 'Mức khớp từ khóa' : 'Độ giống văn bản'}</span><strong>${result.score}/100</strong></div><p class="subtle">${result.feedback}</p></section>` : ''}<form id="speakingFallbackForm" class="card speaking-input"><label>${isRoleplay ? 'Nhập câu trả lời hoặc dùng micro' : 'Nhập văn bản nhận diện để thử khi không có micro'}<input name="transcript" autocomplete="off" placeholder="Nhập câu tiếng Hàn..."></label><button class="btn secondary" type="submit">Đánh giá văn bản</button></form><div class="mic-wrap"><button id="micBtn" class="mic-btn ${state.recording ? 'recording' : ''}" aria-label="${state.recording ? 'Dừng ghi âm' : 'Bắt đầu ghi âm'}">${state.recording ? '■' : '🎙'}</button><div class="subtle">${state.recording ? 'Đang nghe...' : 'Ghi âm bằng ko-KR Speech Recognition'}</div></div><button class="btn primary full" id="speakingComplete">${result ? 'Hoàn thành' : 'Bỏ qua phiên này'}</button>`;
+}
+
+function speakingResultView() {
+  const result = state.speakingResult;
+  const stats = getUserProgress().pronunciationAttempts;
+  const average = stats.length ? Math.round(stats.reduce((sum,item)=>sum+item.score,0)/stats.length) : 0;
+  return `<section class="result-page"><div class="celebration">🎙</div><p class="eyebrow">Speech-to-text scoring MVP</p><h1 class="headline">Phiên nói đã lưu</h1><div class="result-counts"><span>Điểm vừa rồi <b>${result?.score ?? '—'}</b></span><span>Trung bình <b>${average}</b></span></div><p class="subtle">Nhận diện: ${escapeHtml(result?.transcript || 'Không có bản ghi')}</p><div class="action-row"><button class="btn secondary" data-view="speaking-hub">Mode khác</button><button class="btn primary" data-repeat-speaking>Thử lại</button></div></section>`;
+}
+
+function writingHubView() {
+  const modes = window.KLEARN_MODULE_DATA?.writingModes || [];
+  const submissions = getUserProgress().writingSubmissions;
+  return `<section class="section page-heading"><button class="back-link" data-view="practice-hub" aria-label="Quay lại">←</button><p class="eyebrow">Đánh giá sơ bộ · Không phải AI scoring</p><h1 class="headline">✍️ Luyện viết</h1><p class="subtle">${submissions.length} bài đã viết. Chọn cấp TOPIK và dạng bài.</p></section><section class="catalog-levels section">${[1,2,3,4,5,6].map((level)=>`<button data-writing-level="${level}" class="${state.writingLevel===level?'selected':''}">TOPIK ${level}</button>`).join('')}</section><section class="writing-mode-grid">${modes.map((mode)=>`<button data-writing-mode="${mode.id}" class="${state.writingMode===mode.id?'selected':''}">${mode.label}</button>`).join('')}</section><section class="card section"><h2 class="section-title">Đề phù hợp</h2><div class="writing-prompts">${(window.KLEARN_MODULE_DATA?.writingPrompts || []).filter((prompt)=>prompt.level===state.writingLevel).map((prompt)=>`<button data-writing-prompt="${prompt.id}"><span>${prompt.type.toUpperCase()}</span><b>${prompt.topic}</b><small>${prompt.prompt}</small></button>`).join('')}</div></section>`;
+}
+
+function writingEditorView() {
+  const prompt = state.writingPrompt;
+  if (!prompt) return writingHubView();
+  return `<section class="section page-heading"><button class="back-link" data-view="writing-hub" aria-label="Quay lại">←</button><p class="eyebrow">TOPIK ${prompt.level} · ${escapeHtml(prompt.type)}</p><h1 class="headline">${escapeHtml(prompt.topic)}</h1></section><section class="card writing-brief section"><h2>${escapeHtml(prompt.prompt)}</h2><p><b>Yêu cầu:</b> ${prompt.requirements.map(escapeHtml).join(' · ')}</p><p><b>Từ khóa:</b> ${prompt.keywords.map(escapeHtml).join(' · ')}</p></section><form id="writingForm" class="writing-editor"><textarea id="writingText" name="answer" rows="12" placeholder="Viết câu trả lời bằng tiếng Hàn..." required></textarea><div class="writing-counter"><span id="characterCount">0 ký tự</span><span id="wordCount">0 từ</span></div><button class="btn primary full" type="submit">Nộp bài</button><p class="security-note">Bài chỉ được đánh giá sơ bộ theo độ dài, từ khóa và biểu đạt bắt buộc.</p></form>`;
+}
+
+function writingResultView() {
+  const result = state.writingSubmission;
+  if (!result) return writingHubView();
+  return `<section class="section page-heading"><button class="back-link" data-view="writing-hub" aria-label="Quay lại">←</button><p class="eyebrow">Đánh giá sơ bộ</p><h1 class="headline">Bài viết đã lưu</h1></section><section class="card section"><div class="writing-score"><strong>${result.preliminaryScore}/100</strong><span>Không phải điểm TOPIK chính thức</span></div><h2>Bài của bạn</h2><p class="submitted-writing">${escapeHtml(result.answer)}</p><div class="result-counts three"><span>Ký tự <b>${result.characterCount}</b></span><span>Từ <b>${result.wordCount}</b></span><span>Từ khóa <b>${result.keywordMatches}/${result.keywordTotal}</b></span></div></section><section class="card section"><h2 class="section-title">Bài mẫu</h2><p class="submitted-writing sample">${escapeHtml(result.sampleAnswer)}</p><h3>Gợi ý</h3><p class="subtle">${escapeHtml(result.tipsVi)}</p></section><div class="action-row"><button class="btn secondary" data-view="writing-hub">Đề khác</button><button class="btn primary" data-rewrite>Viết lại</button></div>`;
 }
 
 function pronunciationFeedback(result) {
@@ -985,9 +1208,13 @@ function profileView() {
   const showTopik = state.currentUser.goals.includes('topik') || state.currentUser.level.includes('TOPIK');
   const practiceStats = PracticeService.statistics();
   const vocabularyStats = VocabularyService.sessionStats();
-  return `<section class="card profile-head section"><div class="profile-avatar">${escapeHtml(state.currentUser.avatar || initials(state.currentUser.fullName))}</div><h1 class="headline profile-name">${escapeHtml(state.currentUser.fullName)}</h1><p class="subtle">${escapeHtml(state.currentUser.level)} · ${escapeHtml(goals.join(' · '))}</p><div class="stats stats-four"><div class="stat"><b>${progress.stats.lessonsCompleted}</b><small>Bài đã học</small></div><div class="stat"><b>${progress.stats.learningDays}</b><small>Ngày học</small></div><div class="stat"><b>${progress.stats.streak}</b><small>Streak</small></div><div class="stat"><b>${progress.stats.wordsLearned}</b><small>Từ đã học</small></div></div><button class="btn secondary full" data-view="edit-profile">Chỉnh sửa hồ sơ</button></section>
+  const speakingAttempts = progress.pronunciationAttempts;
+  const speakingAverage = speakingAttempts.length ? Math.round(speakingAttempts.reduce((sum,item)=>sum+item.score,0)/speakingAttempts.length) : 0;
+  return `<section class="card profile-head section"><div class="profile-avatar">${escapeHtml(state.currentUser.avatar || initials(state.currentUser.fullName))}</div><h1 class="headline profile-name">${escapeHtml(state.currentUser.fullName)}</h1><p class="subtle">${escapeHtml(state.currentUser.level)} · ${escapeHtml(goals.join(' · '))}</p><div class="topik-goal"><span>Hiện tại <b>${topikLabel(state.currentUser.currentTopikLevel)}</b></span><i>→</i><span>Mục tiêu <b>${topikLabel(state.currentUser.targetTopikLevel)}</b></span></div><div class="stats stats-four"><div class="stat"><b>${progress.stats.lessonsCompleted}</b><small>Bài đã học</small></div><div class="stat"><b>${progress.stats.learningDays}</b><small>Ngày học</small></div><div class="stat"><b>${progress.stats.streak}</b><small>Streak</small></div><div class="stat"><b>${progress.stats.wordsLearned}</b><small>Từ đã học</small></div></div><button class="btn secondary full" data-view="edit-profile">Chỉnh sửa hồ sơ</button></section>
     <section class="card section"><h2 class="section-title">📝 Tiến độ luyện đề</h2><div class="practice-stats"><div><b>${practiceStats.completed}</b><span>Số đề đã làm</span></div><div><b>${practiceStats.average}%</b><span>Điểm trung bình</span></div><div><b>${practiceStats.bestTopik}/15</b><span>TOPIK tốt nhất</span></div></div>${practiceStats.weakTopics.length ? `<h3 class="weak-heading">Điểm yếu của bạn</h3><div class="weak-topic-list">${practiceStats.weakTopics.map(([topic, score]) => `<span>${escapeHtml(topic)} · ${score}%</span>`).join('')}</div>` : '<p class="subtle center">Làm thêm đề để hệ thống tìm chủ đề cần củng cố.</p>'}<button class="btn primary full" data-view="practice-hub">Tiếp tục luyện</button></section>
     <section class="card section"><h2 class="section-title">🧠 Trí nhớ từ vựng</h2><div class="practice-stats"><div><b>${vocabularyStats.learning}</b><span>Đang học</span></div><div><b>${vocabularyStats.mastered}</b><span>Mastered</span></div><div><b>${vocabularyStats.retention}%</b><span>Tỷ lệ nhớ</span></div></div></section>
+    <section class="card section"><h2 class="section-title">TOPIK 1–6</h2><div class="topik-progress-list">${[1,2,3,4,5,6].map((level)=>{const item=practiceStats.byTopik[level]||{};const values=Object.values(item);const avg=values.length?Math.round(values.reduce((a,b)=>a+b,0)/values.length):0;return `<div class="topik-level-progress"><header><b>TOPIK ${level}</b><div class="bar"><span style="width:${avg}%"></span></div><small>${values.length?`${avg}%`:'—'}</small></header><div class="skill-mini">${[['vocabulary','Từ'],['grammar','Ngữ pháp'],['listening','Nghe'],['reading','Đọc']].map(([key,label])=>`<span>${label} <b>${item[key] === undefined ? '—' : `${item[key]}%`}</b></span>`).join('')}</div></div>`;}).join('')}</div></section>
+    <section class="card section"><h2 class="section-title">🎙 Nói & ✍️ Viết</h2><div class="practice-stats"><div><b>${speakingAttempts.length}</b><span>Câu đã luyện</span></div><div><b>${speakingAverage}</b><span>Điểm nói TB</span></div><div><b>${progress.writingSubmissions.length}</b><span>Bài đã viết</span></div></div></section>
     ${showTopik ? `<section class="card countdown-card section"><p class="eyebrow">Đếm ngược TOPIK</p><div><strong>28</strong><span>ngày</span></div><p class="subtle">Mốc luyện thi demo — ngày thi chính thức sẽ được kết nối sau.</p></section>` : ''}
     <section class="card section"><h2 class="section-title">📊 Tiến độ kỹ năng</h2><div class="skill-grid">${[['listening', 'Nghe'], ['speaking', 'Nói'], ['reading', 'Đọc'], ['writing', 'Viết']].map(([key, label]) => `<div class="skill"><strong>${skills[key]}%</strong><div class="subtle">${label}</div><div class="bar"><span style="width:${skills[key]}%"></span></div></div>`).join('')}</div></section>
     <section class="card section"><h2 class="section-title">🏅 Huy hiệu</h2><div class="badges"><div class="badge"><div class="badge-icon">🔥</div><small>Chăm chỉ</small></div><div class="badge"><div class="badge-icon">🎙</div><small>Phát âm</small></div><div class="badge"><div class="badge-icon">🧠</div><small>Trí nhớ tốt</small></div><div class="badge locked-badge"><div class="badge-icon">🔒</div><small>Cao thủ TOPIK</small></div></div></section>
@@ -995,7 +1222,7 @@ function profileView() {
 }
 
 function editProfileView() {
-  return `<section class="section page-heading"><button class="back-link" data-view="profile" aria-label="Quay lại">←</button><p class="eyebrow">Tài khoản học viên</p><h1 class="headline">Chỉnh sửa hồ sơ</h1></section><form id="editProfileForm" class="card auth-form" novalidate><label>Họ tên<input name="fullName" type="text" maxlength="80" value="${escapeHtml(state.currentUser.fullName)}" /></label><label>Trình độ<select name="level">${['Beginner', 'Beginner+', 'TOPIK I', 'TOPIK I nâng cao', 'TOPIK II khởi đầu'].map((level) => `<option ${state.currentUser.level === level ? 'selected' : ''}>${level}</option>`).join('')}</select></label><p class="subtle">Email: ${escapeHtml(state.currentUser.email)}</p><p id="formError" class="form-error hidden" role="alert"></p><button class="btn primary full" type="submit">Lưu thay đổi</button></form>`;
+  return `<section class="section page-heading"><button class="back-link" data-view="profile" aria-label="Quay lại">←</button><p class="eyebrow">Tài khoản học viên</p><h1 class="headline">Chỉnh sửa hồ sơ</h1></section><form id="editProfileForm" class="card auth-form" novalidate><label>Họ tên<input name="fullName" type="text" maxlength="80" value="${escapeHtml(state.currentUser.fullName)}" /></label><label>Trình độ<select name="level">${['Beginner', 'Beginner+', 'TOPIK I', 'TOPIK I nâng cao', 'TOPIK II khởi đầu'].map((level) => `<option ${state.currentUser.level === level ? 'selected' : ''}>${level}</option>`).join('')}</select></label><label>TOPIK hiện tại<select name="currentTopikLevel">${[1,2,3,4,5,6].map((level)=>`<option value="${level}" ${state.currentUser.currentTopikLevel===level?'selected':''}>TOPIK ${level}</option>`).join('')}</select></label><label>TOPIK mục tiêu<select name="targetTopikLevel">${[1,2,3,4,5,6].map((level)=>`<option value="${level}" ${state.currentUser.targetTopikLevel===level?'selected':''}>TOPIK ${level}</option>`).join('')}</select></label><p class="subtle">Email: ${escapeHtml(state.currentUser.email)}</p><p id="formError" class="form-error hidden" role="alert"></p><button class="btn primary full" type="submit">Lưu thay đổi</button></form>`;
 }
 
 // ============================================================
@@ -1006,11 +1233,14 @@ function render() {
   const views = {
     welcome: welcomeView, register: registerView, login: loginView,
     'onboarding-goals': goalsView, 'onboarding-level': levelView, placement: placementView, 'onboarding-result': onboardingResultView,
-    home: homeView, lessons: lessonsView, lesson: lessonView,
-    'practice-hub': practiceHubView, 'quick-practice': quickPracticeView, 'practice-session': practiceSessionView, 'practice-result': practiceResultView, 'practice-review': practiceReviewView,
-    review: reviewView, 'review-start': reviewSessionView, 'vocab-pretest': vocabularyPretestView, 'pretest-result': pretestResultView,
+    home: homeView, lessons: lessonsView, lesson: lessonView, 'lesson-preview': lessonPreviewView,
+    'practice-hub': practiceHubView, 'exam-catalog': examCatalogView, 'random-exam': randomExamView, 'advanced-practice': advancedPracticeView, 'wrong-practice': wrongPracticeView, 'saved-exams': savedExamsView, 'practice-history': practiceHistoryView, 'skill-hub': skillHubView,
+    'quick-practice': quickPracticeView, 'practice-session': practiceSessionView, 'practice-result': practiceResultView, 'practice-review': practiceReviewView,
+    review: reviewView, 'vocabulary-hub': vocabularyHubView, 'review-start': reviewSessionView, 'vocab-pretest': vocabularyPretestView, 'pretest-result': pretestResultView,
     'vocab-test-setup': vocabularyTestSetupView, 'vocab-test': vocabularyTestView, 'vocab-test-result': vocabularyTestResultView,
-    practice: practiceView, profile: profileView, 'edit-profile': editProfileView
+    practice: speakingHubView, 'speaking-hub': speakingHubView, 'speaking-session': speakingSessionView, 'speaking-result': speakingResultView,
+    'writing-hub': writingHubView, 'writing-editor': writingEditorView, 'writing-result': writingResultView,
+    profile: profileView, 'edit-profile': editProfileView
   };
   appElement().innerHTML = (views[state.currentView] || welcomeView)();
   bindEvents();
@@ -1020,7 +1250,7 @@ function render() {
 function bindEvents() {
   document.querySelectorAll('[data-view]').forEach((button) => { button.onclick = () => setView(button.dataset.view); });
   document.querySelectorAll('[data-open-lesson]').forEach((button) => { button.onclick = () => openLesson(button.dataset.openLesson); });
-  document.querySelectorAll('[data-preview-lesson]').forEach((button) => { button.onclick = () => toast(`${button.dataset.previewLesson}: nội dung đang được chuẩn bị.`); });
+  document.querySelectorAll('[data-preview-lesson]').forEach((button) => { button.onclick = () => openLesson(button.dataset.previewLesson); });
   document.querySelectorAll('[data-speak]').forEach((button) => { button.onclick = (event) => { event.stopPropagation(); speakKorean(button.dataset.speak); }; });
   const registerForm = document.getElementById('registerForm'); if (registerForm) registerForm.onsubmit = handleRegister;
   const loginForm = document.getElementById('loginForm'); if (loginForm) loginForm.onsubmit = handleLogin;
@@ -1045,14 +1275,30 @@ function bindEvents() {
   document.querySelectorAll('[data-practice-skill]').forEach((button) => { button.onclick = () => { state.practiceFilters = { ...state.practiceFilters, skill: button.dataset.practiceSkill, page: 1 }; render(); }; });
   document.querySelectorAll('[data-practice-page]').forEach((button) => { button.onclick = () => { state.practiceFilters.page = Number(button.dataset.practicePage); render(); }; });
   document.querySelectorAll('[data-start-set]').forEach((button) => { button.onclick = () => PracticeService.startSet(button.dataset.startSet); });
-  document.querySelectorAll('[data-retry-set]').forEach((button) => { button.onclick = () => PracticeService.startSet(button.dataset.retrySet); });
+  document.querySelectorAll('[data-retry-set]').forEach((button) => { button.onclick = () => { if (!PracticeService.startSet(button.dataset.retrySet) && state.practiceResult?.questions?.length) PracticeService.startQuestions(state.practiceResult.questions, `Làm lại · ${state.practiceResult.set.title}`, 'retry'); }; });
   const quickPracticeForm = document.getElementById('quickPracticeForm'); if (quickPracticeForm) quickPracticeForm.onsubmit = startQuickPractice;
+  document.querySelectorAll('[data-hub-view]').forEach((button) => { button.onclick = () => openPracticeHubDestination(button.dataset.hubView, button.dataset.hubValue); });
+  document.querySelectorAll('[data-recommended-set]').forEach((button) => { button.onclick = () => { const set = PracticeService.bank.sets.find((item) => item.level === button.dataset.recommendedSet); if (set) PracticeService.startSet(set.id); }; });
+  document.querySelectorAll('[data-save-set]').forEach((button) => { button.onclick = () => { PracticeService.toggleSaved(button.dataset.saveSet); toast(PracticeService.isSaved(button.dataset.saveSet) ? 'Đã lưu đề.' : 'Đã bỏ lưu đề.'); render(); }; });
+  const practiceSearch = document.getElementById('practiceSearch'); if (practiceSearch) practiceSearch.oninput = () => { state.practiceSearch = practiceSearch.value; state.practiceFilters.page = 1; clearTimeout(practiceSearch._timer); practiceSearch._timer = setTimeout(render, 180); };
+  const randomExamForm = document.getElementById('randomExamForm'); if (randomExamForm) randomExamForm.onsubmit = startRandomExam;
+  const wrongPracticeForm = document.getElementById('wrongPracticeForm'); if (wrongPracticeForm) wrongPracticeForm.onsubmit = startWrongPractice;
+  document.querySelectorAll('[data-view-attempt]').forEach((button) => { button.onclick = () => viewPracticeAttempt(button.dataset.viewAttempt); });
+  document.querySelectorAll('[data-retry-history]').forEach((button) => { button.onclick = () => retryPracticeAttempt(button.dataset.retryHistory); });
+  document.querySelectorAll('[data-open-skill]').forEach((button) => { button.onclick = () => { state.selectedSkillHub = button.dataset.openSkill; setView(button.dataset.view || 'skill-hub'); }; });
+  document.querySelectorAll('[data-skill-level]').forEach((button) => { button.onclick = () => { const set = PracticeService.bank.sets.find((item) => item.level === `TOPIK_${button.dataset.skillLevel}` && item.skill === state.selectedSkillHub); if (set) PracticeService.startSet(set.id); else toast('Không tìm thấy đề phù hợp.'); }; });
+  document.querySelectorAll('[data-vocab-filter]').forEach((select) => { select.onchange = () => { state.vocabularyFilters[select.dataset.vocabFilter] = select.value; state.vocabularyFilters.page = 1; render(); }; });
+  const vocabularySearch = document.getElementById('vocabularySearch'); if (vocabularySearch) vocabularySearch.oninput = () => { state.vocabularyFilters.search = vocabularySearch.value; state.vocabularyFilters.page = 1; clearTimeout(vocabularySearch._timer); vocabularySearch._timer = setTimeout(render, 180); };
+  document.querySelectorAll('[data-vocab-page]').forEach((button) => { button.onclick = () => { state.vocabularyFilters.page = Number(button.dataset.vocabPage); render(); }; });
   document.querySelectorAll('[data-practice-answer]').forEach((button) => { button.onclick = () => selectPracticeAnswer(button.dataset.practiceAnswer); });
   const checkPracticeAnswer = document.getElementById('checkPracticeAnswer'); if (checkPracticeAnswer) checkPracticeAnswer.onclick = checkPractice;
   const nextPracticeQuestion = document.getElementById('nextPracticeQuestion'); if (nextPracticeQuestion) nextPracticeQuestion.onclick = nextPractice;
   const leavePractice = document.getElementById('leavePractice'); if (leavePractice) leavePractice.onclick = leavePracticeSession;
   document.querySelectorAll('[data-review-count]').forEach((button) => { button.onclick = () => { state.reviewSelectionCount = Number(button.dataset.reviewCount); render(); }; });
-  const customReviewCount = document.getElementById('customReviewCount'); if (customReviewCount) customReviewCount.onchange = () => { state.reviewSelectionCount = Math.max(1, Math.min(dueCards().length, Number(customReviewCount.value) || 1)); render(); };
+  const customReviewCount = document.getElementById('customReviewCount'); if (customReviewCount) customReviewCount.onchange = () => { state.reviewSelectionCount = Math.max(1, Math.min(reviewEligibleCards().length, Number(customReviewCount.value) || 1)); render(); };
+  const reviewSource = document.getElementById('reviewSource'); if (reviewSource) reviewSource.onchange = () => { state.reviewSource = reviewSource.value; state.reviewSelectionCount = 10; render(); };
+  const reviewTopic = document.getElementById('reviewTopic'); if (reviewTopic) reviewTopic.onchange = () => { state.reviewTopic = reviewTopic.value; render(); };
+  const resetReviewSource = document.getElementById('resetReviewSource'); if (resetReviewSource) resetReviewSource.onclick = () => { state.reviewSource = 'due'; state.reviewTopic = 'all'; render(); };
   document.querySelectorAll('[data-review-mode]').forEach((button) => { button.onclick = () => startReviewMode(button.dataset.reviewMode); });
   document.querySelectorAll('[data-pretest-answer]').forEach((button) => { button.onclick = () => answerVocabularyPretest(button.dataset.pretestAnswer); });
   document.querySelectorAll('[data-pretest-decision]').forEach((button) => { button.onclick = () => decideVocabularyPretest(button.dataset.pretestDecision); });
@@ -1060,6 +1306,18 @@ function bindEvents() {
   const vocabularyTestForm = document.getElementById('vocabularyTestForm'); if (vocabularyTestForm) vocabularyTestForm.onsubmit = startVocabularyTest;
   document.querySelectorAll('[data-vocab-test-answer]').forEach((button) => { button.onclick = () => answerVocabularyTest(button.dataset.vocabTestAnswer); });
   const addWrongToReview = document.getElementById('addWrongToReview'); if (addWrongToReview) addWrongToReview.onclick = addWrongVocabularyToReview;
+  document.querySelectorAll('[data-speaking-mode]').forEach((button) => { button.onclick = () => startSpeaking(button.dataset.speakingMode); });
+  document.querySelectorAll('[data-roleplay]').forEach((button) => { button.onclick = () => startRoleplay(button.dataset.roleplay); });
+  document.querySelectorAll('[data-speak-rate]').forEach((button) => { button.onclick = () => speakKorean(button.dataset.speakText, Number(button.dataset.speakRate)); });
+  const speakingFallbackForm = document.getElementById('speakingFallbackForm'); if (speakingFallbackForm) speakingFallbackForm.onsubmit = submitSpeakingFallback;
+  const speakingComplete = document.getElementById('speakingComplete'); if (speakingComplete) speakingComplete.onclick = completeSpeakingSession;
+  const repeatSpeaking = document.querySelector('[data-repeat-speaking]'); if (repeatSpeaking) repeatSpeaking.onclick = () => { state.speakingResult = null; setView('speaking-session'); };
+  document.querySelectorAll('[data-writing-level]').forEach((button) => { button.onclick = () => { state.writingLevel = Number(button.dataset.writingLevel); state.writingSubmission = null; render(); }; });
+  document.querySelectorAll('[data-writing-mode]').forEach((button) => { button.onclick = () => { state.writingMode = button.dataset.writingMode; const prompts = window.KLEARN_MODULE_DATA?.writingPrompts || []; const prompt = prompts.find((item) => item.type === state.writingMode && item.level === state.writingLevel) || prompts.find((item) => item.type === state.writingMode); if (prompt) startWriting(prompt.id); else toast('Chưa có đề phù hợp cho mode này.'); }; });
+  document.querySelectorAll('[data-writing-prompt]').forEach((button) => { button.onclick = () => startWriting(button.dataset.writingPrompt); });
+  const writingText = document.getElementById('writingText'); if (writingText) writingText.oninput = updateWritingCounter;
+  const writingForm = document.getElementById('writingForm'); if (writingForm) writingForm.onsubmit = submitWriting;
+  const rewrite = document.querySelector('[data-rewrite]'); if (rewrite) rewrite.onclick = () => { state.writingSubmission = null; setView('writing-editor'); };
   const micButton = document.getElementById('micBtn'); if (micButton) micButton.onclick = toggleRecording;
   const practiceNext = document.getElementById('practiceNext'); if (practiceNext) practiceNext.onclick = completePractice;
   const logoutButton = document.getElementById('logoutButton'); if (logoutButton) logoutButton.onclick = () => auth.logout();
@@ -1157,7 +1415,8 @@ function answerPlacement(answerIndex) {
 }
 
 function completeOnboarding() {
-  updateCurrentUser({ onboardingCompleted: true, onboardingStep: 'completed' });
+  const currentTopikLevel = inferredTopikLevel(state.currentUser.level || state.selectedLevel);
+  updateCurrentUser({ onboardingCompleted: true, onboardingStep: 'completed', currentTopikLevel, targetTopikLevel: Math.min(6, currentTopikLevel + 1) });
   syncUserData();
   toast('Lộ trình cá nhân đã được tạo!');
   setView('home');
@@ -1168,8 +1427,10 @@ function handleEditProfile(event) {
   const form = new FormData(event.currentTarget);
   const fullName = String(form.get('fullName') || '').trim();
   const level = String(form.get('level') || '');
+  const currentTopikLevel = Number(form.get('currentTopikLevel')) || inferredTopikLevel(level);
+  const targetTopikLevel = Math.max(currentTopikLevel, Number(form.get('targetTopikLevel')) || currentTopikLevel);
   if (!fullName) return setFormError('Họ tên không được để trống.');
-  updateCurrentUser({ fullName, avatar: initials(fullName), level });
+  updateCurrentUser({ fullName, avatar: initials(fullName), level, currentTopikLevel, targetTopikLevel });
   toast('Đã cập nhật hồ sơ.');
   setView('profile');
 }
@@ -1177,6 +1438,55 @@ function handleEditProfile(event) {
 // ============================================================
 // Practice bank and vocabulary assessment handlers
 // ============================================================
+function openPracticeHubDestination(view, value) {
+  if (view === 'exam-catalog' && value) state.practiceFilters = { ...state.practiceFilters, level: value, page: 1 };
+  if (view === 'skill-hub' && value) state.selectedSkillHub = value;
+  setView(view);
+}
+
+function startRandomExam(event) {
+  event.preventDefault();
+  const form = new FormData(event.currentTarget);
+  const skill = String(form.get('skill') || 'mixed');
+  const chosenLevel = String(form.get('level')) === 'current' ? state.currentUser.currentTopikLevel : Number(String(form.get('level')).slice(-1));
+  if (skill === 'writing') {
+    const prompts = window.KLEARN_MODULE_DATA?.writingPrompts?.filter((prompt) => prompt.level === chosenLevel) || [];
+    if (prompts.length) return startWriting(sampleItems(prompts, 1)[0].id);
+  }
+  if (skill === 'speaking') {
+    const modes = window.KLEARN_MODULE_DATA?.speakingModes || [];
+    return startSpeaking(sampleItems(modes, 1)[0]?.id || 'sentence');
+  }
+  PracticeService.startRandom({ level: String(form.get('level')), count: Number(form.get('count')) || 20, skill, difficulty: String(form.get('difficulty') || 'mixed') });
+}
+
+function startWrongPractice(event) {
+  event.preventDefault();
+  const count = Number(new FormData(event.currentTarget).get('count')) || 10;
+  const meta = PracticeService.getMeta();
+  const ids = [...new Set(PracticeService.getHistory().flatMap((attempt) => attempt.wrongQuestionIds || []))]
+    .sort((a, b) => (meta.wrongPriorities?.[b] || 0) - (meta.wrongPriorities?.[a] || 0));
+  const questions = ids.map((id) => PracticeService.bank.getQuestion(id)).filter(Boolean).slice(0, count);
+  if (!PracticeService.startQuestions(questions, 'Luyện lại câu sai', 'wrong')) toast('Các câu cũ không còn trong ngân hàng hiện tại.');
+}
+
+function viewPracticeAttempt(attemptId) {
+  const attempt = PracticeService.getHistory().find((item) => item.id === attemptId);
+  if (!attempt) return;
+  const questions = attempt.answers.map((answer) => PracticeService.bank.getQuestion(answer.questionId)).filter(Boolean);
+  const set = PracticeService.bank.sets.find((item) => item.id === attempt.setId) || { id: attempt.setId, title: attempt.setTitle, level: attempt.level || 'Practice' };
+  state.practiceResult = { attempt, questions, set };
+  setView('practice-result');
+}
+
+function retryPracticeAttempt(attemptId) {
+  const attempt = PracticeService.getHistory().find((item) => item.id === attemptId);
+  if (!attempt) return;
+  if (PracticeService.bank.sets.some((set) => set.id === attempt.setId)) return PracticeService.startSet(attempt.setId, attempt.total);
+  const questions = attempt.answers.map((answer) => PracticeService.bank.getQuestion(answer.questionId)).filter(Boolean);
+  PracticeService.startQuestions(questions, `Làm lại · ${attempt.setTitle}`, 'retry');
+}
+
 function saveActivePracticeSession() {
   if (!state.practiceSession) return;
   PracticeService.saveMeta({ ...PracticeService.getMeta(), activeSession: state.practiceSession });
@@ -1228,8 +1538,9 @@ function leavePracticeSession() {
 }
 
 function selectedReviewCardIds() {
-  const limit = Math.max(1, Math.min(state.reviewSelectionCount, dueCards().length));
-  return [...dueCards()]
+  const eligible = reviewEligibleCards();
+  const limit = Math.max(1, Math.min(state.reviewSelectionCount, eligible.length));
+  return [...eligible]
     .sort((a, b) => (b.wrongCount - a.wrongCount) || (new Date(a.nextReview) - new Date(b.nextReview)))
     .slice(0, limit)
     .map((card) => card.wordId);
@@ -1264,6 +1575,7 @@ function decideVocabularyPretest(decision) {
   if (!session?.currentResult) return;
   const latestCard = state.srsData.find((card) => card.wordId === session.currentResult.wordId);
   if (decision === 'skip' && latestCard) VocabularyService.skipAfterPretest(latestCard);
+  if (decision === 'mastered' && latestCard) VocabularyService.markMastered(latestCard);
   session.results.push({ ...session.currentResult, decision });
   session.index += 1;
   session.currentQuestion = null;
@@ -1311,11 +1623,115 @@ function addWrongVocabularyToReview() {
   beginReviewSession(wrongIds);
 }
 
+function startSpeaking(modeId) {
+  state.speakingMode = modeId;
+  state.speakingPrompt = modeId === 'roleplay' ? window.KLEARN_MODULE_DATA?.roleplays?.[0] : window.KLEARN_MODULE_DATA?.speakingModes?.find((mode) => mode.id === modeId) || null;
+  state.speakingResult = null;
+  state.pronunciationResult = null;
+  setView('speaking-session');
+}
+
+function startRoleplay(roleplayId) {
+  state.speakingMode = 'roleplay';
+  state.speakingPrompt = window.KLEARN_MODULE_DATA?.roleplays?.find((role) => role.id === roleplayId) || null;
+  state.speakingResult = null;
+  setView('speaking-session');
+}
+
+function speakingEvaluation(transcript) {
+  const prompt = state.speakingPrompt;
+  if (!prompt) return { score: 0, feedback: 'Chưa có câu mẫu.' };
+  if (state.speakingMode === 'roleplay') {
+    const normalized = normalizeKorean(transcript);
+    const matched = (prompt.keywords || []).filter((keyword) => normalized.includes(normalizeKorean(keyword))).length;
+    const score = Math.round((matched / Math.max(1, prompt.keywords.length)) * 100);
+    return { score, feedback: matched ? `Đã dùng ${matched}/${prompt.keywords.length} từ khóa gợi ý.` : 'Hãy thử dùng một trong các từ khóa gợi ý để phản hồi đúng tình huống.' };
+  }
+  const score = similarityScore(prompt.korean, transcript);
+  return { score, feedback: score >= 90 ? 'Văn bản nhận diện rất gần câu mẫu.' : score >= 70 ? 'Khá tốt; hãy chú ý nhịp câu và thử lại.' : 'Hãy nói chậm, rõ từng cụm rồi nghe lại câu mẫu.' };
+}
+
+function saveSpeakingAttempt(transcript) {
+  const evaluation = speakingEvaluation(transcript);
+  const result = { id: uniqueId(), mode: state.speakingMode, target: state.speakingPrompt?.korean || state.speakingPrompt?.appLine || '', transcript, ...evaluation, createdAt: new Date().toISOString() };
+  state.speakingResult = result;
+  state.pronunciationResult = result;
+  const allSpeaking = storage.get(STORAGE_KEYS.speaking, {});
+  allSpeaking[state.currentUser.id] = [result, ...(Array.isArray(allSpeaking[state.currentUser.id]) ? allSpeaking[state.currentUser.id] : [])].slice(0, 100);
+  storage.set(STORAGE_KEYS.speaking, allSpeaking);
+  const progress = getUserProgress();
+  progress.pronunciationAttempts = [result, ...progress.pronunciationAttempts].slice(0, 100);
+  progress.daily.tasks.speaking = true;
+  progress.skills.speaking = Math.min(100, Math.max(progress.skills.speaking, Math.round(evaluation.score * 0.8)));
+  saveUserProgress(progress);
+  return result;
+}
+
+function submitSpeakingFallback(event) {
+  event.preventDefault();
+  const transcript = String(new FormData(event.currentTarget).get('transcript') || '').trim();
+  if (!transcript) return toast('Hãy nhập câu tiếng Hàn hoặc dùng micro.');
+  saveSpeakingAttempt(transcript);
+  render();
+}
+
+function completeSpeakingSession() {
+  if (state.recording) stopMedia();
+  setView('speaking-result');
+}
+
+function startWriting(promptId) {
+  state.writingPrompt = window.KLEARN_MODULE_DATA?.writingPrompts?.find((prompt) => prompt.id === promptId) || null;
+  state.writingSubmission = null;
+  if (state.writingPrompt) { state.writingLevel = state.writingPrompt.level; state.writingMode = state.writingPrompt.type; }
+  setView('writing-editor');
+}
+
+function updateWritingCounter() {
+  const text = document.getElementById('writingText')?.value || '';
+  const characterCount = [...text.replace(/\s/g, '')].length;
+  const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const charElement = document.getElementById('characterCount');
+  const wordElement = document.getElementById('wordCount');
+  if (charElement) charElement.textContent = `${characterCount} ký tự`;
+  if (wordElement) wordElement.textContent = `${wordCount} từ`;
+}
+
+function submitWriting(event) {
+  event.preventDefault();
+  const answer = String(new FormData(event.currentTarget).get('answer') || '').trim();
+  const prompt = state.writingPrompt;
+  if (!answer || !prompt) return toast('Hãy viết câu trả lời trước khi nộp.');
+  const compact = answer.replace(/\s/g, '');
+  const characterCount = [...compact].length;
+  const wordCount = answer.split(/\s+/).length;
+  const keywordMatches = prompt.keywords.filter((keyword) => compact.includes(keyword.replace(/\s/g, ''))).length;
+  const targetLength = prompt.level <= 2 ? 15 : prompt.level <= 4 ? 80 : 150;
+  const lengthScore = Math.min(50, Math.round((characterCount / targetLength) * 50));
+  const keywordScore = Math.round((keywordMatches / Math.max(1, prompt.keywords.length)) * 40);
+  const structureScore = /[.!?。]|다\.?$|요\.?$/.test(answer) ? 10 : 4;
+  const result = { id: uniqueId(), userId: state.currentUser.id, promptId: prompt.id, level: prompt.level, type: prompt.type, topic: prompt.topic, answer, characterCount, wordCount, keywordMatches, keywordTotal: prompt.keywords.length, preliminaryScore: Math.min(100, lengthScore + keywordScore + structureScore), sampleAnswer: prompt.sampleAnswer, tipsVi: prompt.tipsVi, submittedAt: new Date().toISOString() };
+  state.writingSubmission = result;
+  const allWriting = storage.get(STORAGE_KEYS.writing, {});
+  allWriting[state.currentUser.id] = [result, ...(Array.isArray(allWriting[state.currentUser.id]) ? allWriting[state.currentUser.id] : [])].slice(0, 100);
+  storage.set(STORAGE_KEYS.writing, allWriting);
+  const progress = getUserProgress();
+  progress.writingSubmissions = [result, ...progress.writingSubmissions].slice(0, 100);
+  progress.daily.tasks.writing = true;
+  progress.skills.writing = Math.min(100, Math.max(progress.skills.writing, Math.round(result.preliminaryScore * 0.8)));
+  saveUserProgress(progress);
+  setView('writing-result');
+}
+
 // ============================================================
 // Lesson, SRS, TTS and pronunciation handlers
 // ============================================================
 function openLesson(lessonId) {
-  if (lessonId !== 'topic-particle') return toast('Bài học đang được chuẩn bị.');
+  if (lessonId !== 'topic-particle') {
+    state.selectedLessonPreview = lessonId;
+    setView('lesson-preview');
+    return;
+  }
   state.selectedWords = [];
   state.sentenceCorrect = Boolean(state.lessonProgress['topic-particle']?.completed);
   setView('lesson');
@@ -1391,12 +1807,12 @@ function rateSrs(rating) {
   render();
 }
 
-function speakKorean(text) {
+function speakKorean(text, rate = 0.85) {
   if (!('speechSynthesis' in window)) return toast('Thiết bị chưa hỗ trợ đọc văn bản.');
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'ko-KR';
-  utterance.rate = 0.85;
+  utterance.rate = Math.max(0.5, Math.min(1.2, Number(rate) || 0.85));
   window.speechSynthesis.speak(utterance);
 }
 
@@ -1421,15 +1837,10 @@ function similarityScore(target, transcript) {
 }
 
 function storePronunciationAttempt(transcript) {
-  const result = { target: '안녕하세요', transcript, score: similarityScore('안녕하세요', transcript), createdAt: new Date().toISOString() };
+  if (state.currentView === 'speaking-session') return saveSpeakingAttempt(transcript);
+  const result = { target: '안녕하세요', transcript, score: similarityScore('안녕하세요', transcript), feedback: 'Điểm dựa trên độ giống văn bản.', createdAt: new Date().toISOString() };
   state.pronunciationResult = result;
-  const progress = getUserProgress();
-  progress.pronunciationAttempts = [result, ...progress.pronunciationAttempts].slice(0, 20);
-  progress.daily.tasks.speaking = true;
-  progress.skills.speaking = Math.min(100, progress.skills.speaking + 5);
-  progress.skills.listening = Math.min(100, progress.skills.listening + 2);
-  saveUserProgress(progress);
-  return result;
+  return saveSpeakingAttempt(transcript);
 }
 
 function stopMedia() {
@@ -1466,7 +1877,7 @@ async function toggleRecording() {
           if (state.recordedAudioUrl) URL.revokeObjectURL(state.recordedAudioUrl);
           state.recordedAudioUrl = URL.createObjectURL(new Blob(state.chunks, { type: state.mediaRecorder.mimeType || 'audio/webm' }));
         }
-        if (state.currentView === 'practice') render();
+        if (['practice', 'speaking-session'].includes(state.currentView)) render();
       };
       state.mediaRecorder.start();
     }
