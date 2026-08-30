@@ -242,8 +242,22 @@ const I18nService = {
   locale() { return window.KLEARN_LOCALES?.[this.getPreference()] || window.KLEARN_LOCALES?.vi || { keys: {}, phrases: {} }; },
   t(key, variables = {}) {
     const current = this.locale();
-    const fallback = window.KLEARN_LOCALES?.vi?.keys?.[key] || key;
-    return String(current.keys?.[key] || fallback).replace(/\{(\w+)\}/g, (_, name) => variables[name] ?? '');
+    const translated = current.keys?.[key];
+    if (typeof translated !== 'string') {
+      if (this.getPreference() !== 'vi') console.warn(`[i18n] Missing ${this.getPreference()} key: ${key}`);
+      return this.getPreference() === 'vi' ? String(window.KLEARN_LOCALES?.vi?.keys?.[key] || '') : '';
+    }
+    return translated.replace(/\{(\w+)\}/g, (_, name) => variables[name] ?? '');
+  },
+  number(value) { return new Intl.NumberFormat(this.locale().htmlLang || 'vi').format(Number(value) || 0); },
+  countLabel(kind, count) {
+    const n = Number(count) || 0; const locale = this.getPreference(); const value = this.number(n);
+    const labels = {
+      vi: { words: `${value} từ`, questions: `${value} câu`, minutes: `${value} phút`, lessons: `${value} bài`, days: `${value} ngày` },
+      en: { words: `${value} ${n === 1 ? 'word' : 'words'}`, questions: `${value} ${n === 1 ? 'question' : 'questions'}`, minutes: `${value} ${n === 1 ? 'minute' : 'minutes'}`, lessons: `${value} ${n === 1 ? 'lesson' : 'lessons'}`, days: `${value} ${n === 1 ? 'day' : 'days'}` },
+      'zh-CN': { words: `${value} 个单词`, questions: `${value} 题`, minutes: `${value} 分钟`, lessons: `${value} 课`, days: `${value} 天` }
+    };
+    return labels[locale]?.[kind] || labels.vi[kind];
   },
   translateText(text) {
     const value = String(text);
@@ -304,24 +318,40 @@ const I18nService = {
     const overlay = window.KLEARN_CONTENT_TRANSLATIONS?.[item.korean || item.koreanText || item.appLine];
     const container = item[`${field}s`] || item[field] || overlay?.[field];
     if (container && typeof container === 'object' && !Array.isArray(container)) {
-      for (const candidate of [locale, 'en', 'vi']) if (typeof container[candidate] === 'string' && container[candidate].trim()) return container[candidate];
+      for (const candidate of locale === 'vi' ? ['vi', 'en'] : [locale, 'en']) if (typeof container[candidate] === 'string' && container[candidate].trim()) return container[candidate];
     }
     const suffixes = locale === 'zh-CN' ? ['Zh', 'ZhCN'] : locale === 'en' ? ['En'] : ['Vi'];
     for (const suffix of suffixes) {
       const candidate = item[`${field}${suffix}`];
       if (typeof candidate === 'string' && candidate.trim()) return candidate;
     }
-    const legacy = field === 'meaning' ? ['meaningVi', 'vietnamese', 'translationVi'] : field === 'example' ? ['exampleVi', 'translation'] : [];
+    const legacy = locale === 'vi' ? (field === 'meaning' ? ['meaningVi', 'vietnamese', 'translationVi'] : field === 'example' ? ['exampleVi', 'translation'] : []) : (field === 'meaning' ? ['meaningEn', 'translationEn'] : field === 'example' ? ['exampleEn', 'translationEn'] : []);
     return legacy.map((key) => item[key]).find((value) => typeof value === 'string' && value.trim()) || '';
   },
   getLocalizedValue(value, locale = this.getPreference(), fallback = '') {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-      for (const candidate of [locale, 'en', 'vi']) if (typeof value[candidate] === 'string' && value[candidate].trim()) return value[candidate];
+      for (const candidate of locale === 'vi' ? ['vi', 'en'] : [locale, 'en']) if (typeof value[candidate] === 'string' && value[candidate].trim()) return value[candidate];
       return fallback;
     }
     return typeof value === 'string' ? value : fallback;
   },
   localizedArray(values = [], locale = this.getPreference()) { return Array.isArray(values) ? values.map((value) => this.getLocalizedValue(value, locale, '')).filter(Boolean) : []; },
+  localizeQuestion(question, locale = this.getPreference()) {
+    if (!question || typeof question !== 'object') return question;
+    return {
+      ...question,
+      prompt: this.getLocalizedValue(question.promptLocales || question.prompts || (locale === 'vi' ? question.prompt : null), locale, locale === 'vi' ? (question.prompt || '') : (question.koreanText || '')),
+      options: this.localizedArray(question.optionsLocales || question.optionLocales || question.options, locale).length ? this.localizedArray(question.optionsLocales || question.optionLocales || question.options, locale) : (question.options || []),
+      explanation: this.getLocalizedValue(question.explanations || question.explanationLocales || question.explanation, locale, locale === 'vi' ? (question.explanation || question.explanationVi || '') : '')
+    };
+  },
+  auditTranslations() {
+    const base = Object.keys(window.KLEARN_LOCALES?.vi?.keys || {});
+    return {
+      missingEn: base.filter((key) => typeof window.KLEARN_LOCALES?.en?.keys?.[key] !== 'string'),
+      missingZh: base.filter((key) => typeof window.KLEARN_LOCALES?.['zh-CN']?.keys?.[key] !== 'string')
+    };
+  },
   updateHeader() {
     const locale = this.getPreference();
     const themePreference = ThemeService.getPreference();
@@ -342,6 +372,7 @@ const I18nService = {
     this.updateHeader();
   }
 };
+window.auditTranslations = () => I18nService.auditTranslations();
 
 function getUserSettings() {
   const settings = storage.get(STORAGE_KEYS.settings, {});
@@ -384,12 +415,12 @@ function renderKoreanLearningText(item = {}, options = {}) {
   const pronunciationRomanization = getDisplayPronunciation({ ...item, korean });
   const showRomanization = options.forceRomanization ?? showRomanizationEnabled();
   const sizeClass = options.compact ? ' compact' : '';
-  return `<div class="korean-learning-text${sizeClass}"><div class="learning-hangul" lang="ko">${escapeHtml(korean)}</div>${showRomanization && romanization ? `<div class="learning-romanization">${pronunciationRomanization ? `<span><b>Phiên âm:</b> ${escapeHtml(romanization)}</span><span><b>Đọc thực tế:</b> ${escapeHtml(pronunciationRomanization)}</span>` : escapeHtml(romanization)}</div>` : ''}${meaningVi ? `<div class="learning-meaning">${escapeHtml(meaningVi)}</div>` : ''}${options.includeExample && exampleVi ? `<div class="learning-example">${escapeHtml(exampleVi)}</div>` : ''}</div>`;
+  return `<div class="korean-learning-text${sizeClass}"><div class="learning-hangul" lang="ko">${escapeHtml(korean)}</div>${showRomanization && romanization ? `<div class="learning-romanization">${pronunciationRomanization ? `<span><b>${I18nService.t('romanization.label')}:</b> ${escapeHtml(romanization)}</span><span><b>${I18nService.t('romanization.actual')}:</b> ${escapeHtml(pronunciationRomanization)}</span>` : escapeHtml(romanization)}</div>` : ''}${meaningVi ? `<div class="learning-meaning">${escapeHtml(meaningVi)}</div>` : ''}${options.includeExample && exampleVi ? `<div class="learning-example">${escapeHtml(exampleVi)}</div>` : ''}</div>`;
 }
 
 function renderRomanizationToggle(compact = false) {
   const enabled = showRomanizationEnabled();
-  return `<button class="romanization-toggle${compact ? ' compact' : ''}" data-romanization-toggle aria-pressed="${enabled}"><span>Aa</span><b>Phiên âm: ${enabled ? 'Bật' : 'Tắt'}</b></button>`;
+  return `<button class="romanization-toggle${compact ? ' compact' : ''}" data-romanization-toggle aria-pressed="${enabled}"><span>Aa</span><b>${I18nService.t('romanization.label')}: ${enabled ? I18nService.t('romanization.on') : I18nService.t('romanization.off')}</b></button>`;
 }
 
 function toast(message) {
@@ -1112,18 +1143,18 @@ function homeView() {
   const recommendedLevel = state.currentUser.targetTopikLevel;
   const recommendedSet = PracticeService.bank.sets.find((set) => set.level === `TOPIK_${recommendedLevel}`);
   const recommendVocabulary = dueCount > 0 && !practiceStats.latest;
-  const recommendationTitle = recommendVocabulary ? `Ôn ${Math.min(10, dueCount)} từ đến hạn` : recommendedSet ? recommendedSet.title : topikLabel(recommendedLevel);
-  const recommendationReason = recommendVocabulary ? 'Bắt đầu bằng từ đến hạn để bảo vệ nhịp SRS.' : practiceStats.weakTopics[0] ? `Bạn cần củng cố: ${practiceStats.weakTopics[0][0]}` : `Tiến tới mục tiêu ${topikLabel(recommendedLevel)} từ trình độ ${topikLabel(state.currentUser.currentTopikLevel)}.`;
+  const recommendationTitle = recommendVocabulary ? I18nService.t('home.reviewDue', { count: I18nService.number(Math.min(10, dueCount)), unit: I18nService.getPreference() === 'en' ? (Math.min(10, dueCount) === 1 ? 'word' : 'words') : '' }) : recommendedSet ? recommendedSet.title : topikLabel(recommendedLevel);
+  const recommendationReason = recommendVocabulary ? I18nService.t('home.reviewDueReason') : practiceStats.weakTopics[0] ? `${I18nService.getPreference() === 'en' ? 'You need to strengthen' : I18nService.getPreference() === 'zh-CN' ? '需要加强' : 'Bạn cần củng cố'}: ${practiceStats.weakTopics[0][0]}` : `${I18nService.getPreference() === 'en' ? 'Progress toward' : I18nService.getPreference() === 'zh-CN' ? '迈向目标' : 'Tiến tới mục tiêu'} ${topikLabel(recommendedLevel)}.`;
   const roadmapNames = ['Hangul', 'TOPIK I', 'TOPIK II', 'TOPIK Exam'];
-  return `<section class="dashboard-hero section"><p class="eyebrow">Lộ trình cá nhân</p><h1 class="headline">Xin chào, ${escapeHtml(firstName(state.currentUser.fullName))} 👋</h1><p class="korean-motto">오늘도 화이팅!</p></section>
-    <section class="card glass section"><div class="streak-line"><strong>🔥 ${progress.stats.streak} ngày liên tiếp</strong><span>${pct}% hôm nay</span></div><div class="bar large"><span style="width:${pct}%"></span></div><div class="daily-plan"><button data-view="review"><b>${progress.daily.tasks.vocabulary?'✓':'○'} 10 từ</b><small>Ôn SRS</small></button><button data-view="quick-practice"><b>${progress.daily.tasks.practice?'✓':'○'} 15 câu</b><small>Luyện đề</small></button><button data-open-skill="listening" data-view="skill-hub"><b>${progress.daily.tasks.listening?'✓':'○'} 5 phút</b><small>Nghe</small></button><button data-view="speaking-hub"><b>${progress.daily.tasks.speaking?'✓':'○'} 5 phút</b><small>Nói</small></button><button data-view="writing-hub"><b>${progress.daily.tasks.writing?'✓':'○'} 1 bài</b><small>Viết ngắn</small></button></div><p class="security-note">Không bắt buộc hoàn thành tất cả.</p></section>
-    <section class="dashboard-grid section"><article class="feature-card dark-card"><span class="card-kicker">Tiếp tục học</span><h2>${escapeHtml(state.currentUser.level)} · Unit 3</h2><p>은/는 và 이/가</p><button class="btn light" data-open-lesson="topic-particle">Tiếp tục</button></article><article class="feature-card review-card"><span class="card-kicker">Ôn tập hôm nay</span><h2>🧠 ${dueCount} từ cần ôn</h2><p>Ôn đúng lúc để nhớ lâu hơn.</p><button class="btn primary" data-view="review">Ôn ngay</button></article></section>
-    <section class="card practice-promo section"><div><p class="eyebrow">Luyện tập hôm nay</p><h2>Luyện đề tiếng Hàn</h2><p>15 câu theo trình độ · 10 từ cần kiểm tra</p><div class="practice-last-score">${practiceStats.latest ? `Điểm gần nhất: <strong>${practiceStats.latest.score}/${practiceStats.latest.total}</strong>` : 'Bạn chưa làm đề nào'}</div></div><div class="practice-promo-actions"><button class="btn primary" data-view="practice-hub">Luyện ngay</button><button class="btn secondary" data-view="quick-practice">Luyện nhanh</button></div></section>
-    <section class="card recommended-card section"><div><p class="eyebrow">Đề xuất cho bạn</p><h2>${escapeHtml(recommendationTitle)}</h2><p>${escapeHtml(recommendationReason)}</p></div><button class="btn primary" ${recommendVocabulary ? 'data-view="review"' : recommendedSet ? `data-start-set="${recommendedSet.id}"` : 'data-view="practice-hub"'}>Bắt đầu</button></section>
-    <section class="card section"><div class="section-heading"><div><p class="eyebrow">Lộ trình</p><h2 class="section-title">Từ nền tảng đến kỳ thi</h2></div><span class="level-pill">${escapeHtml(state.currentUser.level)}</span></div><div class="roadmap-list">${roadmapNames.map((name, index) => {
+  return `<section class="dashboard-hero section"><p class="eyebrow">${I18nService.t('home.path')}</p><h1 class="headline">${I18nService.t('home.greeting', { name: escapeHtml(firstName(state.currentUser.fullName)) })}</h1><p class="korean-motto">오늘도 화이팅!</p></section>
+    <section class="card glass section"><div class="streak-line"><strong>🔥 ${I18nService.countLabel('days', progress.stats.streak)} ${I18nService.t('home.streak')}</strong><span>${pct}% ${I18nService.t('home.today')}</span></div><div class="bar large"><span style="width:${pct}%"></span></div><div class="daily-plan"><button data-view="review"><b>${progress.daily.tasks.vocabulary?'✓':'○'} ${I18nService.countLabel('words', 10)}</b><small>${I18nService.t('home.srsReview')}</small></button><button data-view="quick-practice"><b>${progress.daily.tasks.practice?'✓':'○'} ${I18nService.countLabel('questions', 15)}</b><small>${I18nService.t('home.practiceTest')}</small></button><button data-open-skill="listening" data-view="skill-hub"><b>${progress.daily.tasks.listening?'✓':'○'} ${I18nService.countLabel('minutes', 5)}</b><small>${I18nService.t('home.listening')}</small></button><button data-view="speaking-hub"><b>${progress.daily.tasks.speaking?'✓':'○'} ${I18nService.countLabel('minutes', 5)}</b><small>${I18nService.t('home.speaking')}</small></button><button data-view="writing-hub"><b>${progress.daily.tasks.writing?'✓':'○'} ${I18nService.countLabel('lessons', 1)}</b><small>${I18nService.t('home.shortWriting')}</small></button></div><p class="security-note">${I18nService.t('home.notRequired')}</p></section>
+    <section class="dashboard-grid section"><article class="feature-card dark-card"><span class="card-kicker">${I18nService.t('home.continueLearning')}</span><h2>${escapeHtml(state.currentUser.level)} · Unit 3</h2><p>${I18nService.t('home.continueGrammar')}</p><button class="btn light" data-open-lesson="topic-particle">${I18nService.t('common.continue')}</button></article><article class="feature-card review-card"><span class="card-kicker">${I18nService.t('home.todayReview')}</span><h2>🧠 ${I18nService.countLabel('words', dueCount)} ${I18nService.t('home.toReview')}</h2><p>${I18nService.t('home.reviewTip')}</p><button class="btn primary" data-view="review">${I18nService.t('home.reviewNow')}</button></article></section>
+    <section class="card practice-promo section"><div><p class="eyebrow">${I18nService.t('home.todayPractice')}</p><h2>${I18nService.t('home.koreanPractice')}</h2><p>${I18nService.countLabel('questions', 15)} · ${I18nService.countLabel('words', 10)} ${I18nService.t('home.toCheck')}</p><div class="practice-last-score">${practiceStats.latest ? `${I18nService.t('home.latestScore')}: <strong>${practiceStats.latest.score}/${practiceStats.latest.total}</strong>` : I18nService.t('home.notCompleted')}</div></div><div class="practice-promo-actions"><button class="btn primary" data-view="practice-hub">${I18nService.t('home.reviewNowAction')}</button><button class="btn secondary" data-view="quick-practice">${I18nService.t('home.quickPractice')}</button></div></section>
+    <section class="card recommended-card section"><div><p class="eyebrow">${I18nService.t('home.recommended')}</p><h2>${escapeHtml(recommendationTitle)}</h2><p>${escapeHtml(recommendationReason)}</p></div><button class="btn primary" ${recommendVocabulary ? 'data-view="review"' : recommendedSet ? `data-start-set="${recommendedSet.id}"` : 'data-view="practice-hub"'}>${I18nService.t('home.start')}</button></section>
+    <section class="card section"><div class="section-heading"><div><p class="eyebrow">${I18nService.t('home.learningPath')}</p><h2 class="section-title">${I18nService.t('home.pathSubtitle')}</h2></div><span class="level-pill">${escapeHtml(state.currentUser.level)}</span></div><div class="roadmap-list">${roadmapNames.map((name, index) => {
       const value = roadmap[index];
       const status = value === null ? 'locked' : value >= 100 ? 'done' : 'active';
-      return `<div class="roadmap-row ${status}"><span class="roadmap-icon">${status === 'done' ? '✓' : status === 'locked' ? '🔒' : '▶'}</span><div><strong>${name}</strong><div class="bar"><span style="width:${value || 0}%"></span></div></div><b>${status === 'locked' ? 'Khóa' : `${value}%`}</b></div>`;
+      return `<div class="roadmap-row ${status}"><span class="roadmap-icon">${status === 'done' ? '✓' : status === 'locked' ? '🔒' : '▶'}</span><div><strong>${name}</strong><div class="bar"><span style="width:${value || 0}%"></span></div></div><b>${status === 'locked' ? I18nService.t('home.locked') : `${value}%`}</b></div>`;
     }).join('')}</div></section>`;
 }
 
@@ -1138,12 +1169,12 @@ function lessonsView() {
 function lessonView() {
   const completed = Boolean(state.lessonProgress['topic-particle']?.completed);
   const romanization = showRomanizationEnabled();
-  return `<div class="lesson-header"><button class="close-btn" data-view="lessons" aria-label="Đóng bài học">×</button><div class="lesson-progress"><div class="bar"><span style="width:${completed ? 100 : 60}%"></span></div></div><span class="subtle">${completed ? '10/10' : '6/10'}</span></div>
-    <section class="section lesson-title"><p class="eyebrow">Ngữ pháp sơ cấp</p><h1 class="headline">Trợ từ chủ đề</h1><div class="korean">은/는</div></section>
-    <section class="card glass section"><h2 class="section-title">🧠 So sánh với Tiếng Việt</h2><p class="subtle">Trong tiếng Hàn, <b>은/는</b> được gắn sau danh từ để đánh dấu chủ đề của câu. Có thể hiểu gần với “thì” hoặc “là” trong tiếng Việt.</p><div class="grammar-box"><b>Quy tắc</b><ul class="subtle"><li>Có patchim (phụ âm cuối) + <b>은</b></li><li>Không có patchim + <b>는</b></li></ul></div></section>
-    <section class="section"><div class="section-heading"><h2 class="section-title">Ví dụ</h2>${renderRomanizationToggle(true)}</div><div class="example"><div><div class="korean example-korean" lang="ko">저<span class="highlight">는</span> 학생입니다.</div>${romanization ? '<div class="learning-romanization">jeoneun haksaeng-imnida.</div>' : ''}<div class="learning-meaning">Tôi là học sinh.</div></div><button class="audio-btn" data-speak="저는 학생입니다" aria-label="Nghe phát âm tiếng Hàn">🔊</button></div><div class="example"><div><div class="korean example-korean" lang="ko">선생님<span class="highlight">은</span> 한국 사람입니다.</div>${romanization ? '<div class="learning-romanization">seonsaengnimeun hanguk saram-imnida.</div>' : ''}<div class="learning-meaning">Giáo viên là người Hàn Quốc.</div></div><button class="audio-btn" data-speak="선생님은 한국 사람입니다" aria-label="Nghe phát âm tiếng Hàn">🔊</button></div></section>
-    <section class="exercise section"><h2 class="section-title">🧩 Sắp xếp câu</h2><p class="subtle center">Tạo câu: “Tôi là người Việt Nam.”</p><div id="dropZone" class="drop-zone"></div><div id="chipBox" class="chips"></div><p id="sentenceFeedback" class="exercise-feedback" role="status"></p><div class="action-row"><button class="btn secondary" id="resetSentence">Làm lại</button><button class="btn primary" id="checkSentence">Kiểm tra</button></div></section>
-    <div class="action-row lesson-actions"><button class="btn secondary" data-view="lessons">Quay lại</button><button class="btn primary" id="completeLesson" ${!state.sentenceCorrect && !completed ? 'disabled' : ''}>${completed ? 'Đã hoàn thành ✓' : 'Hoàn thành bài'}</button></div>`;
+  return `<div class="lesson-header"><button class="close-btn" data-view="lessons" aria-label="${I18nService.t('lesson.close')}">×</button><div class="lesson-progress"><div class="bar"><span style="width:${completed ? 100 : 60}%"></span></div></div><span class="subtle">${completed ? '10/10' : '6/10'}</span></div>
+    <section class="section lesson-title"><p class="eyebrow">${I18nService.t('lesson.grammarEyebrow')}</p><h1 class="headline">${I18nService.t('lesson.title')}</h1><div class="korean">은/는</div></section>
+    <section class="card glass section"><h2 class="section-title">${I18nService.t('lesson.compareTitle')}</h2><p class="subtle">${I18nService.t('lesson.compareBody')}</p><div class="grammar-box"><b>${I18nService.t('lesson.rule')}</b><ul class="subtle"><li>${I18nService.t('lesson.withBatchim')}</li><li>${I18nService.t('lesson.withoutBatchim')}</li></ul></div></section>
+    <section class="section"><div class="section-heading"><h2 class="section-title">${I18nService.t('lesson.examples')}</h2>${renderRomanizationToggle(true)}</div><div class="example"><div><div class="korean example-korean" lang="ko">저<span class="highlight">는</span> 학생입니다.</div>${romanization ? '<div class="learning-romanization">jeoneun haksaeng-imnida.</div>' : ''}<div class="learning-meaning">${I18nService.localizedText({ korean: '저는 학생입니다.' }, 'meaning')}</div></div><button class="audio-btn" data-speak="저는 학생입니다" aria-label="${I18nService.t('lesson.audio')}">🔊</button></div><div class="example"><div><div class="korean example-korean" lang="ko">선생님<span class="highlight">은</span> 한국 사람입니다.</div>${romanization ? '<div class="learning-romanization">seonsaengnimeun hanguk saram-imnida.</div>' : ''}<div class="learning-meaning">${I18nService.localizedText({ korean: '선생님은 한국 사람입니다.' }, 'meaning')}</div></div><button class="audio-btn" data-speak="선생님은 한국 사람입니다" aria-label="${I18nService.t('lesson.audio')}">🔊</button></div></section>
+    <section class="exercise section"><h2 class="section-title">${I18nService.t('lesson.arrange')}</h2><p class="subtle center">${I18nService.t('lesson.createSentence')}</p><div id="dropZone" class="drop-zone"></div><div id="chipBox" class="chips"></div><p id="sentenceFeedback" class="exercise-feedback" role="status"></p><div class="action-row"><button class="btn secondary" id="resetSentence">${I18nService.t('lesson.reset')}</button><button class="btn primary" id="checkSentence">${I18nService.t('lesson.check')}</button></div></section>
+    <div class="action-row lesson-actions"><button class="btn secondary" data-view="lessons">${I18nService.t('lesson.back')}</button><button class="btn primary" id="completeLesson" ${!state.sentenceCorrect && !completed ? 'disabled' : ''}>${completed ? I18nService.t('lesson.completed') : I18nService.t('lesson.complete')}</button></div>`;
 }
 
 function practiceHubView() {
@@ -1246,7 +1277,7 @@ function quickPracticeView() {
 function practiceSessionView() {
   const session = state.practiceSession;
   if (!session?.questions?.length) return `<section class="empty-state"><h1 class="headline">Chưa có phiên luyện</h1><button class="btn primary" data-view="practice-hub">Chọn đề</button></section>`;
-  const question = session.questions[session.index];
+  const question = I18nService.localizeQuestion(session.questions[session.index]);
   const selectedAnswer = session.selected;
   const correct = selectedAnswer === question.correctAnswer;
   const isListening = question.skill === 'listening';
@@ -2014,7 +2045,7 @@ function setupSentenceExercise() {
   const box = document.getElementById('chipBox');
   const feedback = document.getElementById('sentenceFeedback');
   function draw() {
-    zone.innerHTML = state.selectedWords.length ? state.selectedWords.map((word, index) => `<button class="chip selected" data-selected-word="${index}">${word}</button>`).join('') : '<span class="subtle">Chạm vào các từ bên dưới</span>';
+    zone.innerHTML = state.selectedWords.length ? state.selectedWords.map((word, index) => `<button class="chip selected" data-selected-word="${index}">${word}</button>`).join('') : `<span class="subtle">${I18nService.t('exercise.tapHint')}</span>`;
     box.innerHTML = allWords.filter((word) => !state.selectedWords.includes(word)).map((word) => `<button class="chip" data-word="${word}">${word}</button>`).join('');
     box.querySelectorAll('[data-word]').forEach((button) => { button.onclick = () => { state.selectedWords.push(button.dataset.word); state.sentenceCorrect = false; draw(); }; });
     zone.querySelectorAll('[data-selected-word]').forEach((button) => { button.onclick = () => { state.selectedWords.splice(Number(button.dataset.selectedWord), 1); state.sentenceCorrect = false; draw(); }; });
