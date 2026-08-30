@@ -21,7 +21,7 @@ const storage = {
       const raw = localStorage.getItem(key);
       return raw === null ? fallback : JSON.parse(raw);
     } catch (error) {
-      console.warn(`[K-Learn VN] Dữ liệu ${key} bị lỗi và đã được bỏ qua.`, error);
+      console.warn(`[TH-Tiếng Hàn] Dữ liệu ${key} bị lỗi và đã được bỏ qua.`, error);
       try { localStorage.removeItem(key); } catch (_) { /* Storage may be unavailable. */ }
       return fallback;
     }
@@ -31,7 +31,7 @@ const storage = {
       localStorage.setItem(key, JSON.stringify(value));
       return true;
     } catch (error) {
-      console.warn(`[K-Learn VN] Không thể lưu ${key}.`, error);
+      console.warn(`[TH-Tiếng Hàn] Không thể lưu ${key}.`, error);
       return false;
     }
   },
@@ -45,8 +45,9 @@ function migrateLegacyStorage() {
   const settings = storage.get(STORAGE_KEYS.settings, {});
   storage.set(STORAGE_KEYS.settings, {
     ...(settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {}),
-    schemaVersion: 6,
+    schemaVersion: 7,
     language: settings?.language || 'vi',
+    theme: ['system', 'light', 'dark'].includes(settings?.theme) ? settings.theme : 'system',
     users: settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? settings.users : {},
     updatedAt: new Date().toISOString()
   });
@@ -179,11 +180,61 @@ function initials(fullName = '') { return (firstName(fullName).charAt(0) || '한
 function appElement() { return document.getElementById('app'); }
 function formatDate(value) { return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(value)); }
 
+const THEME_VALUES = Object.freeze(['system', 'light', 'dark']);
+const THEME_COLORS = Object.freeze({ light: '#f8f9fa', dark: '#0f1419' });
+
+const ThemeService = {
+  isValid(value) { return THEME_VALUES.includes(value); },
+  getPreference() {
+    const settings = storage.get(STORAGE_KEYS.settings, {});
+    const saved = state.currentUser?.id && settings?.users?.[state.currentUser.id];
+    if (this.isValid(saved?.theme)) return saved.theme;
+    return this.isValid(settings?.theme) ? settings.theme : 'system';
+  },
+  resolve(preference = this.getPreference()) {
+    if (preference !== 'system') return preference;
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  },
+  apply(preference = this.getPreference()) {
+    const safePreference = this.isValid(preference) ? preference : 'system';
+    const resolved = this.resolve(safePreference);
+    const root = document.documentElement;
+    root.dataset.themePreference = safePreference;
+    root.dataset.theme = resolved;
+    root.style.colorScheme = resolved;
+    document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => { meta.setAttribute('content', THEME_COLORS[resolved]); });
+    return resolved;
+  },
+  setPreference(preference) {
+    const safePreference = this.isValid(preference) ? preference : 'system';
+    const rawSettings = storage.get(STORAGE_KEYS.settings, {});
+    const settings = rawSettings && typeof rawSettings === 'object' && !Array.isArray(rawSettings) ? { ...rawSettings } : {};
+    const users = settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
+    if (state.currentUser?.id) {
+      users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), theme: safePreference, updatedAt: new Date().toISOString() };
+    } else {
+      settings.theme = safePreference;
+    }
+    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 7, language: settings?.language || 'vi', users, updatedAt: new Date().toISOString() });
+    this.apply(safePreference);
+  },
+  watchSystemTheme() {
+    const media = window.matchMedia?.('(prefers-color-scheme: dark)');
+    if (!media) return;
+    const listener = () => { if (this.getPreference() === 'system') this.apply('system'); };
+    media.addEventListener?.('change', listener);
+    media.addListener?.(listener);
+  }
+};
+
 function getUserSettings() {
   const settings = storage.get(STORAGE_KEYS.settings, {});
   const saved = state.currentUser?.id && settings?.users?.[state.currentUser.id];
   const migratedDefault = typeof settings?.showRomanization === 'boolean' ? settings.showRomanization : true;
-  return { showRomanization: typeof saved?.showRomanization === 'boolean' ? saved.showRomanization : migratedDefault };
+  return {
+    showRomanization: typeof saved?.showRomanization === 'boolean' ? saved.showRomanization : migratedDefault,
+    theme: ThemeService.isValid(saved?.theme) ? saved.theme : (ThemeService.isValid(settings?.theme) ? settings.theme : 'system')
+  };
 }
 
 function showRomanizationEnabled() { return getUserSettings().showRomanization; }
@@ -193,7 +244,7 @@ function setShowRomanization(showRomanization) {
   const settings = storage.get(STORAGE_KEYS.settings, {});
   const users = settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
   users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), showRomanization: Boolean(showRomanization), updatedAt: new Date().toISOString() };
-  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 6, language: settings?.language || 'vi', users, updatedAt: new Date().toISOString() });
+  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 7, language: settings?.language || 'vi', users, updatedAt: new Date().toISOString() });
 }
 
 function getRomanization(itemOrText = '') {
@@ -480,7 +531,7 @@ function normalizeUser(user) {
   const currentTopikLevel = Math.max(1, Math.min(6, Number(user.currentTopikLevel) || inferredTopikLevel(user.level)));
   return {
     ...user,
-    fullName: typeof user.fullName === 'string' && user.fullName.trim() ? user.fullName : 'Người học K-Learn',
+    fullName: typeof user.fullName === 'string' && user.fullName.trim() ? user.fullName : 'Người học TH-Tiếng Hàn',
     email: typeof user.email === 'string' ? user.email : '',
     avatar: typeof user.avatar === 'string' ? user.avatar : initials(user.fullName || ''),
     goals: Array.isArray(user.goals) ? user.goals : [],
@@ -829,18 +880,28 @@ function syncShell() {
 // ============================================================
 // Public and onboarding views
 // ============================================================
+function renderThemeControl(compact = false) {
+  const selected = ThemeService.getPreference();
+  const options = [
+    ['system', 'Hệ thống', 'Tự theo giao diện thiết bị'],
+    ['light', 'Sáng', 'Nền sáng, dễ đọc'],
+    ['dark', 'Tối', 'Dịu mắt khi học ban đêm']
+  ];
+  return `<section class="theme-control${compact ? ' compact' : ''}" aria-labelledby="themeControlTitle"><div><h2 id="themeControlTitle">Giao diện</h2><p>Chọn cách hiển thị bạn thấy thoải mái nhất.</p></div><div class="theme-options" role="radiogroup" aria-label="Chế độ giao diện">${options.map(([value, label, description]) => `<label class="theme-option"><input type="radio" name="themePreference" value="${value}" data-theme-choice ${selected === value ? 'checked' : ''}><span><b>${label}</b><small>${description}</small></span></label>`).join('')}</div></section>`;
+}
+
 function welcomeView() {
   return `<section class="auth-page welcome-page">
-    <div class="brand-mark" aria-hidden="true">한</div><p class="eyebrow">K-Learn VN</p>
+    <div class="brand-mark" aria-hidden="true">한</div><p class="eyebrow">TH-Tiếng Hàn</p>
     <h1 class="welcome-title">Tiếng Hàn được thiết kế<br>dành riêng cho người Việt.</h1>
     <div class="welcome-points"><span>Học theo trình độ.</span><span>Học theo mục tiêu.</span><span>Tiến bộ mỗi ngày.</span></div>
-    <div class="auth-actions"><button class="btn primary full" data-view="register">Bắt đầu học</button><p class="auth-switch">Đã có tài khoản?</p><button class="btn secondary full" data-view="login">Đăng nhập</button></div>
+    <div class="auth-actions"><button class="btn primary full" data-view="register">Bắt đầu học</button><p class="auth-switch">Đã có tài khoản?</p><button class="btn secondary full" data-view="login">Đăng nhập</button></div>${renderThemeControl(true)}
   </section>`;
 }
 
 function registerView() {
   return `<section class="auth-page"><button class="back-link" data-view="welcome" aria-label="Quay lại">←</button><p class="eyebrow">Tạo tài khoản học viên</p>
-    <h1 class="headline">Bắt đầu lộ trình của bạn</h1><p class="subtle">Chỉ mất vài phút để K-Learn VN hiểu mục tiêu của bạn.</p>
+    <h1 class="headline">Bắt đầu lộ trình của bạn</h1><p class="subtle">Chỉ mất vài phút để TH-Tiếng Hàn hiểu mục tiêu của bạn.</p>
     <form id="registerForm" class="auth-form" novalidate>
       <label>Họ tên<input name="fullName" type="text" autocomplete="name" maxlength="80" placeholder="Nguyễn Minh Anh" /></label>
       <label>Email<input name="email" type="email" autocomplete="email" inputmode="email" placeholder="ban@example.com" /></label>
@@ -849,12 +910,12 @@ function registerView() {
       <p id="formError" class="form-error hidden" role="alert"></p><button class="btn primary full" type="submit">Đăng ký</button>
     </form>
     <p class="auth-switch">Đã có tài khoản? <button class="text-button" data-view="login">Đăng nhập</button></p>
-    <p class="security-note">MVP này lưu tài khoản trên thiết bị. Không sử dụng lại mật khẩu quan trọng của bạn.</p>
+    <p class="security-note">MVP này lưu tài khoản trên thiết bị. Không sử dụng lại mật khẩu quan trọng của bạn.</p>${renderThemeControl(true)}
   </section>`;
 }
 
 function loginView() {
-  return `<section class="auth-page"><button class="back-link" data-view="welcome" aria-label="Quay lại">←</button><p class="eyebrow">K-Learn VN</p>
+  return `<section class="auth-page"><button class="back-link" data-view="welcome" aria-label="Quay lại">←</button><p class="eyebrow">TH-Tiếng Hàn</p>
     <h1 class="headline">Chào mừng trở lại 👋</h1><p class="subtle">Tiếp tục lộ trình tiếng Hàn dành riêng cho bạn.</p>
     <form id="loginForm" class="auth-form" novalidate>
       <label>Email<input name="email" type="email" autocomplete="email" inputmode="email" placeholder="ban@example.com" /></label>
@@ -862,13 +923,13 @@ function loginView() {
       <p id="formError" class="form-error hidden" role="alert"></p><button class="btn primary full" type="submit">Đăng nhập</button>
     </form>
     <button class="text-button forgot-button" id="forgotPassword">Quên mật khẩu?</button>
-    <p class="auth-switch">Chưa có tài khoản? <button class="text-button" data-view="register">Đăng ký</button></p>
+    <p class="auth-switch">Chưa có tài khoản? <button class="text-button" data-view="register">Đăng ký</button></p>${renderThemeControl(true)}
   </section>`;
 }
 
 function onboardingFrame(step, title, subtitle, content) {
   const width = step.startsWith('1') ? 25 : step.startsWith('2') ? 55 : step.startsWith('3') ? 82 : 100;
-  return `<section class="onboarding-page"><div class="onboarding-top"><span class="brand-small">K-Learn VN</span><span class="step-label">${escapeHtml(step)}</span></div>
+  return `<section class="onboarding-page"><div class="onboarding-top"><span class="brand-small">TH-Tiếng Hàn</span><span class="step-label">${escapeHtml(step)}</span></div>
     <div class="bar onboarding-bar"><span style="width:${width}%"></span></div><div class="onboarding-copy"><h1 class="headline">${title}</h1><p class="subtle">${subtitle}</p></div>${content}</section>`;
 }
 
@@ -906,7 +967,7 @@ function goalLabels(goals = []) { return goals.map((id) => APP_DATA.goals.find((
 function onboardingResultView() {
   const goals = goalLabels(state.currentUser.goals);
   return `<section class="onboarding-page result-page"><div class="celebration">🎉</div><p class="eyebrow">Cá nhân hóa hoàn tất</p><h1 class="headline">Lộ trình của bạn đã sẵn sàng</h1>
-    <p class="subtle">K-Learn VN sẽ ưu tiên bài học phù hợp với trình độ và mục tiêu của bạn.</p><div class="result-summary"><div><span>Trình độ</span><strong>${escapeHtml(state.currentUser.level || state.selectedLevel)}</strong></div><div><span>Mục tiêu</span><strong>${escapeHtml(goals.join(' · '))}</strong></div>${state.currentUser.placement?.answers?.length ? `<div><span>Placement Test</span><strong>${state.currentUser.placement.score}/10 điểm</strong></div>` : ''}</div>
+    <p class="subtle">TH-Tiếng Hàn sẽ ưu tiên bài học phù hợp với trình độ và mục tiêu của bạn.</p><div class="result-summary"><div><span>Trình độ</span><strong>${escapeHtml(state.currentUser.level || state.selectedLevel)}</strong></div><div><span>Mục tiêu</span><strong>${escapeHtml(goals.join(' · '))}</strong></div>${state.currentUser.placement?.answers?.length ? `<div><span>Placement Test</span><strong>${state.currentUser.placement.score}/10 điểm</strong></div>` : ''}</div>
     <button class="btn primary full" id="finishOnboarding">Bắt đầu học</button></section>`;
 }
 
@@ -1282,6 +1343,7 @@ function profileView() {
   const speakingAverage = speakingAttempts.length ? Math.round(speakingAttempts.reduce((sum,item)=>sum+item.score,0)/speakingAttempts.length) : 0;
   return `<section class="card profile-head section"><div class="profile-avatar">${escapeHtml(state.currentUser.avatar || initials(state.currentUser.fullName))}</div><h1 class="headline profile-name">${escapeHtml(state.currentUser.fullName)}</h1><p class="subtle">${escapeHtml(state.currentUser.level)} · ${escapeHtml(goals.join(' · '))}</p><div class="topik-goal"><span>Hiện tại <b>${topikLabel(state.currentUser.currentTopikLevel)}</b></span><i>→</i><span>Mục tiêu <b>${topikLabel(state.currentUser.targetTopikLevel)}</b></span></div><div class="stats stats-four"><div class="stat"><b>${progress.stats.lessonsCompleted}</b><small>Bài đã học</small></div><div class="stat"><b>${progress.stats.learningDays}</b><small>Ngày học</small></div><div class="stat"><b>${progress.stats.streak}</b><small>Streak</small></div><div class="stat"><b>${progress.stats.wordsLearned}</b><small>Từ đã học</small></div></div><button class="btn secondary full" data-view="edit-profile">Chỉnh sửa hồ sơ</button></section>
     <section class="card section romanization-setting"><div><h2 class="section-title">Hỗ trợ đọc Hangul</h2><p>Phiên âm giúp bạn hình dung cách đọc. Khi đã quen Hangul, hãy thử tắt để luyện đọc trực tiếp.</p></div>${renderRomanizationToggle()}</section>
+    ${renderThemeControl()}
     <section class="card section"><h2 class="section-title">📝 Tiến độ luyện đề</h2><div class="practice-stats"><div><b>${practiceStats.completed}</b><span>Số đề đã làm</span></div><div><b>${practiceStats.average}%</b><span>Điểm trung bình</span></div><div><b>${practiceStats.bestTopik}/15</b><span>TOPIK tốt nhất</span></div></div>${practiceStats.weakTopics.length ? `<h3 class="weak-heading">Điểm yếu của bạn</h3><div class="weak-topic-list">${practiceStats.weakTopics.map(([topic, score]) => `<span>${escapeHtml(topic)} · ${score}%</span>`).join('')}</div>` : '<p class="subtle center">Làm thêm đề để hệ thống tìm chủ đề cần củng cố.</p>'}<button class="btn primary full" data-view="practice-hub">Tiếp tục luyện</button></section>
     <section class="card section"><h2 class="section-title">🧠 Trí nhớ từ vựng</h2><div class="practice-stats"><div><b>${vocabularyStats.learning}</b><span>Đang học</span></div><div><b>${vocabularyStats.mastered}</b><span>Mastered</span></div><div><b>${vocabularyStats.retention}%</b><span>Tỷ lệ nhớ</span></div></div></section>
     <section class="card section"><h2 class="section-title">TOPIK 1–6</h2><div class="topik-progress-list">${[1,2,3,4,5,6].map((level)=>{const item=practiceStats.byTopik[level]||{};const values=Object.values(item);const avg=values.length?Math.round(values.reduce((a,b)=>a+b,0)/values.length):0;return `<div class="topik-level-progress"><header><b>TOPIK ${level}</b><div class="bar"><span style="width:${avg}%"></span></div><small>${values.length?`${avg}%`:'—'}</small></header><div class="skill-mini">${[['vocabulary','Từ'],['grammar','Ngữ pháp'],['listening','Nghe'],['reading','Đọc']].map(([key,label])=>`<span>${label} <b>${item[key] === undefined ? '—' : `${item[key]}%`}</b></span>`).join('')}</div></div>`;}).join('')}</div></section>
@@ -1300,6 +1362,7 @@ function editProfileView() {
 // Render and event binding
 // ============================================================
 function render() {
+  ThemeService.apply();
   syncShell();
   const views = {
     welcome: welcomeView, register: registerView, login: loginView,
@@ -1314,6 +1377,8 @@ function render() {
     profile: profileView, 'edit-profile': editProfileView
   };
   appElement().innerHTML = (views[state.currentView] || welcomeView)();
+  const viewLabels = { welcome: '', login: 'Đăng nhập', register: 'Đăng ký', profile: 'Hồ sơ', 'edit-profile': 'Chỉnh sửa hồ sơ' };
+  document.title = viewLabels[state.currentView] ? `TH-Tiếng Hàn · ${viewLabels[state.currentView]}` : 'TH-Tiếng Hàn';
   bindEvents();
   window.scrollTo(0, 0);
 }
@@ -1324,6 +1389,7 @@ function bindEvents() {
   document.querySelectorAll('[data-preview-lesson]').forEach((button) => { button.onclick = () => openLesson(button.dataset.previewLesson); });
   document.querySelectorAll('[data-speak]').forEach((button) => { button.onclick = (event) => { event.stopPropagation(); speakKorean(button.dataset.speak); }; });
   document.querySelectorAll('[data-romanization-toggle]').forEach((button) => { button.onclick = () => { setShowRomanization(!showRomanizationEnabled()); render(); }; });
+  document.querySelectorAll('[data-theme-choice]').forEach((input) => { input.onchange = () => { ThemeService.setPreference(input.value); render(); }; });
   document.querySelectorAll('[data-question-romanization]').forEach((button) => { button.onclick = () => { const id = button.dataset.questionRomanization; state.questionRomanization[id] = !(state.questionRomanization[id] ?? showRomanizationEnabled()); render(); }; });
   const registerForm = document.getElementById('registerForm'); if (registerForm) registerForm.onsubmit = handleRegister;
   const loginForm = document.getElementById('loginForm'); if (loginForm) loginForm.onsubmit = handleLogin;
@@ -2012,6 +2078,8 @@ window.addEventListener('hashchange', () => {
 });
 
 migrateLegacyStorage();
+ThemeService.apply();
+ThemeService.watchSystemTheme();
 const restoredUser = auth.restoreSession();
 if (restoredUser) {
   state.selectedGoals = [...(restoredUser.goals || [])];
@@ -2024,5 +2092,5 @@ if (restoredUser) {
 }
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('[K-Learn VN] Service worker không đăng ký được.', error)));
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('[TH-Tiếng Hàn] Service worker không đăng ký được.', error)));
 }

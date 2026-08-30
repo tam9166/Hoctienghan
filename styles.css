@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
 
 :root {
+  color-scheme: light;
   --primary: #162839;
   --primary-container: #2c3e50;
   --primary-soft: #d1e4fb;
@@ -20,6 +21,28 @@
   --shadow: 0 6px 24px rgba(44, 62, 80, .08);
   --shadow-strong: 0 14px 36px rgba(22, 40, 57, .16);
   --radius: 20px;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --primary: #d9e8f5;
+  --primary-container: #2e4c67;
+  --primary-soft: #263b4f;
+  --secondary: #ff8578;
+  --secondary-bright: #ff9b90;
+  --success: #5dd3b5;
+  --success-soft: #143c36;
+  --bg: #0f1419;
+  --surface: #161c22;
+  --surface-low: #1c232b;
+  --surface-mid: #222a33;
+  --text: #f5f7fa;
+  --muted: #b8c0c8;
+  --outline: rgba(255, 255, 255, .18);
+  --danger: #ff8a84;
+  --danger-soft: #4a2022;
+  --shadow: 0 6px 24px rgba(0, 0, 0, .24);
+  --shadow-strong: 0 14px 36px rgba(0, 0, 0, .42);
 }
 
 * { box-sizing: border-box; }
@@ -710,3 +733,92 @@ button:focus-visible, input:focus-visible, select:focus-visible, audio:focus-vis
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Theme-aware surfaces and controls. Semantic accent colors remain unchanged. */
+body, .topbar, .bottom-nav, .card, .btn, .answer-button, input, select, textarea, .theme-control,
+.choice-card, .mini-choice, .hub-card, .start-mode, .summary-choice, .catalog-levels button,
+.search-box, .vocabulary-list, .romanization-toggle, .hint-toggle, .topic-chips button,
+.writing-mode-grid button, .writing-prompts button, .speaking-mode-grid button, .daily-plan button {
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+.theme-control {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--outline);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.theme-control.compact { margin-top: 18px; box-shadow: none; }
+.theme-control h2 { margin: 0 0 4px; font-size: 16px; }
+.theme-control p { margin: 0; color: var(--muted); font-size: 12px; }
+.theme-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.theme-option { position: relative; display: flex; align-items: center; gap: 8px; min-width: 0; padding: 10px; border: 1px solid var(--outline); border-radius: 14px; background: var(--surface-low); cursor: pointer; }
+.theme-option:has(input:checked) { border-color: var(--secondary-bright); box-shadow: 0 0 0 2px rgba(254, 92, 74, .18); }
+.theme-option input { accent-color: var(--secondary-bright); margin: 0; }
+.theme-option span { display: grid; gap: 2px; min-width: 0; }
+.theme-option b { font-size: 12px; }
+.theme-option small { color: var(--muted); font-size: 10px; line-height: 1.3; }
+
+[data-theme="dark"] .topbar { background: rgba(15, 20, 25, .94); border-color: var(--outline); }
+[data-theme="dark"] .bottom-nav { background: rgba(22, 28, 34, .96); border-color: var(--outline); }
+[data-theme="dark"] .card,
+[data-theme="dark"] .choice-card,
+[data-theme="dark"] .mini-choice,
+[data-theme="dark"] .hub-card,
+[data-theme="dark"] .start-mode,
+[data-theme="dark"] .summary-choice,
+[data-theme="dark"] .catalog-levels button,
+[data-theme="dark"] .search-box,
+[data-theme="dark"] .vocabulary-list,
+[data-theme="dark"] .answer-button,
+[data-theme="dark"] .romanization-toggle,
+[data-theme="dark"] .hint-toggle,
+[data-theme="dark"] .topic-chips button,
+[data-theme="dark"] .writing-mode-grid button,
+[data-theme="dark"] .writing-prompts button,
+[data-theme="dark"] .speaking-mode-grid button,
+[data-theme="dark"] .daily-plan button,
+[data-theme="dark"] .result-summary,
+[data-theme="dark"] .lesson-tag,
+[data-theme="dark"] .close-btn,
+[data-theme="dark"] .example,
+[data-theme="dark"] .chip,
+[data-theme="dark"] .flashcard-face,
+[data-theme="dark"] .audio-inline,
+[data-theme="dark"] .srs-actions button,
+[data-theme="dark"] .practice-mode-grid button,
+[data-theme="dark"] .practice-filters select,
+[data-theme="dark"] .segmented-options span,
+[data-theme="dark"] .radio-list span,
+[data-theme="dark"] .result-counts span,
+[data-theme="dark"] .count-options button,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .vocabulary-filters select,
+[data-theme="dark"] .review-source select,
+[data-theme="dark"] .review-learning-heading button,
+[data-theme="dark"] .mic-btn,
+[data-theme="dark"] .auth-form input,
+[data-theme="dark"] .auth-form select,
+[data-theme="dark"] .writing-editor textarea,
+[data-theme="dark"] .speaking-input input { background: var(--surface); color: var(--text); border-color: var(--outline); }
+[data-theme="dark"] .btn.secondary, [data-theme="dark"] .btn.light, [data-theme="dark"] .back-link { background: var(--surface-low); color: var(--text); border-color: var(--outline); }
+[data-theme="dark"] .btn.primary { background: #315875; color: #fff; }
+[data-theme="dark"] .flashcard-face.back, [data-theme="dark"] .dark-card { background: var(--primary-container); color: #fff; }
+[data-theme="dark"] .learning-romanization { color: #c5d0da; }
+[data-theme="dark"] .learning-romanization b { color: var(--primary); }
+[data-theme="dark"] .support-message { background: #3a321e; color: #f3d98b; border-color: #75642e; }
+[data-theme="dark"] .pronunciation-tip { background: #202c39; border-color: #3f617d; }
+[data-theme="dark"] .answer-feedback.success, [data-theme="dark"] .feedback-good { color: var(--success); }
+[data-theme="dark"] .answer-feedback.error, [data-theme="dark"] .feedback-bad { color: var(--danger); }
+[data-theme="dark"] .answer-button.correct,
+[data-theme="dark"] .romanization-toggle[aria-pressed="true"],
+[data-theme="dark"] .vocabulary-test-feedback.success { color: var(--success); }
+[data-theme="dark"] .form-error { color: var(--danger); }
+[data-theme="dark"] .difficulty-2, [data-theme="dark"] .weak-topic-list span { background: #3a321e; color: #f3d98b; }
+[data-theme="dark"] .save-exam.saved { background: #3a321e; color: #ffd77b; }
+[data-theme="dark"] input::placeholder, [data-theme="dark"] textarea::placeholder { color: var(--muted); opacity: .85; }
+[data-theme="dark"] .result-score-ring::before { background: var(--bg); }
+[data-theme="dark"] .practice-promo, [data-theme="dark"] .recommended-card, [data-theme="dark"] .countdown-card { background: linear-gradient(135deg, #1e3448, #17232f); color: #fff; }

@@ -1,4 +1,4 @@
-# K-Learn VN Mobile PWA
+# TH-Tiếng Hàn Mobile PWA
 
 MVP mobile-first học tiếng Hàn dành cho người Việt, triển khai dạng static SPA/PWA.
 
@@ -19,6 +19,8 @@ Sau đó mở `http://localhost:8080`.
 
 ## Tính năng hiện có
 - Welcome, đăng ký/đăng nhập và session persistence bằng localStorage.
+- Branding hiển thị thống nhất là **TH-Tiếng Hàn**; các key `klearn_*` nội bộ được giữ để tương thích dữ liệu cũ.
+- Appearance có ba chế độ: Theo thiết bị (System), Sáng (Light) và Tối (Dark), lưu lựa chọn riêng theo người dùng với fallback global.
 - Onboarding mục tiêu, trình độ và Placement Test 10 câu.
 - Dashboard/lộ trình cá nhân hóa theo người học.
 - Điều hướng SPA giữa Trang chủ, Học, Ôn tập, Luyện tập và Cá nhân.
@@ -38,7 +40,9 @@ Sau đó mở `http://localhost:8080`.
 - Listening/Reading Hub theo TOPIK level, Korean TTS, recommended practice và daily practice plan.
 - Ghi âm qua MediaRecorder và chấm tương đồng văn bản bằng Speech Recognition khi trình duyệt hỗ trợ.
 - Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
-- PWA manifest + service worker network-first (`klearn-v6`) để cài app, dùng offline và nhận bản deploy mới.
+- PWA manifest + service worker network-first (`klearn-v7`) để cài app, dùng offline và nhận bản deploy mới.
+
+Nếu đã cài PWA với tên cũ **K-Learn VN** trên iPhone/Android, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **TH-Tiếng Hàn** mới.
 
 ## Dữ liệu MVP
 
