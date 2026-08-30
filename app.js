@@ -12,7 +12,7 @@ const STORAGE_KEYS = Object.freeze({
   practice: 'klearn_practice',
   practiceHistory: 'klearn_practice_history',
   speaking: 'klearn_speaking',
-  writing: 'klearn_writing'
+  writing: 'klearn_writing', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches'
 });
 
 const storage = {
@@ -21,7 +21,7 @@ const storage = {
       const raw = localStorage.getItem(key);
       return raw === null ? fallback : JSON.parse(raw);
     } catch (error) {
-      console.warn(`[TH-Tiếng Hàn] Dữ liệu ${key} bị lỗi và đã được bỏ qua.`, error);
+      console.warn(`[Tiếng Hàn - TamHoanq] Dữ liệu ${key} bị lỗi và đã được bỏ qua.`, error);
       try { localStorage.removeItem(key); } catch (_) { /* Storage may be unavailable. */ }
       return fallback;
     }
@@ -31,7 +31,7 @@ const storage = {
       localStorage.setItem(key, JSON.stringify(value));
       return true;
     } catch (error) {
-      console.warn(`[TH-Tiếng Hàn] Không thể lưu ${key}.`, error);
+      console.warn(`[Tiếng Hàn - TamHoanq] Không thể lưu ${key}.`, error);
       return false;
     }
   },
@@ -164,9 +164,10 @@ const state = {
   selectedLessonPreview: '',
   questionRomanization: {},
   roleplayHintVisible: false
+  ,dictionaryQuery: '', dictionarySelectedId: '', dictionaryFilter: 'all', translationDraft: '', translationDirection: 'vi-ko', translationResult: null
 };
 
-const MAIN_VIEWS = ['home', 'lessons', 'lesson', 'lesson-preview', 'review', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
+const MAIN_VIEWS = ['home', 'lessons', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'review', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'placement', 'onboarding-result'];
 
@@ -680,7 +681,7 @@ function normalizeUser(user) {
   const currentTopikLevel = Math.max(1, Math.min(6, Number(user.currentTopikLevel) || inferredTopikLevel(user.level)));
   return {
     ...user,
-    fullName: typeof user.fullName === 'string' && user.fullName.trim() ? user.fullName : 'Người học TH-Tiếng Hàn',
+    fullName: typeof user.fullName === 'string' && user.fullName.trim() ? user.fullName : 'Người học Tiếng Hàn - TamHoanq',
     email: typeof user.email === 'string' ? user.email : '',
     avatar: typeof user.avatar === 'string' ? user.avatar : initials(user.fullName || ''),
     goals: Array.isArray(user.goals) ? user.goals : [],
@@ -840,6 +841,61 @@ function syncUserData() {
   state.pronunciationAttempts = progress.pronunciationAttempts;
   state.srsData = getUserSrs();
 }
+
+function normalizeSearch(value = '') { return String(value).toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim(); }
+function userScoped(key) { const all = storage.get(key, {}); return state.currentUser?.id && Array.isArray(all?.[state.currentUser.id]) ? all[state.currentUser.id] : []; }
+function saveUserScoped(key, items, limit = 100) { if (!state.currentUser) return; const all = storage.get(key, {}); const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; safe[state.currentUser.id] = items.slice(0, limit); storage.set(key, safe); }
+
+const DictionaryService = {
+  all() { return Array.isArray(window.KLEARN_DICTIONARY) ? window.KLEARN_DICTIONARY : []; },
+  search(query = '', filters = {}) {
+    const q = normalizeSearch(query); const list = this.all();
+    return list.filter((entry) => {
+      const fields = [entry.korean, entry.romanization, entry.meaningVi, entry.meaningEn, entry.meaningZh, entry.meanings?.vi, entry.meanings?.en, entry.meanings?.['zh-CN'], ...(entry.tags || [])].map(normalizeSearch).join(' ');
+      return (!q || fields.includes(q)) && (!filters.topik || filters.topik === 'all' || Number(entry.topikLevel) === Number(filters.topik)) && (!filters.partOfSpeech || filters.partOfSpeech === 'all' || entry.partOfSpeech === filters.partOfSpeech);
+    }).slice(0, 20);
+  },
+  byId(id) { return this.all().find((entry) => entry.id === id) || null; },
+  recent() { return userScoped(STORAGE_KEYS.recentSearches); },
+  addRecent(entry) { if (!state.currentUser || !entry) return; saveUserScoped(STORAGE_KEYS.recentSearches, [entry.id, ...this.recent().filter((id) => id !== entry.id)], 20); },
+  favorites() { return userScoped(STORAGE_KEYS.dictionaryFavorites); },
+  isFavorite(id) { return this.favorites().includes(id); },
+  toggleFavorite(id) { const next = this.isFavorite(id) ? this.favorites().filter((item) => item !== id) : [id, ...this.favorites()]; saveUserScoped(STORAGE_KEYS.dictionaryFavorites, next, 500); return next.includes(id); },
+  addToSrs(entry) { if (!entry) return; const card = state.srsData.find((item) => item.wordId === entry.id); if (card) VocabularyService.updateCard(entry.id, { status: 'learning', nextReview: new Date().toISOString() }); else saveUserSrs([...state.srsData, normalizeSrsCard({ ...entry, wordId: entry.id, nextReview: new Date().toISOString() }, entry)]); }
+};
+
+const SavedSentenceService = {
+  all() { return userScoped(STORAGE_KEYS.savedSentences); },
+  save(sentence) { if (!sentence || !state.currentUser) return; saveUserScoped(STORAGE_KEYS.savedSentences, [{ ...sentence, id: sentence.id || uniqueId(), createdAt: sentence.createdAt || new Date().toISOString() }, ...this.all()], 100); },
+  remove(id) { saveUserScoped(STORAGE_KEYS.savedSentences, this.all().filter((item) => item.id !== id), 100); }
+};
+
+const TranslationService = {
+  providers: {},
+  registerProvider(name, adapter) { if (name && adapter && typeof adapter.translate === 'function') this.providers[name] = adapter; },
+  exact: {
+    'xin chào': { korean: '안녕하세요', romanization: 'annyeonghaseyo', translation: 'Xin chào' },
+    'cảm ơn': { korean: '감사합니다', romanization: 'gamsahamnida', translation: 'Cảm ơn' },
+    'trường học': { korean: '학교', romanization: 'hakgyo', translation: 'Trường học' },
+    'nhà vệ sinh ở đâu?': { korean: '화장실이 어디예요?', romanization: 'hwajangsiri eodiyeyo?', translation: 'Nhà vệ sinh ở đâu?' },
+    'bao nhiêu tiền?': { korean: '얼마예요?', romanization: 'eolmayeyo?', translation: 'Bao nhiêu tiền?' },
+    '안녕하세요': { korean: '안녕하세요', romanization: 'annyeonghaseyo', translation: 'Xin chào' },
+    '감사합니다': { korean: '감사합니다', romanization: 'gamsahamnida', translation: 'Cảm ơn' }
+  },
+  translate({ text = '', sourceLanguage = 'vi', targetLanguage = 'ko', context = 'general', register = 'polite' } = {}) {
+    const value = String(text).trim(); if (!value) return null;
+    const key = normalizeSearch(value); const exact = this.exact[key] || this.exact[value];
+    if (exact) return { ...exact, sourceText: value, sourceLanguage, targetLanguage, context, register, local: true };
+    const entry = DictionaryService.search(value)[0];
+    if (entry && (sourceLanguage === 'ko' || normalizeSearch(entry.korean) === key)) return { korean: entry.korean, romanization: entry.romanization || getRomanization(entry), translation: entry.meanings?.vi || entry.meaningVi || '', sourceText: value, sourceLanguage, targetLanguage, local: true };
+    if (sourceLanguage === 'vi' && targetLanguage === 'ko') {
+      const templates = [{ test: /^(.+?) ở đâu\??$/i, build: (m) => `${m[1]}이 어디예요?` }, { test: /^xin nghỉ làm ngày mai$/i, build: () => '내일 하루 쉬고 싶습니다.' }, { test: /^tôi muốn (.+)$/i, build: (m) => `저는 ${m[1]} 하고 싶어요.` }];
+      const matched = templates.find((item) => item.test.test(value)); if (matched) { const korean = matched.build(value.match(matched.test)); return { korean, romanization: getRomanization({ korean }), translation: value, sourceText: value, sourceLanguage, targetLanguage, local: true }; }
+    }
+    return { korean: targetLanguage === 'ko' ? '' : value, romanization: '', translation: sourceLanguage === 'ko' ? '' : value, sourceText: value, sourceLanguage, targetLanguage, unavailable: true, message: 'Bản dịch câu nâng cao cần được cấu hình dịch trực tuyến.' };
+  },
+  saveHistory(result) { if (!state.currentUser || !result) return; saveUserScoped(STORAGE_KEYS.translationHistory, [{ ...result, id: uniqueId(), timestamp: new Date().toISOString() }, ...userScoped(STORAGE_KEYS.translationHistory)], 100); }
+};
 
 const VocabularyService = {
   dueCards() { return state.srsData.filter((card) => new Date(card.nextReview).getTime() <= Date.now()); },
@@ -1038,7 +1094,7 @@ function renderThemeControl(compact = false) {
 
 function welcomeView() {
   return `<section class="auth-page welcome-page">
-    <div class="brand-mark" aria-hidden="true">한</div><p class="eyebrow">TH-Tiếng Hàn</p>
+    <div class="brand-mark" aria-hidden="true">한</div><p class="eyebrow">Tiếng Hàn - TamHoanq</p>
     <h1 class="welcome-title">${I18nService.t('welcome.title')}</h1>
     <div class="welcome-points"><span>${I18nService.t('welcome.point.level')}</span><span>${I18nService.t('welcome.point.goal')}</span><span>${I18nService.t('welcome.point.progress')}</span></div>
     <div class="auth-actions"><button class="btn primary full" data-view="register">Bắt đầu học</button><p class="auth-switch">Đã có tài khoản?</p><button class="btn secondary full" data-view="login">Đăng nhập</button></div>${renderThemeControl(true)}
@@ -1061,7 +1117,7 @@ function registerView() {
 }
 
 function loginView() {
-  return `<section class="auth-page"><button class="back-link" data-view="welcome" aria-label="Quay lại">←</button><p class="eyebrow">TH-Tiếng Hàn</p>
+  return `<section class="auth-page"><button class="back-link" data-view="welcome" aria-label="Quay lại">←</button><p class="eyebrow">Tiếng Hàn - TamHoanq</p>
     <h1 class="headline">${I18nService.t('auth.welcome')} 👋</h1><p class="subtle">${I18nService.t('auth.loginSubtitle')}</p>
     <form id="loginForm" class="auth-form" novalidate>
       <label>Email<input name="email" type="email" autocomplete="email" inputmode="email" placeholder="ban@example.com" /></label>
@@ -1075,7 +1131,7 @@ function loginView() {
 
 function onboardingFrame(step, title, subtitle, content) {
   const width = step.startsWith('1') ? 25 : step.startsWith('2') ? 55 : step.startsWith('3') ? 82 : 100;
-  return `<section class="onboarding-page"><div class="onboarding-top"><span class="brand-small">TH-Tiếng Hàn</span><span class="step-label">${escapeHtml(step)}</span></div>
+  return `<section class="onboarding-page"><div class="onboarding-top"><span class="brand-small">Tiếng Hàn - TamHoanq</span><span class="step-label">${escapeHtml(step)}</span></div>
     <div class="bar onboarding-bar"><span style="width:${width}%"></span></div><div class="onboarding-copy"><h1 class="headline">${title}</h1><p class="subtle">${subtitle}</p></div>${content}</section>`;
 }
 
@@ -1113,7 +1169,7 @@ function goalLabels(goals = []) { return goals.map((id) => APP_DATA.goals.find((
 function onboardingResultView() {
   const goals = goalLabels(state.currentUser.goals);
   return `<section class="onboarding-page result-page"><div class="celebration">🎉</div><p class="eyebrow">Cá nhân hóa hoàn tất</p><h1 class="headline">Lộ trình của bạn đã sẵn sàng</h1>
-    <p class="subtle">TH-Tiếng Hàn sẽ ưu tiên bài học phù hợp với trình độ và mục tiêu của bạn.</p><div class="result-summary"><div><span>Trình độ</span><strong>${escapeHtml(state.currentUser.level || state.selectedLevel)}</strong></div><div><span>Mục tiêu</span><strong>${escapeHtml(goals.join(' · '))}</strong></div>${state.currentUser.placement?.answers?.length ? `<div><span>Placement Test</span><strong>${state.currentUser.placement.score}/10 điểm</strong></div>` : ''}</div>
+    <p class="subtle">Tiếng Hàn - TamHoanq sẽ ưu tiên bài học phù hợp với trình độ và mục tiêu của bạn.</p><div class="result-summary"><div><span>Trình độ</span><strong>${escapeHtml(state.currentUser.level || state.selectedLevel)}</strong></div><div><span>Mục tiêu</span><strong>${escapeHtml(goals.join(' · '))}</strong></div>${state.currentUser.placement?.answers?.length ? `<div><span>Placement Test</span><strong>${state.currentUser.placement.score}/10 điểm</strong></div>` : ''}</div>
     <button class="btn primary full" id="finishOnboarding">Bắt đầu học</button></section>`;
 }
 
@@ -1156,6 +1212,30 @@ function homeView() {
       const status = value === null ? 'locked' : value >= 100 ? 'done' : 'active';
       return `<div class="roadmap-row ${status}"><span class="roadmap-icon">${status === 'done' ? '✓' : status === 'locked' ? '🔒' : '▶'}</span><div><strong>${name}</strong><div class="bar"><span style="width:${value || 0}%"></span></div></div><b>${status === 'locked' ? I18nService.t('home.locked') : `${value}%`}</b></div>`;
     }).join('')}</div></section>`;
+}
+
+function dictionaryView() {
+  const query = state.dictionaryQuery || ''; const results = DictionaryService.search(query, { partOfSpeech: state.dictionaryFilter });
+  const selected = state.dictionarySelectedId ? DictionaryService.byId(state.dictionarySelectedId) : null;
+  if (selected) return dictionaryEntryView(selected);
+  const recent = DictionaryService.recent().map((id) => DictionaryService.byId(id)).filter(Boolean);
+  return `<section class="section page-heading"><p class="eyebrow">📖 Từ điển</p><h1 class="headline">Tra từ tiếng Hàn</h1><p class="subtle">Tìm bằng Hangul, romanization hoặc nghĩa tiếng Việt.</p></section><section class="card dictionary-search section"><form id="dictionarySearchForm"><input id="dictionarySearch" name="query" value="${escapeHtml(query)}" placeholder="학교 / trường học / hakgyo" autocomplete="off"><button class="btn primary" type="submit">🔍 Tra từ</button></form><div class="filter-row"><select id="dictionaryPos"><option value="all">Tất cả loại từ</option><option value="noun">Danh từ</option><option value="verb">Động từ</option><option value="adjective">Tính từ</option><option value="adverb">Trạng từ</option></select></div></section>${recent.length && !query ? `<section class="section"><h2 class="section-title">Tra gần đây</h2><div class="chip-list">${recent.map((item) => `<button class="chip" data-dictionary-id="${item.id}">${escapeHtml(item.korean)}</button>`).join('')}</div></section>` : ''}<section class="dictionary-results section"><h2 class="section-title">${query ? `${results.length} kết quả` : `Từ điển ${DictionaryService.all().length.toLocaleString('vi-VN')} mục`}</h2>${results.map((item) => `<button class="card dictionary-row" data-dictionary-id="${item.id}"><span class="dictionary-korean" lang="ko">${escapeHtml(item.korean)}</span><span class="dictionary-romanization">${escapeHtml(item.romanization || getRomanization(item))}</span><span>${escapeHtml(I18nService.localizedText(item, 'meaning') || (I18nService.getPreference() === 'vi' ? item.meanings?.vi || '' : ''))}</span></button>`).join('') || '<div class="empty-state compact-empty"><p>Không tìm thấy mục phù hợp.</p></div>'}</section><section class="section utility-links"><button class="btn secondary" data-view="translation-hub">🌐 Dịch & Đặt câu</button><button class="btn secondary" data-view="phrasebook">📒 Sổ tay câu</button></section>`;
+}
+
+function dictionaryEntryView(entry) {
+  const favorite = DictionaryService.isFavorite(entry.id); const meaning = I18nService.localizedText(entry, 'meaning') || (I18nService.getPreference() === 'vi' ? entry.meanings?.vi || '' : '');
+  const examples = Array.isArray(entry.examples) && entry.examples.length ? `<h3>Ví dụ</h3>${entry.examples.map((example) => { const translation = I18nService.getLocalizedValue(example.translations, I18nService.getPreference(), example.translations?.vi || ''); return `<div class="example"><div class="korean" lang="ko">${escapeHtml(example.korean)}</div><div class="dictionary-romanization">${escapeHtml(example.romanization || getRomanization({ korean: example.korean }))}</div><div>${escapeHtml(translation)}</div><button class="audio-btn" data-speak="${escapeHtml(example.korean)}">🔊</button></div>`; }).join('')}` : '<p class="subtle">Chưa có ví dụ cho mục này.</p>';
+  return `<section class="section page-heading"><button class="back-link" data-view="dictionary">← Quay lại</button><p class="eyebrow">📖 Từ điển</p><h1 class="headline" lang="ko">${escapeHtml(entry.korean)}</h1><p class="dictionary-romanization">${escapeHtml(entry.romanization || getRomanization(entry))}</p><p class="subtle">${escapeHtml(entry.partOfSpeech || 'Từ vựng')} · TOPIK ${entry.topikLevel || 1}</p></section><section class="card dictionary-entry section"><h2>${escapeHtml(meaning)}</h2><div class="entry-actions"><button class="btn primary" data-speak="${escapeHtml(entry.audioText || entry.korean)}">🔊 Nghe</button><button class="btn secondary" data-toggle-favorite="${entry.id}">${favorite ? '★ Đã lưu' : '☆ Lưu từ'}</button><button class="btn secondary" data-add-srs="${entry.id}">🧠 Thêm vào ôn tập</button></div>${examples}</section><button class="btn primary full" data-view="translation-hub" data-translate-seed="${escapeHtml(entry.korean)}">🌐 Dịch & đặt câu</button>`;
+}
+
+function translationHubView() {
+  const result = state.translationResult; const direction = state.translationDirection || 'vi-ko'; const sourceLabel = direction === 'vi-ko' ? 'Tiếng Việt' : 'Tiếng Hàn'; const targetLabel = direction === 'vi-ko' ? 'Tiếng Hàn' : 'Tiếng Việt';
+  return `<section class="section page-heading"><p class="eyebrow">🌐 Công cụ ngôn ngữ</p><h1 class="headline">Dịch & Đặt câu</h1><p class="subtle">Tra từ, dịch cụm từ và câu với dữ liệu offline.</p></section><section class="card translation-card section"><div class="translation-direction"><label>Dịch từ<select id="translationDirection"><option value="vi-ko" ${direction === 'vi-ko' ? 'selected' : ''}>Tiếng Việt</option><option value="ko-vi" ${direction === 'ko-vi' ? 'selected' : ''}>Tiếng Hàn</option></select></label><button class="swap-btn" id="swapTranslation" type="button">⇄</button><label>Sang<select disabled><option>${targetLabel}</option></select></label></div><form id="translationForm"><textarea id="translationInput" name="text" rows="4" placeholder="Nhập từ, cụm từ hoặc câu...">${escapeHtml(state.translationDraft || '')}</textarea><div class="translation-options"><label>Ngữ cảnh<select name="context"><option value="general">Chung</option><option value="restaurant">🍜 Nhà hàng</option><option value="work">🏢 Công việc</option><option value="hospital">🏥 Bệnh viện</option></select></label><label>Cách nói<select name="register"><option value="polite">Lịch sự</option><option value="casual">Thân mật</option><option value="formal">Trang trọng</option></select></label></div><button class="btn primary full" type="submit">Dịch</button></form></section>${result ? `<section class="card translation-result section">${result.unavailable ? `<p class="support-message">${result.message}</p>` : `<div class="translation-korean" lang="ko">${escapeHtml(result.korean)}</div><div class="dictionary-romanization">${escapeHtml(result.romanization || '')}</div><p>${escapeHtml(result.translation || '')}</p><div class="entry-actions"><button class="btn primary" data-speak="${escapeHtml(result.korean)}">🔊 Nghe</button><button class="btn secondary" id="copyTranslation">Sao chép</button><button class="btn secondary" id="saveTranslation">⭐ Lưu câu</button><button class="btn secondary" id="practiceTranslation">🎙 Luyện nói</button></div>`}</section>` : ''}<section class="section"><button class="btn secondary" data-view="dictionary">📖 Tra từ</button><button class="btn secondary" data-view="phrasebook">📒 Sổ tay câu</button></section>`;
+}
+
+function phrasebookView() {
+  const phrases = Array.isArray(window.KLEARN_PHRASEBOOK) ? window.KLEARN_PHRASEBOOK : [];
+  return `<section class="section page-heading"><p class="eyebrow">📒 Sổ tay câu</p><h1 class="headline">Câu thông dụng</h1><p class="subtle">Các mẫu câu có thể dùng offline.</p></section><section class="phrasebook-list section">${phrases.map((item) => `<article class="card phrasebook-row"><div class="korean" lang="ko">${escapeHtml(item.korean)}</div><div class="dictionary-romanization">${escapeHtml(item.romanization)}</div><p>${escapeHtml(item.meanings?.vi || '')}</p><div class="entry-actions"><button class="audio-btn" data-speak="${escapeHtml(item.korean)}">🔊</button><button class="btn secondary" data-toggle-favorite="${item.id}">☆ Lưu</button></div></article>`).join('')}</section>`;
 }
 
 function lessonsView() {
@@ -1513,7 +1593,7 @@ function render() {
   const views = {
     welcome: welcomeView, register: registerView, login: loginView,
     'onboarding-goals': goalsView, 'onboarding-level': levelView, placement: placementView, 'onboarding-result': onboardingResultView,
-    home: homeView, lessons: lessonsView, lesson: lessonView, 'lesson-preview': lessonPreviewView,
+    home: homeView, lessons: lessonsView, lesson: lessonView, 'lesson-preview': lessonPreviewView, dictionary: dictionaryView, 'translation-hub': translationHubView, phrasebook: phrasebookView,
     'practice-hub': practiceHubView, 'exam-catalog': examCatalogView, 'random-exam': randomExamView, 'advanced-practice': advancedPracticeView, 'wrong-practice': wrongPracticeView, 'saved-exams': savedExamsView, 'practice-history': practiceHistoryView, 'skill-hub': skillHubView,
     'quick-practice': quickPracticeView, 'practice-session': practiceSessionView, 'practice-result': practiceResultView, 'practice-review': practiceReviewView,
     review: reviewView, 'vocabulary-hub': vocabularyHubView, 'review-start': reviewSessionView, 'vocab-pretest': vocabularyPretestView, 'pretest-result': pretestResultView,
@@ -1524,7 +1604,7 @@ function render() {
   };
   appElement().innerHTML = (views[state.currentView] || welcomeView)();
   const viewLabels = { welcome: '', login: 'Đăng nhập', register: 'Đăng ký', profile: 'Hồ sơ', 'edit-profile': 'Chỉnh sửa hồ sơ' };
-  document.title = viewLabels[state.currentView] ? `TH-Tiếng Hàn · ${I18nService.translateText(viewLabels[state.currentView])}` : 'TH-Tiếng Hàn';
+  document.title = viewLabels[state.currentView] ? `Tiếng Hàn - TamHoanq · ${I18nService.translateText(viewLabels[state.currentView])}` : 'Tiếng Hàn - TamHoanq';
   I18nService.applyDocument();
   bindEvents();
   window.scrollTo(0, 0);
@@ -1612,6 +1692,18 @@ function bindEvents() {
   const rewrite = document.querySelector('[data-rewrite]'); if (rewrite) rewrite.onclick = () => { state.writingSubmission = null; setView('writing-editor'); };
   const micButton = document.getElementById('micBtn'); if (micButton) micButton.onclick = toggleRecording;
   const practiceNext = document.getElementById('practiceNext'); if (practiceNext) practiceNext.onclick = completePractice;
+  document.querySelectorAll('[data-dictionary-id]').forEach((button) => { button.onclick = () => { state.dictionarySelectedId = button.dataset.dictionaryId; const entry = DictionaryService.byId(state.dictionarySelectedId); DictionaryService.addRecent(entry); render(); }; });
+  document.querySelectorAll('[data-translate-seed]').forEach((button) => { button.onclick = () => { state.translationDraft = button.dataset.translateSeed || ''; state.translationDirection = 'ko-vi'; setView('translation-hub'); }; });
+  const dictionarySearchForm = document.getElementById('dictionarySearchForm'); if (dictionarySearchForm) dictionarySearchForm.onsubmit = (event) => { event.preventDefault(); state.dictionaryQuery = String(new FormData(dictionarySearchForm).get('query') || '').trim(); state.dictionarySelectedId = ''; render(); };
+  const dictionaryPos = document.getElementById('dictionaryPos'); if (dictionaryPos) dictionaryPos.onchange = () => { state.dictionaryFilter = dictionaryPos.value; render(); };
+  document.querySelectorAll('[data-toggle-favorite]').forEach((button) => { button.onclick = () => { DictionaryService.toggleFavorite(button.dataset.toggleFavorite); render(); }; });
+  document.querySelectorAll('[data-add-srs]').forEach((button) => { button.onclick = () => { DictionaryService.addToSrs(DictionaryService.byId(button.dataset.addSrs)); toast('Đã thêm vào bộ ôn tập.'); }; });
+  const translationForm = document.getElementById('translationForm'); if (translationForm) translationForm.onsubmit = (event) => { event.preventDefault(); const form = new FormData(translationForm); const direction = document.getElementById('translationDirection')?.value || 'vi-ko'; state.translationDirection = direction; state.translationDraft = String(form.get('text') || ''); state.translationResult = TranslationService.translate({ text: state.translationDraft, sourceLanguage: direction === 'vi-ko' ? 'vi' : 'ko', targetLanguage: direction === 'vi-ko' ? 'ko' : 'vi', context: form.get('context'), register: form.get('register') }); TranslationService.saveHistory(state.translationResult); render(); };
+  const translationDirection = document.getElementById('translationDirection'); if (translationDirection) translationDirection.onchange = () => { state.translationDirection = translationDirection.value; render(); };
+  const swapTranslation = document.getElementById('swapTranslation'); if (swapTranslation) swapTranslation.onclick = () => { state.translationDirection = state.translationDirection === 'vi-ko' ? 'ko-vi' : 'vi-ko'; render(); };
+  const copyTranslation = document.getElementById('copyTranslation'); if (copyTranslation) copyTranslation.onclick = async () => { const text = state.translationResult?.korean || ''; try { await navigator.clipboard.writeText(text); toast('Đã sao chép tiếng Hàn.'); } catch (_) { const area = document.createElement('textarea'); area.value = text; document.body.appendChild(area); area.select(); document.execCommand('copy'); area.remove(); toast('Đã sao chép tiếng Hàn.'); } };
+  const saveTranslation = document.getElementById('saveTranslation'); if (saveTranslation) saveTranslation.onclick = () => { SavedSentenceService.save(state.translationResult); toast('Đã lưu câu.'); };
+  const practiceTranslation = document.getElementById('practiceTranslation'); if (practiceTranslation) practiceTranslation.onclick = () => { if (state.translationResult?.korean) { state.speakingPrompt = { id: 'translation-result', korean: state.translationResult.korean, label: 'Câu dịch', meaningVi: state.translationResult.translation }; setView('speaking-session'); } };
   const logoutButton = document.getElementById('logoutButton'); if (logoutButton) logoutButton.onclick = () => auth.logout();
 }
 
@@ -2243,5 +2335,5 @@ if (restoredUser) {
 }
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('[TH-Tiếng Hàn] Service worker không đăng ký được.', error)));
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('[Tiếng Hàn - TamHoanq] Service worker không đăng ký được.', error)));
 }

@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#0f1419" media="(prefers-color-scheme: dark)" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="TH-Tiếng Hàn" />
+  <meta name="apple-mobile-web-app-title" content="TamHoanq" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
@@ -31,7 +31,7 @@
       }
     })();
   </script>
-  <title>TH-Tiếng Hàn</title>
+  <title>Tiếng Hàn - TamHoanq</title>
 </head>
 <body>
   <div id="app-shell">
@@ -39,7 +39,7 @@
       <button class="avatar-btn" id="avatarBtn" aria-label="Mở trang cá nhân">
         <span class="avatar">한</span>
       </button>
-      <div class="brand">TH-Tiếng Hàn</div>
+      <div class="brand" data-view="dictionary" role="button" tabindex="0">Tiếng Hàn - TamHoanq</div>
       <div class="header-actions">
         <div class="header-control-wrap">
           <button class="header-control" id="languageBtn" type="button" aria-label="Đổi ngôn ngữ" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">🌐</span><span id="languageCode">VI</span></button>
@@ -71,8 +71,9 @@
   <script src="data/content-locales.js?v=1"></script>
   <script src="data/romanization.js?v=8"></script>
   <script src="data/vocabulary-bank.js?v=8"></script>
+  <script src="data/dictionary.js?v=1"></script>
   <script src="data/learning-modules.js?v=8"></script>
   <script src="data/practice-bank.js?v=8"></script>
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>

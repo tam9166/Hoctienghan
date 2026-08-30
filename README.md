@@ -1,4 +1,4 @@
-# TH-Tiếng Hàn Mobile PWA
+# Tiếng Hàn - TamHoanq Mobile PWA
 
 MVP mobile-first học tiếng Hàn dành cho người Việt, triển khai dạng static SPA/PWA.
 
@@ -19,7 +19,7 @@ Sau đó mở `http://localhost:8080`.
 
 ## Tính năng hiện có
 - Welcome, đăng ký/đăng nhập và session persistence bằng localStorage.
-- Branding hiển thị thống nhất là **TH-Tiếng Hàn**; các key `klearn_*` nội bộ được giữ để tương thích dữ liệu cũ.
+- Branding hiển thị thống nhất là **Tiếng Hàn - TamHoanq**; các key `klearn_*` nội bộ được giữ để tương thích dữ liệu cũ.
 - Appearance có ba chế độ: Theo thiết bị (System), Sáng (Light) và Tối (Dark), lưu lựa chọn riêng theo người dùng với fallback global.
 - Header có quick controls cho ngôn ngữ và giao diện; app hỗ trợ Tiếng Việt (`vi`), English (`en`) và 中文（简体）(`zh-CN`) với locale resources mở rộng được cho các ngôn ngữ mới.
 - Nội dung Korean source/romanization luôn giữ nguyên; nghĩa, hướng dẫn và giải thích dùng `I18nService.localizedText()` với fallback locale an toàn về tiếng Việt.
@@ -44,7 +44,16 @@ Sau đó mở `http://localhost:8080`.
 - Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
 - PWA manifest + service worker network-first (`klearn-v8`) để cài app, dùng offline và nhận bản deploy mới.
 
-Nếu đã cài PWA với tên cũ **K-Learn VN** trên iPhone/Android, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **TH-Tiếng Hàn** mới.
+Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **Tiếng Hàn - TamHoanq** mới.
+
+## Công cụ từ điển và dịch
+
+- Từ điển offline hơn 1.500 mục, tìm bằng Hangul, romanization hoặc nghĩa tiếng Việt.
+- Entry có phát âm, romanization, ví dụ, lưu yêu thích và thêm vào SRS.
+- Translation Hub hỗ trợ Việt ↔ Hàn cho từ, cụm từ, câu mẫu và một số template offline.
+- Phrasebook offline, lưu câu và lịch sử dịch theo từng tài khoản.
+- Kết quả tiếng Hàn có thể nghe bằng TTS `ko-KR` và chuyển thẳng sang luyện nói.
+- Chưa cấu hình API dịch online; câu ngoài dữ liệu local hiển thị thông báo rõ ràng, không giả kết quả.
 
 ## Dữ liệu MVP
 

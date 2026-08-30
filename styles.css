@@ -857,3 +857,17 @@ body, .topbar, .bottom-nav, .card, .btn, .answer-button, input, select, textarea
 [data-theme="dark"] input::placeholder, [data-theme="dark"] textarea::placeholder { color: var(--muted); opacity: .85; }
 [data-theme="dark"] .result-score-ring::before { background: var(--bg); }
 [data-theme="dark"] .practice-promo, [data-theme="dark"] .recommended-card, [data-theme="dark"] .countdown-card { background: linear-gradient(135deg, #1e3448, #17232f); color: #fff; }
+
+.utility-links, .entry-actions, .translation-options, .translation-direction { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.dictionary-search form, .translation-card form { display:flex; flex-direction:column; gap:12px; }
+.dictionary-search input, .translation-card textarea, .translation-card select, .dictionary-search select { width:100%; box-sizing:border-box; }
+.dictionary-results { display:grid; gap:10px; }
+.dictionary-row { border:1px solid var(--border); padding:14px; text-align:left; display:grid; gap:4px; cursor:pointer; }
+.dictionary-korean, .translation-korean { font-size:1.35rem; font-weight:700; }
+.dictionary-romanization { color:var(--text-secondary); font-style:italic; }
+.dictionary-entry .example, .phrasebook-row { margin-top:14px; padding:14px; border:1px solid var(--border); border-radius:14px; }
+.translation-direction { justify-content:space-between; }
+.translation-direction label, .translation-options label { flex:1; min-width:130px; }
+.swap-btn { border:1px solid var(--border); border-radius:999px; min-width:44px; min-height:44px; background:var(--surface); font-size:1.4rem; cursor:pointer; }
+.translation-result { overflow-wrap:anywhere; }
+@media (max-width:430px) { .translation-direction { align-items:stretch; } .swap-btn { align-self:center; } .entry-actions .btn { flex:1 1 140px; } }
