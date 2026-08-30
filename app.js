@@ -43,7 +43,13 @@ const storage = {
 function migrateLegacyStorage() {
   ['role', 'userRole', 'selectedRole', 'klearn_role', 'currentRole'].forEach((key) => storage.remove(key));
   const settings = storage.get(STORAGE_KEYS.settings, {});
-  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 5, language: settings.language || 'vi', updatedAt: new Date().toISOString() });
+  storage.set(STORAGE_KEYS.settings, {
+    ...(settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {}),
+    schemaVersion: 6,
+    language: settings?.language || 'vi',
+    users: settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? settings.users : {},
+    updatedAt: new Date().toISOString()
+  });
 }
 
 // ============================================================
@@ -153,7 +159,9 @@ const state = {
   writingMode: 'paragraph',
   writingPrompt: null,
   writingSubmission: null,
-  selectedLessonPreview: ''
+  selectedLessonPreview: '',
+  questionRomanization: {},
+  roleplayHintVisible: false
 };
 
 const MAIN_VIEWS = ['home', 'lessons', 'lesson', 'lesson-preview', 'review', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
@@ -170,6 +178,50 @@ function firstName(fullName = '') { return fullName.trim().split(/\s+/).filter(B
 function initials(fullName = '') { return (firstName(fullName).charAt(0) || '한').toUpperCase(); }
 function appElement() { return document.getElementById('app'); }
 function formatDate(value) { return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(value)); }
+
+function getUserSettings() {
+  const settings = storage.get(STORAGE_KEYS.settings, {});
+  const saved = state.currentUser?.id && settings?.users?.[state.currentUser.id];
+  const migratedDefault = typeof settings?.showRomanization === 'boolean' ? settings.showRomanization : true;
+  return { showRomanization: typeof saved?.showRomanization === 'boolean' ? saved.showRomanization : migratedDefault };
+}
+
+function showRomanizationEnabled() { return getUserSettings().showRomanization; }
+
+function setShowRomanization(showRomanization) {
+  if (!state.currentUser) return;
+  const settings = storage.get(STORAGE_KEYS.settings, {});
+  const users = settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
+  users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), showRomanization: Boolean(showRomanization), updatedAt: new Date().toISOString() };
+  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 6, language: settings?.language || 'vi', users, updatedAt: new Date().toISOString() });
+}
+
+function getRomanization(itemOrText = '') {
+  const item = typeof itemOrText === 'object' && itemOrText ? itemOrText : { korean: itemOrText };
+  if (Object.prototype.hasOwnProperty.call(item, 'romanization')) return item.romanization || '';
+  return window.KLEARN_ROMANIZATION?.romanize(item.korean || item.koreanText || item.appLine || '') || '';
+}
+
+function getDisplayPronunciation(item = {}) {
+  const romanization = getRomanization(item);
+  const pronunciationRomanization = item.pronunciationRomanization || window.KLEARN_ROMANIZATION?.getPronunciation(item.korean || item.koreanText || item.appLine || '') || '';
+  return pronunciationRomanization && pronunciationRomanization !== romanization ? pronunciationRomanization : '';
+}
+
+function renderKoreanLearningText(item = {}, options = {}) {
+  const korean = item.korean || item.koreanText || item.appLine || '';
+  const meaningVi = item.meaningVi || item.vietnamese || item.translationVi || '';
+  const romanization = getRomanization({ ...item, korean });
+  const pronunciationRomanization = getDisplayPronunciation({ ...item, korean });
+  const showRomanization = options.forceRomanization ?? showRomanizationEnabled();
+  const sizeClass = options.compact ? ' compact' : '';
+  return `<div class="korean-learning-text${sizeClass}"><div class="learning-hangul" lang="ko">${escapeHtml(korean)}</div>${showRomanization && romanization ? `<div class="learning-romanization">${pronunciationRomanization ? `<span><b>Phiên âm:</b> ${escapeHtml(romanization)}</span><span><b>Đọc thực tế:</b> ${escapeHtml(pronunciationRomanization)}</span>` : escapeHtml(romanization)}</div>` : ''}${meaningVi ? `<div class="learning-meaning">${escapeHtml(meaningVi)}</div>` : ''}</div>`;
+}
+
+function renderRomanizationToggle(compact = false) {
+  const enabled = showRomanizationEnabled();
+  return `<button class="romanization-toggle${compact ? ' compact' : ''}" data-romanization-toggle aria-pressed="${enabled}"><span>Aa</span><b>Phiên âm: ${enabled ? 'Bật' : 'Tắt'}</b></button>`;
+}
 
 function toast(message) {
   const element = document.getElementById('toast');
@@ -290,6 +342,7 @@ const PracticeService = {
     const set = this.bank.sets.find((item) => item.id === setId);
     if (!set) return false;
     const questions = this.prioritizeQuestions(this.bank.getQuestions(set.id), Math.min(questionCount, set.questionCount));
+    state.questionRomanization = {};
     state.practiceSession = { id: uniqueId(), set, questions, index: 0, answers: [], selected: '', checked: false, startedAt: new Date().toISOString() };
     this.saveMeta({ ...this.getMeta(), activeSession: state.practiceSession });
     setView('practice-session');
@@ -301,6 +354,7 @@ const PracticeService = {
     if (!sets.length) sets = this.bank.sets.filter((set) => set.level === level);
     const pool = sets.flatMap((set) => this.bank.getQuestions(set.id));
     const questions = this.prioritizeQuestions(pool, count);
+    state.questionRomanization = {};
     const set = { id: `quick-${level}-${skill}`, title: `Luyện nhanh · ${count} câu`, level, levelLabel: level.replace('_', ' '), skill, topic: 'Luyện nhanh', difficulty: 2, questionCount: count };
     state.practiceSession = { id: uniqueId(), set, questions, index: 0, answers: [], selected: '', checked: false, startedAt: new Date().toISOString(), quick: true };
     this.saveMeta({ ...this.getMeta(), activeSession: state.practiceSession });
@@ -314,6 +368,7 @@ const PracticeService = {
     if (!sets.length) sets = this.bank.sets.filter((set) => set.level === resolvedLevel);
     const pool = sets.flatMap((set) => this.bank.getQuestions(set.id));
     const questions = this.prioritizeQuestions(pool, count);
+    state.questionRomanization = {};
     const set = { id: `random-${resolvedLevel}-${Date.now()}`, title: `Đề ngẫu nhiên · ${resolvedLevel.replace('_', ' ')}`, level: resolvedLevel, levelLabel: resolvedLevel.replace('_', ' '), skill, topic: 'Đề ngẫu nhiên', difficulty: difficulty === 'mixed' ? 2 : Number(difficulty), questionCount: questions.length };
     state.practiceSession = { id: uniqueId(), set, questions, index: 0, answers: [], selected: '', checked: false, startedAt: new Date().toISOString(), random: true };
     this.saveMeta({ ...this.getMeta(), activeSession: state.practiceSession });
@@ -322,6 +377,7 @@ const PracticeService = {
   startQuestions(questions, title, source = 'custom') {
     const selected = this.prioritizeQuestions(questions, questions.length);
     if (!selected.length) return false;
+    state.questionRomanization = {};
     const set = { id: `${source}-${Date.now()}`, title, level: 'CUSTOM', levelLabel: 'Cá nhân', skill: 'mixed', topic: title, difficulty: 2, questionCount: selected.length };
     state.practiceSession = { id: uniqueId(), set, questions: selected, index: 0, answers: [], selected: '', checked: false, startedAt: new Date().toISOString(), source };
     this.saveMeta({ ...this.getMeta(), activeSession: state.practiceSession });
@@ -521,6 +577,9 @@ function normalizeSrsCard(record = {}, vocabularyItem = null) {
     exampleKo: record.exampleKo || record.example || word.exampleKo || '',
     exampleVi: record.exampleVi || record.translation || word.exampleVi || '',
     audioText: record.audioText || word.audioText || record.korean || word.korean || '',
+    romanization: record.romanization || word.romanization || getRomanization(record.korean || word.korean || ''),
+    pronunciationRomanization: record.pronunciationRomanization || word.pronunciationRomanization || '',
+    exampleRomanization: record.exampleRomanization || word.exampleRomanization || getRomanization(record.exampleKo || record.example || word.exampleKo || ''),
     status,
     reviewCount,
     correctCount,
@@ -597,7 +656,7 @@ const VocabularyService = {
       && (filters.topic === 'all' || card.topic === filters.topic)
       && (filters.partOfSpeech === 'all' || card.partOfSpeech === filters.partOfSpeech)
       && (filters.status === 'all' || (filters.status === 'wrong' ? card.wrongCount > 0 : filters.status === 'remembered' ? card.mastery >= 60 && card.status !== 'mastered' : card.status === filters.status))
-      && (!filters.search || `${card.korean} ${card.meaningVi}`.toLowerCase().includes(filters.search.toLowerCase())));
+      && (!filters.search || `${card.korean} ${card.romanization || getRomanization(card)} ${card.meaningVi}`.toLowerCase().includes(filters.search.toLowerCase())));
   },
   optionsFor(card, direction = 'ko_vi') {
     const seen = new Set();
@@ -902,10 +961,11 @@ function lessonsView() {
 
 function lessonView() {
   const completed = Boolean(state.lessonProgress['topic-particle']?.completed);
+  const romanization = showRomanizationEnabled();
   return `<div class="lesson-header"><button class="close-btn" data-view="lessons" aria-label="Đóng bài học">×</button><div class="lesson-progress"><div class="bar"><span style="width:${completed ? 100 : 60}%"></span></div></div><span class="subtle">${completed ? '10/10' : '6/10'}</span></div>
     <section class="section lesson-title"><p class="eyebrow">Ngữ pháp sơ cấp</p><h1 class="headline">Trợ từ chủ đề</h1><div class="korean">은/는</div></section>
     <section class="card glass section"><h2 class="section-title">🧠 So sánh với Tiếng Việt</h2><p class="subtle">Trong tiếng Hàn, <b>은/는</b> được gắn sau danh từ để đánh dấu chủ đề của câu. Có thể hiểu gần với “thì” hoặc “là” trong tiếng Việt.</p><div class="grammar-box"><b>Quy tắc</b><ul class="subtle"><li>Có patchim (phụ âm cuối) + <b>은</b></li><li>Không có patchim + <b>는</b></li></ul></div></section>
-    <section class="section"><h2 class="section-title">Ví dụ</h2><div class="example"><div><div class="korean example-korean">저<span class="highlight">는</span> 학생입니다.</div><div class="subtle">Tôi là học sinh.</div></div><button class="audio-btn" data-speak="저는 학생입니다" aria-label="Nghe câu ví dụ">🔊</button></div><div class="example"><div><div class="korean example-korean">선생님<span class="highlight">은</span> 한국 사람입니다.</div><div class="subtle">Giáo viên là người Hàn Quốc.</div></div><button class="audio-btn" data-speak="선생님은 한국 사람입니다" aria-label="Nghe câu ví dụ">🔊</button></div></section>
+    <section class="section"><div class="section-heading"><h2 class="section-title">Ví dụ</h2>${renderRomanizationToggle(true)}</div><div class="example"><div><div class="korean example-korean" lang="ko">저<span class="highlight">는</span> 학생입니다.</div>${romanization ? '<div class="learning-romanization">jeoneun haksaeng-imnida.</div>' : ''}<div class="learning-meaning">Tôi là học sinh.</div></div><button class="audio-btn" data-speak="저는 학생입니다" aria-label="Nghe phát âm tiếng Hàn">🔊</button></div><div class="example"><div><div class="korean example-korean" lang="ko">선생님<span class="highlight">은</span> 한국 사람입니다.</div>${romanization ? '<div class="learning-romanization">seonsaengnimeun hanguk saram-imnida.</div>' : ''}<div class="learning-meaning">Giáo viên là người Hàn Quốc.</div></div><button class="audio-btn" data-speak="선생님은 한국 사람입니다" aria-label="Nghe phát âm tiếng Hàn">🔊</button></div></section>
     <section class="exercise section"><h2 class="section-title">🧩 Sắp xếp câu</h2><p class="subtle center">Tạo câu: “Tôi là người Việt Nam.”</p><div id="dropZone" class="drop-zone"></div><div id="chipBox" class="chips"></div><p id="sentenceFeedback" class="exercise-feedback" role="status"></p><div class="action-row"><button class="btn secondary" id="resetSentence">Làm lại</button><button class="btn primary" id="checkSentence">Kiểm tra</button></div></section>
     <div class="action-row lesson-actions"><button class="btn secondary" data-view="lessons">Quay lại</button><button class="btn primary" id="completeLesson" ${!state.sentenceCorrect && !completed ? 'disabled' : ''}>${completed ? 'Đã hoàn thành ✓' : 'Hoàn thành bài'}</button></div>`;
 }
@@ -972,7 +1032,7 @@ function vocabularyHubView() {
   filters.page = Math.min(filters.page, totalPages);
   const words = filtered.slice((filters.page - 1) * pageSize, filters.page * pageSize);
   const topics = [...new Set(state.srsData.map((card) => card.topic))].sort();
-  return `<section class="section page-heading"><button class="back-link" data-view="practice-hub" aria-label="Quay lại">←</button><p class="eyebrow">${state.srsData.length.toLocaleString('vi-VN')} từ</p><h1 class="headline">Từ vựng TOPIK 1–6</h1><p class="subtle">Tìm bằng tiếng Hàn hoặc tiếng Việt và lọc theo cấp, chủ đề, loại từ, trạng thái SRS.</p></section><label class="search-box section"><span>⌕</span><input id="vocabularySearch" type="search" placeholder="학교 hoặc trường học" value="${escapeHtml(filters.search)}"></label><section class="card vocabulary-filters section"><select data-vocab-filter="topikLevel"><option value="all">Mọi cấp TOPIK</option>${[1,2,3,4,5,6].map((level) => `<option value="${level}" ${filters.topikLevel == level ? 'selected' : ''}>TOPIK ${level}</option>`).join('')}</select><select data-vocab-filter="topic"><option value="all">Mọi chủ đề</option>${topics.map((topic) => `<option value="${topic}" ${filters.topic === topic ? 'selected' : ''}>${escapeHtml(state.srsData.find((card) => card.topic === topic)?.topicLabel || topic)}</option>`).join('')}</select><select data-vocab-filter="partOfSpeech"><option value="all">Mọi loại từ</option>${[['noun','Danh từ'],['verb','Động từ'],['adjective','Tính từ'],['adverb','Trạng từ']].map(([value,label]) => `<option value="${value}" ${filters.partOfSpeech === value ? 'selected' : ''}>${label}</option>`).join('')}</select><select data-vocab-filter="status"><option value="all">Mọi trạng thái</option>${[['new','Chưa học'],['learning','Đang học'],['review','Cần ôn'],['remembered','Đã nhớ'],['mastered','Mastered'],['wrong','Hay sai']].map(([value,label]) => `<option value="${value}" ${filters.status === value ? 'selected' : ''}>${label}</option>`).join('')}</select></section><div class="results-count">${filtered.length} từ phù hợp</div><section class="vocabulary-list">${words.map((card) => `<article class="vocabulary-row"><button data-speak="${escapeHtml(card.audioText)}">🔊</button><div><b>${escapeHtml(card.korean)}</b><span>${escapeHtml(card.meaningVi)}</span></div><small>TOPIK ${card.topikLevel}<br>${escapeHtml(card.status)}</small></article>`).join('')}</section><div class="pagination"><button class="btn secondary" data-vocab-page="${filters.page-1}" ${filters.page<=1?'disabled':''}>←</button><span>${filters.page} / ${totalPages}</span><button class="btn secondary" data-vocab-page="${filters.page+1}" ${filters.page>=totalPages?'disabled':''}>→</button></div><div class="action-row"><button class="btn secondary" data-view="vocab-test-setup">Kiểm tra từ</button><button class="btn primary" data-view="review">Ôn SRS</button></div>`;
+  return `<section class="section page-heading"><button class="back-link" data-view="practice-hub" aria-label="Quay lại">←</button><p class="eyebrow">${state.srsData.length.toLocaleString('vi-VN')} từ</p><h1 class="headline">Từ vựng TOPIK 1–6</h1><p class="subtle">Tìm bằng Hangul, tiếng Việt hoặc phiên âm Latin và lọc theo cấp, chủ đề, loại từ, trạng thái SRS.</p>${renderRomanizationToggle()}</section><label class="search-box section"><span>⌕</span><input id="vocabularySearch" type="search" placeholder="학교, hakgyo hoặc trường học" value="${escapeHtml(filters.search)}"></label><section class="card vocabulary-filters section"><select data-vocab-filter="topikLevel"><option value="all">Mọi cấp TOPIK</option>${[1,2,3,4,5,6].map((level) => `<option value="${level}" ${filters.topikLevel == level ? 'selected' : ''}>TOPIK ${level}</option>`).join('')}</select><select data-vocab-filter="topic"><option value="all">Mọi chủ đề</option>${topics.map((topic) => `<option value="${topic}" ${filters.topic === topic ? 'selected' : ''}>${escapeHtml(state.srsData.find((card) => card.topic === topic)?.topicLabel || topic)}</option>`).join('')}</select><select data-vocab-filter="partOfSpeech"><option value="all">Mọi loại từ</option>${[['noun','Danh từ'],['verb','Động từ'],['adjective','Tính từ'],['adverb','Trạng từ']].map(([value,label]) => `<option value="${value}" ${filters.partOfSpeech === value ? 'selected' : ''}>${label}</option>`).join('')}</select><select data-vocab-filter="status"><option value="all">Mọi trạng thái</option>${[['new','Chưa học'],['learning','Đang học'],['review','Cần ôn'],['remembered','Đã nhớ'],['mastered','Mastered'],['wrong','Hay sai']].map(([value,label]) => `<option value="${value}" ${filters.status === value ? 'selected' : ''}>${label}</option>`).join('')}</select></section><div class="results-count">${filtered.length} từ phù hợp</div><section class="vocabulary-list">${words.map((card) => `<article class="vocabulary-row"><button data-speak="${escapeHtml(card.audioText)}" aria-label="Nghe phát âm tiếng Hàn">🔊</button><div><b lang="ko">${escapeHtml(card.korean)}</b>${showRomanizationEnabled() ? `<i>${escapeHtml(getRomanization(card))}</i>` : ''}<span>${escapeHtml(card.meaningVi)}</span></div><small>TOPIK ${card.topikLevel}<br>${escapeHtml(card.status)}</small></article>`).join('')}</section><div class="pagination"><button class="btn secondary" data-vocab-page="${filters.page-1}" ${filters.page<=1?'disabled':''}>←</button><span>${filters.page} / ${totalPages}</span><button class="btn secondary" data-vocab-page="${filters.page+1}" ${filters.page>=totalPages?'disabled':''}>→</button></div><div class="action-row"><button class="btn secondary" data-view="vocab-test-setup">Kiểm tra từ</button><button class="btn primary" data-view="review">Ôn SRS</button></div>`;
 }
 
 function examCatalogView() {
@@ -1013,12 +1073,14 @@ function practiceSessionView() {
   const question = session.questions[session.index];
   const selectedAnswer = session.selected;
   const correct = selectedAnswer === question.correctAnswer;
+  const isListening = question.skill === 'listening';
+  const reviewRomanization = state.questionRomanization[question.id] ?? showRomanizationEnabled();
   return `<div class="lesson-header"><button class="close-btn" id="leavePractice" aria-label="Thoát bài luyện">×</button><div class="lesson-progress"><div class="bar"><span style="width:${Math.round(((session.index + (session.checked ? 1 : 0)) / session.questions.length) * 100)}%"></span></div></div><span class="subtle">${session.index + 1}/${session.questions.length}</span></div>
     <section class="section practice-session-title"><p class="eyebrow">${escapeHtml(session.set.levelLabel || session.set.level)} · ${escapeHtml(session.set.topic)}</p><h1>${escapeHtml(session.set.title)}</h1></section>
-    <section class="card live-question"><div class="question-tags"><span>${escapeHtml(question.skill)}</span><span>${escapeHtml(question.questionTypeLabel || question.questionType)}</span><span>Độ khó ${question.difficulty}</span></div>${question.koreanText ? `<div class="question-korean">${escapeHtml(question.koreanText)}</div>` : ''}<h2>${escapeHtml(question.prompt)}</h2>${question.audioText ? `<button class="audio-inline" data-speak="${escapeHtml(question.audioText)}">🔊 Nghe</button>` : ''}<div class="answer-list">${question.options.map((option, index) => {
+    <section class="card live-question"><div class="question-tags"><span>${escapeHtml(question.skill)}</span><span>${escapeHtml(question.questionTypeLabel || question.questionType)}</span><span>Độ khó ${question.difficulty}</span></div>${question.koreanText && !isListening ? `<div class="question-korean" lang="ko">${escapeHtml(question.koreanText)}</div>` : ''}<h2>${escapeHtml(question.prompt)}</h2>${question.audioText ? `<button class="audio-inline" data-speak="${escapeHtml(question.audioText)}" aria-label="Nghe phát âm tiếng Hàn">🔊 Nghe</button>` : ''}<div class="answer-list">${question.options.map((option, index) => {
       const answerClass = !session.checked ? (selectedAnswer === option ? 'selected' : '') : option === question.correctAnswer ? 'correct' : selectedAnswer === option ? 'wrong' : '';
       return `<button class="answer-button ${answerClass}" data-practice-answer="${escapeHtml(option)}" ${session.checked ? 'disabled' : ''}><span>${String.fromCharCode(65 + index)}</span>${escapeHtml(option)}</button>`;
-    }).join('')}</div>${session.checked ? `<div class="answer-feedback ${correct ? 'success' : 'error'}"><strong>${correct ? '✓ Đúng rồi!' : 'Chưa đúng'}</strong>${!correct ? `<p>Đáp án đúng: <b>${escapeHtml(question.correctAnswer)}</b></p>` : ''}<p>${escapeHtml(question.explanationVi)}</p></div>` : ''}</section>
+    }).join('')}</div>${session.checked ? `<div class="answer-feedback ${correct ? 'success' : 'error'}"><strong>${correct ? '✓ Đúng rồi!' : 'Chưa đúng'}</strong>${!correct ? `<p>Đáp án đúng: <b>${escapeHtml(question.correctAnswer)}</b></p>` : ''}<p>${escapeHtml(question.explanationVi)}</p></div>${question.koreanText ? `<div class="question-learning-review"><div class="review-learning-heading"><b>${isListening ? 'Transcript sau khi trả lời' : 'Hỗ trợ học lại'}</b><button data-question-romanization="${escapeHtml(question.id)}">Aa ${reviewRomanization ? 'Ẩn' : 'Hiện'} phiên âm</button></div>${renderKoreanLearningText({ ...question, korean: question.koreanText }, { compact: true, forceRomanization: reviewRomanization })}${question.audioText ? `<button class="audio-inline" data-speak="${escapeHtml(question.audioText)}" aria-label="Nghe lại phát âm tiếng Hàn">🔊 Nghe lại</button>` : ''}</div>` : ''}` : ''}</section>
     <div class="sticky-question-action">${session.checked ? `<button class="btn primary full" id="nextPracticeQuestion">${session.index === session.questions.length - 1 ? 'Xem kết quả' : 'Câu tiếp theo'}</button>` : `<button class="btn primary full" id="checkPracticeAnswer" ${!selectedAnswer ? 'disabled' : ''}>Kiểm tra</button>`}</div>`;
 }
 
@@ -1037,9 +1099,9 @@ function practiceReviewView() {
   const result = state.practiceResult;
   if (!result?.attempt) return practiceResultView();
   const wrongAnswers = result.attempt.answers.filter((answer) => !answer.correct && result.questions.some((question) => question.id === answer.questionId));
-  return `<section class="section page-heading"><button class="back-link" data-view="practice-result" aria-label="Quay lại">←</button><p class="eyebrow">${wrongAnswers.length} câu cần xem lại</p><h1 class="headline">Giải thích câu sai</h1></section><section class="wrong-review-list">${wrongAnswers.map((answer, index) => {
+  return `<section class="section page-heading"><button class="back-link" data-view="practice-result" aria-label="Quay lại">←</button><p class="eyebrow">${wrongAnswers.length} câu cần xem lại</p><h1 class="headline">Giải thích câu sai</h1>${renderRomanizationToggle()}</section><section class="wrong-review-list">${wrongAnswers.map((answer, index) => {
     const question = result.questions.find((item) => item.id === answer.questionId);
-    return `<article class="card wrong-review-card"><span>Câu ${index + 1}</span>${question.koreanText ? `<div class="question-korean small">${escapeHtml(question.koreanText)}</div>` : ''}<h2>${escapeHtml(question.prompt)}</h2><p>Bạn chọn: <b class="wrong-text">${escapeHtml(answer.selectedAnswer)}</b></p><p>Đáp án: <b class="correct-text">${escapeHtml(question.correctAnswer)}</b></p><div class="explanation-box">${escapeHtml(question.explanationVi)}</div></article>`;
+    return `<article class="card wrong-review-card"><span>Câu ${index + 1}</span>${question.koreanText ? renderKoreanLearningText({ ...question, korean: question.koreanText }, { compact: true }) : ''}<h2>${escapeHtml(question.prompt)}</h2><p>Bạn chọn: <b class="wrong-text">${escapeHtml(answer.selectedAnswer)}</b></p><p>Đáp án: <b class="correct-text">${escapeHtml(question.correctAnswer)}</b></p><div class="explanation-box">${escapeHtml(question.explanationVi)}</div>${question.audioText ? `<button class="audio-inline" data-speak="${escapeHtml(question.audioText)}" aria-label="Nghe lại phát âm tiếng Hàn">🔊 Nghe lại</button>` : ''}</article>`;
   }).join('')}</section><button class="btn primary full" data-view="practice-result">Quay lại kết quả</button>`;
 }
 
@@ -1075,8 +1137,8 @@ function reviewSessionView() {
   }
   const card = state.srsData.find((item) => item.wordId === session.cardIds[session.index]);
   const progress = Math.round((session.index / session.cardIds.length) * 100);
-  return `<section class="section page-heading"><p class="eyebrow">Đã ôn ${session.index} / ${session.cardIds.length}</p><h1 class="headline">Flashcard SRS</h1><div class="bar large"><span style="width:${progress}%"></span></div></section>
-    <div class="flashcard ${state.flashcardFlipped ? 'flipped' : ''}" id="flipCard" role="button" tabindex="0" aria-label="Lật flashcard"><div class="flashcard-face front"><span class="card-kicker">Tiếng Hàn</span><strong>${escapeHtml(card.korean)}</strong><button type="button" class="flash-audio" data-speak="${escapeHtml(card.audioText)}" aria-label="Nghe phát âm">🔊</button><span class="flip-hint">Chạm để lật</span></div><div class="flashcard-face back"><span class="card-kicker">Tiếng Việt</span><strong>${escapeHtml(card.meaningVi)}</strong><div class="flash-example"><b>${escapeHtml(card.exampleKo)}</b><span>${escapeHtml(card.exampleVi)}</span></div></div></div>
+  return `<section class="section page-heading"><p class="eyebrow">Đã ôn ${session.index} / ${session.cardIds.length}</p><h1 class="headline">Flashcard SRS</h1><div class="bar large"><span style="width:${progress}%"></span></div>${renderRomanizationToggle()}</section>
+    <div class="flashcard ${state.flashcardFlipped ? 'flipped' : ''}" id="flipCard" role="button" tabindex="0" aria-label="Lật flashcard"><div class="flashcard-face front"><span class="card-kicker">Tiếng Hàn</span><strong lang="ko">${escapeHtml(card.korean)}</strong>${showRomanizationEnabled() ? `<i class="flash-romanization">${escapeHtml(getRomanization(card))}</i>` : ''}<button type="button" class="flash-audio" data-speak="${escapeHtml(card.audioText)}" aria-label="Nghe phát âm tiếng Hàn">🔊</button><span class="flip-hint">Chạm để lật</span></div><div class="flashcard-face back"><span class="card-kicker">Tiếng Việt</span><strong>${escapeHtml(card.meaningVi)}</strong><div class="flash-example"><b lang="ko">${escapeHtml(card.exampleKo)}</b>${showRomanizationEnabled() ? `<i>${escapeHtml(card.exampleRomanization || getRomanization(card.exampleKo))}</i>` : ''}<span>${escapeHtml(card.exampleVi)}</span></div></div></div>
     ${state.flashcardFlipped ? `<div class="srs-actions" aria-label="Đánh giá mức độ ghi nhớ"><button data-srs-rating="forgot"><span>😵</span><b>Quên</b><small>10 phút</small></button><button data-srs-rating="hard"><span>😕</span><b>Khó</b><small>1 ngày</small></button><button data-srs-rating="remember"><span>🙂</span><b>Nhớ</b><small>3–30 ngày</small></button><button data-srs-rating="easy"><span>😎</span><b>Rất dễ</b><small>7–30 ngày</small></button></div>` : '<p class="subtle center">Hãy lật thẻ trước khi tự đánh giá.</p>'}`;
 }
 
@@ -1100,7 +1162,7 @@ function vocabularyPretestView() {
   const prompt = variant === 1 ? `Từ nào có nghĩa là “${card.meaningVi}”?` : variant === 2 ? 'Nghe và chọn nghĩa đúng.' : variant === 3 ? `Điền từ: 오늘의 단어는 “___”입니다. (${card.meaningVi})` : variant === 4 ? `Chọn nghĩa gần nhất của “${card.korean}”.` : `“${card.korean}” có nghĩa là gì?`;
   return `<section class="section page-heading"><p class="eyebrow">Kiểm tra trước · ${session.index + 1}/${session.cardIds.length}</p><h1 class="headline">Bạn còn nhớ từ này?</h1><div class="bar"><span style="width:${Math.round((session.index / session.cardIds.length) * 100)}%"></span></div></section>
     <section class="card pretest-question"><h2>${escapeHtml(prompt)}</h2>${variant === 2 ? `<button class="audio-inline" data-speak="${escapeHtml(card.audioText)}">🔊 Nghe từ</button>` : ''}<div class="answer-list">${question.options.map((option, index) => `<button class="answer-button ${result ? option === question.correct ? 'correct' : result.response === option ? 'wrong' : '' : ''}" data-pretest-answer="${escapeHtml(option)}" ${result ? 'disabled' : ''}><span>${String.fromCharCode(65 + index)}</span>${escapeHtml(option)}</button>`).join('')}</div></section>
-    ${result ? `<section class="card pretest-decision ${result.correct ? 'passed' : 'failed'}"><h2>${result.correct ? '✅ Bạn đã nhớ từ này' : 'Bạn cần ôn lại từ này'}</h2><div class="pretest-word"><strong>${escapeHtml(card.korean)}</strong><span>${escapeHtml(card.meaningVi)}</span></div>${result.correct ? '<p>Chọn cách xử lý cho phiên ôn này.</p><div class="decision-grid"><button class="btn secondary" data-pretest-decision="keep">Vẫn nhắc lại</button><button class="btn primary" data-pretest-decision="skip">Bỏ qua lần này</button><button class="btn mastery-button" data-pretest-decision="mastered">Đánh dấu đã thuộc</button></div>' : `<p>Đáp án đúng: <b>${escapeHtml(question.correct)}</b>. Từ này sẽ tự động nằm trong phiên ôn.</p><button class="btn primary full" data-pretest-decision="required">Tiếp tục</button>`}</section>` : ''}`;
+    ${result ? `<section class="card pretest-decision ${result.correct ? 'passed' : 'failed'}"><h2>${result.correct ? '✅ Bạn đã nhớ từ này' : 'Bạn cần ôn lại từ này'}</h2>${renderKoreanLearningText(card, { compact: true })}${result.correct ? '<p>Chọn cách xử lý cho phiên ôn này.</p><div class="decision-grid"><button class="btn secondary" data-pretest-decision="keep">Vẫn nhắc lại</button><button class="btn primary" data-pretest-decision="skip">Bỏ qua lần này</button><button class="btn mastery-button" data-pretest-decision="mastered">Đánh dấu đã thuộc</button></div>' : `<p>Đáp án đúng: <b>${escapeHtml(question.correct)}</b>. Từ này sẽ tự động nằm trong phiên ôn.</p><button class="btn primary full" data-pretest-decision="required">Tiếp tục</button>`}</section>` : ''}`;
 }
 
 function pretestResultView() {
@@ -1124,7 +1186,8 @@ function vocabularyTestView() {
   if (!session.currentQuestion || session.currentQuestion.wordId !== card.wordId) session.currentQuestion = { wordId: card.wordId, ...VocabularyService.optionsFor(card, session.index % 2 ? 'vi_ko' : 'ko_vi') };
   const question = session.currentQuestion;
   const viToKo = session.index % 2 === 1;
-  return `<section class="section page-heading"><p class="eyebrow">Kiểm tra vốn từ · ${session.index + 1}/${session.cardIds.length}</p><div class="bar"><span style="width:${Math.round((session.index / session.cardIds.length) * 100)}%"></span></div></section><section class="card pretest-question"><h2>${viToKo ? `Từ nào có nghĩa là “${escapeHtml(card.meaningVi)}”?` : `“${escapeHtml(card.korean)}” có nghĩa là gì?`}</h2><div class="answer-list">${question.options.map((option,index) => `<button class="answer-button" data-vocab-test-answer="${escapeHtml(option)}"><span>${String.fromCharCode(65 + index)}</span>${escapeHtml(option)}</button>`).join('')}</div></section>`;
+  const result = session.currentResult;
+  return `<section class="section page-heading"><p class="eyebrow">Kiểm tra vốn từ · ${session.index + 1}/${session.cardIds.length}</p><div class="bar"><span style="width:${Math.round((session.index / session.cardIds.length) * 100)}%"></span></div></section><section class="card pretest-question"><h2>${viToKo ? `Từ nào có nghĩa là “${escapeHtml(card.meaningVi)}”?` : `“${escapeHtml(card.korean)}” có nghĩa là gì?`}</h2><div class="answer-list">${question.options.map((option,index) => `<button class="answer-button ${result ? option === question.correct ? 'correct' : result.response === option ? 'wrong' : '' : ''}" data-vocab-test-answer="${escapeHtml(option)}" ${result ? 'disabled' : ''}><span>${String.fromCharCode(65 + index)}</span>${escapeHtml(option)}</button>`).join('')}</div>${result ? `<div class="vocabulary-test-feedback ${result.correct ? 'success' : 'error'}"><strong>${result.correct ? '✓ Chính xác' : 'Chưa đúng'}</strong>${renderKoreanLearningText(card, { compact: true })}<button class="btn primary full" id="nextVocabularyTest">${session.index === session.cardIds.length - 1 ? 'Xem kết quả' : 'Từ tiếp theo'}</button></div>` : ''}</section>`;
 }
 
 function vocabularyTestResultView() {
@@ -1133,21 +1196,21 @@ function vocabularyTestResultView() {
   const correct = session.results.filter((result) => result.correct).length;
   const wrong = session.results.filter((result) => !result.correct);
   const percentage = Math.round((correct / Math.max(1, session.results.length)) * 100);
-  return `<section class="result-page"><div class="result-score-ring" style="--score:${percentage * 3.6}deg"><div><strong>${correct}/${session.results.length}</strong><span>${percentage}%</span></div></div><p class="eyebrow">${ratingText(percentage)}</p><h1 class="headline">Kết quả vốn từ</h1><div class="result-counts"><span>Đúng <b>${correct}</b></span><span>Sai <b>${wrong.length}</b></span></div><section class="card result-analysis"><h2>Từ cần ôn lại</h2>${wrong.length ? `<div class="weak-topic-list">${wrong.map((result) => { const card = state.srsData.find((item) => item.wordId === result.wordId); return `<span>${escapeHtml(card.korean)} · ${escapeHtml(card.meaningVi)}</span>`; }).join('')}</div>` : '<p class="subtle">Bạn đã trả lời đúng tất cả.</p>'}</section>${wrong.length ? '<button class="btn primary full" id="addWrongToReview">Thêm từ sai vào phiên ôn</button>' : ''}<button class="btn secondary full" data-view="review">Về Ôn tập</button></section>`;
+  return `<section class="result-page"><div class="result-score-ring" style="--score:${percentage * 3.6}deg"><div><strong>${correct}/${session.results.length}</strong><span>${percentage}%</span></div></div><p class="eyebrow">${ratingText(percentage)}</p><h1 class="headline">Kết quả vốn từ</h1>${renderRomanizationToggle()}<div class="result-counts"><span>Đúng <b>${correct}</b></span><span>Sai <b>${wrong.length}</b></span></div><section class="card result-analysis"><h2>Từ cần ôn lại</h2>${wrong.length ? `<div class="vocabulary-result-list">${wrong.map((result) => { const card = state.srsData.find((item) => item.wordId === result.wordId); return renderKoreanLearningText(card, { compact: true }); }).join('')}</div>` : '<p class="subtle">Bạn đã trả lời đúng tất cả.</p>'}</section>${wrong.length ? '<button class="btn primary full" id="addWrongToReview">Thêm từ sai vào phiên ôn</button>' : ''}<button class="btn secondary full" data-view="review">Về Ôn tập</button></section>`;
 }
 
 function lessonPreviewView() {
   const lesson = state.selectedLessonPreview || 'Bài học tiếng Hàn';
   const skill = /Nghe|Listening/.test(lesson) ? 'listening' : /Đọc|Reading/.test(lesson) ? 'reading' : /Viết|Writing|Email|đoạn/.test(lesson) ? 'writing' : /Nói|Speaking|Phỏng vấn/.test(lesson) ? 'speaking' : 'grammar';
   const route = skill === 'writing' ? 'writing-hub' : skill === 'speaking' ? 'speaking-hub' : 'skill-hub';
-  return `<section class="section page-heading"><button class="back-link" data-view="lessons" aria-label="Quay lại">←</button><p class="eyebrow">Bài học MVP</p><h1 class="headline">${escapeHtml(lesson)}</h1><p class="subtle">Mục tiêu: nhận biết cấu trúc, xem ví dụ và chuyển ngay sang bài luyện phù hợp.</p></section><section class="card section"><h2 class="section-title">Cách học gợi ý</h2><ol class="learning-steps"><li>Đọc hoặc nghe mẫu tiếng Hàn.</li><li>Đối chiếu nghĩa và cách dùng bằng tiếng Việt.</li><li>Làm bài luyện theo kỹ năng để kiểm tra.</li></ol><div class="example"><div><b class="korean">한국어를 꾸준히 연습해요.</b><p class="subtle">Tôi luyện tiếng Hàn đều đặn.</p></div><button class="audio-btn" data-speak="한국어를 꾸준히 연습해요">🔊</button></div></section><button class="btn primary full" data-open-skill="${skill}" data-view="${route}">Bắt đầu luyện ${escapeHtml(lesson)}</button>`;
+  return `<section class="section page-heading"><button class="back-link" data-view="lessons" aria-label="Quay lại">←</button><p class="eyebrow">Bài học MVP</p><h1 class="headline">${escapeHtml(lesson)}</h1><p class="subtle">Mục tiêu: nhận biết cấu trúc, xem ví dụ và chuyển ngay sang bài luyện phù hợp.</p>${renderRomanizationToggle()}</section><section class="card section"><h2 class="section-title">Cách học gợi ý</h2><ol class="learning-steps"><li>Đọc hoặc nghe mẫu tiếng Hàn.</li><li>Đối chiếu nghĩa và cách dùng bằng tiếng Việt.</li><li>Làm bài luyện theo kỹ năng để kiểm tra.</li></ol><div class="example"><div>${renderKoreanLearningText({ korean: '한국어를 꾸준히 연습해요.', romanization: 'hangugeoreul kkujunhi yeonseuphaeyo.', meaningVi: 'Tôi luyện tiếng Hàn đều đặn.' }, { compact: true })}</div><button class="audio-btn" data-speak="한국어를 꾸준히 연습해요." aria-label="Nghe phát âm tiếng Hàn">🔊</button></div></section><button class="btn primary full" data-open-skill="${skill}" data-view="${route}">Bắt đầu luyện ${escapeHtml(lesson)}</button>`;
 }
 
 function speakingHubView() {
   const modes = window.KLEARN_MODULE_DATA?.speakingModes || [];
   const attempts = getUserProgress().pronunciationAttempts;
   const average = attempts.length ? Math.round(attempts.reduce((sum,item)=>sum+item.score,0)/attempts.length) : 0;
-  return `<section class="section page-heading"><button class="back-link" data-view="home" aria-label="Quay lại">←</button><p class="eyebrow">Speech-to-text scoring MVP</p><h1 class="headline">🎙 Luyện nói</h1><p class="subtle">${attempts.length} lượt · Trung bình ${average}/100. Kết quả dựa trên văn bản nhận diện, không phải chấm âm vị AI.</p></section><section class="speaking-mode-grid">${modes.map((mode,index) => `<button data-speaking-mode="${mode.id}"><span>${['🔤','💬','🎧','📖','👥','❓','🎭','⚡','🏆','1–6'][index]}</span><b>${mode.label}</b><small>${mode.vietnamese}</small></button>`).join('')}</section><section class="card section"><h2 class="section-title">Tình huống roleplay</h2><div class="topic-chips">${(window.KLEARN_MODULE_DATA?.roleplays || []).map((role) => `<button data-roleplay="${role.id}">${role.title}</button>`).join('')}</div></section>`;
+  return `<section class="section page-heading"><button class="back-link" data-view="home" aria-label="Quay lại">←</button><p class="eyebrow">Speech-to-text scoring MVP</p><h1 class="headline">🎙 Luyện nói</h1><p class="subtle">${attempts.length} lượt · Trung bình ${average}/100. Kết quả dựa trên văn bản nhận diện, không phải chấm âm vị AI.</p>${renderRomanizationToggle()}</section><section class="speaking-mode-grid">${modes.map((mode,index) => `<button data-speaking-mode="${mode.id}"><span>${['🔤','💬','🎧','📖','👥','❓','🎭','⚡','🏆','1–6'][index]}</span><b>${mode.label}</b><small>${mode.vietnamese}</small></button>`).join('')}</section><section class="card section"><h2 class="section-title">Tình huống roleplay</h2><div class="topic-chips">${(window.KLEARN_MODULE_DATA?.roleplays || []).map((role) => `<button data-roleplay="${role.id}">${role.title}</button>`).join('')}</div></section>`;
 }
 
 function speakingSessionView() {
@@ -1155,14 +1218,21 @@ function speakingSessionView() {
   if (!prompt) return speakingHubView();
   const result = state.speakingResult;
   const isRoleplay = state.speakingMode === 'roleplay';
-  return `<section class="section page-heading"><button class="back-link" data-view="speaking-hub" aria-label="Quay lại">←</button><p class="eyebrow">${isRoleplay ? `Roleplay · ${escapeHtml(prompt.title || '')}` : 'Speech-to-text scoring MVP'}</p><h1 class="headline">${isRoleplay ? 'Trả lời tình huống' : escapeHtml(prompt.label || 'Luyện nói')}</h1></section><section class="card speaking-stage section"><span class="card-kicker">${isRoleplay ? 'App nói' : 'Câu mẫu'}</span><div class="question-korean">${escapeHtml(prompt.appLine || prompt.korean)}</div><p>${escapeHtml(prompt.vietnamese || '')}</p><div class="speaking-audio-row"><button class="audio-inline" data-speak="${escapeHtml(prompt.appLine || prompt.korean)}">🔊 Nghe 1x</button><button class="audio-inline" data-speak-rate="0.75" data-speak-text="${escapeHtml(prompt.appLine || prompt.korean)}">0.75x</button></div>${isRoleplay ? `<p class="subtle">Gợi ý từ khóa: ${prompt.keywords.map(escapeHtml).join(' · ')}</p>` : ''}</section>${result ? `<section class="card section pronunciation-result"><p class="eyebrow">Kết quả gần nhất</p><div class="recognized-text">“${escapeHtml(result.transcript)}”</div><div class="score-display"><span>${isRoleplay ? 'Mức khớp từ khóa' : 'Độ giống văn bản'}</span><strong>${result.score}/100</strong></div><p class="subtle">${result.feedback}</p></section>` : ''}<form id="speakingFallbackForm" class="card speaking-input"><label>${isRoleplay ? 'Nhập câu trả lời hoặc dùng micro' : 'Nhập văn bản nhận diện để thử khi không có micro'}<input name="transcript" autocomplete="off" placeholder="Nhập câu tiếng Hàn..."></label><button class="btn secondary" type="submit">Đánh giá văn bản</button></form><div class="mic-wrap"><button id="micBtn" class="mic-btn ${state.recording ? 'recording' : ''}" aria-label="${state.recording ? 'Dừng ghi âm' : 'Bắt đầu ghi âm'}">${state.recording ? '■' : '🎙'}</button><div class="subtle">${state.recording ? 'Đang nghe...' : 'Ghi âm bằng ko-KR Speech Recognition'}</div></div><button class="btn primary full" id="speakingComplete">${result ? 'Hoàn thành' : 'Bỏ qua phiên này'}</button>`;
+  const korean = prompt.appLine || prompt.korean;
+  const hint = isRoleplay && state.roleplayHintVisible ? `<div class="roleplay-hint"><span class="card-kicker">Gợi ý trả lời</span>${renderKoreanLearningText({ korean: prompt.suggestedAnswer, romanization: prompt.suggestedRomanization, meaningVi: prompt.suggestedMeaningVi }, { compact: true })}<p>Từ khóa: ${(prompt.keywords || []).map(escapeHtml).join(' · ')}</p></div>` : '';
+  return `<section class="section page-heading"><button class="back-link" data-view="speaking-hub" aria-label="Quay lại">←</button><p class="eyebrow">${isRoleplay ? `Roleplay · ${escapeHtml(prompt.title || '')}` : 'Speech-to-text scoring MVP'}</p><h1 class="headline">${isRoleplay ? 'Trả lời tình huống' : escapeHtml(prompt.label || 'Luyện nói')}</h1>${renderRomanizationToggle(true)}</section><section class="card speaking-stage section"><span class="card-kicker">${isRoleplay ? 'Nhân vật A' : 'Câu mẫu'}</span>${renderKoreanLearningText({ ...prompt, korean, meaningVi: prompt.meaningVi || prompt.vietnamese })}<div class="speaking-audio-row"><button class="audio-inline" data-speak="${escapeHtml(korean)}" aria-label="Nghe phát âm tiếng Hàn ở tốc độ bình thường">🔊 Bình thường</button><button class="audio-inline" data-speak-rate="0.75" data-speak-text="${escapeHtml(korean)}" aria-label="Nghe phát âm tiếng Hàn chậm">🐢 Chậm 0.75x</button></div>${isRoleplay ? `<button class="hint-toggle" id="roleplayHintToggle">${state.roleplayHintVisible ? 'Ẩn gợi ý' : 'Gợi ý'}</button>${hint}` : ''}${prompt.pronunciationTipVi ? `<details class="pronunciation-tip"><summary>💡 Mẹo phát âm</summary><p>${escapeHtml(prompt.pronunciationTipVi)}</p></details>` : ''}</section>${result ? `<section class="card section pronunciation-result"><p class="eyebrow">Kết quả gần nhất</p><h2>Câu chuẩn</h2>${renderKoreanLearningText({ ...prompt, korean }, { compact: true })}<h2>Bạn nói</h2><div class="recognized-text">“${escapeHtml(result.transcript)}”</div><div class="score-display"><span>${isRoleplay ? 'Mức khớp từ khóa' : 'Độ giống văn bản'}</span><strong>${result.score}/100</strong></div><p class="subtle">${result.feedback}</p><div class="speaking-audio-row"><button class="audio-inline" data-speak="${escapeHtml(korean)}" aria-label="Nghe lại phát âm tiếng Hàn">🔊 Nghe lại câu chuẩn</button><button class="audio-inline" data-repeat-speaking>🎙 Thử lại</button></div></section>` : ''}<form id="speakingFallbackForm" class="card speaking-input"><label>${isRoleplay ? 'Nhập câu trả lời hoặc dùng micro' : 'Nhập văn bản nhận diện để thử khi không có micro'}<input name="transcript" autocomplete="off" placeholder="Nhập câu tiếng Hàn..."></label><button class="btn secondary" type="submit">Đánh giá văn bản</button></form><div class="mic-wrap"><button id="micBtn" class="mic-btn ${state.recording ? 'recording' : ''}" aria-label="${state.recording ? 'Dừng ghi âm' : 'Bắt đầu ghi âm'}">${state.recording ? '■' : '🎙'}</button><div class="subtle">${state.recording ? 'Đang nghe...' : 'Ghi âm bằng ko-KR Speech Recognition'}</div></div><button class="btn primary full" id="speakingComplete">${result ? 'Hoàn thành' : 'Bỏ qua phiên này'}</button>`;
 }
 
 function speakingResultView() {
   const result = state.speakingResult;
   const stats = getUserProgress().pronunciationAttempts;
   const average = stats.length ? Math.round(stats.reduce((sum,item)=>sum+item.score,0)/stats.length) : 0;
-  return `<section class="result-page"><div class="celebration">🎙</div><p class="eyebrow">Speech-to-text scoring MVP</p><h1 class="headline">Phiên nói đã lưu</h1><div class="result-counts"><span>Điểm vừa rồi <b>${result?.score ?? '—'}</b></span><span>Trung bình <b>${average}</b></span></div><p class="subtle">Nhận diện: ${escapeHtml(result?.transcript || 'Không có bản ghi')}</p><div class="action-row"><button class="btn secondary" data-view="speaking-hub">Mode khác</button><button class="btn primary" data-repeat-speaking>Thử lại</button></div></section>`;
+  const prompt = state.speakingPrompt || {};
+  return `<section class="result-page"><div class="celebration">🎙</div><p class="eyebrow">Speech-to-text scoring MVP</p><h1 class="headline">Phiên nói đã lưu</h1>${renderKoreanLearningText({ ...prompt, korean: prompt.korean || prompt.appLine }, { compact: true })}<div class="result-counts"><span>Điểm vừa rồi <b>${result?.score ?? '—'}</b></span><span>Trung bình <b>${average}</b></span></div><p class="subtle">Bạn nói: ${escapeHtml(result?.transcript || 'Không có bản ghi')}</p><div class="action-row"><button class="btn secondary" data-view="speaking-hub">Mode khác</button><button class="btn primary" data-repeat-speaking>Thử lại</button></div></section>`;
+}
+
+function renderWritingKeywords(keywords = []) {
+  return `<div class="writing-keyword-list">${keywords.map((keyword) => `<span><b lang="ko">${escapeHtml(keyword)}</b>${showRomanizationEnabled() ? `<i>${escapeHtml(getRomanization(keyword))}</i>` : ''}</span>`).join('')}</div>`;
 }
 
 function writingHubView() {
@@ -1174,7 +1244,7 @@ function writingHubView() {
 function writingEditorView() {
   const prompt = state.writingPrompt;
   if (!prompt) return writingHubView();
-  return `<section class="section page-heading"><button class="back-link" data-view="writing-hub" aria-label="Quay lại">←</button><p class="eyebrow">TOPIK ${prompt.level} · ${escapeHtml(prompt.type)}</p><h1 class="headline">${escapeHtml(prompt.topic)}</h1></section><section class="card writing-brief section"><h2>${escapeHtml(prompt.prompt)}</h2><p><b>Yêu cầu:</b> ${prompt.requirements.map(escapeHtml).join(' · ')}</p><p><b>Từ khóa:</b> ${prompt.keywords.map(escapeHtml).join(' · ')}</p></section><form id="writingForm" class="writing-editor"><textarea id="writingText" name="answer" rows="12" placeholder="Viết câu trả lời bằng tiếng Hàn..." required></textarea><div class="writing-counter"><span id="characterCount">0 ký tự</span><span id="wordCount">0 từ</span></div><button class="btn primary full" type="submit">Nộp bài</button><p class="security-note">Bài chỉ được đánh giá sơ bộ theo độ dài, từ khóa và biểu đạt bắt buộc.</p></form>`;
+  return `<section class="section page-heading"><button class="back-link" data-view="writing-hub" aria-label="Quay lại">←</button><p class="eyebrow">TOPIK ${prompt.level} · ${escapeHtml(prompt.type)}</p><h1 class="headline">${escapeHtml(prompt.topic)}</h1>${renderRomanizationToggle(true)}</section><section class="card writing-brief section"><h2>${escapeHtml(prompt.prompt)}</h2><p><b>Yêu cầu:</b> ${prompt.requirements.map(escapeHtml).join(' · ')}</p><p><b>Từ gợi ý</b></p>${renderWritingKeywords(prompt.keywords)}</section><form id="writingForm" class="writing-editor"><textarea id="writingText" name="answer" rows="12" placeholder="Viết câu trả lời bằng tiếng Hàn..." required></textarea><div class="writing-counter"><span id="characterCount">0 ký tự</span><span id="wordCount">0 từ</span></div><button class="btn primary full" type="submit">Nộp bài</button><p class="security-note">Bài chỉ được đánh giá sơ bộ theo độ dài, từ khóa và biểu đạt bắt buộc.</p></form>`;
 }
 
 function writingResultView() {
@@ -1193,7 +1263,7 @@ function pronunciationFeedback(result) {
 function practiceView() {
   const result = state.pronunciationResult || state.pronunciationAttempts[0] || null;
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  return `<section class="card practice-card section"><span class="eyebrow">Luyện đọc câu sau</span><div class="phrase">안녕하세요</div><button class="audio-btn" data-speak="안녕하세요" aria-label="Nghe câu mẫu">🔊</button><div><span class="translation">Xin chào</span></div></section>
+  return `<section class="card practice-card section"><span class="eyebrow">Luyện đọc câu sau</span>${renderKoreanLearningText({ korean: '안녕하세요', romanization: 'annyeonghaseyo', meaningVi: 'Xin chào' })}<button class="audio-btn" data-speak="안녕하세요" aria-label="Nghe phát âm tiếng Hàn">🔊</button></section>
     <section class="card section pronunciation-result"><div class="subtle center">Kết quả Speech-to-Text</div>${result ? `<div class="recognized-text">“${escapeHtml(result.transcript)}”</div><div class="score-display"><span>Điểm phát âm MVP</span><strong>${result.score} / 100</strong></div>` : '<div class="result-placeholder">Nói câu mẫu để bắt đầu chấm theo độ giống văn bản.</div>'}</section>
     <section class="card glass section"><div class="feedback"><div class="ai-dot">✦</div><div><b class="feedback-title">Tailored Feedback</b>${pronunciationFeedback(result)}<small>Điểm chỉ dựa trên nhận dạng giọng nói và độ giống văn bản, không phải chấm âm vị AI chính xác.</small></div></div></section>
     ${state.recordedAudioUrl ? `<section class="card section"><label class="audio-playback-label">Bản ghi gần nhất</label><audio class="audio-playback" controls src="${state.recordedAudioUrl}"></audio></section>` : ''}
@@ -1211,6 +1281,7 @@ function profileView() {
   const speakingAttempts = progress.pronunciationAttempts;
   const speakingAverage = speakingAttempts.length ? Math.round(speakingAttempts.reduce((sum,item)=>sum+item.score,0)/speakingAttempts.length) : 0;
   return `<section class="card profile-head section"><div class="profile-avatar">${escapeHtml(state.currentUser.avatar || initials(state.currentUser.fullName))}</div><h1 class="headline profile-name">${escapeHtml(state.currentUser.fullName)}</h1><p class="subtle">${escapeHtml(state.currentUser.level)} · ${escapeHtml(goals.join(' · '))}</p><div class="topik-goal"><span>Hiện tại <b>${topikLabel(state.currentUser.currentTopikLevel)}</b></span><i>→</i><span>Mục tiêu <b>${topikLabel(state.currentUser.targetTopikLevel)}</b></span></div><div class="stats stats-four"><div class="stat"><b>${progress.stats.lessonsCompleted}</b><small>Bài đã học</small></div><div class="stat"><b>${progress.stats.learningDays}</b><small>Ngày học</small></div><div class="stat"><b>${progress.stats.streak}</b><small>Streak</small></div><div class="stat"><b>${progress.stats.wordsLearned}</b><small>Từ đã học</small></div></div><button class="btn secondary full" data-view="edit-profile">Chỉnh sửa hồ sơ</button></section>
+    <section class="card section romanization-setting"><div><h2 class="section-title">Hỗ trợ đọc Hangul</h2><p>Phiên âm giúp bạn hình dung cách đọc. Khi đã quen Hangul, hãy thử tắt để luyện đọc trực tiếp.</p></div>${renderRomanizationToggle()}</section>
     <section class="card section"><h2 class="section-title">📝 Tiến độ luyện đề</h2><div class="practice-stats"><div><b>${practiceStats.completed}</b><span>Số đề đã làm</span></div><div><b>${practiceStats.average}%</b><span>Điểm trung bình</span></div><div><b>${practiceStats.bestTopik}/15</b><span>TOPIK tốt nhất</span></div></div>${practiceStats.weakTopics.length ? `<h3 class="weak-heading">Điểm yếu của bạn</h3><div class="weak-topic-list">${practiceStats.weakTopics.map(([topic, score]) => `<span>${escapeHtml(topic)} · ${score}%</span>`).join('')}</div>` : '<p class="subtle center">Làm thêm đề để hệ thống tìm chủ đề cần củng cố.</p>'}<button class="btn primary full" data-view="practice-hub">Tiếp tục luyện</button></section>
     <section class="card section"><h2 class="section-title">🧠 Trí nhớ từ vựng</h2><div class="practice-stats"><div><b>${vocabularyStats.learning}</b><span>Đang học</span></div><div><b>${vocabularyStats.mastered}</b><span>Mastered</span></div><div><b>${vocabularyStats.retention}%</b><span>Tỷ lệ nhớ</span></div></div></section>
     <section class="card section"><h2 class="section-title">TOPIK 1–6</h2><div class="topik-progress-list">${[1,2,3,4,5,6].map((level)=>{const item=practiceStats.byTopik[level]||{};const values=Object.values(item);const avg=values.length?Math.round(values.reduce((a,b)=>a+b,0)/values.length):0;return `<div class="topik-level-progress"><header><b>TOPIK ${level}</b><div class="bar"><span style="width:${avg}%"></span></div><small>${values.length?`${avg}%`:'—'}</small></header><div class="skill-mini">${[['vocabulary','Từ'],['grammar','Ngữ pháp'],['listening','Nghe'],['reading','Đọc']].map(([key,label])=>`<span>${label} <b>${item[key] === undefined ? '—' : `${item[key]}%`}</b></span>`).join('')}</div></div>`;}).join('')}</div></section>
@@ -1252,6 +1323,8 @@ function bindEvents() {
   document.querySelectorAll('[data-open-lesson]').forEach((button) => { button.onclick = () => openLesson(button.dataset.openLesson); });
   document.querySelectorAll('[data-preview-lesson]').forEach((button) => { button.onclick = () => openLesson(button.dataset.previewLesson); });
   document.querySelectorAll('[data-speak]').forEach((button) => { button.onclick = (event) => { event.stopPropagation(); speakKorean(button.dataset.speak); }; });
+  document.querySelectorAll('[data-romanization-toggle]').forEach((button) => { button.onclick = () => { setShowRomanization(!showRomanizationEnabled()); render(); }; });
+  document.querySelectorAll('[data-question-romanization]').forEach((button) => { button.onclick = () => { const id = button.dataset.questionRomanization; state.questionRomanization[id] = !(state.questionRomanization[id] ?? showRomanizationEnabled()); render(); }; });
   const registerForm = document.getElementById('registerForm'); if (registerForm) registerForm.onsubmit = handleRegister;
   const loginForm = document.getElementById('loginForm'); if (loginForm) loginForm.onsubmit = handleLogin;
   const editForm = document.getElementById('editProfileForm'); if (editForm) editForm.onsubmit = handleEditProfile;
@@ -1305,9 +1378,11 @@ function bindEvents() {
   document.querySelectorAll('[data-pretest-summary]').forEach((button) => { button.onclick = () => startReviewFromPretest(button.dataset.pretestSummary); });
   const vocabularyTestForm = document.getElementById('vocabularyTestForm'); if (vocabularyTestForm) vocabularyTestForm.onsubmit = startVocabularyTest;
   document.querySelectorAll('[data-vocab-test-answer]').forEach((button) => { button.onclick = () => answerVocabularyTest(button.dataset.vocabTestAnswer); });
+  const nextVocabularyTest = document.getElementById('nextVocabularyTest'); if (nextVocabularyTest) nextVocabularyTest.onclick = advanceVocabularyTest;
   const addWrongToReview = document.getElementById('addWrongToReview'); if (addWrongToReview) addWrongToReview.onclick = addWrongVocabularyToReview;
   document.querySelectorAll('[data-speaking-mode]').forEach((button) => { button.onclick = () => startSpeaking(button.dataset.speakingMode); });
   document.querySelectorAll('[data-roleplay]').forEach((button) => { button.onclick = () => startRoleplay(button.dataset.roleplay); });
+  const roleplayHintToggle = document.getElementById('roleplayHintToggle'); if (roleplayHintToggle) roleplayHintToggle.onclick = () => { state.roleplayHintVisible = !state.roleplayHintVisible; render(); };
   document.querySelectorAll('[data-speak-rate]').forEach((button) => { button.onclick = () => speakKorean(button.dataset.speakText, Number(button.dataset.speakRate)); });
   const speakingFallbackForm = document.getElementById('speakingFallbackForm'); if (speakingFallbackForm) speakingFallbackForm.onsubmit = submitSpeakingFallback;
   const speakingComplete = document.getElementById('speakingComplete'); if (speakingComplete) speakingComplete.onclick = completeSpeakingSession;
@@ -1607,13 +1682,21 @@ function startVocabularyTest(event) {
 
 function answerVocabularyTest(response) {
   const session = state.vocabularyTest;
-  if (!session || session.index >= session.cardIds.length) return;
+  if (!session || session.index >= session.cardIds.length || session.currentResult) return;
   const card = state.srsData.find((item) => item.wordId === session.cardIds[session.index]);
   const correct = response === session.currentQuestion.correct;
   VocabularyService.pretestResult(card, correct, response);
-  session.results.push({ wordId: card.wordId, response, correct, correctAnswer: session.currentQuestion.correct, testedAt: new Date().toISOString() });
+  session.currentResult = { wordId: card.wordId, response, correct, correctAnswer: session.currentQuestion.correct, testedAt: new Date().toISOString() };
+  render();
+}
+
+function advanceVocabularyTest() {
+  const session = state.vocabularyTest;
+  if (!session?.currentResult) return;
+  session.results.push(session.currentResult);
   session.index += 1;
   session.currentQuestion = null;
+  session.currentResult = null;
   if (session.index >= session.cardIds.length) setView('vocab-test-result');
   else render();
 }
@@ -1628,6 +1711,7 @@ function startSpeaking(modeId) {
   state.speakingPrompt = modeId === 'roleplay' ? window.KLEARN_MODULE_DATA?.roleplays?.[0] : window.KLEARN_MODULE_DATA?.speakingModes?.find((mode) => mode.id === modeId) || null;
   state.speakingResult = null;
   state.pronunciationResult = null;
+  state.roleplayHintVisible = false;
   setView('speaking-session');
 }
 
@@ -1635,6 +1719,7 @@ function startRoleplay(roleplayId) {
   state.speakingMode = 'roleplay';
   state.speakingPrompt = window.KLEARN_MODULE_DATA?.roleplays?.find((role) => role.id === roleplayId) || null;
   state.speakingResult = null;
+  state.roleplayHintVisible = false;
   setView('speaking-session');
 }
 

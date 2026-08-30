@@ -19,33 +19,51 @@
     ['shadowing', 'Shadowing', 'speaking'], ['quick_response', 'Phản xạ hội thoại', 'speaking'], ['mixed_exam', 'Đề tổng hợp', 'mixed']
   ].map(([id, label, skill], index) => Object.freeze({ id, number: index + 1, label, skill }));
 
+  const pronunciationTips = Object.freeze([
+    ['eo-o', 'ㅓ / ㅗ', 'ㅓ mở miệng tự nhiên, âm gần “ơ”; ㅗ tròn môi rõ hơn, gần “ô”.'],
+    ['eu-u', 'ㅡ / ㅜ', 'ㅡ kéo ngang môi, không tròn; ㅜ tròn môi và phát gần “u”.'],
+    ['g-series', 'ㄱ / ㅋ / ㄲ', 'ㄱ nhẹ; ㅋ bật hơi rõ; ㄲ căng, ngắn và không bật nhiều hơi.'],
+    ['d-series', 'ㄷ / ㅌ / ㄸ', 'ㄷ nhẹ; ㅌ bật hơi; ㄸ căng. Không thêm âm “ư” sau phụ âm cuối.'],
+    ['b-series', 'ㅂ / ㅍ / ㅃ', 'ㅂ nhẹ; ㅍ bật hơi; ㅃ căng. Giữ hai môi khép gọn trước khi bật âm.'],
+    ['j-series', 'ㅈ / ㅊ / ㅉ', 'ㅈ nhẹ; ㅊ bật hơi; ㅉ căng. Tránh đọc thành âm “ch” quá kéo dài.'],
+    ['batchim', 'Batchim', 'Phụ âm cuối được chặn gọn, không thêm nguyên âm ở phía sau.'],
+    ['rieul', 'ㄹ', 'Giữa hai nguyên âm, ㄹ gần âm r nhẹ; ở cuối âm tiết, lưỡi chạm như âm l.'],
+    ['liaison', 'Nối âm', 'Khi âm tiết sau bắt đầu bằng ㅇ, phụ âm cuối thường nối sang nguyên âm tiếp theo.']
+  ].map(([id, title, tipVi]) => Object.freeze({ id, title, tipVi })));
+
   const speakingModes = [
-    ['word', 'Phát âm từ', '학교', 'trường học'],
-    ['sentence', 'Phát âm câu', '오늘 날씨가 정말 좋네요.', 'Hôm nay thời tiết thật đẹp.'],
-    ['shadowing', 'Shadowing', '천천히 따라 말해 보세요.', 'Hãy thử nói theo thật chậm.'],
-    ['paragraph', 'Đọc đoạn văn', '저는 아침마다 지하철을 타고 회사에 갑니다.', 'Mỗi sáng tôi đi tàu điện ngầm đến công ty.'],
-    ['conversation', 'Hội thoại', '안녕하세요. 무엇을 도와드릴까요?', 'Xin chào, tôi có thể giúp gì cho bạn?'],
-    ['question', 'Trả lời câu hỏi', '주말에 보통 무엇을 합니까?', 'Cuối tuần bạn thường làm gì?'],
-    ['roleplay', 'Roleplay', '어서 오세요. 몇 분이세요?', 'Chào mừng quý khách. Có mấy người ạ?'],
-    ['quick', 'Phản xạ nhanh', '지금 몇 시예요?', 'Bây giờ là mấy giờ?'],
-    ['challenge', 'Speaking challenge', '한국에서 이루고 싶은 목표를 말해 보세요.', 'Hãy nói về mục tiêu bạn muốn đạt được tại Hàn Quốc.'],
-    ['topik', 'Nói theo TOPIK level', '환경을 보호하기 위해 할 수 있는 일을 설명해 보세요.', 'Hãy giải thích việc có thể làm để bảo vệ môi trường.']
-  ].map(([id, label, korean, vietnamese], index) => Object.freeze({ id, label, korean, vietnamese, topikLevel: Math.min(6, Math.floor(index / 2) + 1) }));
+    ['word', 'Phát âm từ', '학교', 'hakgyo', '', 'Trường học', 'batchim'],
+    ['sentence', 'Phát âm câu', '오늘 날씨가 정말 좋네요.', 'oneul nalssiga jeongmal johneyo.', 'oneul nalssiga jeongmal jonneyo.', 'Hôm nay thời tiết thật đẹp.', 'liaison'],
+    ['shadowing', 'Shadowing', '천천히 따라 말해 보세요.', 'cheoncheonhi ttara malhae boseyo.', '', 'Hãy thử nói theo thật chậm.', 'j-series'],
+    ['paragraph', 'Đọc đoạn văn', '저는 아침마다 지하철을 타고 회사에 갑니다.', 'jeoneun achimmada jihacheoreul tago hoesae gamnida.', '', 'Mỗi sáng tôi đi tàu điện ngầm đến công ty.', 'batchim'],
+    ['conversation', 'Hội thoại', '안녕하세요. 무엇을 도와드릴까요?', 'annyeonghaseyo. mueoseul dowadeurilkkayo?', '', 'Xin chào, tôi có thể giúp gì cho bạn?', 'rieul'],
+    ['question', 'Trả lời câu hỏi', '주말에 보통 무엇을 합니까?', 'jumare botong mueoseul hamnikka?', '', 'Cuối tuần bạn thường làm gì?', 'b-series'],
+    ['roleplay', 'Roleplay', '어서 오세요. 몇 분이세요?', 'eoseo oseyo. myeot bun-iseyo?', '', 'Chào mừng quý khách. Có mấy người ạ?', 'eo-o'],
+    ['quick', 'Phản xạ nhanh', '지금 몇 시예요?', 'jigeum myeot siyeyo?', '', 'Bây giờ là mấy giờ?', 'eu-u'],
+    ['challenge', 'Speaking challenge', '한국에서 이루고 싶은 목표를 말해 보세요.', 'hangugeseo irugo sipeun mokpyoreul malhae boseyo.', '', 'Hãy nói về mục tiêu bạn muốn đạt được tại Hàn Quốc.', 'g-series'],
+    ['topik', 'Nói theo TOPIK level', '환경을 보호하기 위해 할 수 있는 일을 설명해 보세요.', 'hwangyeongeul bohohagi wihae hal su inneun ireul seolmyeonghae boseyo.', '', 'Hãy giải thích việc có thể làm để bảo vệ môi trường.', 'd-series']
+  ].map(([id, label, korean, romanization, pronunciationRomanization, vietnamese, tipId], index) => Object.freeze({
+    id, label, korean, romanization, ...(pronunciationRomanization ? { pronunciationRomanization } : {}), vietnamese, tipId,
+    pronunciationTipVi: pronunciationTips.find((tip) => tip.id === tipId)?.tipVi || '',
+    topikLevel: Math.min(6, Math.floor(index / 2) + 1)
+  }));
 
   const roleplays = [
-    ['restaurant', 'Nhà hàng', '어서 오세요. 몇 분이세요?', ['두 명', '자리', '예약']],
-    ['shopping', 'Mua sắm', '어떤 것을 찾으세요?', ['찾아요', '가격', '사이즈']],
-    ['interview', 'Phỏng vấn', '지원 동기를 말씀해 주세요.', ['지원', '경험', '목표']],
-    ['office', 'Công sở', '자료를 오늘까지 보낼 수 있어요?', ['자료', '보내다', '오늘']],
-    ['hospital', 'Bệnh viện', '어디가 불편하세요?', ['아파요', '증상', '부터']],
-    ['school', 'Trường học', '어떤 수업을 신청하고 싶어요?', ['수업', '신청', '한국어']],
-    ['study', 'Du học', '왜 한국에서 공부하고 싶어요?', ['유학', '전공', '배우다']],
-    ['job', 'Xin việc', '관련 경력이 있으세요?', ['경력', '일하다', '년']],
-    ['factory', 'Nhà máy', '기계에 어떤 문제가 있어요?', ['고장', '멈추다', '보고']],
-    ['directions', 'Hỏi đường', '어디까지 가세요?', ['역', '오른쪽', '길']],
-    ['bank', 'Ngân hàng', '무슨 업무를 보러 오셨어요?', ['송금', '계좌', '신분증']],
-    ['housing', 'Thuê nhà', '어떤 방을 찾으세요?', ['월세', '보증금', '방']]
-  ].map(([id, title, appLine, keywords]) => Object.freeze({ id, title, appLine, keywords }));
+    ['restaurant','Nhà hàng','어서 오세요. 몇 분이세요?','eoseo oseyo. myeot bun-iseyo?','Xin chào quý khách. Có mấy người ạ?','두 명이에요.','du myeong-ieyo.','Có hai người.',['두 명','자리','예약']],
+    ['shopping','Mua sắm','어떤 것을 찾으세요?','eotteon geoseul chajeuseyo?','Bạn đang tìm món đồ nào?','이 옷을 찾고 있어요.','i oseul chatgo isseoyo.','Tôi đang tìm bộ quần áo này.',['찾아요','가격','사이즈']],
+    ['interview','Phỏng vấn','지원 동기를 말씀해 주세요.','jiwon donggireul malsseumhae juseyo.','Hãy cho biết lý do ứng tuyển.','관련 경험을 쌓고 싶어서 지원했습니다.','gwallyeon gyeongheomeul ssako sipeoseo jiwonhaetseumnida.','Tôi ứng tuyển vì muốn tích lũy kinh nghiệm liên quan.',['지원','경험','목표']],
+    ['office','Công sở','자료를 오늘까지 보낼 수 있어요?','jaryoreul oneulkkaji bonael su isseoyo?','Bạn có thể gửi tài liệu trong hôm nay không?','네, 오늘까지 보내겠습니다.','ne, oneulkkaji bonaegesseumnida.','Vâng, tôi sẽ gửi trong hôm nay.',['자료','보내다','오늘']],
+    ['hospital','Bệnh viện','어디가 불편하세요?','eodiga bulpyeonhaseyo?','Bạn thấy khó chịu ở đâu?','어제부터 배가 아파요.','eojebuteo baega apayo.','Tôi đau bụng từ hôm qua.',['아파요','증상','부터']],
+    ['school','Trường học','어떤 수업을 신청하고 싶어요?','eotteon sueobeul sincheonghago sipeoyo?','Bạn muốn đăng ký lớp nào?','한국어 수업을 신청하고 싶어요.','hangugeo sueobeul sincheonghago sipeoyo.','Tôi muốn đăng ký lớp tiếng Hàn.',['수업','신청','한국어']],
+    ['study','Du học','왜 한국에서 공부하고 싶어요?','wae hangugeseo gongbuhago sipeoyo?','Vì sao bạn muốn học tại Hàn Quốc?','한국에서 제 전공을 더 배우고 싶어요.','hangugeseo je jeongongeul deo baeugo sipeoyo.','Tôi muốn học sâu hơn chuyên ngành tại Hàn Quốc.',['유학','전공','배우다']],
+    ['job','Xin việc','관련 경력이 있으세요?','gwallyeon gyeongnyeogi isseuseyo?','Bạn có kinh nghiệm liên quan không?','네, 이 분야에서 이 년 동안 일했습니다.','ne, i bunyaeseo i nyeon dongan ilhaetseumnida.','Vâng, tôi đã làm hai năm trong lĩnh vực này.',['경력','일하다','년']],
+    ['factory','Nhà máy','기계에 어떤 문제가 있어요?','gigyee eotteon munjega isseoyo?','Máy đang gặp vấn đề gì?','기계가 갑자기 멈췄어요.','gigyega gapjagi meomchwosseoyo.','Máy đột nhiên dừng lại.',['고장','멈추다','보고']],
+    ['directions','Hỏi đường','어디까지 가세요?','eodikkaji gaseyo?','Bạn đi đến đâu?','서울역까지 가요.','seoullyeokkkaji gayo.','Tôi đi đến ga Seoul.',['역','오른쪽','길']],
+    ['bank','Ngân hàng','무슨 업무를 보러 오셨어요?','museun eommureul boreo osyeosseoyo?','Bạn đến làm giao dịch gì?','계좌로 송금하러 왔어요.','gyejwareo songgeumhareo wasseoyo.','Tôi đến để chuyển tiền vào tài khoản.',['송금','계좌','신분증']],
+    ['housing','Thuê nhà','어떤 방을 찾으세요?','eotteon bangeul chajeuseyo?','Bạn đang tìm phòng như thế nào?','보증금이 적은 방을 찾고 있어요.','bojeunggeumi jeogeun bangeul chatgo isseoyo.','Tôi đang tìm phòng có tiền cọc thấp.',['월세','보증금','방']]
+  ].map(([id,title,appLine,romanization,meaningVi,suggestedAnswer,suggestedRomanization,suggestedMeaningVi,keywords]) => Object.freeze({
+    id,title,appLine,romanization,meaningVi,suggestedAnswer,suggestedRomanization,suggestedMeaningVi,keywords
+  }));
 
   const writingModes = [
     ['word', 'Viết từ'], ['sentence', 'Viết câu'], ['complete', 'Hoàn thành câu'], ['rewrite', 'Viết lại câu'], ['arrange', 'Sắp xếp câu'],
@@ -76,6 +94,6 @@
 
   global.KLEARN_MODULE_DATA = Object.freeze({
     practiceTypes: Object.freeze(practiceTypes), speakingModes: Object.freeze(speakingModes), roleplays: Object.freeze(roleplays),
-    writingModes: Object.freeze(writingModes), writingPrompts: Object.freeze(writingPrompts)
+    writingModes: Object.freeze(writingModes), writingPrompts: Object.freeze(writingPrompts), pronunciationTips
   });
 })(window);

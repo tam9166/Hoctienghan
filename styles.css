@@ -555,6 +555,47 @@ button:focus-visible, input:focus-visible, select:focus-visible, audio:focus-vis
 .submitted-writing { padding: 13px; border-radius: 12px; background: var(--surface-low); white-space: pre-wrap; color: var(--text); font-size: 13px; line-height: 1.75; }
 .submitted-writing.sample { background: var(--success-soft); }
 
+/* Korean learning text and Revised Romanization */
+.korean-learning-text { min-width: 0; display: grid; gap: 7px; justify-items: center; overflow-wrap: anywhere; text-align: center; }
+.learning-hangul { max-width: 100%; color: var(--primary); font-family: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; font-size: clamp(26px, 8vw, 38px); font-weight: 800; line-height: 1.45; word-break: keep-all; overflow-wrap: anywhere; }
+.learning-romanization { max-width: 100%; display: grid; gap: 3px; color: #58636d; font-size: clamp(13px, 3.8vw, 16px); font-style: italic; font-weight: 500; line-height: 1.55; overflow-wrap: anywhere; word-break: break-word; }
+.learning-romanization span { display: block; }
+.learning-romanization b { color: var(--primary); font-size: 10px; font-style: normal; text-transform: uppercase; }
+.learning-meaning { max-width: 100%; color: var(--muted); font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
+.korean-learning-text.compact { justify-items: start; text-align: left; }
+.korean-learning-text.compact .learning-hangul { font-size: clamp(19px, 5.5vw, 25px); }
+.korean-learning-text.compact .learning-romanization, .korean-learning-text.compact .learning-meaning { font-size: 12px; }
+.romanization-toggle { width: fit-content; max-width: 100%; min-height: 46px; margin-top: 14px; padding: 8px 12px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--outline); border-radius: 999px; background: #fff; color: var(--primary); font-size: 11px; }
+.romanization-toggle span { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 50%; background: var(--primary-soft); font-family: Georgia, serif; font-size: 13px; }
+.romanization-toggle[aria-pressed="true"] { border-color: var(--success); background: var(--success-soft); color: #004d40; }
+.romanization-toggle.compact { min-height: 40px; margin-top: 0; }
+.section-heading > .romanization-toggle { flex: 0 0 auto; }
+.flash-romanization { max-width: 100%; margin: -8px 0 14px; color: var(--muted); font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
+.flash-example i { color: #bdd4ec; font-size: 12px; overflow-wrap: anywhere; }
+.vocabulary-row i { color: #58636d; font-size: 11px; font-style: italic; line-height: 1.4; overflow-wrap: anywhere; }
+.question-learning-review { margin-top: 12px; padding: 14px; border: 1px solid var(--outline); border-radius: 13px; background: var(--surface-low); }
+.review-learning-heading { margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--primary); font-size: 11px; }
+.review-learning-heading button { min-height: 38px; padding: 7px 10px; flex: 0 0 auto; border: 1px solid var(--outline); border-radius: 999px; background: #fff; color: var(--primary); font-size: 10px; font-weight: 800; }
+.question-learning-review .audio-inline { margin: 12px 0 0; }
+.vocabulary-result-list { display: grid; gap: 12px; }
+.vocabulary-result-list .korean-learning-text { padding-bottom: 12px; border-bottom: 1px solid var(--surface-mid); }
+.vocabulary-test-feedback { margin-top: 14px; padding: 14px; display: grid; gap: 12px; border-radius: 13px; text-align: left; }
+.vocabulary-test-feedback.success { background: var(--success-soft); color: #004d40; }
+.vocabulary-test-feedback.error { background: var(--danger-soft); color: #730006; }
+.roleplay-hint { margin-top: 12px; padding: 14px; border-radius: 14px; background: var(--primary-soft); text-align: left; }
+.roleplay-hint p { margin: 10px 0 0; color: var(--muted); font-size: 10px; }
+.hint-toggle { min-height: 42px; margin-top: 14px; padding: 8px 14px; border: 1px dashed var(--primary); border-radius: 999px; background: #fff; color: var(--primary); font-size: 11px; font-weight: 800; }
+.pronunciation-tip { margin-top: 14px; padding: 11px 13px; border-radius: 12px; background: #fff3d5; color: #654900; text-align: left; }
+.pronunciation-tip summary { cursor: pointer; font-size: 11px; font-weight: 800; }
+.pronunciation-tip p { margin: 8px 0 0; font-size: 11px; line-height: 1.6; }
+.writing-keyword-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.writing-keyword-list > span { min-width: 78px; max-width: 100%; padding: 8px 10px; display: grid; gap: 3px; border-radius: 10px; background: var(--surface-low); }
+.writing-keyword-list b { color: var(--primary); font-size: 14px; overflow-wrap: anywhere; }
+.writing-keyword-list i { color: var(--muted); font-size: 10px; line-height: 1.45; overflow-wrap: anywhere; }
+.romanization-setting { display: grid; gap: 12px; }
+.romanization-setting .section-title { margin-bottom: 5px; }
+.romanization-setting p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.65; }
+
 /* Pronunciation */
 .practice-card { text-align: center; }
 .phrase { margin: 16px 0 9px; color: var(--primary); font-size: clamp(34px, 11vw, 48px); font-weight: 800; }

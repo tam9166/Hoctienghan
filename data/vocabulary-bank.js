@@ -1,6 +1,8 @@
 (function buildVocabularyBank(global) {
   'use strict';
 
+  const romanizationSupport = global.KLEARN_ROMANIZATION;
+
   const topicSources = {
     hangul: ['글자:chữ cái','자음:phụ âm','모음:nguyên âm','받침:phụ âm cuối','소리:âm thanh','발음:phát âm','음절:âm tiết','단어:từ vựng','문장:câu','뜻:ý nghĩa','읽기:đọc','쓰기:viết','듣기:nghe','말하기:nói','연습:luyện tập','문법:ngữ pháp','표현:biểu đạt','질문:câu hỏi','대답:câu trả lời','한국어:tiếng Hàn'],
     greetings: ['안녕하세요:xin chào','감사합니다:cảm ơn','죄송합니다:xin lỗi','괜찮아요:không sao','반갑습니다:rất vui được gặp','안녕히 가세요:tạm biệt người đi','안녕히 계세요:tạm biệt người ở lại','처음 뵙겠습니다:lần đầu gặp mặt','잘 지내세요?:bạn khỏe không?','네:vâng','아니요:không','어서 오세요:mời vào','또 만나요:hẹn gặp lại','좋은 아침이에요:chào buổi sáng','잘 부탁드립니다:nhờ bạn giúp đỡ','실례합니다:xin phép','잠깐만요:xin chờ một chút','여보세요:a lô','축하합니다:chúc mừng','환영합니다:chào mừng'],
@@ -89,16 +91,22 @@
       const partOfSpeech = topic === 'adverbs' ? 'adverb' : verbTopics.has(topic) || korean.endsWith('하다') || korean.includes(' ')
         ? 'verb'
         : adjectiveTopics.has(topic) || /다$/.test(korean) ? 'adjective' : 'noun';
+      const exampleKo = `오늘의 표현은 “${korean}”입니다.`;
+      const pronunciationRomanization = romanizationSupport?.getPronunciation(korean) || '';
       items.push({
         id: `v-${String(topicIndex + 1).padStart(2, '0')}-${String(wordIndex + 1).padStart(2, '0')}`,
         korean,
+        romanization: romanizationSupport?.romanize(korean) || '',
+        ...(pronunciationRomanization ? { pronunciationRomanization } : {}),
+        romanizationSource: romanizationSupport?.isCurated(korean) ? 'curated' : 'automatic-fallback',
         meaningVi,
         level,
         topikLevel,
         topic,
         topicLabel: topicLabels[topic],
         partOfSpeech,
-        exampleKo: `오늘의 표현은 “${korean}”입니다.`,
+        exampleKo,
+        exampleRomanization: romanizationSupport?.romanize(exampleKo) || '',
         exampleVi: `Biểu đạt hôm nay là “${meaningVi}”.`,
         audioText: korean,
         synonyms: synonymMap[korean] || [],

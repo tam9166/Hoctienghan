@@ -3,6 +3,7 @@
 
   const vocabulary = global.KLEARN_VOCABULARY || [];
   const practiceTypes = global.KLEARN_MODULE_DATA?.practiceTypes || [];
+  const romanizationSupport = global.KLEARN_ROMANIZATION;
   const levelLabels = { Beginner: 'Beginner', TOPIK_1: 'TOPIK 1', TOPIK_2: 'TOPIK 2', TOPIK_3: 'TOPIK 3', TOPIK_4: 'TOPIK 4', TOPIK_5: 'TOPIK 5', TOPIK_6: 'TOPIK 6', EPS: 'EPS-TOPIK', VOCABULARY: 'Từ vựng', GRAMMAR: 'Ngữ pháp' };
   const skillLabels = { vocabulary: 'Từ vựng', grammar: 'Ngữ pháp', listening: 'Nghe', reading: 'Đọc', mixed: 'Tổng hợp' };
   const levelTopics = {
@@ -146,17 +147,17 @@
     const isEps = context.level === 'EPS';
     const passages = isEps
       ? [
-        ['작업 전에 보호구를 확인하십시오. 기계에 이상이 있으면 관리자에게 바로 보고해야 합니다.', 'Đâu là hành động đúng?', ['Kiểm tra đồ bảo hộ trước khi làm', 'Tự sửa máy khi chưa được phép', 'Bỏ qua dấu hiệu bất thường', 'Tháo đồ bảo hộ khi máy chạy'], 'Kiểm tra đồ bảo hộ trước khi làm', 'Đoạn văn yêu cầu kiểm tra đồ bảo hộ và báo quản lý khi máy bất thường.'],
-        ['오늘은 주문량이 많아서 두 시간 연장 근무를 합니다. 저녁 식사는 회사에서 제공합니다.', 'Thông tin nào đúng?', ['Hôm nay làm thêm hai giờ', 'Hôm nay được nghỉ', 'Nhân viên tự chuẩn bị bữa tối', 'Đơn hàng hôm nay ít'], 'Hôm nay làm thêm hai giờ', '연장 근무를 합니다 nghĩa là làm thêm giờ.']
+        ['작업 전에 보호구를 확인하십시오. 기계에 이상이 있으면 관리자에게 바로 보고해야 합니다.', 'Đâu là hành động đúng?', ['Kiểm tra đồ bảo hộ trước khi làm', 'Tự sửa máy khi chưa được phép', 'Bỏ qua dấu hiệu bất thường', 'Tháo đồ bảo hộ khi máy chạy'], 'Kiểm tra đồ bảo hộ trước khi làm', 'Đoạn văn yêu cầu kiểm tra đồ bảo hộ và báo quản lý khi máy bất thường.', 'Hãy kiểm tra đồ bảo hộ trước khi làm việc. Nếu máy có bất thường, phải báo ngay cho quản lý.'],
+        ['오늘은 주문량이 많아서 두 시간 연장 근무를 합니다. 저녁 식사는 회사에서 제공합니다.', 'Thông tin nào đúng?', ['Hôm nay làm thêm hai giờ', 'Hôm nay được nghỉ', 'Nhân viên tự chuẩn bị bữa tối', 'Đơn hàng hôm nay ít'], 'Hôm nay làm thêm hai giờ', '연장 근무를 합니다 nghĩa là làm thêm giờ.', 'Hôm nay có nhiều đơn hàng nên sẽ làm thêm hai giờ. Công ty cung cấp bữa tối.']
       ]
       : isAdvanced
         ? [
-          ['최근에는 환경을 생각해 일회용품 사용을 줄이는 사람이 늘고 있다. 작은 실천이지만 사회 전체에 긍정적인 변화를 만들 수 있다.', 'Ý chính của đoạn văn là gì?', ['Thói quen nhỏ có thể tạo thay đổi tích cực', 'Đồ dùng một lần luôn tiện lợi hơn', 'Chỉ doanh nghiệp mới bảo vệ môi trường', 'Mọi người không quan tâm môi trường'], 'Thói quen nhỏ có thể tạo thay đổi tích cực', 'Đoạn văn nhấn mạnh giá trị của những hành động nhỏ nhằm giảm đồ dùng một lần.'],
-          ['회사는 직원들의 업무 효율을 높이기 위해 유연 근무제를 도입했다. 직원들은 출퇴근 시간을 조정할 수 있게 되었다.', 'Có thể suy ra điều gì?', ['Nhân viên có thể điều chỉnh giờ đi làm', 'Công ty giảm toàn bộ lương', 'Nhân viên không cần làm việc', 'Công ty đóng cửa văn phòng'], 'Nhân viên có thể điều chỉnh giờ đi làm', '유연 근무제 cho phép điều chỉnh thời gian bắt đầu và kết thúc công việc.']
+          ['최근에는 환경을 생각해 일회용품 사용을 줄이는 사람이 늘고 있다. 작은 실천이지만 사회 전체에 긍정적인 변화를 만들 수 있다.', 'Ý chính của đoạn văn là gì?', ['Thói quen nhỏ có thể tạo thay đổi tích cực', 'Đồ dùng một lần luôn tiện lợi hơn', 'Chỉ doanh nghiệp mới bảo vệ môi trường', 'Mọi người không quan tâm môi trường'], 'Thói quen nhỏ có thể tạo thay đổi tích cực', 'Đoạn văn nhấn mạnh giá trị của những hành động nhỏ nhằm giảm đồ dùng một lần.', 'Gần đây ngày càng nhiều người giảm dùng đồ một lần vì môi trường. Dù là hành động nhỏ, nó có thể tạo thay đổi tích cực cho toàn xã hội.'],
+          ['회사는 직원들의 업무 효율을 높이기 위해 유연 근무제를 도입했다. 직원들은 출퇴근 시간을 조정할 수 있게 되었다.', 'Có thể suy ra điều gì?', ['Nhân viên có thể điều chỉnh giờ đi làm', 'Công ty giảm toàn bộ lương', 'Nhân viên không cần làm việc', 'Công ty đóng cửa văn phòng'], 'Nhân viên có thể điều chỉnh giờ đi làm', '유연 근무제 cho phép điều chỉnh thời gian bắt đầu và kết thúc công việc.', 'Công ty áp dụng chế độ làm việc linh hoạt để nâng cao hiệu suất. Nhân viên có thể điều chỉnh giờ đi và tan làm.']
         ]
         : [
-          [`민수 씨는 아침에 학교에 갑니다. 오후에는 도서관에서 ${item.korean}을(를) 공부합니다.`, 'Min-su học ở đâu vào buổi chiều?', ['Ở thư viện', 'Ở nhà hàng', 'Ở bệnh viện', 'Ở ngân hàng'], 'Ở thư viện', '도서관에서 nghĩa là “ở thư viện”.'],
-          ['안내: 도서관은 오전 9시에 열고 오후 6시에 닫습니다. 일요일은 쉽니다.', 'Thông tin nào đúng?', ['Thư viện nghỉ Chủ nhật', 'Thư viện mở lúc 6 giờ', 'Thư viện mở cả đêm', 'Thư viện nghỉ thứ Hai'], 'Thư viện nghỉ Chủ nhật', '일요일은 쉽니다 nghĩa là nghỉ vào Chủ nhật.']
+          [`민수 씨는 아침에 학교에 갑니다. 오후에는 도서관에서 ${item.korean}을(를) 공부합니다.`, 'Min-su học ở đâu vào buổi chiều?', ['Ở thư viện', 'Ở nhà hàng', 'Ở bệnh viện', 'Ở ngân hàng'], 'Ở thư viện', '도서관에서 nghĩa là “ở thư viện”.', `Buổi sáng Min-su đến trường. Buổi chiều, bạn ấy học “${item.meaningVi}” tại thư viện.`],
+          ['안내: 도서관은 오전 9시에 열고 오후 6시에 닫습니다. 일요일은 쉽니다.', 'Thông tin nào đúng?', ['Thư viện nghỉ Chủ nhật', 'Thư viện mở lúc 6 giờ', 'Thư viện mở cả đêm', 'Thư viện nghỉ thứ Hai'], 'Thư viện nghỉ Chủ nhật', '일요일은 쉽니다 nghĩa là nghỉ vào Chủ nhật.', 'Thông báo: Thư viện mở lúc 9 giờ sáng, đóng lúc 6 giờ chiều và nghỉ Chủ nhật.']
         ];
     const passage = passages[(context.seed + index) % passages.length];
     return {
@@ -165,7 +166,7 @@
       correctAnswer: passage[3],
       explanationVi: passage[4],
       koreanText: passage[0],
-      translationVi: '',
+      translationVi: passage[5] || '',
       audioText: context.skill === 'listening' ? passage[0] : '',
       questionType: context.skill === 'listening' ? 'listening_comprehension' : 'reading_comprehension',
       topic: context.topic,
@@ -203,6 +204,8 @@
       correctAnswer: content.correctAnswer,
       explanationVi: content.explanationVi,
       koreanText: content.koreanText,
+      romanization: content.romanization || romanizationSupport?.romanize(content.koreanText) || '',
+      pronunciationRomanization: content.pronunciationRomanization || romanizationSupport?.getPronunciation(content.koreanText) || '',
       translationVi: content.translationVi,
       audioText: content.audioText,
       tags: content.tags
