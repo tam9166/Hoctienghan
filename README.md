@@ -21,6 +21,8 @@ Sau đó mở `http://localhost:8080`.
 - Welcome, đăng ký/đăng nhập và session persistence bằng localStorage.
 - Branding hiển thị thống nhất là **TH-Tiếng Hàn**; các key `klearn_*` nội bộ được giữ để tương thích dữ liệu cũ.
 - Appearance có ba chế độ: Theo thiết bị (System), Sáng (Light) và Tối (Dark), lưu lựa chọn riêng theo người dùng với fallback global.
+- Header có quick controls cho ngôn ngữ và giao diện; app hỗ trợ Tiếng Việt (`vi`), English (`en`) và 中文（简体）(`zh-CN`) với locale resources mở rộng được cho các ngôn ngữ mới.
+- Nội dung Korean source/romanization luôn giữ nguyên; nghĩa, hướng dẫn và giải thích dùng `I18nService.localizedText()` với fallback locale an toàn về tiếng Việt.
 - Onboarding mục tiêu, trình độ và Placement Test 10 câu.
 - Dashboard/lộ trình cá nhân hóa theo người học.
 - Điều hướng SPA giữa Trang chủ, Học, Ôn tập, Luyện tập và Cá nhân.
@@ -30,7 +32,7 @@ Sau đó mở `http://localhost:8080`.
 - 270 bộ luyện tập nguyên bản (4.050 câu): TOPIK 1–4 mỗi cấp 30 đề, TOPIK 5–6 mỗi cấp 20 đề, EPS/Vocabulary/Grammar mỗi nhóm 30 đề và 20 đề Beginner.
 - 45 dạng bài gồm vocabulary, grammar, listening, reading, writing, speaking, roleplay, shadowing và đề tổng hợp.
 - Trang chọn đề đánh số, đề ngẫu nhiên 5–50 câu, thử thách nâng cao, luyện lỗi sai, đề đã lưu và lịch sử chi tiết.
-- Kho 1.000 từ TOPIK 1–6 theo chủ đề, loại từ và trạng thái SRS; hỗ trợ tìm bằng tiếng Hàn hoặc tiếng Việt.
+- Kho 1.000 từ TOPIK 1–6 theo chủ đề, loại từ và trạng thái SRS; hỗ trợ tìm bằng tiếng Hàn, romanization hoặc nghĩa theo ngôn ngữ hiện tại.
 - Phiên âm Latin theo Revised Romanization trong bài học, 1.000 từ vựng, flashcard, Speaking, Shadowing, Roleplay, Writing hints và phần review; tìm từ bằng Hangul, tiếng Việt hoặc romanization.
 - Toggle phiên âm được lưu riêng theo người dùng; nội dung kiểm tra TOPIK/listening/vocabulary không làm lộ phiên âm trước khi trả lời.
 - SRS với lựa chọn 5/10/20/30/50/100/tất cả, chọn nguồn từ, pretest, bỏ qua, vẫn nhắc lại hoặc đánh dấu đã thuộc.
@@ -40,7 +42,7 @@ Sau đó mở `http://localhost:8080`.
 - Listening/Reading Hub theo TOPIK level, Korean TTS, recommended practice và daily practice plan.
 - Ghi âm qua MediaRecorder và chấm tương đồng văn bản bằng Speech Recognition khi trình duyệt hỗ trợ.
 - Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
-- PWA manifest + service worker network-first (`klearn-v7`) để cài app, dùng offline và nhận bản deploy mới.
+- PWA manifest + service worker network-first (`klearn-v8`) để cài app, dùng offline và nhận bản deploy mới.
 
 Nếu đã cài PWA với tên cũ **K-Learn VN** trên iPhone/Android, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **TH-Tiếng Hàn** mới.
 

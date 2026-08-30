@@ -11,7 +11,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=7" />
+  <link rel="stylesheet" href="styles.css?v=8" />
   <script>
     (() => {
       try {
@@ -19,6 +19,9 @@
         const session = JSON.parse(localStorage.getItem('klearn_session') || 'null');
         const userPreference = session?.userId && settings?.users?.[session.userId]?.theme;
         const preference = ['system', 'light', 'dark'].includes(userPreference) ? userPreference : (['system', 'light', 'dark'].includes(settings.theme) ? settings.theme : 'system');
+        const userLanguage = session?.userId && settings?.users?.[session.userId]?.language;
+        const language = ['vi', 'en', 'zh-CN'].includes(userLanguage) ? userLanguage : (['vi', 'en', 'zh-CN'].includes(settings.language) ? settings.language : 'vi');
+        document.documentElement.lang = language;
         const dark = preference === 'dark' || (preference === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
         document.documentElement.dataset.themePreference = preference;
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
@@ -37,7 +40,17 @@
         <span class="avatar">한</span>
       </button>
       <div class="brand">TH-Tiếng Hàn</div>
-      <div class="streak"><span id="streakCount">0</span> 🔥</div>
+      <div class="header-actions">
+        <div class="header-control-wrap">
+          <button class="header-control" id="languageBtn" type="button" aria-label="Đổi ngôn ngữ" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">🌐</span><span id="languageCode">VI</span></button>
+          <div class="header-menu hidden" id="languageMenu" role="menu"><strong class="header-menu-title">Ngôn ngữ</strong><button type="button" data-language-choice="vi" role="menuitemradio">🇻🇳 <span>Tiếng Việt</span></button><button type="button" data-language-choice="en" role="menuitemradio">🇬🇧 <span>English</span></button><button type="button" data-language-choice="zh-CN" role="menuitemradio">🇨🇳 <span>中文（简体）</span></button></div>
+        </div>
+        <div class="header-control-wrap">
+          <button class="header-control" id="themeBtn" type="button" aria-label="Đổi giao diện" aria-haspopup="menu" aria-expanded="false"><span id="themeIcon" aria-hidden="true">◐</span></button>
+          <div class="header-menu hidden" id="themeMenu" role="menu"><strong class="header-menu-title">Giao diện</strong><button type="button" data-theme-choice-header="system" role="menuitemradio">◐ <span>Theo thiết bị</span></button><button type="button" data-theme-choice-header="light" role="menuitemradio">☀️ <span>Sáng</span></button><button type="button" data-theme-choice-header="dark" role="menuitemradio">🌙 <span>Tối</span></button></div>
+        </div>
+        <div class="streak"><span id="streakCount">0</span> 🔥</div>
+      </div>
     </header>
 
     <main id="app" class="app-content" aria-live="polite"></main>
@@ -52,10 +65,14 @@
   </div>
 
   <div id="toast" class="toast" role="status"></div>
-  <script src="data/romanization.js?v=7"></script>
-  <script src="data/vocabulary-bank.js?v=7"></script>
-  <script src="data/learning-modules.js?v=7"></script>
-  <script src="data/practice-bank.js?v=7"></script>
-  <script src="app.js?v=7"></script>
+  <script src="locales/vi.js?v=1"></script>
+  <script src="locales/en.js?v=1"></script>
+  <script src="locales/zh-CN.js?v=1"></script>
+  <script src="data/content-locales.js?v=1"></script>
+  <script src="data/romanization.js?v=8"></script>
+  <script src="data/vocabulary-bank.js?v=8"></script>
+  <script src="data/learning-modules.js?v=8"></script>
+  <script src="data/practice-bank.js?v=8"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>

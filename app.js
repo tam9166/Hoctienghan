@@ -46,7 +46,7 @@ function migrateLegacyStorage() {
   storage.set(STORAGE_KEYS.settings, {
     ...(settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {}),
     schemaVersion: 7,
-    language: settings?.language || 'vi',
+    language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi',
     theme: ['system', 'light', 'dark'].includes(settings?.theme) ? settings.theme : 'system',
     users: settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? settings.users : {},
     updatedAt: new Date().toISOString()
@@ -178,7 +178,7 @@ function todayKey() { return new Date().toISOString().slice(0, 10); }
 function firstName(fullName = '') { return fullName.trim().split(/\s+/).filter(Boolean).pop() || 'bạn'; }
 function initials(fullName = '') { return (firstName(fullName).charAt(0) || '한').toUpperCase(); }
 function appElement() { return document.getElementById('app'); }
-function formatDate(value) { return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(value)); }
+function formatDate(value) { return new Intl.DateTimeFormat(I18nService?.locale?.()?.htmlLang || 'vi', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(value)); }
 
 const THEME_VALUES = Object.freeze(['system', 'light', 'dark']);
 const THEME_COLORS = Object.freeze({ light: '#f8f9fa', dark: '#0f1419' });
@@ -210,12 +210,11 @@ const ThemeService = {
     const rawSettings = storage.get(STORAGE_KEYS.settings, {});
     const settings = rawSettings && typeof rawSettings === 'object' && !Array.isArray(rawSettings) ? { ...rawSettings } : {};
     const users = settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
+    settings.theme = safePreference;
     if (state.currentUser?.id) {
       users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), theme: safePreference, updatedAt: new Date().toISOString() };
-    } else {
-      settings.theme = safePreference;
     }
-    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 7, language: settings?.language || 'vi', users, updatedAt: new Date().toISOString() });
+    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 7, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
     this.apply(safePreference);
   },
   watchSystemTheme() {
@@ -227,13 +226,112 @@ const ThemeService = {
   }
 };
 
+const LANGUAGE_VALUES = Object.freeze(['vi', 'en', 'zh-CN']);
+const I18nService = {
+  values: LANGUAGE_VALUES,
+  isValid(value) { return LANGUAGE_VALUES.includes(value); },
+  getPreference() {
+    const rawSettings = storage.get(STORAGE_KEYS.settings, {});
+    const settings = rawSettings && typeof rawSettings === 'object' && !Array.isArray(rawSettings) ? rawSettings : {};
+    const saved = state.currentUser?.id && settings?.users?.[state.currentUser.id];
+    return this.isValid(saved?.language) ? saved.language : (this.isValid(settings?.language) ? settings.language : 'vi');
+  },
+  locale() { return window.KLEARN_LOCALES?.[this.getPreference()] || window.KLEARN_LOCALES?.vi || { keys: {}, phrases: {} }; },
+  t(key, variables = {}) {
+    const current = this.locale();
+    const fallback = window.KLEARN_LOCALES?.vi?.keys?.[key] || key;
+    return String(current.keys?.[key] || fallback).replace(/\{(\w+)\}/g, (_, name) => variables[name] ?? '');
+  },
+  translateText(text) {
+    const value = String(text);
+    const locale = this.locale();
+    if (locale.phrases?.[value]) return locale.phrases[value];
+    for (const resource of Object.values(window.KLEARN_LOCALES || {})) {
+      const source = Object.entries(resource.phrases || {}).find(([, translated]) => translated === value)?.[0];
+      if (source && locale.phrases?.[source]) return locale.phrases[source];
+    }
+    const greeting = value.match(/^Xin chào, (.+) 👋$/);
+    if (greeting) return this.t('home.greeting', { name: greeting[1] });
+    const englishGreeting = value.match(/^Hello, (.+) 👋$/);
+    if (englishGreeting) return this.t('home.greeting', { name: englishGreeting[1] });
+    const chineseGreeting = value.match(/^你好，(.+) 👋$/);
+    if (chineseGreeting) return this.t('home.greeting', { name: chineseGreeting[1] });
+    if (value === 'Hôm nay bạn muốn học gì?') return this.t('home.prompt');
+    return value;
+  },
+  translateDOM(root = document) {
+    if (!root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach((node) => {
+      const parent = node.parentElement;
+      if (!parent || ['SCRIPT', 'STYLE', 'TEXTAREA', 'PRE'].includes(parent.tagName)) return;
+      const leading = node.nodeValue.match(/^\s*/)?.[0] || '';
+      const trailing = node.nodeValue.match(/\s*$/)?.[0] || '';
+      const core = node.nodeValue.trim();
+      if (core) node.nodeValue = `${leading}${this.translateText(core)}${trailing}`;
+    });
+    root.querySelectorAll?.('[placeholder], [aria-label], [title]').forEach((element) => {
+      ['placeholder', 'aria-label', 'title'].forEach((attribute) => {
+        if (element.hasAttribute(attribute)) element.setAttribute(attribute, this.translateText(element.getAttribute(attribute)));
+      });
+    });
+  },
+  setPreference(language) {
+    const safeLanguage = this.isValid(language) ? language : 'vi';
+    const rawSettings = storage.get(STORAGE_KEYS.settings, {});
+    const settings = rawSettings && typeof rawSettings === 'object' && !Array.isArray(rawSettings) ? { ...rawSettings } : {};
+    const users = settings.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
+    settings.language = safeLanguage;
+    if (state.currentUser?.id) users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), language: safeLanguage, updatedAt: new Date().toISOString() };
+    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 7, language: LANGUAGE_VALUES.includes(settings.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+    document.documentElement.lang = window.KLEARN_LOCALES?.[safeLanguage]?.htmlLang || safeLanguage;
+  },
+  localizedText(item, field = 'meaning', locale = this.getPreference()) {
+    if (!item || typeof item !== 'object') return '';
+    const overlay = window.KLEARN_CONTENT_TRANSLATIONS?.[item.korean || item.koreanText || item.appLine];
+    const container = item[`${field}s`] || item[field] || overlay?.[field];
+    if (container && typeof container === 'object' && !Array.isArray(container)) {
+      for (const candidate of [locale, 'en', 'vi']) if (typeof container[candidate] === 'string' && container[candidate].trim()) return container[candidate];
+    }
+    const suffixes = locale === 'zh-CN' ? ['Zh', 'ZhCN'] : locale === 'en' ? ['En'] : ['Vi'];
+    for (const suffix of suffixes) {
+      const candidate = item[`${field}${suffix}`];
+      if (typeof candidate === 'string' && candidate.trim()) return candidate;
+    }
+    const legacy = field === 'meaning' ? ['meaningVi', 'vietnamese', 'translationVi'] : field === 'example' ? ['exampleVi', 'translation'] : [];
+    return legacy.map((key) => item[key]).find((value) => typeof value === 'string' && value.trim()) || '';
+  },
+  updateHeader() {
+    const locale = this.getPreference();
+    const themePreference = ThemeService.getPreference();
+    const code = document.getElementById('languageCode');
+    if (code) code.textContent = window.KLEARN_LOCALES?.[locale]?.short || locale.toUpperCase();
+    const themeIcon = document.getElementById('themeIcon');
+    if (themeIcon) themeIcon.textContent = themePreference === 'dark' ? '🌙' : themePreference === 'light' ? '☀️' : '◐';
+    document.querySelectorAll('[data-theme-choice-header]').forEach((item) => item.setAttribute('aria-checked', String(item.dataset.themeChoiceHeader === themePreference)));
+    document.querySelectorAll('[data-language-choice]').forEach((item) => item.setAttribute('aria-checked', String((item.dataset.languageChoice || item.value) === locale)));
+    const languageButton = document.getElementById('languageBtn');
+    if (languageButton) languageButton.setAttribute('aria-label', this.t('language.title'));
+    const themeButton = document.getElementById('themeBtn');
+    if (themeButton) themeButton.setAttribute('aria-label', this.t('theme.title'));
+  },
+  applyDocument() {
+    document.documentElement.lang = window.KLEARN_LOCALES?.[this.getPreference()]?.htmlLang || this.getPreference();
+    this.translateDOM(document);
+    this.updateHeader();
+  }
+};
+
 function getUserSettings() {
   const settings = storage.get(STORAGE_KEYS.settings, {});
   const saved = state.currentUser?.id && settings?.users?.[state.currentUser.id];
   const migratedDefault = typeof settings?.showRomanization === 'boolean' ? settings.showRomanization : true;
   return {
     showRomanization: typeof saved?.showRomanization === 'boolean' ? saved.showRomanization : migratedDefault,
-    theme: ThemeService.isValid(saved?.theme) ? saved.theme : (ThemeService.isValid(settings?.theme) ? settings.theme : 'system')
+    theme: ThemeService.isValid(saved?.theme) ? saved.theme : (ThemeService.isValid(settings?.theme) ? settings.theme : 'system'),
+    language: I18nService.isValid(saved?.language) ? saved.language : (I18nService.isValid(settings?.language) ? settings.language : 'vi')
   };
 }
 
@@ -244,7 +342,7 @@ function setShowRomanization(showRomanization) {
   const settings = storage.get(STORAGE_KEYS.settings, {});
   const users = settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
   users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), showRomanization: Boolean(showRomanization), updatedAt: new Date().toISOString() };
-  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 7, language: settings?.language || 'vi', users, updatedAt: new Date().toISOString() });
+  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 7, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
 }
 
 function getRomanization(itemOrText = '') {
@@ -261,12 +359,13 @@ function getDisplayPronunciation(item = {}) {
 
 function renderKoreanLearningText(item = {}, options = {}) {
   const korean = item.korean || item.koreanText || item.appLine || '';
-  const meaningVi = item.meaningVi || item.vietnamese || item.translationVi || '';
+  const meaningVi = I18nService.localizedText(item, 'meaning');
+  const exampleVi = I18nService.localizedText(item, 'example');
   const romanization = getRomanization({ ...item, korean });
   const pronunciationRomanization = getDisplayPronunciation({ ...item, korean });
   const showRomanization = options.forceRomanization ?? showRomanizationEnabled();
   const sizeClass = options.compact ? ' compact' : '';
-  return `<div class="korean-learning-text${sizeClass}"><div class="learning-hangul" lang="ko">${escapeHtml(korean)}</div>${showRomanization && romanization ? `<div class="learning-romanization">${pronunciationRomanization ? `<span><b>Phiên âm:</b> ${escapeHtml(romanization)}</span><span><b>Đọc thực tế:</b> ${escapeHtml(pronunciationRomanization)}</span>` : escapeHtml(romanization)}</div>` : ''}${meaningVi ? `<div class="learning-meaning">${escapeHtml(meaningVi)}</div>` : ''}</div>`;
+  return `<div class="korean-learning-text${sizeClass}"><div class="learning-hangul" lang="ko">${escapeHtml(korean)}</div>${showRomanization && romanization ? `<div class="learning-romanization">${pronunciationRomanization ? `<span><b>Phiên âm:</b> ${escapeHtml(romanization)}</span><span><b>Đọc thực tế:</b> ${escapeHtml(pronunciationRomanization)}</span>` : escapeHtml(romanization)}</div>` : ''}${meaningVi ? `<div class="learning-meaning">${escapeHtml(meaningVi)}</div>` : ''}${options.includeExample && exampleVi ? `<div class="learning-example">${escapeHtml(exampleVi)}</div>` : ''}</div>`;
 }
 
 function renderRomanizationToggle(compact = false) {
@@ -707,7 +806,7 @@ const VocabularyService = {
       && (filters.topic === 'all' || card.topic === filters.topic)
       && (filters.partOfSpeech === 'all' || card.partOfSpeech === filters.partOfSpeech)
       && (filters.status === 'all' || (filters.status === 'wrong' ? card.wrongCount > 0 : filters.status === 'remembered' ? card.mastery >= 60 && card.status !== 'mastered' : card.status === filters.status))
-      && (!filters.search || `${card.korean} ${card.romanization || getRomanization(card)} ${card.meaningVi}`.toLowerCase().includes(filters.search.toLowerCase())));
+      && (!filters.search || `${card.korean} ${card.romanization || getRomanization(card)} ${I18nService.localizedText(card, 'meaning')}`.toLowerCase().includes(filters.search.toLowerCase())));
   },
   optionsFor(card, direction = 'ko_vi') {
     const seen = new Set();
@@ -882,26 +981,23 @@ function syncShell() {
 // ============================================================
 function renderThemeControl(compact = false) {
   const selected = ThemeService.getPreference();
-  const options = [
-    ['system', 'Hệ thống', 'Tự theo giao diện thiết bị'],
-    ['light', 'Sáng', 'Nền sáng, dễ đọc'],
-    ['dark', 'Tối', 'Dịu mắt khi học ban đêm']
-  ];
-  return `<section class="theme-control${compact ? ' compact' : ''}" aria-labelledby="themeControlTitle"><div><h2 id="themeControlTitle">Giao diện</h2><p>Chọn cách hiển thị bạn thấy thoải mái nhất.</p></div><div class="theme-options" role="radiogroup" aria-label="Chế độ giao diện">${options.map(([value, label, description]) => `<label class="theme-option"><input type="radio" name="themePreference" value="${value}" data-theme-choice ${selected === value ? 'checked' : ''}><span><b>${label}</b><small>${description}</small></span></label>`).join('')}</div></section>`;
+  const language = I18nService.getPreference();
+  const options = ['system', 'light', 'dark'];
+  return `<section class="theme-control${compact ? ' compact' : ''}" aria-labelledby="themeControlTitle"><div><h2 id="themeControlTitle">${I18nService.t('theme.title')}</h2><p>${I18nService.t('theme.description')}</p></div><div class="theme-options" role="radiogroup" aria-label="${I18nService.t('theme.title')}">${options.map((value) => `<label class="theme-option"><input type="radio" name="themePreference" value="${value}" data-theme-choice ${selected === value ? 'checked' : ''}><span><b>${I18nService.t(`theme.${value}`)}</b><small>${I18nService.t(`theme.${value}Desc`)}</small></span></label>`).join('')}</div><div class="language-preference"><h3>${I18nService.t('language.title')}</h3><div class="language-options" role="radiogroup" aria-label="${I18nService.t('language.title')}">${[['vi','🇻🇳 Tiếng Việt'],['en','🇬🇧 English'],['zh-CN','🇨🇳 中文（简体）']].map(([value,label]) => `<label><input type="radio" name="languagePreference" value="${value}" data-language-choice ${language === value ? 'checked' : ''}><span>${label}</span></label>`).join('')}</div></div></section>`;
 }
 
 function welcomeView() {
   return `<section class="auth-page welcome-page">
     <div class="brand-mark" aria-hidden="true">한</div><p class="eyebrow">TH-Tiếng Hàn</p>
-    <h1 class="welcome-title">Tiếng Hàn được thiết kế<br>dành riêng cho người Việt.</h1>
-    <div class="welcome-points"><span>Học theo trình độ.</span><span>Học theo mục tiêu.</span><span>Tiến bộ mỗi ngày.</span></div>
+    <h1 class="welcome-title">${I18nService.t('welcome.title')}</h1>
+    <div class="welcome-points"><span>${I18nService.t('welcome.point.level')}</span><span>${I18nService.t('welcome.point.goal')}</span><span>${I18nService.t('welcome.point.progress')}</span></div>
     <div class="auth-actions"><button class="btn primary full" data-view="register">Bắt đầu học</button><p class="auth-switch">Đã có tài khoản?</p><button class="btn secondary full" data-view="login">Đăng nhập</button></div>${renderThemeControl(true)}
   </section>`;
 }
 
 function registerView() {
   return `<section class="auth-page"><button class="back-link" data-view="welcome" aria-label="Quay lại">←</button><p class="eyebrow">Tạo tài khoản học viên</p>
-    <h1 class="headline">Bắt đầu lộ trình của bạn</h1><p class="subtle">Chỉ mất vài phút để TH-Tiếng Hàn hiểu mục tiêu của bạn.</p>
+    <h1 class="headline">${I18nService.t('auth.register')}</h1><p class="subtle">${I18nService.t('auth.registerSubtitle')}</p>
     <form id="registerForm" class="auth-form" novalidate>
       <label>Họ tên<input name="fullName" type="text" autocomplete="name" maxlength="80" placeholder="Nguyễn Minh Anh" /></label>
       <label>Email<input name="email" type="email" autocomplete="email" inputmode="email" placeholder="ban@example.com" /></label>
@@ -916,7 +1012,7 @@ function registerView() {
 
 function loginView() {
   return `<section class="auth-page"><button class="back-link" data-view="welcome" aria-label="Quay lại">←</button><p class="eyebrow">TH-Tiếng Hàn</p>
-    <h1 class="headline">Chào mừng trở lại 👋</h1><p class="subtle">Tiếp tục lộ trình tiếng Hàn dành riêng cho bạn.</p>
+    <h1 class="headline">${I18nService.t('auth.welcome')} 👋</h1><p class="subtle">${I18nService.t('auth.loginSubtitle')}</p>
     <form id="loginForm" class="auth-form" novalidate>
       <label>Email<input name="email" type="email" autocomplete="email" inputmode="email" placeholder="ban@example.com" /></label>
       <label>Mật khẩu<input name="password" type="password" autocomplete="current-password" placeholder="Mật khẩu" /></label>
@@ -938,7 +1034,7 @@ function goalsView() {
   state.selectedGoals = [...selected];
   const content = `<div class="choice-list">${APP_DATA.goals.map((goal) => `<button class="choice-card ${selected.includes(goal.id) ? 'selected' : ''}" data-goal="${goal.id}"><span class="choice-icon">${goal.icon}</span><span>${goal.label}</span><span class="choice-check">${selected.includes(goal.id) ? '✓' : ''}</span></button>`).join('')}</div>
     <p id="formError" class="form-error hidden" role="alert"></p><button class="btn primary full sticky-action" id="goalsContinue">Tiếp tục</button>`;
-  return onboardingFrame('1 / 3', 'Bạn học tiếng Hàn để làm gì?', 'Bạn có thể chọn nhiều mục tiêu.', content);
+  return onboardingFrame('1 / 3', I18nService.t('onboarding.goalsTitle'), I18nService.t('onboarding.goalsSubtitle'), content);
 }
 
 function levelView() {
@@ -950,7 +1046,7 @@ function levelView() {
   }).join('')}</div>
     ${showTopikFollowup ? `<div class="followup-card"><strong>Kết quả TOPIK gần nhất của bạn?</strong><button class="mini-choice" data-level-result="TOPIK I nâng cao">TOPIK I (cấp 1–2)</button><button class="mini-choice" data-level-result="TOPIK II khởi đầu">TOPIK II (cấp 3 trở lên)</button><button class="mini-choice" data-level-result="Placement Test">Tôi muốn kiểm tra lại</button></div>` : ''}
     <p id="formError" class="form-error hidden" role="alert"></p><div class="action-row"><button class="btn secondary" data-view="onboarding-goals">Quay lại</button><button class="btn primary" id="levelContinue">Tiếp tục</button></div>`;
-  return onboardingFrame('2 / 3', 'Trình độ tiếng Hàn hiện tại của bạn?', 'Chọn phương án gần đúng nhất. Bạn có thể làm bài kiểm tra đầu vào.', content);
+  return onboardingFrame('2 / 3', I18nService.t('onboarding.levelTitle'), I18nService.t('onboarding.levelSubtitle'), content);
 }
 
 function placementView() {
@@ -959,7 +1055,7 @@ function placementView() {
   const question = APP_DATA.placementQuestions[index];
   const content = `<div class="test-progress"><span>${index + 1} / ${APP_DATA.placementQuestions.length}</span><span>${placement.score || 0} điểm</span></div>
     <section class="card question-card"><h2>${escapeHtml(question.prompt)}</h2><div class="answer-list">${question.options.map((option, optionIndex) => `<button class="answer-button" data-test-answer="${optionIndex}"><span>${String.fromCharCode(65 + optionIndex)}</span>${escapeHtml(option)}</button>`).join('')}</div></section>`;
-  return onboardingFrame('3 / 3 · Placement Test', 'Kiểm tra trình độ đầu vào', 'Chọn một đáp án. Kết quả chỉ dùng để gợi ý lộ trình MVP.', content);
+  return onboardingFrame('3 / 3 · Placement Test', I18nService.t('onboarding.placementTitle'), I18nService.t('onboarding.placementSubtitle'), content);
 }
 
 function goalLabels(goals = []) { return goals.map((id) => APP_DATA.goals.find((goal) => goal.id === id)?.label).filter(Boolean); }
@@ -1378,7 +1474,8 @@ function render() {
   };
   appElement().innerHTML = (views[state.currentView] || welcomeView)();
   const viewLabels = { welcome: '', login: 'Đăng nhập', register: 'Đăng ký', profile: 'Hồ sơ', 'edit-profile': 'Chỉnh sửa hồ sơ' };
-  document.title = viewLabels[state.currentView] ? `TH-Tiếng Hàn · ${viewLabels[state.currentView]}` : 'TH-Tiếng Hàn';
+  document.title = viewLabels[state.currentView] ? `TH-Tiếng Hàn · ${I18nService.translateText(viewLabels[state.currentView])}` : 'TH-Tiếng Hàn';
+  I18nService.applyDocument();
   bindEvents();
   window.scrollTo(0, 0);
 }
@@ -1390,6 +1487,10 @@ function bindEvents() {
   document.querySelectorAll('[data-speak]').forEach((button) => { button.onclick = (event) => { event.stopPropagation(); speakKorean(button.dataset.speak); }; });
   document.querySelectorAll('[data-romanization-toggle]').forEach((button) => { button.onclick = () => { setShowRomanization(!showRomanizationEnabled()); render(); }; });
   document.querySelectorAll('[data-theme-choice]').forEach((input) => { input.onchange = () => { ThemeService.setPreference(input.value); render(); }; });
+  document.querySelectorAll('[data-theme-choice-header]').forEach((input) => { input.onclick = () => { ThemeService.setPreference(input.dataset.themeChoiceHeader); document.getElementById('themeMenu')?.classList.add('hidden'); render(); }; });
+  document.querySelectorAll('[data-language-choice]').forEach((input) => { input.onclick = () => { I18nService.setPreference(input.dataset.languageChoice || input.value); document.getElementById('languageMenu')?.classList.add('hidden'); render(); }; });
+  const languageBtn = document.getElementById('languageBtn'); if (languageBtn) languageBtn.onclick = () => { const menu = document.getElementById('languageMenu'); const open = menu?.classList.toggle('hidden') === false; document.getElementById('themeMenu')?.classList.add('hidden'); languageBtn.setAttribute('aria-expanded', String(open)); };
+  const themeBtn = document.getElementById('themeBtn'); if (themeBtn) themeBtn.onclick = () => { const menu = document.getElementById('themeMenu'); const open = menu?.classList.toggle('hidden') === false; document.getElementById('languageMenu')?.classList.add('hidden'); themeBtn.setAttribute('aria-expanded', String(open)); };
   document.querySelectorAll('[data-question-romanization]').forEach((button) => { button.onclick = () => { const id = button.dataset.questionRomanization; state.questionRomanization[id] = !(state.questionRomanization[id] ?? showRomanizationEnabled()); render(); }; });
   const registerForm = document.getElementById('registerForm'); if (registerForm) registerForm.onsubmit = handleRegister;
   const loginForm = document.getElementById('loginForm'); if (loginForm) loginForm.onsubmit = handleLogin;
