@@ -122,6 +122,7 @@ const APP_DATA = Object.freeze({
 // ============================================================
 const state = {
   currentUser: null,
+  learningLanguage: 'vi',
   currentView: 'welcome',
   onboardingStep: 'goals',
   selectedGoals: [],
@@ -234,7 +235,9 @@ const I18nService = {
     const rawSettings = storage.get(STORAGE_KEYS.settings, {});
     const settings = rawSettings && typeof rawSettings === 'object' && !Array.isArray(rawSettings) ? rawSettings : {};
     const saved = state.currentUser?.id && settings?.users?.[state.currentUser.id];
-    return this.isValid(saved?.language) ? saved.language : (this.isValid(settings?.language) ? settings.language : 'vi');
+    const language = this.isValid(saved?.language) ? saved.language : (this.isValid(settings?.language) ? settings.language : 'vi');
+    state.learningLanguage = language;
+    return language;
   },
   locale() { return window.KLEARN_LOCALES?.[this.getPreference()] || window.KLEARN_LOCALES?.vi || { keys: {}, phrases: {} }; },
   t(key, variables = {}) {
@@ -248,7 +251,7 @@ const I18nService = {
     if (locale.phrases?.[value]) return locale.phrases[value];
     for (const resource of Object.values(window.KLEARN_LOCALES || {})) {
       const source = Object.entries(resource.phrases || {}).find(([, translated]) => translated === value)?.[0];
-      if (source && locale.phrases?.[source]) return locale.phrases[source];
+      if (source) return locale.phrases?.[source] || (this.getPreference() === 'vi' ? source : value);
     }
     const greeting = value.match(/^Xin chào, (.+) 👋$/);
     if (greeting) return this.t('home.greeting', { name: greeting[1] });
@@ -277,6 +280,13 @@ const I18nService = {
         if (element.hasAttribute(attribute)) element.setAttribute(attribute, this.translateText(element.getAttribute(attribute)));
       });
     });
+    root.querySelectorAll?.('.korean-learning-text, .vocabulary-row, .flashcard, .flash-example').forEach((block) => {
+      const koreanNode = block.querySelector('[lang="ko"]');
+      const meaning = koreanNode && I18nService.localizedText({ korean: koreanNode.textContent.trim() }, 'meaning');
+      if (!meaning) return;
+      const target = block.matches('.vocabulary-row') ? block.querySelector('div span') : block.matches('.flashcard') ? block.querySelector('.flashcard-face.back strong') : block.querySelector('.learning-meaning, .flash-example span');
+      if (target && !target.closest('[lang="ko"]')) target.textContent = meaning;
+    });
   },
   setPreference(language) {
     const safeLanguage = this.isValid(language) ? language : 'vi';
@@ -287,6 +297,7 @@ const I18nService = {
     if (state.currentUser?.id) users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), language: safeLanguage, updatedAt: new Date().toISOString() };
     storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 7, language: LANGUAGE_VALUES.includes(settings.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
     document.documentElement.lang = window.KLEARN_LOCALES?.[safeLanguage]?.htmlLang || safeLanguage;
+    state.learningLanguage = safeLanguage;
   },
   localizedText(item, field = 'meaning', locale = this.getPreference()) {
     if (!item || typeof item !== 'object') return '';
@@ -303,6 +314,14 @@ const I18nService = {
     const legacy = field === 'meaning' ? ['meaningVi', 'vietnamese', 'translationVi'] : field === 'example' ? ['exampleVi', 'translation'] : [];
     return legacy.map((key) => item[key]).find((value) => typeof value === 'string' && value.trim()) || '';
   },
+  getLocalizedValue(value, locale = this.getPreference(), fallback = '') {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      for (const candidate of [locale, 'en', 'vi']) if (typeof value[candidate] === 'string' && value[candidate].trim()) return value[candidate];
+      return fallback;
+    }
+    return typeof value === 'string' ? value : fallback;
+  },
+  localizedArray(values = [], locale = this.getPreference()) { return Array.isArray(values) ? values.map((value) => this.getLocalizedValue(value, locale, '')).filter(Boolean) : []; },
   updateHeader() {
     const locale = this.getPreference();
     const themePreference = ThemeService.getPreference();
@@ -811,15 +830,15 @@ const VocabularyService = {
   optionsFor(card, direction = 'ko_vi') {
     const seen = new Set();
     const pool = APP_DATA.vocabulary.filter((word) => {
-      const value = direction === 'vi_ko' ? word.korean : word.meaningVi;
-      const correctValue = direction === 'vi_ko' ? card.korean : card.meaningVi;
+      const value = direction === 'vi_ko' ? word.korean : I18nService.localizedText(word, 'meaning');
+      const correctValue = direction === 'vi_ko' ? card.korean : I18nService.localizedText(card, 'meaning');
       if (word.id === card.wordId || value === correctValue || seen.has(value)) return false;
       seen.add(value);
       return true;
     });
     const distractors = sampleItems(pool, 3);
-    const correct = direction === 'vi_ko' ? card.korean : card.meaningVi;
-    const options = direction === 'vi_ko' ? [card.korean, ...distractors.map((word) => word.korean)] : [card.meaningVi, ...distractors.map((word) => word.meaningVi)];
+    const correct = direction === 'vi_ko' ? card.korean : I18nService.localizedText(card, 'meaning');
+    const options = direction === 'vi_ko' ? [card.korean, ...distractors.map((word) => word.korean)] : [correct, ...distractors.map((word) => I18nService.localizedText(word, 'meaning'))];
     return { correct, options: shuffleArray(options) };
   },
   updateCard(wordId, changes) {
