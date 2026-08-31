@@ -48,6 +48,10 @@
     if (!response.ok || !payload.reply) throw new Error(payload.configured === false ? 'AI chưa được cấu hình. Dữ liệu học vẫn được giữ trên thiết bị.' : 'AI tạm thời không phản hồi.');
     return String(payload.reply).slice(0, 8000);
   };
+  // Public, narrow facade used by adaptive planning. It exposes only the
+  // existing safe learner context and request path; Auth/CloudSync internals
+  // and credentials never leave this module.
+  window.AICoachService = { request, context: safeContext };
 
   const coachState = { report: userScoped(STORAGE_KEYS.weeklyReports)[0]?.report || '', correction: '', correctionBusy: false, reportBusy: false, practice: '', practiceBusy: false, speaking: '', speakingBusy: false, correctionMode: 'basic', sentence: '' };
   const saveReport = (report) => { const existing = userScoped(STORAGE_KEYS.weeklyReports); saveUserScoped(STORAGE_KEYS.weeklyReports, [{ id: `report-${Date.now()}`, report, createdAt: now() }, ...existing], 12); };

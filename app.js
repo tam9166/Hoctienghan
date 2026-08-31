@@ -12,7 +12,7 @@ const STORAGE_KEYS = Object.freeze({
   practice: 'klearn_practice',
   practiceHistory: 'klearn_practice_history',
   speaking: 'klearn_speaking',
-  writing: 'klearn_writing', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting', learnerProfile: 'klearn_learner_profile', syncMeta: 'klearn_sync_meta', dailyPlan: 'klearn_daily_plan', notifications: 'klearn_notifications', errors: 'klearn_errors', weeklyReports: 'klearn_weekly_reports', migrationBackup: 'klearn_migration_backup_v8'
+  writing: 'klearn_writing', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting', learnerProfile: 'klearn_learner_profile', syncMeta: 'klearn_sync_meta', dailyPlan: 'klearn_daily_plan', notifications: 'klearn_notifications', errors: 'klearn_errors', weeklyReports: 'klearn_weekly_reports', dailyMissions: 'klearn_daily_missions', learningGoals: 'klearn_learning_goals', adaptiveRoadmaps: 'klearn_adaptive_roadmaps', migrationBackup: 'klearn_migration_backup_v8'
 });
 
 const storage = {
@@ -48,7 +48,7 @@ function migrateLegacyStorage() {
   }
   storage.set(STORAGE_KEYS.settings, {
     ...(settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {}),
-    schemaVersion: 10,
+    schemaVersion: 11,
     language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi',
     theme: ['system', 'light', 'dark'].includes(settings?.theme) ? settings.theme : 'system',
     users: settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? settings.users : {},
@@ -177,7 +177,7 @@ const state = {
   ,globalQuery: '', smartReviewMinutes: 20, cloudUser: null, cloudAuthBusy: false, cloudAuthMessage: ''
 };
 
-const MAIN_VIEWS = ['home', 'lessons', 'theory', 'roadmap', 'topik', 'ai-coach', 'error-notebook', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
+const MAIN_VIEWS = ['home', 'lessons', 'theory', 'roadmap', 'topik', 'ai-coach', 'adaptive-plan', 'error-notebook', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'placement', 'onboarding-result'];
 
@@ -226,7 +226,7 @@ const ThemeService = {
     if (state.currentUser?.id) {
       users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), theme: safePreference, updatedAt: new Date().toISOString() };
     }
-    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 10, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 11, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
     this.apply(safePreference);
   },
   watchSystemTheme() {
@@ -320,7 +320,7 @@ const I18nService = {
     const users = settings.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
     settings.language = safeLanguage;
     if (state.currentUser?.id) users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), language: safeLanguage, updatedAt: new Date().toISOString() };
-    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 10, language: LANGUAGE_VALUES.includes(settings.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 11, language: LANGUAGE_VALUES.includes(settings.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
     document.documentElement.lang = window.KLEARN_LOCALES?.[safeLanguage]?.htmlLang || safeLanguage;
     state.learningLanguage = safeLanguage;
   },
@@ -403,7 +403,7 @@ function setShowRomanization(showRomanization) {
   const settings = storage.get(STORAGE_KEYS.settings, {});
   const users = settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
   users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), showRomanization: Boolean(showRomanization), updatedAt: new Date().toISOString() };
-  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 10, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 11, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
 }
 
 function getRomanization(itemOrText = '') {
@@ -875,7 +875,7 @@ const USER_SYNC_KEYS = Object.freeze([
   STORAGE_KEYS.progress, STORAGE_KEYS.srs, STORAGE_KEYS.settings, STORAGE_KEYS.practice, STORAGE_KEYS.practiceHistory,
   STORAGE_KEYS.speaking, STORAGE_KEYS.writing, STORAGE_KEYS.dictionaryFavorites, STORAGE_KEYS.savedSentences,
   STORAGE_KEYS.translationHistory, STORAGE_KEYS.recentSearches, STORAGE_KEYS.handwriting, STORAGE_KEYS.learnerProfile,
-  STORAGE_KEYS.dailyPlan, STORAGE_KEYS.notifications, STORAGE_KEYS.errors, STORAGE_KEYS.weeklyReports, 'klearn_ai_conversations'
+  STORAGE_KEYS.dailyPlan, STORAGE_KEYS.notifications, STORAGE_KEYS.errors, STORAGE_KEYS.weeklyReports, STORAGE_KEYS.dailyMissions, STORAGE_KEYS.learningGoals, STORAGE_KEYS.adaptiveRoadmaps, 'klearn_ai_conversations'
 ]);
 
 const CloudSyncService = {
@@ -1265,7 +1265,7 @@ function syncShell() {
       : state.currentView === 'handwriting' ? 'theory'
         : state.currentView === 'roadmap' ? 'roadmap'
       : ['topik','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice','smart-review','analytics','search','weekly-insights'].includes(state.currentView) ? 'topik'
-      : ['ai-coach','error-notebook'].includes(state.currentView) ? 'ai-coach'
+      : ['ai-coach','adaptive-plan','error-notebook'].includes(state.currentView) ? 'ai-coach'
       : state.currentView === 'edit-profile' ? 'profile'
         : reviewViews.includes(state.currentView) ? 'review'
             : practiceViews.includes(state.currentView) ? 'topik'

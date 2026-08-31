@@ -72,6 +72,10 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Global Search (`⌕` trên header) tìm theo Hangul, romanization, Vietnamese, English, 中文 trong lesson, dictionary, practice và phrasebook.
 - Weekly Insights tổng hợp phút học, bài, từ thành thạo, đề đã làm, điểm mạnh/yếu; AI chỉ nhận structured stats nhỏ khi được bật.
 - `PronunciationProvider` và `HandwritingProvider` là abstraction cho model tương lai. MVP hiện tại chỉ chấm text similarity/self-confirmation, không giả vờ có phoneme hoặc handwriting recognition AI.
+- `AdaptiveLearningEngine` tạo Daily Mission cố định theo ngày bằng rule deterministic: kỹ năng yếu (+3), lỗi lặp (+2), lâu chưa luyện (+2), SRS đến hạn (+3) và liên quan TOPIK mục tiêu (+2). Engine dùng learner profile, progress, practice history, SRS và Error Notebook; không random và không gửi secrets.
+- `GoalTrackingService` lưu mục tiêu/deadline/phút học tại `klearn_learning_goals`; `RoadmapService` tạo roadmap 6 phase tại `klearn_adaptive_roadmaps`. Nút “Tạo lộ trình bằng AI” chỉ là lớp nhận xét tùy chọn, fallback local luôn hoạt động.
+- Daily Mission lưu tại `klearn_daily_missions`, giữ khoảng 30 ngày và khôi phục đúng mission khi reload. Ba domain mới được thêm vào `USER_SYNC_KEYS`, vì vậy Supabase `learning_sync.data` JSONB hiện có tự đồng bộ mà không cần bảng/migration SQL mới.
+- Schema local được nâng lên version 11 theo hướng additive/idempotent; các key mới tự khởi tạo khi cần, không reset users, progress, SRS, Auth hay dữ liệu cloud cũ.
 
 ### Bật Supabase cloud sync (tùy chọn)
 

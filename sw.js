@@ -1,7 +1,7 @@
-const CACHE = 'klearn-v14';
+const CACHE = 'klearn-v15';
 const OFFLINE_ASSETS = [
   './index.html',
-  './styles.css?v=14',
+  './styles.css?v=15',
   './data/romanization.js?v=8',
   './data/vocabulary-bank.js?v=8',
   './data/dictionary.js?v=1',
@@ -9,6 +9,7 @@ const OFFLINE_ASSETS = [
   './data/handwriting.js?v=1',
   './data/cloud-sync.js?v=2',
   './data/ai-coach.js?v=2',
+  './data/adaptive-engine.js?v=1',
   './data/learning-modules.js?v=8',
   './data/practice-bank.js?v=8',
   './locales/vi.js?v=1',
