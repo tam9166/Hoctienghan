@@ -2,6 +2,7 @@
 
 :root {
   color-scheme: light;
+  --desktop-sidebar-width: 260px;
   --primary: #162839;
   --primary-container: #2c3e50;
   --primary-soft: #d1e4fb;
@@ -54,8 +55,9 @@
 }
 
 * { box-sizing: border-box; }
-html { overflow-x: hidden; background: var(--bg); }
+html { width: 100%; overflow-x: hidden; background: var(--bg); }
 body {
+  width: 100%;
   margin: 0;
   min-width: 320px;
   min-height: 100dvh;
@@ -65,6 +67,7 @@ body {
   font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
+#app-shell { width: 100%; min-width: 0; min-height: 100dvh; }
 button, input, select { font: inherit; }
 button { cursor: pointer; touch-action: manipulation; }
 button:disabled { cursor: not-allowed; opacity: .5; }
@@ -114,6 +117,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, audio:focus-vis
 
 .app-content {
   width: 100%;
+  min-width: 0;
   max-width: 780px;
   min-height: 100dvh;
   margin: 0 auto;
@@ -892,14 +896,15 @@ body, .topbar, .bottom-nav, .card, .btn, .answer-button, input, select, textarea
 .ai-privacy { padding:0 12px 12px; color:var(--muted); font-size:10px; line-height:1.4; }
 
 @media (min-width:1024px) {
-  .topbar { left:248px; padding-left:28px; }
-  .bottom-nav { top:0; right:auto; bottom:0; width:232px; padding:90px 14px 20px; grid-template-columns:1fr; align-content:start; border:0; border-right:1px solid var(--border); border-radius:0; box-shadow:none; }
+  .topbar { left:var(--desktop-sidebar-width); width:auto; padding-left:28px; }
+  .bottom-nav { top:0; right:auto; bottom:0; left:0; width:var(--desktop-sidebar-width); padding:90px 14px 20px; grid-template-columns:1fr; align-content:start; border:0; border-right:1px solid var(--border); border-radius:0; box-shadow:none; transform:none; }
   .nav-item { min-height:48px; flex-direction:row; justify-content:flex-start; gap:12px; padding:8px 14px; font-size:13px; }
-  .app-content { width:calc(100% - 232px); max-width:1200px; margin-left:232px; margin-right:0; padding-left:32px; padding-right:32px; }
+  .app-content:not(.public-content) { width:calc(100% - var(--desktop-sidebar-width)); max-width:none; margin-left:var(--desktop-sidebar-width); margin-right:0; padding-left:clamp(28px,3vw,56px); padding-right:clamp(28px,3vw,56px); }
+  .app-content:not(.public-content) > * { width:100%; max-width:1320px; margin-left:auto; margin-right:auto; }
+  .app-content.public-content { width:100%; margin:0; }
   .ai-fab { right:28px; bottom:28px; }
   .dashboard-grid, .hub-grid, .theory-level-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
   .dictionary-search { max-width:900px; } .dictionary-results { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
-@media (min-width:1440px) { .app-content { max-width:1280px; } .card { padding:24px; } }
-@media (min-width:1920px) { .app-content { max-width:1320px; } }
+@media (min-width:1440px) { .card { padding:24px; } }
 @media (max-width:767px) { .ai-panel { inset:0; width:100%; height:100dvh; border-radius:0; } .ai-fab { right:14px; bottom:calc(82px + env(safe-area-inset-bottom)); min-height:44px; padding:0 13px; } }
