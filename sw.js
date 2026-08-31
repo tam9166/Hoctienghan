@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v9';
+const CACHE = 'klearn-v10';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=9',
@@ -34,6 +34,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
+  if (url.pathname === '/api/chat' || url.pathname.startsWith('/api/')) return;
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
   event.respondWith(

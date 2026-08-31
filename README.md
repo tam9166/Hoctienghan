@@ -54,6 +54,9 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Phrasebook offline, lưu câu và lịch sử dịch theo từng tài khoản.
 - Kết quả tiếng Hàn có thể nghe bằng TTS `ko-KR` và chuyển thẳng sang luyện nói.
 - Chưa cấu hình API dịch online; câu ngoài dữ liệu local hiển thị thông báo rõ ràng, không giả kết quả.
+- AI Gia sư TamHoanq mở bằng nút nổi, lưu hội thoại theo user, dùng context học tối thiểu và có quick actions sửa câu/dịch/tạo bài tập.
+- Endpoint server-side tùy chọn là `/api/chat`; cấu hình `OPENAI_API_KEY` và tùy chọn `OPENAI_MODEL` trên Vercel Environment Variables. Không đặt key trong frontend.
+- Khi chưa có key hoặc offline, AI hiển thị trạng thái cấu hình/kết nối rõ ràng; dictionary, theory và phrasebook vẫn hoạt động offline.
 
 ## Dữ liệu MVP
 
