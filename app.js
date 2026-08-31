@@ -12,7 +12,7 @@ const STORAGE_KEYS = Object.freeze({
   practice: 'klearn_practice',
   practiceHistory: 'klearn_practice_history',
   speaking: 'klearn_speaking',
-  writing: 'klearn_writing', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting'
+  writing: 'klearn_writing', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting', learnerProfile: 'klearn_learner_profile', syncMeta: 'klearn_sync_meta', dailyPlan: 'klearn_daily_plan', notifications: 'klearn_notifications'
 });
 
 const storage = {
@@ -45,7 +45,7 @@ function migrateLegacyStorage() {
   const settings = storage.get(STORAGE_KEYS.settings, {});
   storage.set(STORAGE_KEYS.settings, {
     ...(settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {}),
-    schemaVersion: 7,
+    schemaVersion: 8,
     language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi',
     theme: ['system', 'light', 'dark'].includes(settings?.theme) ? settings.theme : 'system',
     users: settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? settings.users : {},
@@ -82,7 +82,12 @@ const APP_DATA = Object.freeze({
     { prompt: 'Nối câu đối lập bằng cấu trúc nào?', options: ['-지만', '-고', '-에서', '-에게'], answer: 0 },
     { prompt: '“저는 한국어를 공부해요.” nghĩa là gì?', options: ['Tôi dạy tiếng Hàn.', 'Tôi thích Hàn Quốc.', 'Tôi học tiếng Hàn.', 'Tôi đến trường.'], answer: 2 },
     { prompt: 'Câu nào dùng kính ngữ phù hợp hơn?', options: ['선생님이 먹어.', '선생님께서 드세요.', '선생님은 자.', '선생님을 가요.'], answer: 1 },
-    { prompt: '“비가 와서 집에 있어요.” diễn đạt ý nào?', options: ['Vì trời mưa nên tôi ở nhà.', 'Nếu trời mưa tôi sẽ đi.', 'Tuy mưa nhưng tôi ra ngoài.', 'Tôi thích ngôi nhà khi mưa.'], answer: 0 }
+    { prompt: '“비가 와서 집에 있어요.” diễn đạt ý nào?', options: ['Vì trời mưa nên tôi ở nhà.', 'Nếu trời mưa tôi sẽ đi.', 'Tuy mưa nhưng tôi ra ngoài.', 'Tôi thích ngôi nhà khi mưa.'], answer: 0, dimension: 'grammar', difficulty: 2 },
+    { prompt: '“회의가 오후 세 시에 시작됩니다.” nghĩa là gì?', options: ['Cuộc họp bắt đầu lúc 3 giờ chiều.', 'Cuộc họp kết thúc lúc 3 giờ.', 'Tôi đi làm lúc 3 giờ.', 'Cuộc họp ở tầng 3.'], answer: 0, dimension: 'vocabulary', difficulty: 2 },
+    { prompt: 'Đọc đoạn: 민수는 주말마다 도서관에서 공부합니다. 민수는 어디에서 공부합니까?', options: ['Ở nhà', 'Ở thư viện', 'Ở trường', 'Ở công ty'], answer: 1, dimension: 'reading', difficulty: 2 },
+    { prompt: 'Nghe/đọc câu: “내일 비가 올 것 같아요.” Dự đoán là gì?', options: ['Ngày mai có vẻ sẽ mưa.', 'Hôm qua đã mưa.', 'Bây giờ trời nắng.', 'Tuần sau sẽ lạnh.'], answer: 0, dimension: 'listening', difficulty: 3 },
+    { prompt: 'Chọn câu tự nhiên hơn khi nói với giáo viên:', options: ['선생님, 질문 있어요.', '선생님, 질문 있다.', '선생님, 질문 있어.', '선생님, 질문이 있냐?'], answer: 0, dimension: 'grammar', difficulty: 3 },
+    { prompt: '“환경 보호를 위해 대중교통을 이용해야 합니다.” ý chính là gì?', options: ['Nên dùng phương tiện công cộng để bảo vệ môi trường.', 'Không được đi xe buýt.', 'Môi trường đang rất sạch.', 'Tôi muốn mua ô tô.'], answer: 0, dimension: 'reading', difficulty: 4 }
   ],
   courses: [
     {
@@ -166,9 +171,10 @@ const state = {
   roleplayHintVisible: false
   ,dictionaryQuery: '', dictionarySelectedId: '', dictionaryFilter: 'all', translationDraft: '', translationDirection: 'vi-ko', translationResult: null, handwritingCharacter: '한', handwritingStage: 1
   ,aiOpen: false, aiConversationId: '', aiDraft: '', aiBusy: false
+  ,globalQuery: '', smartReviewMinutes: 20
 };
 
-const MAIN_VIEWS = ['home', 'lessons', 'theory', 'roadmap', 'topik', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
+const MAIN_VIEWS = ['home', 'lessons', 'theory', 'roadmap', 'topik', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'placement', 'onboarding-result'];
 
@@ -217,7 +223,7 @@ const ThemeService = {
     if (state.currentUser?.id) {
       users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), theme: safePreference, updatedAt: new Date().toISOString() };
     }
-    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 7, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 8, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
     this.apply(safePreference);
   },
   watchSystemTheme() {
@@ -311,7 +317,7 @@ const I18nService = {
     const users = settings.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
     settings.language = safeLanguage;
     if (state.currentUser?.id) users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), language: safeLanguage, updatedAt: new Date().toISOString() };
-    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 7, language: LANGUAGE_VALUES.includes(settings.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 8, language: LANGUAGE_VALUES.includes(settings.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
     document.documentElement.lang = window.KLEARN_LOCALES?.[safeLanguage]?.htmlLang || safeLanguage;
     state.learningLanguage = safeLanguage;
   },
@@ -394,7 +400,7 @@ function setShowRomanization(showRomanization) {
   const settings = storage.get(STORAGE_KEYS.settings, {});
   const users = settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
   users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), showRomanization: Boolean(showRomanization), updatedAt: new Date().toISOString() };
-  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 7, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 8, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
 }
 
 function getRomanization(itemOrText = '') {
@@ -615,6 +621,8 @@ const PracticeService = {
       if (answer.correct) { skillGroups[question.skill].correct += 1; topicGroups[question.topic].correct += 1; }
     });
     const toPercentages = (groups) => Object.fromEntries(Object.entries(groups).map(([key, value]) => [key, Math.round((value.correct / value.total) * 100)]));
+    const questionTypeGroups = {};
+    session.answers.forEach((answer) => { const question = session.questions.find((item) => item.id === answer.questionId); if (!question) return; const type = question.type || question.questionType || question.kind || 'general'; if (!questionTypeGroups[type]) questionTypeGroups[type] = { correct: 0, total: 0 }; questionTypeGroups[type].total += 1; if (answer.correct) questionTypeGroups[type].correct += 1; });
     const attempt = {
       id: session.id,
       userId: state.currentUser.id,
@@ -627,10 +635,16 @@ const PracticeService = {
       score: correct,
       total,
       percentage,
+      correct,
+      wrong: session.answers.filter((answer) => !answer.correct).length,
+      skipped: Math.max(0, total - session.answers.length),
+      averageTimeSeconds: Math.max(1, Math.round(Math.max(1, Date.now() - new Date(session.startedAt).getTime()) / 1000 / Math.max(1, total))),
       answers: session.answers,
       wrongQuestionIds: session.answers.filter((answer) => !answer.correct).map((answer) => answer.questionId),
       skillBreakdown: toPercentages(skillGroups),
-      topicBreakdown: toPercentages(topicGroups)
+      topicBreakdown: toPercentages(topicGroups),
+      questionTypeBreakdown: Object.fromEntries(Object.entries(questionTypeGroups).map(([type, value]) => [type, Math.round(value.correct / Math.max(1, value.total) * 100)])),
+      contentVersion: 1
     };
     const all = storage.get(STORAGE_KEYS.practiceHistory, {});
     const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {};
@@ -705,6 +719,7 @@ function updateCurrentUser(changes) {
   users[index] = normalizeUser({ ...users[index], ...changes, updatedAt: new Date().toISOString() });
   saveUsers(users);
   state.currentUser = users[index];
+  CloudSyncService.schedule('profile');
 }
 
 function defaultProgress() {
@@ -748,11 +763,14 @@ function getUserProgress() {
 
 function saveUserProgress(progress) {
   if (!state.currentUser) return;
+  progress = { ...progress, updatedAt: new Date().toISOString(), schemaVersion: 1 };
   const allProgress = storage.get(STORAGE_KEYS.progress, {});
   const safeProgress = allProgress && typeof allProgress === 'object' && !Array.isArray(allProgress) ? allProgress : {};
   safeProgress[state.currentUser.id] = progress;
   storage.set(STORAGE_KEYS.progress, safeProgress);
   syncUserData();
+  LearnerProfileService.get();
+  CloudSyncService.schedule('progress');
 }
 
 function defaultSrsCards() {
@@ -820,6 +838,8 @@ function saveUserSrs(cards) {
   safeSrs[state.currentUser.id] = cards;
   storage.set(STORAGE_KEYS.srs, safeSrs);
   state.srsData = cards;
+  LearnerProfileService.get();
+  CloudSyncService.schedule('srs');
 }
 
 function initializeUserData(userId) {
@@ -845,7 +865,116 @@ function syncUserData() {
 
 function normalizeSearch(value = '') { return String(value).toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim(); }
 function userScoped(key) { const all = storage.get(key, {}); return state.currentUser?.id && Array.isArray(all?.[state.currentUser.id]) ? all[state.currentUser.id] : []; }
-function saveUserScoped(key, items, limit = 100) { if (!state.currentUser) return; const all = storage.get(key, {}); const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; safe[state.currentUser.id] = items.slice(0, limit); storage.set(key, safe); }
+function saveUserScoped(key, items, limit = 100) { if (!state.currentUser) return; const all = storage.get(key, {}); const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; safe[state.currentUser.id] = items.slice(0, limit); storage.set(key, safe); CloudSyncService.schedule(key); }
+
+const USER_SYNC_KEYS = Object.freeze([
+  STORAGE_KEYS.progress, STORAGE_KEYS.srs, STORAGE_KEYS.settings, STORAGE_KEYS.practice, STORAGE_KEYS.practiceHistory,
+  STORAGE_KEYS.speaking, STORAGE_KEYS.writing, STORAGE_KEYS.dictionaryFavorites, STORAGE_KEYS.savedSentences,
+  STORAGE_KEYS.translationHistory, STORAGE_KEYS.recentSearches, STORAGE_KEYS.handwriting, STORAGE_KEYS.learnerProfile,
+  STORAGE_KEYS.dailyPlan, STORAGE_KEYS.notifications, 'klearn_ai_conversations'
+]);
+
+const CloudSyncService = {
+  timer: null,
+  status: 'local',
+  provider: null,
+  getProvider() {
+    if (this.provider) return this.provider;
+    const configured = window.KLEARN_CLOUD_PROVIDER;
+    if (configured && typeof configured.pull === 'function' && typeof configured.push === 'function') this.provider = configured;
+    return this.provider;
+  },
+  isConfigured() { return Boolean(this.getProvider()); },
+  setStatus(status, detail = '') {
+    this.status = status;
+    if (state.currentUser) storage.set(STORAGE_KEYS.syncMeta, { ...(storage.get(STORAGE_KEYS.syncMeta, {}) || {}), [state.currentUser.id]: { status, detail, updatedAt: new Date().toISOString() } });
+    document.dispatchEvent(new CustomEvent('klearn-sync-status', { detail: { status, detail } }));
+  },
+  getStatus() {
+    const saved = state.currentUser && storage.get(STORAGE_KEYS.syncMeta, {})?.[state.currentUser.id];
+    return saved?.status || (navigator.onLine === false ? 'offline' : this.isConfigured() ? 'synced' : 'local');
+  },
+  snapshot() {
+    if (!state.currentUser) return null;
+    const userId = state.currentUser.id;
+    const data = Object.fromEntries(USER_SYNC_KEYS.map((key) => { const value = storage.get(key, {}); return [key, key === STORAGE_KEYS.settings ? (value?.users?.[userId] || null) : (value?.[userId] ?? null)]; }));
+    const user = normalizeUser(state.currentUser); if (user) delete user.passwordHash;
+    return { userId, user, data, updatedAt: new Date().toISOString(), schemaVersion: 1 };
+  },
+  mergeValue(local, remote) {
+    if (Array.isArray(local) || Array.isArray(remote)) {
+      const values = [...(Array.isArray(local) ? local : []), ...(Array.isArray(remote) ? remote : [])];
+      const keyed = new Map(); values.forEach((item) => { const key = item && typeof item === 'object' ? (item.id || item.wordId || item.questionId || item.createdAt || JSON.stringify(item)) : String(item); const previous = keyed.get(key); if (!previous || new Date(item?.updatedAt || item?.completedAt || item?.createdAt || 0) >= new Date(previous?.updatedAt || previous?.completedAt || previous?.createdAt || 0)) keyed.set(key, item); });
+      return [...keyed.values()];
+    }
+    if (local && remote && typeof local === 'object' && typeof remote === 'object') { const localTime = new Date(local.updatedAt || local.updated_at || 0).getTime(); const remoteTime = new Date(remote.updatedAt || remote.updated_at || 0).getTime(); return remoteTime >= localTime ? { ...local, ...remote } : { ...remote, ...local }; }
+    return remote ?? local;
+  },
+  mergeSnapshot(remote) {
+    if (!remote?.data || !state.currentUser) return;
+    const allKeys = new Set(USER_SYNC_KEYS); allKeys.forEach((key) => { const all = storage.get(key, {}); if (key === STORAGE_KEYS.settings) { const safeSettings = all && typeof all === 'object' && !Array.isArray(all) ? { ...all, users: { ...(all.users || {}) } } : { users: {} }; safeSettings.users[state.currentUser.id] = this.mergeValue(safeSettings.users[state.currentUser.id], remote.data[key]); storage.set(key, safeSettings); return; } const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; safe[state.currentUser.id] = this.mergeValue(safe[state.currentUser.id], remote.data[key]); storage.set(key, safe); });
+    if (remote.user) { const local = getUsers().find((item) => item.id === state.currentUser.id); if (local) { const merged = normalizeUser({ ...local, ...remote.user }); const users = getUsers(); users[users.findIndex((item) => item.id === state.currentUser.id)] = merged; saveUsers(users); state.currentUser = merged; } }
+    syncUserData();
+  },
+  async hydrate() {
+    const provider = this.getProvider(); if (!provider || !state.currentUser) { this.setStatus(navigator.onLine === false ? 'offline' : 'local'); return; }
+    if (navigator.onLine === false) return this.setStatus('offline');
+    this.setStatus('syncing');
+    try { const remote = await provider.pull(this.snapshot()); if (remote) this.mergeSnapshot(remote); await provider.push(this.snapshot(), { reason: 'migration-or-login' }); this.setStatus('synced'); } catch (error) { this.setStatus('offline', error?.message || 'Cloud unavailable'); }
+  },
+  schedule(reason = 'local-change') {
+    if (!state.currentUser) return;
+    if (!this.isConfigured()) { this.setStatus(navigator.onLine === false ? 'offline' : 'local'); return; }
+    clearTimeout(this.timer); this.timer = setTimeout(() => this.flush(reason), 1200);
+  },
+  async flush(reason = 'local-change') {
+    const provider = this.getProvider(); if (!provider || !state.currentUser) return;
+    if (navigator.onLine === false) return this.setStatus('offline');
+    this.setStatus('syncing');
+    try { const remote = await provider.pull(this.snapshot()); if (remote) this.mergeSnapshot(remote); await provider.push(this.snapshot(), { reason }); this.setStatus('synced'); } catch (error) { this.setStatus('offline', error?.message || 'Cloud unavailable'); }
+  }
+};
+window.CloudSyncService = CloudSyncService;
+window.addEventListener('online', () => CloudSyncService.flush('back-online'));
+window.addEventListener('offline', () => CloudSyncService.setStatus('offline'));
+
+const MasteryService = {
+  status(score = 0) { const value = Number(score) || 0; return value >= 80 ? 'mastered' : value >= 50 ? 'understood' : value > 0 ? 'learning' : 'not_started'; },
+  label(status) { return ({ not_started: 'Chưa học', learning: 'Đang học', understood: 'Đã hiểu', mastered: 'Thành thạo' })[status] || 'Chưa học'; },
+  lesson(progress = {}) { const score = Number(progress.masteryScore ?? (progress.completed ? 70 : 0)); return { score, status: progress.masteryStatus || this.status(score) }; },
+  updateLesson(lessonId, score, extra = {}) { const progress = getUserProgress(); const current = progress.lessonProgress[lessonId] || {}; progress.lessonProgress[lessonId] = { ...current, ...extra, masteryScore: Math.max(Number(current.masteryScore) || 0, Math.min(100, Number(score) || 0)), masteryStatus: this.status(Math.max(Number(current.masteryScore) || 0, Number(score) || 0)), updatedAt: new Date().toISOString() }; saveUserProgress(progress); return progress.lessonProgress[lessonId]; }
+};
+
+const LearnerProfileService = {
+  build() {
+    const progress = getUserProgress(); const history = PracticeService.getHistory(); const profile = { currentTopikLevel: state.currentUser?.currentTopikLevel || 1, targetTopikLevel: state.currentUser?.targetTopikLevel || 2, goal: state.currentUser?.goals || [], studyMinutesPerDay: Number(state.currentUser?.studyMinutesPerDay || 20), strengths: [], weaknesses: [], weakGrammar: [], weakVocabulary: [], weakSkills: [], masteryByTopic: {}, skillScores: { ...progress.skills }, recentMistakes: [], recentLessons: [], dueSrsCount: state.srsData.filter((item) => new Date(item.nextReview) <= new Date()).length, streak: progress.stats.streak, weeklyStudyMinutes: 0, updatedAt: new Date().toISOString() };
+    const scoredSkills = Object.entries(progress.skills).filter(([, score]) => Number(score) > 0); profile.weakSkills = scoredSkills.filter(([, score]) => score < 60).sort((a,b) => a[1]-b[1]).map(([key]) => key); profile.strengths = scoredSkills.filter(([, score]) => score >= 80).sort((a,b) => b[1]-a[1]).map(([key]) => key); profile.weaknesses = profile.weakSkills.slice();
+    profile.weakVocabulary = state.srsData.filter((item) => item.wrongCount > 0 || item.mastery < 50).sort((a,b) => (b.wrongCount-a.wrongCount) || (a.mastery-b.mastery)).slice(0, 8).map((item) => ({ id: item.wordId, korean: item.korean, mastery: item.mastery, wrongCount: item.wrongCount }));
+    profile.masteryByTopic = Object.fromEntries([...new Set(state.srsData.map((item) => item.topic).filter(Boolean))].map((topic) => { const cards = state.srsData.filter((item) => item.topic === topic); return [topic, Math.round(cards.reduce((sum,item) => sum + (item.mastery || 0), 0) / Math.max(1, cards.length))]; }));
+    profile.weakGrammar = Object.entries(PracticeService.getMeta().weakTopics || {}).filter(([, score]) => Number(score) < 60).sort((a,b) => a[1]-b[1]).slice(0, 8).map(([topic, score]) => ({ topic, score }));
+    profile.recentMistakes = history.slice(0, 5).flatMap((attempt) => (attempt.wrongQuestionIds || []).map((questionId) => ({ questionId, attemptId: attempt.id, date: attempt.completedAt }))).slice(0, 20);
+    profile.recentLessons = Object.entries(progress.lessonProgress).sort((a,b) => new Date(b[1]?.updatedAt || b[1]?.completedAt || 0) - new Date(a[1]?.updatedAt || a[1]?.completedAt || 0)).slice(0, 10).map(([id, value]) => ({ id, ...MasteryService.lesson(value) }));
+    const weekAgo = Date.now() - 7 * 86400000; profile.weeklyStudyMinutes = history.filter((item) => new Date(item.completedAt).getTime() >= weekAgo).reduce((sum,item) => sum + Math.round((item.durationSeconds || 0) / 60), 0);
+    return profile;
+  },
+  get() { if (!state.currentUser) return null; const profile = this.build(); const all = storage.get(STORAGE_KEYS.learnerProfile, {}); all[state.currentUser.id] = profile; storage.set(STORAGE_KEYS.learnerProfile, all); return profile; }
+};
+window.LearnerProfileService = LearnerProfileService;
+
+const SmartReviewService = {
+  priority(card) { const ageDays = Math.max(0, (Date.now() - new Date(card.lastReviewed || 0).getTime()) / 86400000); return (card.wrongCount || 0) * 5 + (new Date(card.nextReview) <= new Date() ? 8 : 0) + Math.min(8, ageDays) + (100 - (card.mastery || 0)) / 20; },
+  plan(minutes = 20) { const count = Math.max(3, Math.round(Number(minutes) / 2)); const cards = [...state.srsData].sort((a,b) => this.priority(b) - this.priority(a)).slice(0, count); const profile = LearnerProfileService.get() || {}; return { minutes: Number(minutes), cards, grammar: (profile.weakGrammar || []).slice(0, Math.max(1, Math.round(Number(minutes) / 10))), skills: (profile.weakSkills || []).slice(0, 2), estimatedItems: cards.length + Math.max(1, Math.round(Number(minutes) / 5)) }; },
+  start(minutes) { const plan = this.plan(minutes); if (!plan.cards.length) return toast('Chưa có dữ liệu để tạo phiên ôn thông minh.'); state.reviewSelectionCount = plan.cards.length; state.reviewSource = 'smart'; beginReviewSession(plan.cards.map((card) => card.wordId)); }
+};
+window.SmartReviewService = SmartReviewService;
+
+const NotificationService = {
+  defaults: { srs: true, dailyPlan: true, streak: true },
+  get() { const all = storage.get(STORAGE_KEYS.notifications, {}); return { ...this.defaults, ...(all?.[state.currentUser?.id] || {}) }; },
+  set(key, value) { if (!state.currentUser) return; const all = storage.get(STORAGE_KEYS.notifications, {}); const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; safe[state.currentUser.id] = { ...this.get(), [key]: Boolean(value), updatedAt: new Date().toISOString() }; storage.set(STORAGE_KEYS.notifications, safe); CloudSyncService.schedule('notification-preferences'); },
+  pending() { if (!state.currentUser) return []; const preferences = this.get(); const progress = getUserProgress(); const notices = []; if (preferences.srs && dueCards().length) notices.push({ id: 'srs-due', text: `${dueCards().length} từ SRS đang đến hạn.` }); if (preferences.dailyPlan && !Object.values(progress.daily.tasks).every(Boolean)) notices.push({ id: 'daily-plan', text: 'Kế hoạch hôm nay vẫn còn mục chưa hoàn thành.' }); if (preferences.streak && progress.stats.streak === 0) notices.push({ id: 'streak', text: 'Hãy học một chút hôm nay để khởi động lại streak.' }); return notices; }
+};
+window.NotificationService = NotificationService;
 
 const DictionaryService = {
   all() { return Array.isArray(window.KLEARN_DICTIONARY) ? window.KLEARN_DICTIONARY : []; },
@@ -904,7 +1033,7 @@ const AITutorService = {
   current() { return this.all().find((item) => item.id === state.aiConversationId) || null; },
   start(title = 'Hỏi gia sư') { const conversation = { id: uniqueId(), userId: state.currentUser?.id, title, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), summary: '', messages: [] }; this.saveAll([conversation, ...this.all()]); state.aiConversationId = conversation.id; return conversation; },
   ensure() { return this.current() || this.start(); },
-  context() { const progress = state.currentUser ? getUserProgress() : {}; const weak = progress?.skills ? Object.entries(progress.skills).sort((a,b) => a[1]-b[1]).slice(0,2).map(([key]) => key) : []; return { currentTopikLevel: state.currentUser?.currentTopikLevel || null, targetTopikLevel: state.currentUser?.targetTopikLevel || null, weakSkills: weak, dueSrs: state.srsData?.filter((item) => new Date(item.nextReview) <= new Date()).length || 0, learningLanguage: I18nService.getPreference(), currentView: state.currentView }; },
+  context() { const profile = LearnerProfileService.get() || {}; const currentLesson = (window.KLEARN_THEORY_LESSONS || []).find((lesson) => lesson.id === state.selectedLessonPreview); return { userLanguage: I18nService.getPreference(), currentTopikLevel: profile.currentTopikLevel || state.currentUser?.currentTopikLevel || null, targetTopikLevel: profile.targetTopikLevel || state.currentUser?.targetTopikLevel || null, currentLesson: currentLesson ? { id: currentLesson.id, title: currentLesson.title, topic: currentLesson.topic } : null, weakGrammar: (profile.weakGrammar || []).slice(0, 5), weakVocabulary: (profile.weakVocabulary || []).slice(0, 8), weakSkills: (profile.weakSkills || []).slice(0, 3), recentMistakes: (profile.recentMistakes || []).slice(0, 8), dueSrsCount: profile.dueSrsCount || 0, recentScores: PracticeService.getHistory().slice(0, 5).map((item) => ({ percentage: item.percentage, skillBreakdown: item.skillBreakdown })), dailyPlan: getUserProgress().daily, conversationSummary: this.current()?.summary || '', currentView: state.currentView }; },
   addMessage(role, content) { const conversation = this.ensure(); conversation.messages.push({ role, content: String(content).slice(0, 4000), createdAt: new Date().toISOString() }); conversation.messages = conversation.messages.slice(-30); conversation.updatedAt = new Date().toISOString(); conversation.title = conversation.messages.find((m) => m.role === 'user')?.content.slice(0, 42) || conversation.title; this.saveAll([conversation, ...this.all().filter((item) => item.id !== conversation.id)]); return conversation; },
   async send(content) { const text = String(content || '').trim(); if (!text || state.aiBusy) return; this.addMessage('user', text); state.aiBusy = true; renderAiWidget(); const conversation = this.current(); const recentMessages = (conversation?.messages || []).slice(-12); try { const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: recentMessages, learnerContext: this.context(), learningLanguage: I18nService.getPreference() }) }); const payload = await response.json().catch(() => ({})); const reply = response.ok && payload.reply ? payload.reply : payload.configured === false ? I18nService.t('ai.notConfigured') : I18nService.t('ai.error'); this.addMessage('assistant', reply); } catch (_) { this.addMessage('assistant', I18nService.t('ai.offline')); } finally { state.aiBusy = false; renderAiWidget(); } }
 };
@@ -994,6 +1123,7 @@ const auth = {
     storage.set(STORAGE_KEYS.session, { userId: user.id, createdAt: now });
     state.currentUser = user;
     syncUserData();
+    await CloudSyncService.hydrate();
     return user;
   },
   async login(email, password) {
@@ -1004,6 +1134,7 @@ const auth = {
     state.currentUser = user;
     initializeUserData(user.id);
     syncUserData();
+    await CloudSyncService.hydrate();
     return user;
   },
   logout() {
@@ -1038,6 +1169,7 @@ const auth = {
     state.currentUser = user;
     initializeUserData(user.id);
     syncUserData();
+    CloudSyncService.hydrate().then(() => { if (state.currentUser?.id === user.id) render(); });
     return user;
   }
 };
@@ -1088,7 +1220,7 @@ function syncShell() {
       : ['lessons','vocabulary-hub','review-start','vocab-pretest','pretest-result','vocab-test-setup','vocab-test','vocab-test-result'].includes(state.currentView) ? 'theory'
       : state.currentView === 'handwriting' ? 'theory'
         : state.currentView === 'roadmap' ? 'roadmap'
-          : ['topik','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice'].includes(state.currentView) ? 'topik'
+          : ['topik','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice','smart-review','analytics','search','weekly-insights'].includes(state.currentView) ? 'topik'
       : state.currentView === 'edit-profile' ? 'profile'
         : reviewViews.includes(state.currentView) ? 'review'
             : practiceViews.includes(state.currentView) ? 'topik'
@@ -1172,21 +1304,28 @@ function levelView() {
   return onboardingFrame('2 / 3', I18nService.t('onboarding.levelTitle'), I18nService.t('onboarding.levelSubtitle'), content);
 }
 
+function placementQuestionAt(placement, index = placement?.index || 0) {
+  const ids = Array.isArray(placement?.questionIds) && placement.questionIds.length ? placement.questionIds : [4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1];
+  return { question: APP_DATA.placementQuestions[ids[index]], questionId: ids[index], total: ids.length };
+}
+
 function placementView() {
   const placement = state.currentUser.placement || { index: 0, answers: [], score: 0 };
-  const index = Math.min(placement.index || 0, APP_DATA.placementQuestions.length - 1);
-  const question = APP_DATA.placementQuestions[index];
-  const content = `<div class="test-progress"><span>${index + 1} / ${APP_DATA.placementQuestions.length}</span><span>${placement.score || 0} điểm</span></div>
+  const { total: placementTotal } = placementQuestionAt(placement, 0);
+  const index = Math.min(placement.index || 0, Math.max(0, placementTotal - 1));
+  const { question, total } = placementQuestionAt(placement, index);
+  const content = `<div class="test-progress"><span>${index + 1} / ${total}</span><span>${placement.score || 0} điểm</span></div>
     <section class="card question-card"><h2>${escapeHtml(question.prompt)}</h2><div class="answer-list">${question.options.map((option, optionIndex) => `<button class="answer-button" data-test-answer="${optionIndex}"><span>${String.fromCharCode(65 + optionIndex)}</span>${escapeHtml(option)}</button>`).join('')}</div></section>`;
-  return onboardingFrame('3 / 3 · Placement Test', I18nService.t('onboarding.placementTitle'), I18nService.t('onboarding.placementSubtitle'), content);
+  return onboardingFrame('3 / 3 · Placement Test', I18nService.t('onboarding.placementTitle'), `${I18nService.t('onboarding.placementSubtitle')} · Adaptive ${APP_DATA.placementQuestions.length} câu`, content);
 }
 
 function goalLabels(goals = []) { return goals.map((id) => APP_DATA.goals.find((goal) => goal.id === id)?.label).filter(Boolean); }
 
 function onboardingResultView() {
   const goals = goalLabels(state.currentUser.goals);
+  const placement = state.currentUser.placement || {}; const answers = placement.answers || []; const ids = placement.questionIds || [4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1]; const dimensions = ['vocabulary','grammar','reading','listening']; const breakdown = dimensions.map((dimension) => { const relevant = ids.map((id, index) => ({ question: APP_DATA.placementQuestions[id], answer: answers[index] })).filter((item) => (item.question?.dimension || 'vocabulary') === dimension && item.answer !== undefined); const correct = relevant.filter((item) => item.answer === item.question.answer).length; return { dimension, score: relevant.length ? Math.round(correct / relevant.length * 100) : 0 }; });
   return `<section class="onboarding-page result-page"><div class="celebration">🎉</div><p class="eyebrow">Cá nhân hóa hoàn tất</p><h1 class="headline">Lộ trình của bạn đã sẵn sàng</h1>
-    <p class="subtle">Tiếng Hàn - TamHoanq sẽ ưu tiên bài học phù hợp với trình độ và mục tiêu của bạn.</p><div class="result-summary"><div><span>Trình độ</span><strong>${escapeHtml(state.currentUser.level || state.selectedLevel)}</strong></div><div><span>Mục tiêu</span><strong>${escapeHtml(goals.join(' · '))}</strong></div>${state.currentUser.placement?.answers?.length ? `<div><span>Placement Test</span><strong>${state.currentUser.placement.score}/10 điểm</strong></div>` : ''}</div>
+    <p class="subtle">Tiếng Hàn - TamHoanq sẽ ưu tiên bài học phù hợp với trình độ và mục tiêu của bạn.</p><div class="result-summary"><div><span>Trình độ ước tính</span><strong>${escapeHtml(state.currentUser.level || state.selectedLevel)}</strong></div><div><span>Mục tiêu</span><strong>${escapeHtml(goals.join(' · '))}</strong></div>${answers.length ? `<div><span>Placement Test</span><strong>${state.currentUser.placement.score}/${answers.length} điểm</strong></div>` : ''}</div><section class="card placement-breakdown"><h2>Phân tích theo kỹ năng</h2>${breakdown.map((item) => `<div class="skill"><div class="section-heading"><span>${item.dimension}</span><b>${item.score}%</b></div><div class="bar"><span style="width:${item.score}%"></span></div></div>`).join('')}<p class="subtle">Gợi ý: ${breakdown.sort((a,b) => a.score-b.score)[0]?.dimension || 'vocabulary'} nên được củng cố trước.</p></section>
     <button class="btn primary full" id="finishOnboarding">Bắt đầu học</button></section>`;
 }
 
@@ -1270,8 +1409,14 @@ function theoryView() {
 
 function roadmapView() {
   const progress = getUserProgress(); const lessons = window.KLEARN_THEORY_LESSONS || []; const completed = lessons.filter((lesson) => state.lessonProgress[lesson.id]?.completed).length; const currentLevel = state.currentUser?.currentTopikLevel || 1;
-  return `<section class="section page-heading"><p class="eyebrow">🗺 Lộ trình học</p><h1 class="headline">Kế hoạch của bạn</h1><p class="subtle">Từ ${escapeHtml(state.currentUser.level)} đến TOPIK ${state.currentUser.targetTopikLevel} · bắt đầu ${formatDate(state.currentUser.createdAt || Date.now())}</p></section><section class="card roadmap-summary section"><div class="stats stats-four"><div class="stat"><b>${currentLevel}</b><small>TOPIK hiện tại</small></div><div class="stat"><b>${state.currentUser.targetTopikLevel}</b><small>Mục tiêu</small></div><div class="stat"><b>${completed}</b><small>Bài hoàn thành</small></div><div class="stat"><b>${progress.stats.wordsLearned}</b><small>Từ đã học</small></div></div></section><section class="card section"><h2 class="section-title">Hôm nay</h2><div class="daily-plan"><span>📚 1 bài lý thuyết</span><span>🧠 15 từ</span><span>📝 10 câu luyện</span><span>🎧 5 phút nghe</span><span>🎙 5 phút nói</span><span>✍️ 1 bài viết ngắn</span></div></section><section class="card section"><h2 class="section-title">Roadmap TOPIK</h2><div class="roadmap-list">${[1,2,3,4,5,6].map((level) => { const list = lessons.filter((lesson) => lesson.topikLevel === level); const count = list.filter((lesson) => state.lessonProgress[lesson.id]?.completed).length; return `<div class="roadmap-row ${level <= currentLevel ? 'active' : 'locked'}"><span class="roadmap-icon">${level <= currentLevel ? '▶' : '🔒'}</span><div><strong>TOPIK ${level}</strong><div class="bar"><span style="width:${Math.round(count / Math.max(1,list.length) * 100)}%"></span></div></div><b>${count}/${list.length}</b></div>`; }).join('')}</div></section><section class="card section"><h2 class="section-title">Điểm yếu của tôi</h2><p class="subtle">${progress.skills.listening < progress.skills.reading ? 'Tăng thêm thời lượng nghe trong kế hoạch tuần này.' : 'Tiếp tục củng cố từ vựng và ngữ pháp theo SRS.'}</p><button class="btn primary" data-view="wrong-practice">Luyện lại lỗi sai</button></section>`;
+  return `<section class="section page-heading"><p class="eyebrow">🗺 Lộ trình học</p><h1 class="headline">Kế hoạch của bạn</h1><p class="subtle">Từ ${escapeHtml(state.currentUser.level)} đến TOPIK ${state.currentUser.targetTopikLevel} · bắt đầu ${formatDate(state.currentUser.createdAt || Date.now())}</p></section><section class="card roadmap-summary section"><div class="stats stats-four"><div class="stat"><b>${currentLevel}</b><small>TOPIK hiện tại</small></div><div class="stat"><b>${state.currentUser.targetTopikLevel}</b><small>Mục tiêu</small></div><div class="stat"><b>${completed}</b><small>Bài có hoạt động</small></div><div class="stat"><b>${progress.stats.wordsLearned}</b><small>Từ đã học</small></div></div></section><section class="card section"><h2 class="section-title">Hôm nay</h2><div class="daily-plan"><span>📚 1 bài lý thuyết</span><span>🧠 15 từ</span><span>📝 10 câu luyện</span><span>🎧 5 phút nghe</span><span>🎙 5 phút nói</span><span>✍️ 1 bài viết ngắn</span></div></section><section class="card section"><h2 class="section-title">Roadmap TOPIK · Mastery</h2><div class="roadmap-list">${[1,2,3,4,5,6].map((level) => { const list = lessons.filter((lesson) => lesson.topikLevel === level); const score = Math.round(list.reduce((sum, lesson) => sum + MasteryService.lesson(state.lessonProgress[lesson.id]).score, 0) / Math.max(1, list.length)); return `<div class="roadmap-row ${level <= currentLevel ? 'active' : 'locked'}"><span class="roadmap-icon">${level <= currentLevel ? '▶' : '🔒'}</span><div><strong>TOPIK ${level}</strong><div class="bar"><span style="width:${score}%"></span></div></div><b>${score}%</b></div>`; }).join('')}</div><p class="subtle">Mastery: Chưa học → Đang học → Đã hiểu → Thành thạo.</p></section><section class="card section"><h2 class="section-title">Điểm yếu của tôi</h2><p class="subtle">${progress.skills.listening < progress.skills.reading ? 'Tăng thêm thời lượng nghe trong kế hoạch tuần này.' : 'Tiếp tục củng cố từ vựng và ngữ pháp theo SRS.'}</p><button class="btn primary" data-view="wrong-practice">Luyện lại lỗi sai</button></section>`;
 }
+
+const HandwritingProvider = {
+  id: 'self-confirmation-mvp',
+  evaluate({ strokes = 0, stage = 1 } = {}) { return { score: Math.min(100, Math.round((strokes > 0 ? 45 : 0) + stage * 15)), recognized: false, needsSelfConfirmation: true }; }
+};
+window.HandwritingProvider = HandwritingProvider;
 
 function handwritingView() {
   const chars = window.KLEARN_HANDWRITING?.characters || ['한']; const saved = userScoped(STORAGE_KEYS.handwriting).find((item) => item.character === state.handwritingCharacter) || { stage: 0, attempts: 0 }; const stage = Math.max(1, Math.min(3, state.handwritingStage || saved.stage + 1)); const guide = stage === 1 ? 'trace' : stage === 2 ? 'guide' : 'free';
@@ -1314,7 +1459,7 @@ function practiceHubView() {
     ['🔊','Nghe','Từ, câu, hội thoại, đoạn','skill-hub','listening'], ['📖','Đọc','Ngắn, trung bình, dài','skill-hub','reading'],
     ['✍️','Viết','10 mode và TOPIK Writing','writing-hub'], ['🎙','Nói','10 mode luyện nói','speaking-hub'],
     ['🏭','EPS-TOPIK','30 đề công việc','exam-catalog','EPS'], ['#','Theo chủ đề','Đời sống đến học thuật','exam-catalog','VOCABULARY'],
-    ['↻','Luyện lỗi sai','Ưu tiên câu còn yếu','wrong-practice'], ['★','Đề đã lưu',`${savedCount} đề`,'saved-exams'], ['🕘','Lịch sử',`${historyCount} lượt luyện`,'practice-history']
+    ['↻','Luyện lỗi sai','Ưu tiên câu còn yếu','wrong-practice'], ['★','Đề đã lưu',`${savedCount} đề`,'saved-exams'], ['🕘','Lịch sử',`${historyCount} lượt luyện`,'practice-history'], ['📊','Phân tích TOPIK','Trend, readiness, skill','analytics']
   ];
   return `<section class="section page-heading"><button class="back-link" data-view="home" aria-label="Quay lại">←</button><p class="eyebrow">${PracticeService.bank.practiceTypeCount} dạng bài · ${PracticeService.bank.totalQuestionCount.toLocaleString('vi-VN')} câu</p><h1 class="headline">Trung tâm luyện tập</h1><p class="subtle">Hiện tại ${topikLabel(state.currentUser.currentTopikLevel)} · Mục tiêu ${topikLabel(target)}</p></section>
     <section class="card recommended-card section"><div><span class="eyebrow">Đề xuất theo mục tiêu</span><h2>${topikLabel(target)} · Đề 01</h2><p>Luyện theo cấp mục tiêu và các chủ đề bạn đang yếu.</p></div><button class="btn primary" data-recommended-set="TOPIK_${target}">Luyện đề xuất</button></section>
@@ -1456,7 +1601,7 @@ function reviewView() {
   const selected = Math.min(state.reviewSelectionCount || 10, max);
   state.reviewSelectionCount = selected;
   const topics = [...new Set(state.srsData.map((card) => card.topic))].sort();
-  return `<section class="section page-heading"><p class="eyebrow">SRS cá nhân</p><h1 class="headline">Ôn tập từ vựng</h1><p class="subtle">Có <strong>${max} từ phù hợp</strong> với nguồn đã chọn.</p></section><section class="card review-source section"><label>Nguồn từ<select id="reviewSource"><option value="due">Từ đến hạn hôm nay</option>${[1,2,3,4,5,6].map((level) => `<option value="topik-${level}" ${state.reviewSource === `topik-${level}` ? 'selected' : ''}>Từ TOPIK ${level}</option>`).join('')}<option value="wrong" ${state.reviewSource==='wrong'?'selected':''}>Từ từng làm sai</option><option value="mastered" ${state.reviewSource==='mastered'?'selected':''}>Từ mastered</option><option value="learned" ${state.reviewSource==='learned'?'selected':''}>Tất cả từ đã học</option></select></label><label>Chủ đề<select id="reviewTopic"><option value="all">Mọi chủ đề</option>${topics.map((topic) => `<option value="${topic}" ${state.reviewTopic===topic?'selected':''}>${escapeHtml(state.srsData.find((card)=>card.topic===topic)?.topicLabel||topic)}</option>`).join('')}</select></label></section>
+  return `<section class="section page-heading"><p class="eyebrow">SRS cá nhân</p><h1 class="headline">Ôn tập từ vựng</h1><p class="subtle">Có <strong>${max} từ phù hợp</strong> với nguồn đã chọn.</p><div class="action-row"><button class="btn primary" data-view="smart-review">🧠 Ôn tập thông minh</button><button class="btn secondary" data-view="vocabulary-hub">Kho từ</button></div></section><section class="card review-source section"><label>Nguồn từ<select id="reviewSource"><option value="due">Từ đến hạn hôm nay</option>${[1,2,3,4,5,6].map((level) => `<option value="topik-${level}" ${state.reviewSource === `topik-${level}` ? 'selected' : ''}>Từ TOPIK ${level}</option>`).join('')}<option value="wrong" ${state.reviewSource==='wrong'?'selected':''}>Từ từng làm sai</option><option value="mastered" ${state.reviewSource==='mastered'?'selected':''}>Từ mastered</option><option value="learned" ${state.reviewSource==='learned'?'selected':''}>Tất cả từ đã học</option></select></label><label>Chủ đề<select id="reviewTopic"><option value="all">Mọi chủ đề</option>${topics.map((topic) => `<option value="${topic}" ${state.reviewTopic===topic?'selected':''}>${escapeHtml(state.srsData.find((card)=>card.topic===topic)?.topicLabel||topic)}</option>`).join('')}</select></label></section>
     <section class="card review-setup-card section"><h2>Bạn muốn ôn bao nhiêu từ?</h2><div class="count-options">${choices.map((count) => `<button class="${selected === count ? 'selected' : ''}" data-review-count="${count}">${count}</button>`).join('')}<button class="${selected === max ? 'selected' : ''}" data-review-count="${max}">Tất cả</button></div><label class="custom-count">Số khác<input id="customReviewCount" type="number" min="1" max="${max}" value="${selected}"></label></section>
     <section class="card start-mode-card section"><h2>Bạn muốn bắt đầu như thế nào?</h2><button class="start-mode recommended" data-review-mode="pretest"><span>✨ Khuyến nghị</span><b>Kiểm tra trước</b><small>Lọc các từ bạn đã nhớ trước khi mở flashcard.</small></button><button class="start-mode" data-review-mode="direct"><b>Ôn ngay</b><small>Mở flashcard với ${selected} từ đã chọn.</small></button></section>
     <button class="btn secondary full" data-view="vocab-test-setup">Kiểm tra vốn từ đã học</button>`;
@@ -1620,6 +1765,8 @@ function profileView() {
     <section class="card section"><h2 class="section-title">🧠 Trí nhớ từ vựng</h2><div class="practice-stats"><div><b>${vocabularyStats.learning}</b><span>Đang học</span></div><div><b>${vocabularyStats.mastered}</b><span>Mastered</span></div><div><b>${vocabularyStats.retention}%</b><span>Tỷ lệ nhớ</span></div></div></section>
     <section class="card section"><h2 class="section-title">TOPIK 1–6</h2><div class="topik-progress-list">${[1,2,3,4,5,6].map((level)=>{const item=practiceStats.byTopik[level]||{};const values=Object.values(item);const avg=values.length?Math.round(values.reduce((a,b)=>a+b,0)/values.length):0;return `<div class="topik-level-progress"><header><b>TOPIK ${level}</b><div class="bar"><span style="width:${avg}%"></span></div><small>${values.length?`${avg}%`:'—'}</small></header><div class="skill-mini">${[['vocabulary','Từ'],['grammar','Ngữ pháp'],['listening','Nghe'],['reading','Đọc']].map(([key,label])=>`<span>${label} <b>${item[key] === undefined ? '—' : `${item[key]}%`}</b></span>`).join('')}</div></div>`;}).join('')}</div></section>
     <section class="card section"><h2 class="section-title">🎙 Nói & ✍️ Viết</h2><div class="practice-stats"><div><b>${speakingAttempts.length}</b><span>Câu đã luyện</span></div><div><b>${speakingAverage}</b><span>Điểm nói TB</span></div><div><b>${progress.writingSubmissions.length}</b><span>Bài đã viết</span></div></div></section>
+    ${(() => { const learner = LearnerProfileService.get() || {}; const syncStatus = CloudSyncService.getStatus(); return `<section class="card section learner-insight"><div class="section-heading"><h2 class="section-title">🧠 Learner Profile</h2><span class="sync-status ${syncStatus}">${syncStatus === 'syncing' ? 'Đang đồng bộ...' : syncStatus === 'synced' ? '✓ Đã đồng bộ' : syncStatus === 'offline' ? 'Ngoại tuyến' : 'Chỉ lưu trên thiết bị'}</span></div><p class="subtle">${learner.weakSkills?.length ? `Cần củng cố: ${learner.weakSkills.join(', ')}.` : 'Chưa đủ dữ liệu để kết luận điểm yếu.'}</p><div class="action-row"><button class="btn secondary" data-view="smart-review">Tạo phiên ôn thông minh</button><button class="btn secondary" data-view="analytics">Xem analytics</button><button class="btn secondary" data-view="weekly-insights">Báo cáo tuần</button></div></section>`; })()}
+    ${(() => { const prefs = NotificationService.get(); return `<section class="card section notification-settings"><h2 class="section-title">🔔 Nhắc học</h2><p class="subtle">Chỉ lưu lựa chọn; ứng dụng không tự xin quyền thông báo khi mở.</p><label><input type="checkbox" data-notification-pref="srs" ${prefs.srs ? 'checked' : ''}> Nhắc từ SRS đến hạn</label><label><input type="checkbox" data-notification-pref="dailyPlan" ${prefs.dailyPlan ? 'checked' : ''}> Nhắc kế hoạch hôm nay</label><label><input type="checkbox" data-notification-pref="streak" ${prefs.streak ? 'checked' : ''}> Nhắc duy trì streak</label></section>`; })()}
     ${showTopik ? `<section class="card countdown-card section"><p class="eyebrow">Đếm ngược TOPIK</p><div><strong>28</strong><span>ngày</span></div><p class="subtle">Mốc luyện thi demo — ngày thi chính thức sẽ được kết nối sau.</p></section>` : ''}
     <section class="card section"><h2 class="section-title">📊 Tiến độ kỹ năng</h2><div class="skill-grid">${[['listening', 'Nghe'], ['speaking', 'Nói'], ['reading', 'Đọc'], ['writing', 'Viết']].map(([key, label]) => `<div class="skill"><strong>${skills[key]}%</strong><div class="subtle">${label}</div><div class="bar"><span style="width:${skills[key]}%"></span></div></div>`).join('')}</div></section>
     <section class="card section"><h2 class="section-title">🏅 Huy hiệu</h2><div class="badges"><div class="badge"><div class="badge-icon">🔥</div><small>Chăm chỉ</small></div><div class="badge"><div class="badge-icon">🎙</div><small>Phát âm</small></div><div class="badge"><div class="badge-icon">🧠</div><small>Trí nhớ tốt</small></div><div class="badge locked-badge"><div class="badge-icon">🔒</div><small>Cao thủ TOPIK</small></div></div></section>
@@ -1628,6 +1775,43 @@ function profileView() {
 
 function editProfileView() {
   return `<section class="section page-heading"><button class="back-link" data-view="profile" aria-label="Quay lại">←</button><p class="eyebrow">Tài khoản học viên</p><h1 class="headline">Chỉnh sửa hồ sơ</h1></section><form id="editProfileForm" class="card auth-form" novalidate><label>Họ tên<input name="fullName" type="text" maxlength="80" value="${escapeHtml(state.currentUser.fullName)}" /></label><label>Trình độ<select name="level">${['Beginner', 'Beginner+', 'TOPIK I', 'TOPIK I nâng cao', 'TOPIK II khởi đầu'].map((level) => `<option ${state.currentUser.level === level ? 'selected' : ''}>${level}</option>`).join('')}</select></label><label>TOPIK hiện tại<select name="currentTopikLevel">${[1,2,3,4,5,6].map((level)=>`<option value="${level}" ${state.currentUser.currentTopikLevel===level?'selected':''}>TOPIK ${level}</option>`).join('')}</select></label><label>TOPIK mục tiêu<select name="targetTopikLevel">${[1,2,3,4,5,6].map((level)=>`<option value="${level}" ${state.currentUser.targetTopikLevel===level?'selected':''}>TOPIK ${level}</option>`).join('')}</select></label><p class="subtle">Email: ${escapeHtml(state.currentUser.email)}</p><p id="formError" class="form-error hidden" role="alert"></p><button class="btn primary full" type="submit">Lưu thay đổi</button></form>`;
+}
+
+const GlobalSearchService = {
+  search(query = '') {
+    const q = normalizeSearch(query); if (!q) return { lessons: [], vocabulary: [], practice: [], phrasebook: [] };
+    const match = (value) => normalizeSearch(value).includes(q);
+    const lessons = (window.KLEARN_THEORY_LESSONS || []).filter((item) => [item.id, item.title, item.topic, item.theory, item.grammar, item.summary].some(match)).slice(0, 20);
+    const vocabulary = (window.KLEARN_DICTIONARY || []).filter((item) => [item.id, item.korean, item.romanization, item.meaningVi, item.meaningEn, item.meaningZh, item.meanings?.vi, item.meanings?.en, item.meanings?.['zh-CN']].some(match)).slice(0, 20);
+    const practice = (PracticeService.bank?.sets || []).filter((item) => [item.id, item.title, item.topic, item.practiceTypeLabel, item.levelLabel].some(match)).slice(0, 20);
+    const phrasebook = (window.KLEARN_PHRASEBOOK || []).filter((item) => [item.id, item.korean, item.romanization, item.meanings?.vi, item.meanings?.en, item.meanings?.['zh-CN']].some(match)).slice(0, 20);
+    const saved = userScoped(STORAGE_KEYS.savedSentences).filter((item) => [item.korean, item.translation, item.meaning, item.sourceText].some(match)).slice(0, 20);
+    return { lessons, vocabulary, practice, phrasebook, saved };
+  }
+};
+window.GlobalSearchService = GlobalSearchService;
+
+function smartReviewView() {
+  const minutes = state.smartReviewMinutes || 20; const plan = SmartReviewService.plan(minutes); const profile = LearnerProfileService.get() || {};
+  return `<section class="section page-heading"><button class="back-link" data-view="review" aria-label="Quay lại">←</button><p class="eyebrow">🧠 Adaptive Review</p><h1 class="headline">Ôn tập thông minh</h1><p class="subtle">Tổng hợp SRS đến hạn, từ hay sai, grammar yếu và kỹ năng cần luyện — không thay thế SRS.</p></section><section class="card section"><h2 class="section-title">Chọn thời lượng</h2><div class="count-options smart-time-options">${[5,10,15,20,30].map((value) => `<button class="${minutes === value ? 'selected' : ''}" data-smart-minutes="${value}">${value} phút</button>`).join('')}</div><div class="smart-review-summary"><b>${plan.cards.length}</b><span>từ ưu tiên</span><b>${plan.grammar.length}</b><span>grammar yếu</span><b>${plan.skills.length}</b><span>skill cần củng cố</span></div><p class="subtle">${profile.weakSkills?.length ? `Đang ưu tiên: ${profile.weakSkills.join(', ')}.` : 'Hệ thống sẽ ưu tiên dữ liệu có lịch sử thực tế.'}</p><button class="btn primary full" data-start-smart-review="${minutes}">Bắt đầu phiên ${minutes} phút</button></section><section class="card section"><h2 class="section-title">Vì sao các mục này được chọn?</h2><ul class="subtle"><li>SRS đã đến hạn hoặc sắp quên</li><li>Câu/từ có nhiều lần trả lời sai</li><li>Chủ đề có điểm luyện thấp</li><li>Kỹ năng lâu chưa luyện</li></ul></section>`;
+}
+
+function globalSearchView() {
+  const query = state.globalQuery || ''; const groups = GlobalSearchService.search(query); const total = Object.values(groups).reduce((sum, list) => sum + list.length, 0);
+  const section = (title, items, renderItem) => items.length ? `<section class="card section search-group"><div class="section-heading"><h2 class="section-title">${title}</h2><span class="level-pill">${items.length}</span></div>${items.map(renderItem).join('')}</section>` : '';
+  return `<section class="section page-heading"><button class="back-link" data-view="home" aria-label="Quay lại">←</button><p class="eyebrow">🔍 Global Search</p><h1 class="headline">Tìm kiếm toàn app</h1></section><form id="globalSearchForm" class="search-box section"><span>⌕</span><input id="globalSearchInput" name="query" type="search" value="${escapeHtml(query)}" placeholder="학교 · hakgyo · trường học · school · 学校 · 은/는" autofocus><button class="btn primary" type="submit">Tìm</button></form>${query ? `<p class="results-count">${total} kết quả cho “${escapeHtml(query)}”</p>` : '<p class="subtle center">Tìm bài học, grammar, từ điển, luyện TOPIK, phrasebook và câu đã lưu.</p>'}${section('BÀI HỌC', groups.lessons, (item) => `<button class="search-result-row" data-theory-lesson="${item.id}"><b>${escapeHtml(item.title)}</b><small>TOPIK ${item.topikLevel} · ${escapeHtml(item.topic)}</small></button>`)}${section('TỪ ĐIỂN', groups.vocabulary, (item) => `<button class="search-result-row" data-dictionary-id="${item.id}"><b lang="ko">${escapeHtml(item.korean)}</b><small>${escapeHtml(item.romanization || '')} · ${escapeHtml(item.meanings?.vi || item.meaningVi || '')}</small></button>`)}${section('LUYỆN TẬP', groups.practice, (item) => `<button class="search-result-row" data-start-set="${item.id}"><b>${escapeHtml(item.title || item.topic)}</b><small>${escapeHtml(item.levelLabel || '')} · ${item.questionCount || 0} câu</small></button>`)}${section('PHRASEBOOK', groups.phrasebook, (item) => `<button class="search-result-row"><b lang="ko">${escapeHtml(item.korean)}</b><small>${escapeHtml(item.meanings?.vi || '')}</small></button>`)}${section('CÂU ĐÃ LƯU', groups.saved, (item) => `<button class="search-result-row" data-view="translation-hub"><b lang="ko">${escapeHtml(item.korean || '')}</b><small>${escapeHtml(item.translation || item.meaning || '')}</small></button>`)}`;
+}
+
+function analyticsView() {
+  const history = PracticeService.getHistory(); const recent = history.slice(0, 5); const profile = LearnerProfileService.get() || {}; const avg = recent.length ? Math.round(recent.reduce((sum, item) => sum + item.percentage, 0) / recent.length) : 0; const readiness = Math.min(100, Math.max(0, Math.round(avg * .75 + (profile.skillScores?.reading || 0) * .1 + (profile.skillScores?.listening || 0) * .1)));
+  const trend = recent.slice().reverse().map((item) => item.percentage).join(' → ') || 'Chưa có dữ liệu';
+  const skillScores = Object.entries(profile.skillScores || {}).filter(([, value]) => Number(value) > 0);
+  return `<section class="section page-heading"><button class="back-link" data-view="topik" aria-label="Quay lại">←</button><p class="eyebrow">📊 TOPIK Analytics</p><h1 class="headline">Phân tích tiến độ</h1><p class="subtle">Ước tính dựa trên kết quả luyện tập, không phải dự đoán điểm thi chính thức.</p></section><section class="card section analytics-summary"><div class="stats stats-four"><div class="stat"><b>${avg}%</b><small>Điểm TB 5 đề gần nhất</small></div><div class="stat"><b>${readiness}%</b><small>Readiness ước tính</small></div><div class="stat"><b>${recent.reduce((sum,item)=>sum+(item.correct || item.score || 0),0)}</b><small>Câu đúng</small></div><div class="stat"><b>${recent.reduce((sum,item)=>sum+(item.wrong || ((item.total || 0)-(item.score || 0))),0)}</b><small>Câu sai</small></div></div><p class="trend-line">Trend: ${trend}</p></section><section class="card section"><h2 class="section-title">Theo kỹ năng</h2><div class="skill-grid">${(skillScores.length ? skillScores : [['listening',0],['reading',0],['vocabulary',0],['grammar',0]]).map(([skill, score]) => `<div class="skill"><strong>${score}%</strong><div class="subtle">${escapeHtml(skill)}</div><div class="bar"><span style="width:${score}%"></span></div></div>`).join('')}</div></section><section class="card section"><h2 class="section-title">Theo dạng câu hỏi</h2>${recent.length ? recent.map((attempt) => `<div class="history-item"><div><b>${escapeHtml(attempt.setTitle)}</b><div class="subtle">${formatDate(attempt.completedAt)} · ${attempt.averageTimeSeconds || '—'}s/câu</div></div><div class="score">${attempt.percentage}%</div></div>`).join('') : '<p class="subtle">Hoàn thành một đề để xem phân tích.</p>'}</section>`;
+}
+
+function weeklyInsightsView() {
+  const profile = LearnerProfileService.get() || {}; const history = PracticeService.getHistory(); const recent = history.filter((item) => Date.now() - new Date(item.completedAt).getTime() <= 7 * 86400000); const lessons = (profile.recentLessons || []).filter((item) => item.updatedAt ? Date.now() - new Date(item.updatedAt).getTime() <= 7 * 86400000 : item.status !== 'not_started').length; const mastered = state.srsData.filter((item) => item.status === 'mastered').length; const avg = recent.length ? Math.round(recent.reduce((sum,item)=>sum+item.percentage,0)/recent.length) : 0; const weak = profile.weakSkills?.[0] || 'Chưa đủ dữ liệu';
+  return `<section class="section page-heading"><button class="back-link" data-view="profile" aria-label="Quay lại">←</button><p class="eyebrow">📈 Weekly Insights</p><h1 class="headline">Tuần này của bạn</h1><p class="subtle">Tổng hợp từ dữ liệu học thật trong 7 ngày gần nhất.</p></section><section class="card section"><div class="stats stats-four"><div class="stat"><b>${profile.weeklyStudyMinutes || 0}</b><small>Phút học</small></div><div class="stat"><b>${lessons}</b><small>Bài đã chạm</small></div><div class="stat"><b>${mastered}</b><small>Từ thành thạo</small></div><div class="stat"><b>${recent.length}</b><small>Đề đã làm</small></div></div></section><section class="card section"><h2 class="section-title">Điểm nổi bật</h2><p>Điểm luyện trung bình: <strong>${avg}%</strong></p><p>Điểm mạnh: <strong>${profile.strengths?.[0] || 'Đang hình thành'}</strong></p><p>Cần cải thiện: <strong>${weak}</strong></p><button class="btn secondary" data-open-ai="Nhận xét tuần này dựa trên structured stats của tôi, không bịa dữ liệu.">✨ AI nhận xét tuần này</button></section>`;
 }
 
 // ============================================================
@@ -1642,7 +1826,7 @@ function render() {
     home: homeView, lessons: lessonsView, theory: theoryView, roadmap: roadmapView, topik: practiceHubView, lesson: lessonView, 'lesson-preview': lessonPreviewView, dictionary: dictionaryView, 'translation-hub': translationHubView, phrasebook: phrasebookView, handwriting: handwritingView,
     'practice-hub': practiceHubView, 'exam-catalog': examCatalogView, 'random-exam': randomExamView, 'advanced-practice': advancedPracticeView, 'wrong-practice': wrongPracticeView, 'saved-exams': savedExamsView, 'practice-history': practiceHistoryView, 'skill-hub': skillHubView,
     'quick-practice': quickPracticeView, 'practice-session': practiceSessionView, 'practice-result': practiceResultView, 'practice-review': practiceReviewView,
-    review: reviewView, 'vocabulary-hub': vocabularyHubView, 'review-start': reviewSessionView, 'vocab-pretest': vocabularyPretestView, 'pretest-result': pretestResultView,
+    review: reviewView, 'smart-review': smartReviewView, search: globalSearchView, analytics: analyticsView, 'weekly-insights': weeklyInsightsView, 'vocabulary-hub': vocabularyHubView, 'review-start': reviewSessionView, 'vocab-pretest': vocabularyPretestView, 'pretest-result': pretestResultView,
     'vocab-test-setup': vocabularyTestSetupView, 'vocab-test': vocabularyTestView, 'vocab-test-result': vocabularyTestResultView,
     practice: speakingHubView, 'speaking-hub': speakingHubView, 'speaking-session': speakingSessionView, 'speaking-result': speakingResultView,
     'writing-hub': writingHubView, 'writing-editor': writingEditorView, 'writing-result': writingResultView,
@@ -1668,6 +1852,8 @@ function bindEvents() {
   document.querySelectorAll('[data-theme-choice-header]').forEach((input) => { input.onclick = () => { ThemeService.setPreference(input.dataset.themeChoiceHeader); document.getElementById('themeMenu')?.classList.add('hidden'); render(); }; });
   document.querySelectorAll('[data-language-choice]').forEach((input) => { input.onclick = () => { I18nService.setPreference(input.dataset.languageChoice || input.value); document.getElementById('languageMenu')?.classList.add('hidden'); render(); }; });
   const languageBtn = document.getElementById('languageBtn'); if (languageBtn) languageBtn.onclick = () => { const menu = document.getElementById('languageMenu'); const open = menu?.classList.toggle('hidden') === false; document.getElementById('themeMenu')?.classList.add('hidden'); languageBtn.setAttribute('aria-expanded', String(open)); };
+  const globalSearchButton = document.getElementById('globalSearchButton'); if (globalSearchButton) globalSearchButton.onclick = () => setView('search');
+  document.querySelectorAll('[data-notification-pref]').forEach((input) => { input.onchange = () => NotificationService.set(input.dataset.notificationPref, input.checked); });
   const themeBtn = document.getElementById('themeBtn'); if (themeBtn) themeBtn.onclick = () => { const menu = document.getElementById('themeMenu'); const open = menu?.classList.toggle('hidden') === false; document.getElementById('languageMenu')?.classList.add('hidden'); themeBtn.setAttribute('aria-expanded', String(open)); };
   document.querySelectorAll('[data-question-romanization]').forEach((button) => { button.onclick = () => { const id = button.dataset.questionRomanization; state.questionRomanization[id] = !(state.questionRomanization[id] ?? showRomanizationEnabled()); render(); }; });
   const registerForm = document.getElementById('registerForm'); if (registerForm) registerForm.onsubmit = handleRegister;
@@ -1740,6 +1926,9 @@ function bindEvents() {
   const rewrite = document.querySelector('[data-rewrite]'); if (rewrite) rewrite.onclick = () => { state.writingSubmission = null; setView('writing-editor'); };
   const micButton = document.getElementById('micBtn'); if (micButton) micButton.onclick = toggleRecording;
   const practiceNext = document.getElementById('practiceNext'); if (practiceNext) practiceNext.onclick = completePractice;
+  const globalSearchForm = document.getElementById('globalSearchForm'); if (globalSearchForm) globalSearchForm.onsubmit = (event) => { event.preventDefault(); state.globalQuery = String(new FormData(globalSearchForm).get('query') || document.getElementById('globalSearchInput')?.value || '').trim(); render(); };
+  document.querySelectorAll('[data-smart-minutes]').forEach((button) => { button.onclick = () => { state.smartReviewMinutes = Number(button.dataset.smartMinutes); render(); }; });
+  document.querySelectorAll('[data-start-smart-review]').forEach((button) => { button.onclick = () => SmartReviewService.start(Number(button.dataset.startSmartReview)); });
   document.querySelectorAll('[data-open-ai]').forEach((button) => button.addEventListener('click', () => { state.aiOpen = true; const conversation = AITutorService.ensure(); state.aiConversationId = conversation.id; renderAiWidget(); const input = document.getElementById('aiInput'); if (input) { input.value = button.dataset.openAi || ''; input.focus(); } }));
   document.querySelectorAll('[data-dictionary-id]').forEach((button) => { button.onclick = () => { state.dictionarySelectedId = button.dataset.dictionaryId; const entry = DictionaryService.byId(state.dictionarySelectedId); DictionaryService.addRecent(entry); render(); }; });
   document.querySelectorAll('[data-translate-seed]').forEach((button) => { button.onclick = () => { state.translationDraft = button.dataset.translateSeed || ''; state.translationDirection = 'ko-vi'; setView('translation-hub'); }; });
@@ -1759,7 +1948,7 @@ function bindEvents() {
   const handwritingClear = document.getElementById('handwritingClear'); if (handwritingClear) handwritingClear.onclick = () => handwritingCanvas?._clear?.();
   const handwritingUndo = document.getElementById('handwritingUndo'); if (handwritingUndo) handwritingUndo.onclick = () => handwritingCanvas?._undo?.();
   const handwritingRetry = document.getElementById('handwritingRetry'); if (handwritingRetry) handwritingRetry.onclick = () => { state.handwritingStage = 1; render(); };
-  const handwritingNext = document.getElementById('handwritingNext'); if (handwritingNext) handwritingNext.onclick = () => { const all = storage.get(STORAGE_KEYS.handwriting, {}); const list = Array.isArray(all?.[state.currentUser?.id]) ? all[state.currentUser.id] : []; const current = list.find((item) => item.character === state.handwritingCharacter) || { character: state.handwritingCharacter, attempts: 0, stage: 0 }; const next = { ...current, attempts: current.attempts + 1, stage: Math.min(3, state.handwritingStage), completed: state.handwritingStage >= 3, lastPracticed: new Date().toISOString() }; saveUserScoped(STORAGE_KEYS.handwriting, [next, ...list.filter((item) => item.character !== next.character)], 100); state.handwritingStage = Math.min(3, state.handwritingStage + 1); if (next.completed) toast('Đã hoàn thành chữ này.'); render(); };
+  const handwritingNext = document.getElementById('handwritingNext'); if (handwritingNext) handwritingNext.onclick = () => { const all = storage.get(STORAGE_KEYS.handwriting, {}); const list = Array.isArray(all?.[state.currentUser?.id]) ? all[state.currentUser.id] : []; const current = list.find((item) => item.character === state.handwritingCharacter) || { character: state.handwritingCharacter, attempts: 0, stage: 0, strokes: 0 }; const evaluated = HandwritingProvider.evaluate({ strokes: current.strokes, stage: state.handwritingStage }); const next = { ...current, attempts: current.attempts + 1, strokes: current.strokes + 1, stage: Math.min(3, state.handwritingStage), masteryScore: Math.max(current.masteryScore || 0, evaluated.score), masteryStatus: state.handwritingStage >= 3 ? 'mastered' : 'learning', completed: state.handwritingStage >= 3, lastPracticed: new Date().toISOString(), updatedAt: new Date().toISOString() }; saveUserScoped(STORAGE_KEYS.handwriting, [next, ...list.filter((item) => item.character !== next.character)], 100); state.handwritingStage = Math.min(3, state.handwritingStage + 1); if (next.completed) toast('Đã hoàn thành chữ này.'); render(); };
 }
 
 function setupHandwritingCanvas(canvas) {
@@ -1833,25 +2022,32 @@ function continueLevel() {
 }
 
 function placementLevel(score) {
-  if (score <= 3) return 'Beginner';
-  if (score <= 6) return 'TOPIK I';
-  if (score <= 8) return 'TOPIK I nâng cao';
+  if (score <= 5) return 'Beginner';
+  if (score <= 9) return 'TOPIK I';
+  if (score <= 12) return 'TOPIK I nâng cao';
   return 'TOPIK II khởi đầu';
 }
 
 function answerPlacement(answerIndex) {
   const placement = { ...(state.currentUser.placement || { index: 0, answers: [], score: 0 }) };
-  const question = APP_DATA.placementQuestions[placement.index];
+  if (!Array.isArray(placement.questionIds) || !placement.questionIds.length) placement.questionIds = [4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1];
+  const { question, questionId, total } = placementQuestionAt(placement);
   if (!question) return;
   placement.answers = [...(placement.answers || []), answerIndex];
+  placement.questionIdsAsked = [...(placement.questionIdsAsked || []), questionId];
   if (answerIndex === question.answer) placement.score = (placement.score || 0) + 1;
   placement.index += 1;
-  if (placement.index >= APP_DATA.placementQuestions.length) {
+  const remaining = placement.questionIds.filter((id) => !(placement.questionIdsAsked || []).includes(id));
+  if (placement.index >= total || !remaining.length) {
     const level = placementLevel(placement.score);
     state.selectedLevel = level;
     persistOnboarding('result', { level, placement });
     setView('onboarding-result');
   } else {
+    const targetDifficulty = Math.max(1, Math.min(4, (question.difficulty || 2) + (answerIndex === question.answer ? 1 : -1)));
+    const next = remaining.slice().sort((a, b) => Math.abs((APP_DATA.placementQuestions[a].difficulty || 2) - targetDifficulty) - Math.abs((APP_DATA.placementQuestions[b].difficulty || 2) - targetDifficulty))[0];
+    placement.questionIds = placement.questionIds.filter((id, idx) => idx <= placement.index || id !== next).slice(0, total);
+    placement.questionIds.splice(placement.index, 0, next);
     updateCurrentUser({ onboardingStep: 'placement', placement });
     render();
   }
@@ -2091,16 +2287,25 @@ function startRoleplay(roleplayId) {
   setView('speaking-session');
 }
 
+const PronunciationProvider = {
+  id: 'text-similarity-mvp',
+  evaluate({ target = '', transcript = '', keywords = [], roleplay = false } = {}) {
+    if (roleplay) { const normalized = normalizeKorean(transcript); const matched = keywords.filter((keyword) => normalized.includes(normalizeKorean(keyword))).length; return { score: Math.round((matched / Math.max(1, keywords.length)) * 100), matched }; }
+    return { score: similarityScore(target, transcript) };
+  }
+};
+window.PronunciationProvider = PronunciationProvider;
+
 function speakingEvaluation(transcript) {
   const prompt = state.speakingPrompt;
   if (!prompt) return { score: 0, feedback: 'Chưa có câu mẫu.' };
   if (state.speakingMode === 'roleplay') {
-    const normalized = normalizeKorean(transcript);
-    const matched = (prompt.keywords || []).filter((keyword) => normalized.includes(normalizeKorean(keyword))).length;
-    const score = Math.round((matched / Math.max(1, prompt.keywords.length)) * 100);
+    const evaluated = PronunciationProvider.evaluate({ transcript, keywords: prompt.keywords || [], roleplay: true });
+    const matched = evaluated.matched;
+    const score = evaluated.score;
     return { score, feedback: matched ? `Đã dùng ${matched}/${prompt.keywords.length} từ khóa gợi ý.` : 'Hãy thử dùng một trong các từ khóa gợi ý để phản hồi đúng tình huống.' };
   }
-  const score = similarityScore(prompt.korean, transcript);
+  const score = PronunciationProvider.evaluate({ target: prompt.korean, transcript }).score;
   return { score, feedback: score >= 90 ? 'Văn bản nhận diện rất gần câu mẫu.' : score >= 70 ? 'Khá tốt; hãy chú ý nhịp câu và thử lại.' : 'Hãy nói chậm, rõ từng cụm rồi nghe lại câu mẫu.' };
 }
 
@@ -2216,7 +2421,7 @@ function completeLesson() {
   if (!state.sentenceCorrect && !state.lessonProgress['topic-particle']?.completed) return;
   const progress = getUserProgress();
   if (!progress.lessonProgress['topic-particle']?.completed) {
-    progress.lessonProgress['topic-particle'] = { completed: true, completedAt: new Date().toISOString(), score: 100 };
+    progress.lessonProgress['topic-particle'] = { completed: true, completedAt: new Date().toISOString(), score: 100, masteryScore: 70, masteryStatus: 'understood', recallCount: 0, contentVersion: 1, updatedAt: new Date().toISOString() };
     progress.stats.lessonsCompleted += 1;
     progress.skills.reading = Math.min(100, progress.skills.reading + 10);
   }

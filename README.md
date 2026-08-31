@@ -58,6 +58,26 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Endpoint server-side tùy chọn là `/api/chat`; cấu hình `OPENAI_API_KEY` và tùy chọn `OPENAI_MODEL` trên Vercel Environment Variables. Không đặt key trong frontend.
 - Khi chưa có key hoặc offline, AI hiển thị trạng thái cấu hình/kết nối rõ ràng; dictionary, theory và phrasebook vẫn hoạt động offline.
 
+## Learning intelligence và cloud sync
+
+- `CloudSyncService` dùng local-first: thao tác ghi vào localStorage ngay, sau đó debounce sync theo sự kiện có ý nghĩa. Khi chưa cấu hình provider, Profile hiển thị `Chỉ lưu trên thiết bị`; khi mất mạng hiển thị `Ngoại tuyến` và không làm mất tiến độ.
+- Dữ liệu cũ không bị xóa. Provider tùy chọn có thể gọi `window.KLEARN_CLOUD_PROVIDER.pull/push`; adapter Supabase REST mẫu nằm ở `data/cloud-sync.js` và schema/RLS ở `supabase/schema.sql`. Adapter chỉ hoạt động khi có Supabase Auth access token, không dùng service-role key ở frontend.
+- `LearnerProfileService` suy ra điểm mạnh/yếu từ SRS, lesson progress, điểm luyện, câu sai, speaking/writing metadata và thống kê 7 ngày; khi chưa đủ dữ liệu sẽ không gắn nhãn điểm yếu.
+- `SmartReviewService` xếp hạng SRS đến hạn, từ/câu sai, mastery thấp và skill yếu theo rule minh bạch; hỗ trợ phiên 5/10/15/20/30 phút.
+- Mastery lesson dùng `not_started → learning → understood → mastered`; progress record có `updatedAt`, `contentVersion` để tương thích về sau.
+- Placement Test hiện có 16 câu đa chiều (vocabulary/grammar/reading/listening) và hiển thị breakdown theo kỹ năng. Đây là adaptive MVP, chưa phải bài thi chuẩn hóa.
+- TOPIK Analytics hiển thị điểm, đúng/sai, thời gian trung bình, breakdown skill, trend 5 đề và readiness ước tính có nhãn rõ ràng.
+- Global Search (`⌕` trên header) tìm theo Hangul, romanization, Vietnamese, English, 中文 trong lesson, dictionary, practice và phrasebook.
+- Weekly Insights tổng hợp phút học, bài, từ thành thạo, đề đã làm, điểm mạnh/yếu; AI chỉ nhận structured stats nhỏ khi được bật.
+- `PronunciationProvider` và `HandwritingProvider` là abstraction cho model tương lai. MVP hiện tại chỉ chấm text similarity/self-confirmation, không giả vờ có phoneme hoặc handwriting recognition AI.
+
+### Bật Supabase cloud sync (tùy chọn)
+
+1. Tạo Supabase project và bật Supabase Auth.
+2. Chạy `supabase/schema.sql` để tạo bảng `learning_sync` và các policy RLS `auth.uid() = user_id`.
+3. Sau khi có user access token, inject `window.KLEARN_CLOUD_CONFIG = { url, anonKey, accessToken }` trước `data/cloud-sync.js`. Không commit token hoặc service-role key.
+4. Nếu chưa làm bước này, app tiếp tục local mode đầy đủ và không gọi cloud.
+
 ## Dữ liệu MVP
 
 Dữ liệu được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Đây chưa phải hệ thống auth/backend production; cấu trúc code được chia section để có thể thay lớp storage/auth bằng Supabase sau này.

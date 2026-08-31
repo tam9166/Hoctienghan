@@ -11,7 +11,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icons/icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=10" />
   <script>
     (() => {
       try {
@@ -41,6 +41,7 @@
       </button>
       <div class="brand" data-view="dictionary" role="button" tabindex="0">Tiếng Hàn - TamHoanq</div>
       <div class="header-actions">
+        <button class="header-control" id="globalSearchButton" type="button" aria-label="Tìm kiếm toàn app">⌕</button>
         <div class="header-control-wrap">
           <button class="header-control" id="languageBtn" type="button" aria-label="Đổi ngôn ngữ" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">🌐</span><span id="languageCode">VI</span></button>
           <div class="header-menu hidden" id="languageMenu" role="menu"><strong class="header-menu-title">Ngôn ngữ</strong><button type="button" data-language-choice="vi" role="menuitemradio">🇻🇳 <span>Tiếng Việt</span></button><button type="button" data-language-choice="en" role="menuitemradio">🇬🇧 <span>English</span></button><button type="button" data-language-choice="zh-CN" role="menuitemradio">🇨🇳 <span>中文（简体）</span></button></div>
@@ -75,8 +76,9 @@
   <script src="data/dictionary.js?v=1"></script>
   <script src="data/theory-lessons.js?v=1"></script>
   <script src="data/handwriting.js?v=1"></script>
+  <script src="data/cloud-sync.js?v=1"></script>
   <script src="data/learning-modules.js?v=8"></script>
   <script src="data/practice-bank.js?v=8"></script>
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>
