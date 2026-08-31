@@ -12,7 +12,7 @@ const STORAGE_KEYS = Object.freeze({
   practice: 'klearn_practice',
   practiceHistory: 'klearn_practice_history',
   speaking: 'klearn_speaking',
-  writing: 'klearn_writing', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches'
+  writing: 'klearn_writing', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting'
 });
 
 const storage = {
@@ -164,10 +164,10 @@ const state = {
   selectedLessonPreview: '',
   questionRomanization: {},
   roleplayHintVisible: false
-  ,dictionaryQuery: '', dictionarySelectedId: '', dictionaryFilter: 'all', translationDraft: '', translationDirection: 'vi-ko', translationResult: null
+  ,dictionaryQuery: '', dictionarySelectedId: '', dictionaryFilter: 'all', translationDraft: '', translationDirection: 'vi-ko', translationResult: null, handwritingCharacter: '한', handwritingStage: 1
 };
 
-const MAIN_VIEWS = ['home', 'lessons', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'review', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
+const MAIN_VIEWS = ['home', 'lessons', 'theory', 'roadmap', 'topik', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'placement', 'onboarding-result'];
 
@@ -1049,7 +1049,8 @@ function persistOnboarding(step, changes = {}) {
 function isMainView(view) { return MAIN_VIEWS.includes(view); }
 
 function setView(view, options = {}) {
-  let target = view;
+  const aliases = { theory: 'theory', roadmap: 'roadmap', topik: 'topik' };
+  let target = aliases[view] || view;
   if (!state.currentUser && !PUBLIC_VIEWS.includes(target)) target = 'welcome';
   if (state.currentUser && !state.currentUser.onboardingCompleted && !ONBOARDING_VIEWS.includes(target)) target = onboardingViewFor(state.currentUser);
   if (state.currentUser?.onboardingCompleted && (PUBLIC_VIEWS.includes(target) || ONBOARDING_VIEWS.includes(target))) target = 'home';
@@ -1071,10 +1072,14 @@ function syncShell() {
     const reviewViews = ['review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub'];
     const practiceViews = ['practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'skill-hub', 'writing-hub', 'writing-editor', 'writing-result', 'practice-session', 'practice-result', 'practice-review', 'quick-practice'];
     const speakingViews = ['practice', 'speaking-hub', 'speaking-session', 'speaking-result'];
-    const activeView = state.currentView === 'lesson' ? 'lessons'
+    const activeView = state.currentView === 'lesson' ? 'theory'
+      : ['lessons','vocabulary-hub','review-start','vocab-pretest','pretest-result','vocab-test-setup','vocab-test','vocab-test-result'].includes(state.currentView) ? 'theory'
+      : state.currentView === 'handwriting' ? 'theory'
+        : state.currentView === 'roadmap' ? 'roadmap'
+          : ['topik','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice'].includes(state.currentView) ? 'topik'
       : state.currentView === 'edit-profile' ? 'profile'
         : reviewViews.includes(state.currentView) ? 'review'
-          : practiceViews.includes(state.currentView) ? 'lessons'
+            : practiceViews.includes(state.currentView) ? 'topik'
             : speakingViews.includes(state.currentView) ? 'practice' : state.currentView;
     const active = button.dataset.route === activeView;
     button.classList.toggle('active', active);
@@ -1094,7 +1099,7 @@ function renderThemeControl(compact = false) {
 
 function welcomeView() {
   return `<section class="auth-page welcome-page">
-    <div class="brand-mark" aria-hidden="true">한</div><p class="eyebrow">Tiếng Hàn - TamHoanq</p>
+    <div class="brand-mark" aria-label="Logo Tiếng Hàn - TamHoanq">TH</div><p class="eyebrow">Tiếng Hàn - TamHoanq</p>
     <h1 class="welcome-title">${I18nService.t('welcome.title')}</h1>
     <div class="welcome-points"><span>${I18nService.t('welcome.point.level')}</span><span>${I18nService.t('welcome.point.goal')}</span><span>${I18nService.t('welcome.point.progress')}</span></div>
     <div class="auth-actions"><button class="btn primary full" data-view="register">Bắt đầu học</button><p class="auth-switch">Đã có tài khoản?</p><button class="btn secondary full" data-view="login">Đăng nhập</button></div>${renderThemeControl(true)}
@@ -1244,6 +1249,21 @@ function lessonsView() {
     const isGrammar = lesson.includes('은/는');
     return `<button class="lesson-tag ${isGrammar ? 'available' : ''} ${isGrammar && completed ? 'completed' : ''}" ${isGrammar ? 'data-open-lesson="topic-particle"' : `data-preview-lesson="${escapeHtml(lesson)}"`}>${isGrammar && completed ? '✓ ' : ''}${escapeHtml(lesson)}</button>`;
   }).join('')}</div></div>`).join('')}</article>`).join('')}</section>`;
+}
+
+function theoryView() {
+  const levels = [1,2,3,4,5,6];
+  return `<section class="section page-heading"><p class="eyebrow">📚 Lý thuyết</p><h1 class="headline">Bài học theo TOPIK</h1><p class="subtle">Học theo mục tiêu, tiến độ và kỹ năng của bạn.</p></section><section class="theory-level-list">${levels.map((level) => { const items = (window.KLEARN_THEORY_LESSONS || []).filter((lesson) => lesson.topikLevel === level); const done = items.filter((lesson) => state.lessonProgress[lesson.id]?.completed).length; return `<article class="card theory-level-card"><div class="section-heading"><div><p class="eyebrow">TOPIK ${level}</p><h2 class="section-title">${done}/${items.length} bài hoàn thành</h2></div><span class="level-pill">${Math.round(done / Math.max(1, items.length) * 100)}%</span></div><div class="theory-lesson-grid">${items.map((lesson) => `<button class="lesson-tag ${state.lessonProgress[lesson.id]?.completed ? 'completed' : ''}" data-theory-lesson="${lesson.id}">${state.lessonProgress[lesson.id]?.completed ? '✓ ' : ''}${escapeHtml(lesson.title)}</button>`).join('')}</div></article>`; }).join('')}</section><section class="utility-links section"><button class="btn secondary" data-view="vocabulary-hub">📖 Từ vựng theo cấp độ</button><button class="btn secondary" data-view="vocab-test-setup">📝 Kiểm tra kiến thức</button><button class="btn secondary" data-view="handwriting">✍️ Luyện viết chữ</button></section>`;
+}
+
+function roadmapView() {
+  const progress = getUserProgress(); const lessons = window.KLEARN_THEORY_LESSONS || []; const completed = lessons.filter((lesson) => state.lessonProgress[lesson.id]?.completed).length; const currentLevel = state.currentUser?.currentTopikLevel || 1;
+  return `<section class="section page-heading"><p class="eyebrow">🗺 Lộ trình học</p><h1 class="headline">Kế hoạch của bạn</h1><p class="subtle">Từ ${escapeHtml(state.currentUser.level)} đến TOPIK ${state.currentUser.targetTopikLevel} · bắt đầu ${formatDate(state.currentUser.createdAt || Date.now())}</p></section><section class="card roadmap-summary section"><div class="stats stats-four"><div class="stat"><b>${currentLevel}</b><small>TOPIK hiện tại</small></div><div class="stat"><b>${state.currentUser.targetTopikLevel}</b><small>Mục tiêu</small></div><div class="stat"><b>${completed}</b><small>Bài hoàn thành</small></div><div class="stat"><b>${progress.stats.wordsLearned}</b><small>Từ đã học</small></div></div></section><section class="card section"><h2 class="section-title">Hôm nay</h2><div class="daily-plan"><span>📚 1 bài lý thuyết</span><span>🧠 15 từ</span><span>📝 10 câu luyện</span><span>🎧 5 phút nghe</span><span>🎙 5 phút nói</span><span>✍️ 1 bài viết ngắn</span></div></section><section class="card section"><h2 class="section-title">Roadmap TOPIK</h2><div class="roadmap-list">${[1,2,3,4,5,6].map((level) => { const list = lessons.filter((lesson) => lesson.topikLevel === level); const count = list.filter((lesson) => state.lessonProgress[lesson.id]?.completed).length; return `<div class="roadmap-row ${level <= currentLevel ? 'active' : 'locked'}"><span class="roadmap-icon">${level <= currentLevel ? '▶' : '🔒'}</span><div><strong>TOPIK ${level}</strong><div class="bar"><span style="width:${Math.round(count / Math.max(1,list.length) * 100)}%"></span></div></div><b>${count}/${list.length}</b></div>`; }).join('')}</div></section><section class="card section"><h2 class="section-title">Điểm yếu của tôi</h2><p class="subtle">${progress.skills.listening < progress.skills.reading ? 'Tăng thêm thời lượng nghe trong kế hoạch tuần này.' : 'Tiếp tục củng cố từ vựng và ngữ pháp theo SRS.'}</p><button class="btn primary" data-view="wrong-practice">Luyện lại lỗi sai</button></section>`;
+}
+
+function handwritingView() {
+  const chars = window.KLEARN_HANDWRITING?.characters || ['한']; const saved = userScoped(STORAGE_KEYS.handwriting).find((item) => item.character === state.handwritingCharacter) || { stage: 0, attempts: 0 }; const stage = Math.max(1, Math.min(3, state.handwritingStage || saved.stage + 1)); const guide = stage === 1 ? 'trace' : stage === 2 ? 'guide' : 'free';
+  return `<section class="section page-heading"><p class="eyebrow">✍️ Luyện viết chữ</p><h1 class="headline">Viết Hangul bằng tay</h1><p class="subtle">Nghe mẫu rồi luyện theo 3 lượt hỗ trợ giảm dần.</p></section><section class="card handwriting-card section"><div class="handwriting-toolbar"><label>Chữ<select id="handwritingCharacter">${chars.map((char) => `<option ${char === state.handwritingCharacter ? 'selected' : ''}>${char}</option>`).join('')}</select></label><span>Lượt ${stage}/3</span><button class="audio-btn" data-speak="${state.handwritingCharacter}">🔊</button></div><div class="handwriting-stage stage-${guide}"><div class="handwriting-guide">${stage < 3 ? state.handwritingCharacter : ''}</div><canvas id="handwritingCanvas" width="640" height="360" aria-label="Canvas luyện viết ${state.handwritingCharacter}"></canvas></div><div class="entry-actions"><button class="btn secondary" id="handwritingUndo">Hoàn tác</button><button class="btn secondary" id="handwritingClear">Xóa</button><button class="btn secondary" id="handwritingRetry">Viết lại</button><button class="btn primary" id="handwritingNext">${stage < 3 ? 'Tiếp tục' : 'Tôi đã viết đúng'}</button></div><p class="subtle">Chấm MVP dựa trên nét vẽ và xác nhận của bạn; chưa phải nhận diện chữ AI.</p></section>`;
 }
 
 function lessonView() {
@@ -1487,7 +1507,8 @@ function vocabularyTestResultView() {
 }
 
 function lessonPreviewView() {
-  const lesson = state.selectedLessonPreview || 'Bài học tiếng Hàn';
+  const theoryLesson = (window.KLEARN_THEORY_LESSONS || []).find((item) => item.id === state.selectedLessonPreview);
+  const lesson = theoryLesson?.title || state.selectedLessonPreview || 'Bài học tiếng Hàn';
   const skill = /Nghe|Listening/.test(lesson) ? 'listening' : /Đọc|Reading/.test(lesson) ? 'reading' : /Viết|Writing|Email|đoạn/.test(lesson) ? 'writing' : /Nói|Speaking|Phỏng vấn/.test(lesson) ? 'speaking' : 'grammar';
   const route = skill === 'writing' ? 'writing-hub' : skill === 'speaking' ? 'speaking-hub' : 'skill-hub';
   return `<section class="section page-heading"><button class="back-link" data-view="lessons" aria-label="Quay lại">←</button><p class="eyebrow">Bài học MVP</p><h1 class="headline">${escapeHtml(lesson)}</h1><p class="subtle">Mục tiêu: nhận biết cấu trúc, xem ví dụ và chuyển ngay sang bài luyện phù hợp.</p>${renderRomanizationToggle()}</section><section class="card section"><h2 class="section-title">Cách học gợi ý</h2><ol class="learning-steps"><li>Đọc hoặc nghe mẫu tiếng Hàn.</li><li>Đối chiếu nghĩa và cách dùng bằng tiếng Việt.</li><li>Làm bài luyện theo kỹ năng để kiểm tra.</li></ol><div class="example"><div>${renderKoreanLearningText({ korean: '한국어를 꾸준히 연습해요.', romanization: 'hangugeoreul kkujunhi yeonseuphaeyo.', meaningVi: 'Tôi luyện tiếng Hàn đều đặn.' }, { compact: true })}</div><button class="audio-btn" data-speak="한국어를 꾸준히 연습해요." aria-label="Nghe phát âm tiếng Hàn">🔊</button></div></section><button class="btn primary full" data-open-skill="${skill}" data-view="${route}">Bắt đầu luyện ${escapeHtml(lesson)}</button>`;
@@ -1593,7 +1614,7 @@ function render() {
   const views = {
     welcome: welcomeView, register: registerView, login: loginView,
     'onboarding-goals': goalsView, 'onboarding-level': levelView, placement: placementView, 'onboarding-result': onboardingResultView,
-    home: homeView, lessons: lessonsView, lesson: lessonView, 'lesson-preview': lessonPreviewView, dictionary: dictionaryView, 'translation-hub': translationHubView, phrasebook: phrasebookView,
+    home: homeView, lessons: lessonsView, theory: theoryView, roadmap: roadmapView, topik: practiceHubView, lesson: lessonView, 'lesson-preview': lessonPreviewView, dictionary: dictionaryView, 'translation-hub': translationHubView, phrasebook: phrasebookView, handwriting: handwritingView,
     'practice-hub': practiceHubView, 'exam-catalog': examCatalogView, 'random-exam': randomExamView, 'advanced-practice': advancedPracticeView, 'wrong-practice': wrongPracticeView, 'saved-exams': savedExamsView, 'practice-history': practiceHistoryView, 'skill-hub': skillHubView,
     'quick-practice': quickPracticeView, 'practice-session': practiceSessionView, 'practice-result': practiceResultView, 'practice-review': practiceReviewView,
     review: reviewView, 'vocabulary-hub': vocabularyHubView, 'review-start': reviewSessionView, 'vocab-pretest': vocabularyPretestView, 'pretest-result': pretestResultView,
@@ -1614,6 +1635,7 @@ function bindEvents() {
   document.querySelectorAll('[data-view]').forEach((button) => { button.onclick = () => setView(button.dataset.view); });
   document.querySelectorAll('[data-open-lesson]').forEach((button) => { button.onclick = () => openLesson(button.dataset.openLesson); });
   document.querySelectorAll('[data-preview-lesson]').forEach((button) => { button.onclick = () => openLesson(button.dataset.previewLesson); });
+  document.querySelectorAll('[data-theory-lesson]').forEach((button) => { button.onclick = () => { const lesson = (window.KLEARN_THEORY_LESSONS || []).find((item) => item.id === button.dataset.theoryLesson); state.selectedLessonPreview = lesson?.id || ''; setView('lesson-preview'); }; });
   document.querySelectorAll('[data-speak]').forEach((button) => { button.onclick = (event) => { event.stopPropagation(); speakKorean(button.dataset.speak); }; });
   document.querySelectorAll('[data-romanization-toggle]').forEach((button) => { button.onclick = () => { setShowRomanization(!showRomanizationEnabled()); render(); }; });
   document.querySelectorAll('[data-theme-choice]').forEach((input) => { input.onchange = () => { ThemeService.setPreference(input.value); render(); }; });
@@ -1705,6 +1727,16 @@ function bindEvents() {
   const saveTranslation = document.getElementById('saveTranslation'); if (saveTranslation) saveTranslation.onclick = () => { SavedSentenceService.save(state.translationResult); toast('Đã lưu câu.'); };
   const practiceTranslation = document.getElementById('practiceTranslation'); if (practiceTranslation) practiceTranslation.onclick = () => { if (state.translationResult?.korean) { state.speakingPrompt = { id: 'translation-result', korean: state.translationResult.korean, label: 'Câu dịch', meaningVi: state.translationResult.translation }; setView('speaking-session'); } };
   const logoutButton = document.getElementById('logoutButton'); if (logoutButton) logoutButton.onclick = () => auth.logout();
+  const handwritingCanvas = document.getElementById('handwritingCanvas'); if (handwritingCanvas) setupHandwritingCanvas(handwritingCanvas);
+  const handwritingCharacter = document.getElementById('handwritingCharacter'); if (handwritingCharacter) handwritingCharacter.onchange = () => { state.handwritingCharacter = handwritingCharacter.value; state.handwritingStage = 1; render(); };
+  const handwritingClear = document.getElementById('handwritingClear'); if (handwritingClear) handwritingClear.onclick = () => { const ctx = handwritingCanvas?.getContext('2d'); ctx?.clearRect(0,0,handwritingCanvas.width,handwritingCanvas.height); };
+  const handwritingUndo = document.getElementById('handwritingUndo'); if (handwritingUndo) handwritingUndo.onclick = () => { const ctx = handwritingCanvas?.getContext('2d'); ctx?.clearRect(0,0,handwritingCanvas.width,handwritingCanvas.height); };
+  const handwritingRetry = document.getElementById('handwritingRetry'); if (handwritingRetry) handwritingRetry.onclick = () => { state.handwritingStage = 1; render(); };
+  const handwritingNext = document.getElementById('handwritingNext'); if (handwritingNext) handwritingNext.onclick = () => { const all = storage.get(STORAGE_KEYS.handwriting, {}); const list = Array.isArray(all?.[state.currentUser?.id]) ? all[state.currentUser.id] : []; const current = list.find((item) => item.character === state.handwritingCharacter) || { character: state.handwritingCharacter, attempts: 0, stage: 0 }; const next = { ...current, attempts: current.attempts + 1, stage: Math.min(3, state.handwritingStage), completed: state.handwritingStage >= 3, lastPracticed: new Date().toISOString() }; saveUserScoped(STORAGE_KEYS.handwriting, [next, ...list.filter((item) => item.character !== next.character)], 100); state.handwritingStage = Math.min(3, state.handwritingStage + 1); if (next.completed) toast('Đã hoàn thành chữ này.'); render(); };
+}
+
+function setupHandwritingCanvas(canvas) {
+  const ctx = canvas.getContext('2d'); if (!ctx) return; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 7; ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary') || '#315875'; let drawing = false; let last = null; const point = (event) => { const rect = canvas.getBoundingClientRect(); return { x: (event.clientX - rect.left) * canvas.width / rect.width, y: (event.clientY - rect.top) * canvas.height / rect.height }; }; canvas.addEventListener('pointerdown', (event) => { drawing = true; canvas.setPointerCapture(event.pointerId); last = point(event); }); canvas.addEventListener('pointermove', (event) => { if (!drawing) return; const next = point(event); ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(next.x, next.y); ctx.stroke(); last = next; }); ['pointerup','pointercancel','pointerleave'].forEach((name) => canvas.addEventListener(name, () => { drawing = false; last = null; }));
 }
 
 // ============================================================

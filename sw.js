@@ -1,10 +1,12 @@
 const CACHE = 'klearn-v9';
 const OFFLINE_ASSETS = [
   './index.html',
-  './styles.css?v=8',
+  './styles.css?v=9',
   './data/romanization.js?v=8',
   './data/vocabulary-bank.js?v=8',
   './data/dictionary.js?v=1',
+  './data/theory-lessons.js?v=1',
+  './data/handwriting.js?v=1',
   './data/learning-modules.js?v=8',
   './data/practice-bank.js?v=8',
   './locales/vi.js?v=1',

@@ -214,7 +214,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, audio:focus-vis
     radial-gradient(circle at 10% 80%, rgba(0, 107, 90, .1), transparent 28rem),
     var(--bg);
 }
-.brand-mark { width: 82px; height: 82px; margin-bottom: 20px; display: grid; place-items: center; border-radius: 24px; background: var(--primary); color: #fff; box-shadow: var(--shadow-strong); font-size: 34px; font-weight: 800; transform: rotate(-4deg); }
+.brand-mark { width: 82px; height: 82px; margin-bottom: 20px; display: grid; place-items: center; border-radius: 24px; background: var(--primary); color: #fff; box-shadow: var(--shadow-strong); font-size: 28px; letter-spacing: -1px; font-weight: 800; transform: rotate(-4deg); }
 .welcome-title { max-width: 650px; margin: 0; color: var(--primary); font-size: clamp(32px, 9vw, 54px); line-height: 1.12; letter-spacing: -.045em; }
 .welcome-points { margin: 28px 0 38px; display: flex; flex-direction: column; gap: 8px; color: var(--muted); font-weight: 600; }
 .auth-actions { width: 100%; max-width: 380px; }
