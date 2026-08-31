@@ -65,6 +65,8 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - `LearnerProfileService` suy ra điểm mạnh/yếu từ SRS, lesson progress, điểm luyện, câu sai, speaking/writing metadata và thống kê 7 ngày; khi chưa đủ dữ liệu sẽ không gắn nhãn điểm yếu.
 - `SmartReviewService` xếp hạng SRS đến hạn, từ/câu sai, mastery thấp và skill yếu theo rule minh bạch; hỗ trợ phiên 5/10/15/20/30 phút.
 - Mastery lesson dùng `not_started → learning → understood → mastered`; progress record có `updatedAt`, `contentVersion` để tương thích về sau.
+- `AI Korean Coach` mở rộng AI Tutor bằng learner context rút gọn (TOPIK, mastery, SRS, điểm kỹ năng, streak, handwriting và Error Notebook), không gửi password/token/database đầy đủ. `AI Weekly Coach Report`, sentence corrector, personalized practice và speaking feedback đều đi qua `/api/chat`.
+- `Error Notebook` lưu local-first tại `klearn_errors`, gộp lỗi trùng theo fingerprint và đồng bộ như một domain người dùng; lỗi có thể đến từ TOPIK/grammar, speaking, writing hoặc AI correction. Word Map trong từ điển tạo liên kết theo topic/tag/part-of-speech hiện có.
 - Placement Test hiện có 16 câu đa chiều (vocabulary/grammar/reading/listening) và hiển thị breakdown theo kỹ năng. Đây là adaptive MVP, chưa phải bài thi chuẩn hóa.
 - TOPIK Analytics hiển thị điểm, đúng/sai, thời gian trung bình, breakdown skill, trend 5 đề và readiness ước tính có nhãn rõ ràng.
 - Global Search (`⌕` trên header) tìm theo Hangul, romanization, Vietnamese, English, 中文 trong lesson, dictionary, practice và phrasebook.

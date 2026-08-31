@@ -12,7 +12,7 @@ const STORAGE_KEYS = Object.freeze({
   practice: 'klearn_practice',
   practiceHistory: 'klearn_practice_history',
   speaking: 'klearn_speaking',
-  writing: 'klearn_writing', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting', learnerProfile: 'klearn_learner_profile', syncMeta: 'klearn_sync_meta', dailyPlan: 'klearn_daily_plan', notifications: 'klearn_notifications', migrationBackup: 'klearn_migration_backup_v8'
+  writing: 'klearn_writing', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting', learnerProfile: 'klearn_learner_profile', syncMeta: 'klearn_sync_meta', dailyPlan: 'klearn_daily_plan', notifications: 'klearn_notifications', errors: 'klearn_errors', weeklyReports: 'klearn_weekly_reports', migrationBackup: 'klearn_migration_backup_v8'
 });
 
 const storage = {
@@ -48,7 +48,7 @@ function migrateLegacyStorage() {
   }
   storage.set(STORAGE_KEYS.settings, {
     ...(settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {}),
-    schemaVersion: 9,
+    schemaVersion: 10,
     language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi',
     theme: ['system', 'light', 'dark'].includes(settings?.theme) ? settings.theme : 'system',
     users: settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? settings.users : {},
@@ -177,7 +177,7 @@ const state = {
   ,globalQuery: '', smartReviewMinutes: 20, cloudUser: null, cloudAuthBusy: false, cloudAuthMessage: ''
 };
 
-const MAIN_VIEWS = ['home', 'lessons', 'theory', 'roadmap', 'topik', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
+const MAIN_VIEWS = ['home', 'lessons', 'theory', 'roadmap', 'topik', 'ai-coach', 'error-notebook', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'placement', 'onboarding-result'];
 
@@ -226,7 +226,7 @@ const ThemeService = {
     if (state.currentUser?.id) {
       users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), theme: safePreference, updatedAt: new Date().toISOString() };
     }
-    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 9, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 10, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
     this.apply(safePreference);
   },
   watchSystemTheme() {
@@ -320,7 +320,7 @@ const I18nService = {
     const users = settings.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
     settings.language = safeLanguage;
     if (state.currentUser?.id) users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), language: safeLanguage, updatedAt: new Date().toISOString() };
-    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 9, language: LANGUAGE_VALUES.includes(settings.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 10, language: LANGUAGE_VALUES.includes(settings.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
     document.documentElement.lang = window.KLEARN_LOCALES?.[safeLanguage]?.htmlLang || safeLanguage;
     state.learningLanguage = safeLanguage;
   },
@@ -403,7 +403,7 @@ function setShowRomanization(showRomanization) {
   const settings = storage.get(STORAGE_KEYS.settings, {});
   const users = settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
   users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), showRomanization: Boolean(showRomanization), updatedAt: new Date().toISOString() };
-  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 9, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 10, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
 }
 
 function getRomanization(itemOrText = '') {
@@ -649,6 +649,7 @@ const PracticeService = {
       questionTypeBreakdown: Object.fromEntries(Object.entries(questionTypeGroups).map(([type, value]) => [type, Math.round(value.correct / Math.max(1, value.total) * 100)])),
       contentVersion: 1
     };
+    window.ErrorNotebookService?.capturePractice?.(attempt, session.questions);
     const all = storage.get(STORAGE_KEYS.practiceHistory, {});
     const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {};
     safe[state.currentUser.id] = [attempt, ...(Array.isArray(safe[state.currentUser.id]) ? safe[state.currentUser.id] : [])].slice(0, 200);
@@ -874,7 +875,7 @@ const USER_SYNC_KEYS = Object.freeze([
   STORAGE_KEYS.progress, STORAGE_KEYS.srs, STORAGE_KEYS.settings, STORAGE_KEYS.practice, STORAGE_KEYS.practiceHistory,
   STORAGE_KEYS.speaking, STORAGE_KEYS.writing, STORAGE_KEYS.dictionaryFavorites, STORAGE_KEYS.savedSentences,
   STORAGE_KEYS.translationHistory, STORAGE_KEYS.recentSearches, STORAGE_KEYS.handwriting, STORAGE_KEYS.learnerProfile,
-  STORAGE_KEYS.dailyPlan, STORAGE_KEYS.notifications, 'klearn_ai_conversations'
+  STORAGE_KEYS.dailyPlan, STORAGE_KEYS.notifications, STORAGE_KEYS.errors, STORAGE_KEYS.weeklyReports, 'klearn_ai_conversations'
 ]);
 
 const CloudSyncService = {
@@ -1050,7 +1051,7 @@ const AITutorService = {
   current() { return this.all().find((item) => item.id === state.aiConversationId) || null; },
   start(title = 'Hỏi gia sư') { const conversation = { id: uniqueId(), userId: state.currentUser?.id, title, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), summary: '', messages: [] }; this.saveAll([conversation, ...this.all()]); state.aiConversationId = conversation.id; return conversation; },
   ensure() { return this.current() || this.start(); },
-  context() { const profile = LearnerProfileService.get() || {}; const currentLesson = (window.KLEARN_THEORY_LESSONS || []).find((lesson) => lesson.id === state.selectedLessonPreview); return { userLanguage: I18nService.getPreference(), currentTopikLevel: profile.currentTopikLevel || state.currentUser?.currentTopikLevel || null, targetTopikLevel: profile.targetTopikLevel || state.currentUser?.targetTopikLevel || null, currentLesson: currentLesson ? { id: currentLesson.id, title: currentLesson.title, topic: currentLesson.topic } : null, weakGrammar: (profile.weakGrammar || []).slice(0, 5), weakVocabulary: (profile.weakVocabulary || []).slice(0, 8), weakSkills: (profile.weakSkills || []).slice(0, 3), recentMistakes: (profile.recentMistakes || []).slice(0, 8), dueSrsCount: profile.dueSrsCount || 0, recentScores: PracticeService.getHistory().slice(0, 5).map((item) => ({ percentage: item.percentage, skillBreakdown: item.skillBreakdown })), dailyPlan: getUserProgress().daily, conversationSummary: this.current()?.summary || '', currentView: state.currentView }; },
+  context() { const profile = LearnerProfileService.get() || {}; const currentLesson = (window.KLEARN_THEORY_LESSONS || []).find((lesson) => lesson.id === state.selectedLessonPreview); const extra = window.ErrorNotebookService?.context?.() || {}; const handwriting = userScoped(STORAGE_KEYS.handwriting).slice(0, 8).map((item) => ({ character: item.character, stage: item.stage, masteryScore: item.masteryScore })); return { userLanguage: I18nService.getPreference(), currentTopikLevel: profile.currentTopikLevel || state.currentUser?.currentTopikLevel || null, targetTopikLevel: profile.targetTopikLevel || state.currentUser?.targetTopikLevel || null, currentLesson: currentLesson ? { id: currentLesson.id, title: currentLesson.title, topic: currentLesson.topic } : null, weakGrammar: (profile.weakGrammar || []).slice(0, 5), weakVocabulary: (profile.weakVocabulary || []).slice(0, 8), weakSkills: (profile.weakSkills || []).slice(0, 3), recentMistakes: (profile.recentMistakes || []).slice(0, 8), errorNotebook: extra.top || [], dueSrsCount: profile.dueSrsCount || 0, recentScores: PracticeService.getHistory().slice(0, 5).map((item) => ({ percentage: item.percentage, skillBreakdown: item.skillBreakdown })), listeningScore: profile.skillScores?.listening || 0, speakingScore: profile.skillScores?.speaking || 0, writingScore: profile.skillScores?.writing || 0, handwritingProgress: handwriting, streak: profile.streak || 0, weeklyStudyMinutes: profile.weeklyStudyMinutes || 0, masteryByTopic: profile.masteryByTopic || {}, dailyPlan: getUserProgress().daily, conversationSummary: this.current()?.summary || '', currentView: state.currentView }; },
   addMessage(role, content) { const conversation = this.ensure(); conversation.messages.push({ role, content: String(content).slice(0, 4000), createdAt: new Date().toISOString() }); conversation.messages = conversation.messages.slice(-30); conversation.updatedAt = new Date().toISOString(); conversation.title = conversation.messages.find((m) => m.role === 'user')?.content.slice(0, 42) || conversation.title; this.saveAll([conversation, ...this.all().filter((item) => item.id !== conversation.id)]); return conversation; },
   async send(content) { const text = String(content || '').trim(); if (!text || state.aiBusy) return; this.addMessage('user', text); state.aiBusy = true; renderAiWidget(); const conversation = this.current(); const recentMessages = (conversation?.messages || []).slice(-12); try { const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: recentMessages, learnerContext: this.context(), learningLanguage: I18nService.getPreference() }) }); const payload = await response.json().catch(() => ({})); const reply = response.ok && payload.reply ? payload.reply : payload.configured === false ? I18nService.t('ai.notConfigured') : I18nService.t('ai.error'); this.addMessage('assistant', reply); } catch (_) { this.addMessage('assistant', I18nService.t('ai.offline')); } finally { state.aiBusy = false; renderAiWidget(); } }
 };
@@ -1263,7 +1264,8 @@ function syncShell() {
       : ['lessons','vocabulary-hub','review-start','vocab-pretest','pretest-result','vocab-test-setup','vocab-test','vocab-test-result'].includes(state.currentView) ? 'theory'
       : state.currentView === 'handwriting' ? 'theory'
         : state.currentView === 'roadmap' ? 'roadmap'
-          : ['topik','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice','smart-review','analytics','search','weekly-insights'].includes(state.currentView) ? 'topik'
+      : ['topik','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice','smart-review','analytics','search','weekly-insights'].includes(state.currentView) ? 'topik'
+      : ['ai-coach','error-notebook'].includes(state.currentView) ? 'ai-coach'
       : state.currentView === 'edit-profile' ? 'profile'
         : reviewViews.includes(state.currentView) ? 'review'
             : practiceViews.includes(state.currentView) ? 'topik'
@@ -1879,7 +1881,8 @@ function render() {
     'vocab-test-setup': vocabularyTestSetupView, 'vocab-test': vocabularyTestView, 'vocab-test-result': vocabularyTestResultView,
     practice: speakingHubView, 'speaking-hub': speakingHubView, 'speaking-session': speakingSessionView, 'speaking-result': speakingResultView,
     'writing-hub': writingHubView, 'writing-editor': writingEditorView, 'writing-result': writingResultView,
-    profile: profileView, 'edit-profile': editProfileView
+    profile: profileView, 'edit-profile': editProfileView,
+    ...(window.KLEARN_EXTRA_VIEWS || {})
   };
   appElement().innerHTML = (views[state.currentView] || welcomeView)();
   const viewLabels = { welcome: '', login: 'Đăng nhập', register: 'Đăng ký', profile: 'Hồ sơ', 'edit-profile': 'Chỉnh sửa hồ sơ' };
@@ -1887,6 +1890,7 @@ function render() {
   I18nService.applyDocument();
   bindEvents();
   renderAiWidget();
+  window.KLEARN_AFTER_RENDER?.();
   window.scrollTo(0, 0);
 }
 
@@ -2366,6 +2370,7 @@ function speakingEvaluation(transcript) {
 function saveSpeakingAttempt(transcript) {
   const evaluation = speakingEvaluation(transcript);
   const result = { id: uniqueId(), mode: state.speakingMode, target: state.speakingPrompt?.korean || state.speakingPrompt?.appLine || '', transcript, ...evaluation, createdAt: new Date().toISOString() };
+  if (evaluation.score < 85) window.ErrorNotebookService?.add?.({ type: 'speaking', question: result.target, mistake: result.transcript, correction: result.target, explanation: result.feedback });
   state.speakingResult = result;
   state.pronunciationResult = result;
   const allSpeaking = storage.get(STORAGE_KEYS.speaking, {});
@@ -2423,6 +2428,7 @@ function submitWriting(event) {
   const keywordScore = Math.round((keywordMatches / Math.max(1, prompt.keywords.length)) * 40);
   const structureScore = /[.!?。]|다\.?$|요\.?$/.test(answer) ? 10 : 4;
   const result = { id: uniqueId(), userId: state.currentUser.id, promptId: prompt.id, level: prompt.level, type: prompt.type, topic: prompt.topic, answer, characterCount, wordCount, keywordMatches, keywordTotal: prompt.keywords.length, preliminaryScore: Math.min(100, lengthScore + keywordScore + structureScore), sampleAnswer: prompt.sampleAnswer, tipsVi: prompt.tipsVi, submittedAt: new Date().toISOString() };
+  if (result.preliminaryScore < 70) window.ErrorNotebookService?.add?.({ type: 'writing', question: prompt.prompt, mistake: answer, correction: prompt.sampleAnswer, explanation: prompt.tipsVi });
   state.writingSubmission = result;
   const allWriting = storage.get(STORAGE_KEYS.writing, {});
   allWriting[state.currentUser.id] = [result, ...(Array.isArray(allWriting[state.currentUser.id]) ? allWriting[state.currentUser.id] : [])].slice(0, 100);
@@ -2659,6 +2665,8 @@ window.addEventListener('klearn-cloud-auth', (event) => {
   if (state.currentUser?.cloudUserId === cloudUser.id) CloudSyncService.hydrate().then(() => { if (state.currentView === 'profile') render(); });
 });
 window.SupabaseService?.init?.().then(() => CloudAccountService.restore()).then(() => { if (state.currentUser && state.currentView === 'profile') render(); });
+
+window.KLEARN_APP = { storage, state, STORAGE_KEYS, render, setView, toast, escapeHtml, normalizeSearch, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, LearnerProfileService, PracticeService, CloudSyncService, AITutorService, PronunciationProvider, getDisplayPronunciation };
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('[Tiếng Hàn - TamHoanq] Service worker không đăng ký được.', error)));
