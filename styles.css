@@ -873,7 +873,7 @@ body, .topbar, .bottom-nav, .card, .btn, .answer-button, input, select, textarea
 .smart-review-summary { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; margin:18px 0; text-align:center; }
 .smart-review-summary b { font-size:1.5rem; color:var(--secondary); } .smart-review-summary span { color:var(--muted); font-size:11px; }
 .search-group { display:grid; gap:8px; } .search-result-row { display:flex; flex-direction:column; gap:3px; width:100%; padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--surface-low); color:var(--text); text-align:left; cursor:pointer; } .search-result-row small { color:var(--muted); }
-.sync-status { padding:5px 8px; border-radius:999px; background:var(--surface-low); color:var(--muted); font-size:11px; } .sync-status.synced { color:var(--success); } .sync-status.syncing { color:var(--secondary); } .sync-status.offline { color:var(--danger); }
+.sync-status { padding:5px 8px; border-radius:999px; background:var(--surface-low); color:var(--muted); font-size:11px; } .sync-status.synced { color:var(--success); } .sync-status.syncing { color:var(--secondary); } .sync-status.offline, .sync-status.error { color:var(--danger); }
 .notification-settings { display:grid; gap:12px; } .notification-settings label { display:flex; gap:8px; align-items:center; }
 @media (max-width:520px) { .smart-review-summary { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 @media (max-width:430px) { .translation-direction { align-items:stretch; } .swap-btn { align-self:center; } .entry-actions .btn { flex:1 1 140px; } }

@@ -1,5 +1,4 @@
--- Optional cloud sync schema for Tiếng Hàn - TamHoanq.
--- The current app remains local-first until a Supabase Auth provider is wired in.
+-- Authenticated, local-first cloud sync schema for Tiếng Hàn - TamHoanq.
 create table if not exists public.learning_sync (
   user_id uuid primary key references auth.users(id) on delete cascade,
   payload jsonb not null default '{}'::jsonb,

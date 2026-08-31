@@ -61,7 +61,7 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 ## Learning intelligence và cloud sync
 
 - `CloudSyncService` dùng local-first: thao tác ghi vào localStorage ngay, sau đó debounce sync theo sự kiện có ý nghĩa. Khi chưa cấu hình provider, Profile hiển thị `Chỉ lưu trên thiết bị`; khi mất mạng hiển thị `Ngoại tuyến` và không làm mất tiến độ.
-- Dữ liệu cũ không bị xóa. Provider tùy chọn có thể gọi `window.KLEARN_CLOUD_PROVIDER.pull/push`; adapter Supabase REST mẫu nằm ở `data/cloud-sync.js` và schema/RLS ở `supabase/schema.sql`. Adapter chỉ hoạt động khi có Supabase Auth access token, không dùng service-role key ở frontend.
+- Dữ liệu cũ không bị xóa. `/api/config` chỉ trả public URL và publishable/anon key; `data/cloud-sync.js` khởi tạo singleton Supabase client chính thức, tự restore/refresh session và cung cấp provider cho `CloudSyncService`. Access/refresh token do Supabase client quản lý, không được đưa vào payload học tập.
 - `LearnerProfileService` suy ra điểm mạnh/yếu từ SRS, lesson progress, điểm luyện, câu sai, speaking/writing metadata và thống kê 7 ngày; khi chưa đủ dữ liệu sẽ không gắn nhãn điểm yếu.
 - `SmartReviewService` xếp hạng SRS đến hạn, từ/câu sai, mastery thấp và skill yếu theo rule minh bạch; hỗ trợ phiên 5/10/15/20/30 phút.
 - Mastery lesson dùng `not_started → learning → understood → mastered`; progress record có `updatedAt`, `contentVersion` để tương thích về sau.
@@ -73,14 +73,15 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 
 ### Bật Supabase cloud sync (tùy chọn)
 
-1. Tạo Supabase project và bật Supabase Auth.
-2. Chạy `supabase/schema.sql` để tạo bảng `learning_sync` và các policy RLS `auth.uid() = user_id`.
-3. Sau khi có user access token, inject `window.KLEARN_CLOUD_CONFIG = { url, anonKey, accessToken }` trước `data/cloud-sync.js`. Không commit token hoặc service-role key.
-4. Nếu chưa làm bước này, app tiếp tục local mode đầy đủ và không gọi cloud.
+1. Tạo Supabase project, bật Email/Password Auth và chạy `supabase/schema.sql` để tạo `learning_sync` cùng RLS `auth.uid() = user_id`.
+2. Trên Vercel đặt `SUPABASE_URL` và `SUPABASE_ANON_KEY`. `SUPABASE_ANON_KEY` có thể là publishable key mới dạng `sb_publishable_...`; không bao giờ dùng `service_role`/`sb_secret_...`.
+3. Trong Supabase Auth → URL Configuration đặt Site URL là production URL, đồng thời thêm production/preview/local URLs cần dùng để email confirmation quay về app.
+4. Người dùng local tiếp tục học bình thường. Chỉ khi họ chủ động “Đăng nhập & liên kết” hoặc “Đăng ký & liên kết”, app mới gắn local profile hiện tại với `session.user.id`, merge và upsert cloud.
+5. Nếu thiếu config, timeout hoặc Supabase outage, app vẫn chạy local mode đầy đủ.
 
 ## Dữ liệu MVP
 
-Dữ liệu được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Đây chưa phải hệ thống auth/backend production; cấu trúc code được chia section để có thể thay lớp storage/auth bằng Supabase sau này.
+Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.
 
 ## Chưa phải AI thật
 Điểm phát âm hiện dựa trên Speech-to-Text và độ giống văn bản. Đây không phải chấm âm vị AI chính xác; bản production vẫn cần backend/API pronunciation scoring.
