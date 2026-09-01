@@ -6,6 +6,7 @@
   const { storage, state, STORAGE_KEYS, render, setView, toast, escapeHtml, getUserProgress, userScoped, saveUserScoped, LearnerProfileService, PracticeService, CloudSyncService } = app;
   const uid = () => state.currentUser?.id || '';
   const now = () => new Date().toISOString();
+  const normalizeSearch = (value = '') => String(value).toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
   const dateKey = (date = new Date()) => { const d = new Date(date); return d.toISOString().slice(0, 10); };
   const clamp = (value, min = 0, max = 100) => Math.min(max, Math.max(min, Number(value) || 0));
   const safeObject = (value) => value && typeof value === 'object' && !Array.isArray(value) ? value : {};
@@ -37,25 +38,31 @@
     const weakSkills = new Set([...(profile.weakSkills || []), ...(stats.weakTopics || []).map((item) => Array.isArray(item) ? item[0] : item)].map((item) => String(item).toLocaleLowerCase()));
     const activity = recentActivity();
     const target = Number(profile.targetTopikLevel || state.currentUser?.targetTopikLevel || 2);
-    return { profile, progress, stats, topErrors, due, scores, weakSkills, activity, target };
+    const memories = window.LearningMemoryService?.all?.() || [];
+    const graphWeakness = window.KnowledgeGraphService?.weaknessAnalysis?.() || [];
+    return { profile, progress, stats, topErrors, due, scores, weakSkills, activity, target, memories, graphWeakness };
   }
 
   function buildPriorities() {
     const s = prioritySignals();
     return Object.keys(skillLabel).map((id) => {
       const score = Number(s.scores[id]) || 0;
+      const focusMemory = s.memories.find((item) => ['weak_knowledge', 'repeated_mistake'].includes(item.type) && normalizeSearch(`${item.topic} ${item.content}`).includes(id));
+      const focusNode = s.graphWeakness.find((item) => normalizeSearch(`${item.id} ${item.label} ${item.type}`).includes(id));
       const reasons = [];
       let points = 0;
       if (score < 60 || s.weakSkills.has(id) || s.weakSkills.has(skillLabel[id].toLocaleLowerCase())) { points += 3; reasons.push('kỹ năng yếu'); }
-      if ((s.topErrors[id] || 0) >= 2) { points += 2; reasons.push(`${s.topErrors[id]} lỗi lặp`); }
+      if ((s.topErrors[id] || 0) >= 2) { points += 3; reasons.push(`${s.topErrors[id]} lỗi lặp`); }
+      if (focusMemory) { points += 2; reasons.push(`memory: ${focusMemory.topic}`); }
       const taskLast = s.activity.history.find((item) => item.skill === id || item.skillBreakdown?.[id] !== undefined);
       const staleDays = taskLast?.completedAt ? Math.floor((Date.now() - new Date(taskLast.completedAt).getTime()) / 86400000) : s.activity.daysSince;
       if (staleDays >= 3 || !taskLast) { points += 2; reasons.push(staleDays >= 3 ? 'lâu chưa luyện' : 'chưa có lịch sử'); }
       if (id === 'vocabulary' && s.due > 0) { points += 3; reasons.push(`${s.due} thẻ SRS đến hạn`); }
       if (['reading', 'listening', 'grammar', 'vocabulary'].includes(id) && s.target >= 3) { points += 2; reasons.push(`liên quan TOPIK ${s.target}`); }
+      if (focusNode?.weaknessScore >= 2) { points += 2; reasons.push(`graph yếu: ${focusNode.label}`); }
       if (!reasons.length) reasons.push('duy trì nhịp học');
       const minutes = id === 'vocabulary' ? 8 : (id === 'speaking' || id === 'writing' ? 7 : 6);
-      return { id, type: id, title: skillLabel[id], score: points, rawScore: clamp(score), reasons, reason: reasonText({ reasons }), minutes, actionView: skillViews[id] };
+      return { id, type: id, title: `${skillLabel[id]}${focusNode ? ` · ${focusNode.label}` : focusMemory && focusMemory.topic !== id ? ` · ${focusMemory.topic}` : ''}`, score: points, rawScore: clamp(score), reasons, reason: reasonText({ reasons }), minutes, actionView: skillViews[id] };
     }).sort((a, b) => b.score - a.score || b.rawScore - a.rawScore || a.id.localeCompare(b.id));
   }
 
@@ -64,13 +71,13 @@
     getToday() {
       if (!uid()) return null;
       const today = dateKey(); const existing = this.getAll().find((item) => item.date === today);
-      if (existing) return existing;
+      if (existing && (existing.generatedBy === 'adaptive-memory-v2' || existing.completed)) return existing;
       const signals = prioritySignals();
       const baseMinutes = Number(state.currentUser?.studyMinutesPerDay || signals.profile.studyMinutesPerDay || 20) || 20;
       const reduced = signals.activity.daysSince >= 3 || Number(signals.progress.stats?.streak || 0) === 0;
       const totalMinutes = Math.max(10, Math.min(90, reduced ? Math.min(baseMinutes, 15) : baseMinutes));
       const priorities = buildPriorities().slice(0, 3).map((item, index) => ({ ...item, minutes: index === 0 ? Math.max(item.minutes, Math.round(totalMinutes * .4)) : item.minutes }));
-      const mission = { id: `mission-${uid()}-${today}`, userId: uid(), date: today, generatedAt: now(), totalMinutes, priorities, reducedPlan: reduced, habitHint: this.habitHint(signals.activity), completed: false, completedItems: [], generatedBy: 'adaptive-rules-v1' };
+      const mission = { id: `mission-${uid()}-${today}`, userId: uid(), date: today, generatedAt: now(), totalMinutes, priorities, reducedPlan: reduced, habitHint: this.habitHint(signals.activity), completed: false, completedItems: [], generatedBy: 'adaptive-memory-v2' };
       writeUserMap(STORAGE_KEYS.dailyMissions, [mission, ...this.getAll().filter((item) => item.date !== today)].slice(0, 30), 'adaptive-mission');
       return mission;
     },

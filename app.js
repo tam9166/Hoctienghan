@@ -12,7 +12,7 @@ const STORAGE_KEYS = Object.freeze({
   practice: 'klearn_practice',
   practiceHistory: 'klearn_practice_history',
   speaking: 'klearn_speaking',
-  writing: 'klearn_writing', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting', learnerProfile: 'klearn_learner_profile', syncMeta: 'klearn_sync_meta', dailyPlan: 'klearn_daily_plan', notifications: 'klearn_notifications', errors: 'klearn_errors', weeklyReports: 'klearn_weekly_reports', dailyMissions: 'klearn_daily_missions', learningGoals: 'klearn_learning_goals', adaptiveRoadmaps: 'klearn_adaptive_roadmaps', migrationBackup: 'klearn_migration_backup_v8'
+  writing: 'klearn_writing', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting', learnerProfile: 'klearn_learner_profile', syncMeta: 'klearn_sync_meta', dailyPlan: 'klearn_daily_plan', notifications: 'klearn_notifications', errors: 'klearn_errors', weeklyReports: 'klearn_weekly_reports', dailyMissions: 'klearn_daily_missions', learningGoals: 'klearn_learning_goals', adaptiveRoadmaps: 'klearn_adaptive_roadmaps', aiMemory: 'klearn_ai_memory', knowledgeProgress: 'klearn_knowledge_progress', migrationBackup: 'klearn_migration_backup_v8'
 });
 
 const storage = {
@@ -48,7 +48,7 @@ function migrateLegacyStorage() {
   }
   storage.set(STORAGE_KEYS.settings, {
     ...(settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {}),
-    schemaVersion: 11,
+    schemaVersion: 12,
     language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi',
     theme: ['system', 'light', 'dark'].includes(settings?.theme) ? settings.theme : 'system',
     users: settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? settings.users : {},
@@ -226,7 +226,7 @@ const ThemeService = {
     if (state.currentUser?.id) {
       users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), theme: safePreference, updatedAt: new Date().toISOString() };
     }
-    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 11, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 12, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
     this.apply(safePreference);
   },
   watchSystemTheme() {
@@ -320,7 +320,7 @@ const I18nService = {
     const users = settings.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
     settings.language = safeLanguage;
     if (state.currentUser?.id) users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), language: safeLanguage, updatedAt: new Date().toISOString() };
-    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 11, language: LANGUAGE_VALUES.includes(settings.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 12, language: LANGUAGE_VALUES.includes(settings.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
     document.documentElement.lang = window.KLEARN_LOCALES?.[safeLanguage]?.htmlLang || safeLanguage;
     state.learningLanguage = safeLanguage;
   },
@@ -403,7 +403,7 @@ function setShowRomanization(showRomanization) {
   const settings = storage.get(STORAGE_KEYS.settings, {});
   const users = settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
   users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), showRomanization: Boolean(showRomanization), updatedAt: new Date().toISOString() };
-  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 11, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 12, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
 }
 
 function getRomanization(itemOrText = '') {
@@ -875,7 +875,7 @@ const USER_SYNC_KEYS = Object.freeze([
   STORAGE_KEYS.progress, STORAGE_KEYS.srs, STORAGE_KEYS.settings, STORAGE_KEYS.practice, STORAGE_KEYS.practiceHistory,
   STORAGE_KEYS.speaking, STORAGE_KEYS.writing, STORAGE_KEYS.dictionaryFavorites, STORAGE_KEYS.savedSentences,
   STORAGE_KEYS.translationHistory, STORAGE_KEYS.recentSearches, STORAGE_KEYS.handwriting, STORAGE_KEYS.learnerProfile,
-  STORAGE_KEYS.dailyPlan, STORAGE_KEYS.notifications, STORAGE_KEYS.errors, STORAGE_KEYS.weeklyReports, STORAGE_KEYS.dailyMissions, STORAGE_KEYS.learningGoals, STORAGE_KEYS.adaptiveRoadmaps, 'klearn_ai_conversations'
+  STORAGE_KEYS.dailyPlan, STORAGE_KEYS.notifications, STORAGE_KEYS.errors, STORAGE_KEYS.weeklyReports, STORAGE_KEYS.dailyMissions, STORAGE_KEYS.learningGoals, STORAGE_KEYS.adaptiveRoadmaps, STORAGE_KEYS.aiMemory, STORAGE_KEYS.knowledgeProgress, 'klearn_ai_conversations'
 ]);
 
 const CloudSyncService = {
@@ -909,7 +909,7 @@ const CloudSyncService = {
   mergeValue(local, remote) {
     if (Array.isArray(local) || Array.isArray(remote)) {
       const values = [...(Array.isArray(local) ? local : []), ...(Array.isArray(remote) ? remote : [])];
-      const keyed = new Map(); values.forEach((item) => { const key = item && typeof item === 'object' ? (item.id || item.wordId || item.questionId || item.createdAt || JSON.stringify(item)) : String(item); const previous = keyed.get(key); if (!previous || new Date(item?.updatedAt || item?.completedAt || item?.createdAt || 0) >= new Date(previous?.updatedAt || previous?.completedAt || previous?.createdAt || 0)) keyed.set(key, item); });
+      const keyed = new Map(); values.forEach((item) => { const key = item && typeof item === 'object' ? (item.id || item.wordId || item.questionId || item.createdAt || item.created_at || JSON.stringify(item)) : String(item); const previous = keyed.get(key); const timestamp = (value) => new Date(value?.updatedAt || value?.updated_at || value?.completedAt || value?.last_used_at || value?.createdAt || value?.created_at || 0); if (!previous || timestamp(item) >= timestamp(previous)) keyed.set(key, item); });
       return [...keyed.values()];
     }
     if (local && remote && typeof local === 'object' && typeof remote === 'object') { const localTime = new Date(local.updatedAt || local.updated_at || 0).getTime(); const remoteTime = new Date(remote.updatedAt || remote.updated_at || 0).getTime(); return remoteTime >= localTime ? { ...local, ...remote } : { ...remote, ...local }; }
@@ -980,8 +980,17 @@ const LearnerProfileService = {
 window.LearnerProfileService = LearnerProfileService;
 
 const SmartReviewService = {
-  priority(card) { const ageDays = Math.max(0, (Date.now() - new Date(card.lastReviewed || 0).getTime()) / 86400000); return (card.wrongCount || 0) * 5 + (new Date(card.nextReview) <= new Date() ? 8 : 0) + Math.min(8, ageDays) + (100 - (card.mastery || 0)) / 20; },
-  plan(minutes = 20) { const count = Math.max(3, Math.round(Number(minutes) / 2)); const cards = [...state.srsData].sort((a,b) => this.priority(b) - this.priority(a)).slice(0, count); const profile = LearnerProfileService.get() || {}; return { minutes: Number(minutes), cards, grammar: (profile.weakGrammar || []).slice(0, Math.max(1, Math.round(Number(minutes) / 10))), skills: (profile.weakSkills || []).slice(0, 2), estimatedItems: cards.length + Math.max(1, Math.round(Number(minutes) / 5)) }; },
+  priority(card) {
+    const ageDays = Math.max(0, (Date.now() - new Date(card.lastReviewed || card.createdAt || 0).getTime()) / 86400000);
+    const target = Number(state.currentUser?.targetTopikLevel || 2); let score = 0;
+    if (new Date(card.nextReview) <= new Date()) score += 3;
+    if (Number(card.wrongCount || 0) >= 2) score += 3;
+    if (Number(card.topikLevel || 1) <= target) score += 2;
+    if (ageDays >= 14 || !card.lastReviewed) score += 2;
+    if (window.KnowledgeGraphService?.isWeakTopic?.(card.topic || card.wordId)) score += 2;
+    return score + (100 - (Number(card.mastery) || 0)) / 100;
+  },
+  plan(minutes = 20) { const count = Math.max(3, Math.round(Number(minutes) / 2)); const cards = [...state.srsData].sort((a,b) => this.priority(b) - this.priority(a)).slice(0, count); const profile = LearnerProfileService.get() || {}; const graphTopics = window.KnowledgeGraphService?.weaknessAnalysis?.().slice(0, 3) || []; return { minutes: Number(minutes), cards, grammar: (profile.weakGrammar || []).slice(0, Math.max(1, Math.round(Number(minutes) / 10))), skills: (profile.weakSkills || []).slice(0, 2), graphTopics, estimatedItems: cards.length + Math.max(1, Math.round(Number(minutes) / 5)) }; },
   start(minutes) { const plan = this.plan(minutes); if (!plan.cards.length) return toast('Chưa có dữ liệu để tạo phiên ôn thông minh.'); state.reviewSelectionCount = plan.cards.length; state.reviewSource = 'smart'; beginReviewSession(plan.cards.map((card) => card.wordId)); }
 };
 window.SmartReviewService = SmartReviewService;
@@ -1051,9 +1060,9 @@ const AITutorService = {
   current() { return this.all().find((item) => item.id === state.aiConversationId) || null; },
   start(title = 'Hỏi gia sư') { const conversation = { id: uniqueId(), userId: state.currentUser?.id, title, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), summary: '', messages: [] }; this.saveAll([conversation, ...this.all()]); state.aiConversationId = conversation.id; return conversation; },
   ensure() { return this.current() || this.start(); },
-  context() { const profile = LearnerProfileService.get() || {}; const currentLesson = (window.KLEARN_THEORY_LESSONS || []).find((lesson) => lesson.id === state.selectedLessonPreview); const extra = window.ErrorNotebookService?.context?.() || {}; const handwriting = userScoped(STORAGE_KEYS.handwriting).slice(0, 8).map((item) => ({ character: item.character, stage: item.stage, masteryScore: item.masteryScore })); return { userLanguage: I18nService.getPreference(), currentTopikLevel: profile.currentTopikLevel || state.currentUser?.currentTopikLevel || null, targetTopikLevel: profile.targetTopikLevel || state.currentUser?.targetTopikLevel || null, currentLesson: currentLesson ? { id: currentLesson.id, title: currentLesson.title, topic: currentLesson.topic } : null, weakGrammar: (profile.weakGrammar || []).slice(0, 5), weakVocabulary: (profile.weakVocabulary || []).slice(0, 8), weakSkills: (profile.weakSkills || []).slice(0, 3), recentMistakes: (profile.recentMistakes || []).slice(0, 8), errorNotebook: extra.top || [], dueSrsCount: profile.dueSrsCount || 0, recentScores: PracticeService.getHistory().slice(0, 5).map((item) => ({ percentage: item.percentage, skillBreakdown: item.skillBreakdown })), listeningScore: profile.skillScores?.listening || 0, speakingScore: profile.skillScores?.speaking || 0, writingScore: profile.skillScores?.writing || 0, handwritingProgress: handwriting, streak: profile.streak || 0, weeklyStudyMinutes: profile.weeklyStudyMinutes || 0, masteryByTopic: profile.masteryByTopic || {}, dailyPlan: getUserProgress().daily, conversationSummary: this.current()?.summary || '', currentView: state.currentView }; },
+  context(query = '') { const profile = LearnerProfileService.get() || {}; const currentLesson = (window.KLEARN_THEORY_LESSONS || []).find((lesson) => lesson.id === state.selectedLessonPreview); const extra = window.ErrorNotebookService?.context?.() || {}; const handwriting = userScoped(STORAGE_KEYS.handwriting).slice(0, 8).map((item) => ({ character: item.character, stage: item.stage, masteryScore: item.masteryScore })); const memoryQuery = `${query} ${currentLesson?.title || ''} ${currentLesson?.topic || ''}`.trim(); return { userLanguage: I18nService.getPreference(), currentTopikLevel: profile.currentTopikLevel || state.currentUser?.currentTopikLevel || null, targetTopikLevel: profile.targetTopikLevel || state.currentUser?.targetTopikLevel || null, currentLesson: currentLesson ? { id: currentLesson.id, title: currentLesson.title, topic: currentLesson.topic } : null, weakGrammar: (profile.weakGrammar || []).slice(0, 5), weakVocabulary: (profile.weakVocabulary || []).slice(0, 8), weakSkills: (profile.weakSkills || []).slice(0, 3), recentMistakes: (profile.recentMistakes || []).slice(0, 8), errorNotebook: extra.top || [], relevantMemory: window.MemoryRetrievalService?.retrieve?.(memoryQuery, { limit: 6 }) || [], knowledgeGraph: window.KnowledgeGraphService?.context?.(memoryQuery, 6) || [], dueSrsCount: profile.dueSrsCount || 0, recentScores: PracticeService.getHistory().slice(0, 5).map((item) => ({ percentage: item.percentage, skillBreakdown: item.skillBreakdown })), listeningScore: profile.skillScores?.listening || 0, speakingScore: profile.skillScores?.speaking || 0, writingScore: profile.skillScores?.writing || 0, handwritingProgress: handwriting, streak: profile.streak || 0, weeklyStudyMinutes: profile.weeklyStudyMinutes || 0, masteryByTopic: profile.masteryByTopic || {}, dailyPlan: getUserProgress().daily, conversationSummary: this.current()?.summary || '', currentView: state.currentView }; },
   addMessage(role, content) { const conversation = this.ensure(); conversation.messages.push({ role, content: String(content).slice(0, 4000), createdAt: new Date().toISOString() }); conversation.messages = conversation.messages.slice(-30); conversation.updatedAt = new Date().toISOString(); conversation.title = conversation.messages.find((m) => m.role === 'user')?.content.slice(0, 42) || conversation.title; this.saveAll([conversation, ...this.all().filter((item) => item.id !== conversation.id)]); return conversation; },
-  async send(content) { const text = String(content || '').trim(); if (!text || state.aiBusy) return; this.addMessage('user', text); state.aiBusy = true; renderAiWidget(); const conversation = this.current(); const recentMessages = (conversation?.messages || []).slice(-12); try { const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: recentMessages, learnerContext: this.context(), learningLanguage: I18nService.getPreference() }) }); const payload = await response.json().catch(() => ({})); const reply = response.ok && payload.reply ? payload.reply : payload.configured === false ? I18nService.t('ai.notConfigured') : I18nService.t('ai.error'); this.addMessage('assistant', reply); } catch (_) { this.addMessage('assistant', I18nService.t('ai.offline')); } finally { state.aiBusy = false; renderAiWidget(); } }
+  async send(content) { const text = String(content || '').trim(); if (!text || state.aiBusy) return; window.LearningMemoryService?.captureQuery?.(text); this.addMessage('user', text); state.aiBusy = true; renderAiWidget(); const conversation = this.current(); const recentMessages = (conversation?.messages || []).slice(-12); try { const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: recentMessages, learnerContext: this.context(text), learningLanguage: I18nService.getPreference() }) }); const payload = await response.json().catch(() => ({})); const reply = response.ok && payload.reply ? payload.reply : payload.configured === false ? I18nService.t('ai.notConfigured') : I18nService.t('ai.error'); this.addMessage('assistant', reply); } catch (_) { this.addMessage('assistant', I18nService.t('ai.offline')); } finally { state.aiBusy = false; renderAiWidget(); } }
 };
 
 const VocabularyService = {
@@ -1844,7 +1853,7 @@ window.GlobalSearchService = GlobalSearchService;
 
 function smartReviewView() {
   const minutes = state.smartReviewMinutes || 20; const plan = SmartReviewService.plan(minutes); const profile = LearnerProfileService.get() || {};
-  return `<section class="section page-heading"><button class="back-link" data-view="review" aria-label="Quay lại">←</button><p class="eyebrow">🧠 Adaptive Review</p><h1 class="headline">Ôn tập thông minh</h1><p class="subtle">Tổng hợp SRS đến hạn, từ hay sai, grammar yếu và kỹ năng cần luyện — không thay thế SRS.</p></section><section class="card section"><h2 class="section-title">Chọn thời lượng</h2><div class="count-options smart-time-options">${[5,10,15,20,30].map((value) => `<button class="${minutes === value ? 'selected' : ''}" data-smart-minutes="${value}">${value} phút</button>`).join('')}</div><div class="smart-review-summary"><b>${plan.cards.length}</b><span>từ ưu tiên</span><b>${plan.grammar.length}</b><span>grammar yếu</span><b>${plan.skills.length}</b><span>skill cần củng cố</span></div><p class="subtle">${profile.weakSkills?.length ? `Đang ưu tiên: ${profile.weakSkills.join(', ')}.` : 'Hệ thống sẽ ưu tiên dữ liệu có lịch sử thực tế.'}</p><button class="btn primary full" data-start-smart-review="${minutes}">Bắt đầu phiên ${minutes} phút</button></section><section class="card section"><h2 class="section-title">Vì sao các mục này được chọn?</h2><ul class="subtle"><li>SRS đã đến hạn hoặc sắp quên</li><li>Câu/từ có nhiều lần trả lời sai</li><li>Chủ đề có điểm luyện thấp</li><li>Kỹ năng lâu chưa luyện</li></ul></section>`;
+  return `<section class="section page-heading"><button class="back-link" data-view="review" aria-label="Quay lại">←</button><p class="eyebrow">🧠 Adaptive Review</p><h1 class="headline">Ôn tập thông minh</h1><p class="subtle">Kết hợp SRS, lỗi lặp, mục tiêu, memory và liên kết yếu trong Knowledge Graph — không thay thế lịch SRS.</p></section><section class="card section"><h2 class="section-title">Chọn thời lượng</h2><div class="count-options smart-time-options">${[5,10,15,20,30].map((value) => `<button class="${minutes === value ? 'selected' : ''}" data-smart-minutes="${value}">${value} phút</button>`).join('')}</div><div class="smart-review-summary"><b>${plan.cards.length}</b><span>từ ưu tiên</span><b>${plan.grammar.length}</b><span>grammar yếu</span><b>${plan.skills.length}</b><span>skill cần củng cố</span></div><p class="subtle">${plan.graphTopics?.length ? `Graph phát hiện: ${plan.graphTopics.map((item) => item.label).join(', ')}.` : profile.weakSkills?.length ? `Đang ưu tiên: ${profile.weakSkills.join(', ')}.` : 'Hệ thống sẽ ưu tiên dữ liệu có lịch sử thực tế.'}</p><button class="btn primary full" data-start-smart-review="${minutes}">Bắt đầu phiên ${minutes} phút</button></section><section class="card section"><h2 class="section-title">Cách tính AI Review Priority</h2><ul class="subtle"><li>SRS đến hạn: +3</li><li>Lỗi lặp lại: +3</li><li>Liên quan mục tiêu: +2</li><li>Chủ đề có nguy cơ quên: +2</li><li>Liên kết yếu trong Knowledge Graph: +2</li></ul></section>`;
 }
 
 function globalSearchView() {
