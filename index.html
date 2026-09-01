@@ -3,15 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#f8f9fa" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#0f1419" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#C5ED4F" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#1C2416" media="(prefers-color-scheme: dark)" />
+  <meta name="description" content="Nền tảng học tiếng Hàn và luyện thi TOPIK dành cho người Việt." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Tiếng Hàn - TamHoanq" />
+  <meta property="og:title" content="Tiếng Hàn - TamHoanq" />
+  <meta property="og:description" content="Học tiếng Hàn theo lộ trình, ôn từ vựng và luyện thi TOPIK." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="TamHoanq" />
   <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/logo-source.svg" type="image/svg+xml" />
   <link rel="icon" href="icons/icon-192.png" type="image/png" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="styles.css?v=20" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
+  <link rel="stylesheet" href="styles.css?v=21" />
   <script>
     (() => {
       try {
@@ -37,7 +43,7 @@
   <div id="app-shell">
     <header class="topbar hidden" id="topbar">
       <button class="avatar-btn" id="avatarBtn" aria-label="Mở trang cá nhân">
-        <span class="avatar" aria-label="Logo TH">TH</span>
+        <span class="avatar" aria-label="Logo Tiếng Hàn - TamHoanq">TH</span>
       </button>
       <div class="brand" data-view="dictionary" role="button" tabindex="0">Tiếng Hàn - TamHoanq</div>
       <div class="header-actions">
@@ -57,6 +63,7 @@
     <main id="app" class="app-content" aria-live="polite"></main>
 
     <nav class="bottom-nav hidden" id="bottomNav" aria-label="Điều hướng chính">
+      <div class="sidebar-brand" aria-label="Tiếng Hàn - TamHoanq"><span class="brand-mini" aria-hidden="true">TH</span><span>Tiếng Hàn<br />TamHoanq</span></div>
       <button data-route="home" class="nav-item active"><span class="nav-icon">🏠</span><span>Trang chủ</span></button>
       <button data-route="lessons" class="nav-item"><span class="nav-icon">📚</span><span>Học tập</span></button>
       <button data-route="topik" class="nav-item"><span class="nav-icon">🏆</span><span>TOPIK</span></button>
@@ -83,7 +90,7 @@
   <script src="data/cloud-sync.js?v=2"></script>
   <script src="data/learning-modules.js?v=9"></script>
   <script src="data/practice-bank.js?v=8"></script>
-  <script src="app.js?v=18"></script>
+  <script src="app.js?v=19"></script>
   <script src="data/curriculum.js?v=1"></script>
   <script src="data/topik-strategy.js?v=1"></script>
   <script src="data/ai-coach.js?v=4"></script>

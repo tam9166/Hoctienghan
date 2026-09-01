@@ -1,7 +1,7 @@
-const CACHE = 'klearn-v23';
+const CACHE = 'klearn-v24';
 const OFFLINE_ASSETS = [
   './index.html',
-  './styles.css?v=20',
+  './styles.css?v=21',
   './data/romanization.js?v=8',
   './data/vocabulary-bank.js?v=8',
   './data/dictionary.js?v=1',
@@ -17,12 +17,14 @@ const OFFLINE_ASSETS = [
   './locales/en.js?v=3',
   './locales/zh-CN.js?v=3',
   './data/content-locales.js?v=1',
-  './app.js?v=18',
+  './app.js?v=19',
   './data/resource-library.js?v=1',
   './data/content-review.js?v=2',
   './data/curriculum.js?v=1',
   './data/topik-strategy.js?v=1',
   './manifest.json',
+  './icons/logo-source.svg',
+  './icons/apple-touch-icon.png',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];

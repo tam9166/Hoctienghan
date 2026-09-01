@@ -204,7 +204,7 @@ function appElement() { return document.getElementById('app'); }
 function formatDate(value) { return new Intl.DateTimeFormat(I18nService?.locale?.()?.htmlLang || 'vi', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(value)); }
 
 const THEME_VALUES = Object.freeze(['system', 'light', 'dark']);
-const THEME_COLORS = Object.freeze({ light: '#f8f9fa', dark: '#0f1419' });
+const THEME_COLORS = Object.freeze({ light: '#C5ED4F', dark: '#1C2416' });
 
 const ThemeService = {
   isValid(value) { return THEME_VALUES.includes(value); },
@@ -1351,7 +1351,6 @@ function syncShell() {
   document.getElementById('bottomNav').classList.toggle('hidden', !showChrome);
   appElement().classList.toggle('public-content', !showChrome);
   if (showChrome) {
-    document.querySelector('#avatarBtn .avatar').textContent = state.currentUser.avatar || initials(state.currentUser.fullName);
     document.getElementById('streakCount').textContent = getUserProgress().stats.streak;
   }
   document.querySelectorAll('.nav-item').forEach((button) => {
@@ -1394,7 +1393,7 @@ function welcomeView() {
 }
 
 function registerView() {
-  return `<section class="auth-page"><button class="back-link" data-view="welcome" aria-label="Quay lại">←</button><p class="eyebrow">Tạo tài khoản học viên</p>
+  return `<section class="auth-page"><button class="back-link" data-view="welcome" aria-label="Quay lại">←</button><div class="auth-branding"><span class="brand-mark brand-mark-compact" aria-label="Logo Tiếng Hàn - TamHoanq">TH</span><span>Tiếng Hàn - TamHoanq</span></div><p class="eyebrow">Tạo tài khoản học viên</p>
     <h1 class="headline">${I18nService.t('auth.register')}</h1><p class="subtle">${I18nService.t('auth.registerSubtitle')}</p>
     <form id="registerForm" class="auth-form" novalidate>
       <label>Họ tên<input name="fullName" type="text" autocomplete="name" maxlength="80" placeholder="Nguyễn Minh Anh" /></label>
@@ -1409,7 +1408,7 @@ function registerView() {
 }
 
 function loginView() {
-  return `<section class="auth-page"><button class="back-link" data-view="welcome" aria-label="Quay lại">←</button><p class="eyebrow">Tiếng Hàn - TamHoanq</p>
+  return `<section class="auth-page"><button class="back-link" data-view="welcome" aria-label="Quay lại">←</button><div class="auth-branding"><span class="brand-mark brand-mark-compact" aria-label="Logo Tiếng Hàn - TamHoanq">TH</span><span>Tiếng Hàn - TamHoanq</span></div><p class="eyebrow">Đăng nhập học tập</p>
     <h1 class="headline">${I18nService.t('auth.welcome')} 👋</h1><p class="subtle">${I18nService.t('auth.loginSubtitle')}</p>
     <form id="loginForm" class="auth-form" novalidate>
       <label>Email<input name="email" type="email" autocomplete="email" inputmode="email" placeholder="ban@example.com" /></label>
@@ -1423,7 +1422,7 @@ function loginView() {
 
 function onboardingFrame(step, title, subtitle, content) {
   const width = step.startsWith('1') ? 25 : step.startsWith('2') ? 55 : step.startsWith('3') ? 82 : 100;
-  return `<section class="onboarding-page"><div class="onboarding-top"><span class="brand-small">Tiếng Hàn - TamHoanq</span><span class="step-label">${escapeHtml(step)}</span></div>
+  return `<section class="onboarding-page"><div class="onboarding-top"><span class="brand-lockup"><span class="brand-mini" aria-hidden="true">TH</span><span class="brand-small">Tiếng Hàn - TamHoanq</span></span><span class="step-label">${escapeHtml(step)}</span></div>
     <div class="bar onboarding-bar"><span style="width:${width}%"></span></div><div class="onboarding-copy"><h1 class="headline">${title}</h1><p class="subtle">${subtitle}</p></div>${content}</section>`;
 }
 
