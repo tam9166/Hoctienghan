@@ -3,7 +3,7 @@ window.KLEARN_LOCALES = window.KLEARN_LOCALES || {};
 window.KLEARN_LOCALES.vi = {
   label: 'Tiếng Việt', short: 'VI', htmlLang: 'vi',
   keys: {
-    'nav.home': 'Trang chủ', 'nav.learn': 'Học', 'nav.review': 'Ôn tập', 'nav.practice': 'Luyện tập', 'nav.profile': 'Cá nhân',
+    'nav.home': 'Trang chủ', 'nav.learn': 'Học tập', 'nav.topik': 'TOPIK', 'nav.review': 'Ôn tập', 'nav.assistant': 'Trợ lý', 'nav.practice': 'Luyện tập', 'nav.profile': 'Hồ sơ',
     'auth.login': 'Đăng nhập', 'auth.register': 'Đăng ký', 'auth.welcome': 'Chào mừng trở lại', 'auth.email': 'Email', 'auth.password': 'Mật khẩu', 'auth.forgot': 'Quên mật khẩu?',
     'auth.start': 'Bắt đầu học', 'auth.hasAccount': 'Đã có tài khoản?', 'auth.noAccount': 'Chưa có tài khoản?',
     'theme.title': 'Giao diện', 'theme.description': 'Chọn cách hiển thị bạn thấy thoải mái nhất.', 'theme.system': 'Theo thiết bị', 'theme.light': 'Sáng', 'theme.dark': 'Tối', 'theme.systemDesc': 'Tự theo giao diện thiết bị', 'theme.lightDesc': 'Nền sáng, dễ đọc', 'theme.darkDesc': 'Dịu mắt khi học ban đêm',

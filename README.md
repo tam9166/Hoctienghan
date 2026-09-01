@@ -58,27 +58,32 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Endpoint server-side tùy chọn là `/api/chat`; cấu hình `OPENAI_API_KEY` và tùy chọn `OPENAI_MODEL` trên Vercel Environment Variables. Không đặt key trong frontend.
 - Khi chưa có key hoặc offline, AI hiển thị trạng thái cấu hình/kết nối rõ ràng; dictionary, theory và phrasebook vẫn hoạt động offline.
 
-## Learning intelligence và cloud sync
+## Giao diện học tập và cloud sync
+
+- Hệ màu giao diện dùng lime `#DDFF66`, accent hover `#CBEF4D`, nền nhạt `#F7FFD1`, chữ đậm `#1F2A1A` và viền `#D6E8A8`; dark mode dùng cùng màu nhấn trên bề mặt tối có độ tương phản rõ.
+- Information architecture chính gồm Home, Học tập, TOPIK, Ôn tập, Trợ lý học tập và Hồ sơ. Home ưu tiên tiến độ, nhiệm vụ hôm nay, bài học tiếp theo, từ đến hạn và kỹ năng cần cải thiện.
+- Học tập gom lesson theo TOPIK, mini quiz, luyện nghe/nói/viết/đọc, sổ từ cá nhân và các lộ trình XKLĐ, du học, công sở. TOPIK có thi từng phần, full đề, kho đề TOPIK 1–6 và đếm ngược kỳ thi.
+- Các hiệu ứng gradient/bóng đổ được tiết chế; button, badge, active navigation, progress và trạng thái tương tác dùng chung color system.
 
 - `CloudSyncService` dùng local-first: thao tác ghi vào localStorage ngay, sau đó debounce sync theo sự kiện có ý nghĩa. Khi chưa cấu hình provider, Profile hiển thị `Chỉ lưu trên thiết bị`; khi mất mạng hiển thị `Ngoại tuyến` và không làm mất tiến độ.
 - Dữ liệu cũ không bị xóa. `/api/config` chỉ trả public URL và publishable/anon key; `data/cloud-sync.js` khởi tạo singleton Supabase client chính thức, tự restore/refresh session và cung cấp provider cho `CloudSyncService`. Access/refresh token do Supabase client quản lý, không được đưa vào payload học tập.
 - `LearnerProfileService` suy ra điểm mạnh/yếu từ SRS, lesson progress, điểm luyện, câu sai, speaking/writing metadata và thống kê 7 ngày; khi chưa đủ dữ liệu sẽ không gắn nhãn điểm yếu.
 - `SmartReviewService` xếp hạng SRS đến hạn, từ/câu sai, mastery thấp và skill yếu theo rule minh bạch; hỗ trợ phiên 5/10/15/20/30 phút.
 - Mastery lesson dùng `not_started → learning → understood → mastered`; progress record có `updatedAt`, `contentVersion` để tương thích về sau.
-- `AI Korean Coach` mở rộng AI Tutor bằng learner context rút gọn (TOPIK, mastery, SRS, điểm kỹ năng, streak, handwriting và Error Notebook), không gửi password/token/database đầy đủ. `AI Weekly Coach Report`, sentence corrector, personalized practice và speaking feedback đều đi qua `/api/chat`.
-- `Error Notebook` lưu local-first tại `klearn_errors`, gộp lỗi trùng theo fingerprint và đồng bộ như một domain người dùng; lỗi có thể đến từ TOPIK/grammar, speaking, writing hoặc AI correction. Word Map trong từ điển tạo liên kết theo topic/tag/part-of-speech hiện có.
+- `Trợ lý học tập` mở rộng tutor bằng learner context rút gọn (TOPIK, mastery, SRS, điểm kỹ năng, streak, handwriting và Sổ lỗi), không gửi password/token/database đầy đủ. Nhận xét tuần, sửa câu, bài luyện cá nhân và speaking feedback đều đi qua `/api/chat`.
+- `Sổ lỗi của tôi` lưu local-first tại `klearn_errors`, gộp lỗi trùng theo fingerprint và đồng bộ như một domain người dùng; lỗi có thể đến từ TOPIK/grammar, speaking, writing hoặc công cụ sửa câu. Word Map trong từ điển tạo liên kết theo topic/tag/part-of-speech hiện có.
 - Placement Test hiện có 16 câu đa chiều (vocabulary/grammar/reading/listening) và hiển thị breakdown theo kỹ năng. Đây là adaptive MVP, chưa phải bài thi chuẩn hóa.
 - TOPIK Analytics hiển thị điểm, đúng/sai, thời gian trung bình, breakdown skill, trend 5 đề và readiness ước tính có nhãn rõ ràng.
 - Global Search (`⌕` trên header) tìm theo Hangul, romanization, Vietnamese, English, 中文 trong lesson, dictionary, practice và phrasebook.
 - Weekly Insights tổng hợp phút học, bài, từ thành thạo, đề đã làm, điểm mạnh/yếu; AI chỉ nhận structured stats nhỏ khi được bật.
 - `PronunciationProvider` và `HandwritingProvider` là abstraction cho model tương lai. MVP hiện tại chỉ chấm text similarity/self-confirmation, không giả vờ có phoneme hoặc handwriting recognition AI.
 - `AdaptiveLearningEngine` tạo Daily Mission cố định theo ngày bằng rule deterministic: kỹ năng yếu (+3), lỗi lặp (+3), lâu chưa luyện (+2), SRS đến hạn (+3), liên quan TOPIK mục tiêu (+2), memory/graph yếu (+2). Engine dùng learner profile, progress, practice history, SRS và Error Notebook; không random và không gửi secrets.
-- `GoalTrackingService` lưu mục tiêu/deadline/phút học tại `klearn_learning_goals`; `RoadmapService` tạo roadmap 6 phase tại `klearn_adaptive_roadmaps`. Nút “Tạo lộ trình bằng AI” chỉ là lớp nhận xét tùy chọn, fallback local luôn hoạt động.
+- `GoalTrackingService` lưu mục tiêu/deadline/phút học tại `klearn_learning_goals`; `RoadmapService` tạo roadmap 6 phase tại `klearn_adaptive_roadmaps`. Lớp nhận xét từ trợ lý là tùy chọn, fallback local luôn hoạt động.
 - Daily Mission lưu tại `klearn_daily_missions`, giữ khoảng 30 ngày và khôi phục đúng mission khi reload. Ba domain mới được thêm vào `USER_SYNC_KEYS`, vì vậy Supabase `learning_sync.data` JSONB hiện có tự đồng bộ mà không cần bảng/migration SQL mới.
 - Schema local được nâng lên version 12 theo hướng additive/idempotent; các key mới tự khởi tạo khi cần, không reset users, progress, SRS, Auth hay dữ liệu cloud cũ.
 - `LearningMemoryService` lưu long-term memory chọn lọc tại `klearn_ai_memory`: learning preference, weak/strong knowledge, learning goal và repeated mistakes. Không lưu toàn bộ hội thoại; `MemoryRetrievalService` chỉ lấy tối đa vài memory liên quan đến câu hỏi/bài học. `klearn_ai_memory` và `klearn_knowledge_progress` đều nằm trong `USER_SYNC_KEYS` và dùng JSONB cloud hiện có.
 - `KnowledgeGraphService` cung cấp core grammar graph và tự dựng vocabulary nodes từ dictionary theo topic (ví dụ 은/는 ↔ 이/가 và 학교 → 학생/선생님/수업/공부), related-node lookup và knowledge progress riêng từng user tại `klearn_knowledge_progress`. Graph weakness kết hợp Error Notebook, mastery và SRS để nâng điểm Smart Review/Daily Mission.
-- Profile có AI Learning DNA và AI Coach có Memory Insight; các thẻ đều mobile-first, dark-mode và chỉ hiển thị tín hiệu học tập cần thiết.
+- Hồ sơ có xu hướng học tập và phần ghi nhớ chọn lọc; các thẻ đều mobile-first, dark-mode và chỉ hiển thị tín hiệu học tập cần thiết.
 
 ### Bật Supabase cloud sync (tùy chọn)
 
