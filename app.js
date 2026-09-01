@@ -12,7 +12,7 @@ const STORAGE_KEYS = Object.freeze({
   practice: 'klearn_practice',
   practiceHistory: 'klearn_practice_history',
   speaking: 'klearn_speaking',
-  writing: 'klearn_writing', listeningSessions: 'klearn_listening_sessions', writingAttempts: 'klearn_writing_attempts', speakingSessions: 'klearn_speaking_sessions', examAttempts: 'klearn_exam_attempts', notes: 'klearn_notes', bookmarks: 'klearn_bookmarks', resourceProgress: 'klearn_resource_progress', highlights: 'klearn_highlights', supportRequests: 'klearn_support_requests', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting', learnerProfile: 'klearn_learner_profile', syncMeta: 'klearn_sync_meta', dailyPlan: 'klearn_daily_plan', notifications: 'klearn_notifications', errors: 'klearn_errors', weeklyReports: 'klearn_weekly_reports', dailyMissions: 'klearn_daily_missions', learningGoals: 'klearn_learning_goals', adaptiveRoadmaps: 'klearn_adaptive_roadmaps', aiMemory: 'klearn_ai_memory', knowledgeProgress: 'klearn_knowledge_progress', migrationBackup: 'klearn_migration_backup_v8'
+  writing: 'klearn_writing', listeningSessions: 'klearn_listening_sessions', writingAttempts: 'klearn_writing_attempts', speakingSessions: 'klearn_speaking_sessions', examAttempts: 'klearn_exam_attempts', notes: 'klearn_notes', bookmarks: 'klearn_bookmarks', resourceProgress: 'klearn_resource_progress', highlights: 'klearn_highlights', supportRequests: 'klearn_support_requests', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting', learnerProfile: 'klearn_learner_profile', syncMeta: 'klearn_sync_meta', dailyPlan: 'klearn_daily_plan', notifications: 'klearn_notifications', errors: 'klearn_errors', weeklyReports: 'klearn_weekly_reports', dailyMissions: 'klearn_daily_missions', learningGoals: 'klearn_learning_goals', adaptiveRoadmaps: 'klearn_adaptive_roadmaps', aiMemory: 'klearn_ai_memory', knowledgeProgress: 'klearn_knowledge_progress', grammarNotebook: 'klearn_grammar_notebook', typingProgress: 'klearn_typing_progress', repairPaths: 'klearn_repair_paths', focusSessions: 'klearn_focus_sessions', checkpoints: 'klearn_checkpoints', offlinePacks: 'klearn_offline_packs', shadowingProgress: 'klearn_shadowing_progress', milestones: 'klearn_milestones', vocabularyCollections: 'klearn_vocabulary_collections', sentenceBuilderProgress: 'klearn_sentence_builder_progress', realLifeProgress: 'klearn_real_life_progress', migrationBackup: 'klearn_migration_backup_v8'
 });
 
 const storage = {
@@ -48,7 +48,7 @@ function migrateLegacyStorage() {
   }
   storage.set(STORAGE_KEYS.settings, {
     ...(settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {}),
-    schemaVersion: 12,
+    schemaVersion: 13,
     language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi',
     theme: ['system', 'light', 'dark'].includes(settings?.theme) ? settings.theme : 'system',
     users: settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? settings.users : {},
@@ -188,7 +188,7 @@ const state = {
   ,globalQuery: '', smartReviewMinutes: 20, cloudUser: null, cloudAuthBusy: false, cloudAuthMessage: ''
 };
 
-const MAIN_VIEWS = ['home', 'lessons', 'courses', 'course-detail', 'theory', 'roadmap', 'topik', 'strategy-lab', 'strategy-detail', 'listening-studio', 'writing-room', 'speaking-room', 'topik-exam', 'topik-exam-result', 'resources', 'resource-view', 'notes', 'bookmarks', 'videos', 'video-view', 'support', 'review-dashboard', 'ai-coach', 'adaptive-plan', 'error-notebook', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'progress-reports', 'practical-korean', 'vocabulary-notebook', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
+const MAIN_VIEWS = ['home', 'lessons', 'courses', 'course-detail', 'theory', 'roadmap', 'topik', 'strategy-lab', 'strategy-detail', 'listening-studio', 'writing-room', 'speaking-room', 'topik-exam', 'topik-exam-result', 'resources', 'resource-view', 'notes', 'bookmarks', 'videos', 'video-view', 'support', 'review-dashboard', 'ai-coach', 'adaptive-plan', 'error-notebook', 'grammar-compare', 'grammar-notebook', 'typing-trainer', 'repair-path', 'focus-study', 'chapter-checkpoint', 'offline-packs', 'shadowing-recorder', 'study-calendar', 'progress-timeline', 'vocabulary-collections', 'sentence-builder', 'real-life-missions', 'study-settings', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'progress-reports', 'practical-korean', 'vocabulary-notebook', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'placement', 'onboarding-result'];
 
@@ -237,7 +237,7 @@ const ThemeService = {
     if (state.currentUser?.id) {
       users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), theme: safePreference, updatedAt: new Date().toISOString() };
     }
-    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 12, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 13, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
     this.apply(safePreference);
   },
   watchSystemTheme() {
@@ -331,7 +331,7 @@ const I18nService = {
     const users = settings.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
     settings.language = safeLanguage;
     if (state.currentUser?.id) users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), language: safeLanguage, updatedAt: new Date().toISOString() };
-    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 12, language: LANGUAGE_VALUES.includes(settings.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+    storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 13, language: LANGUAGE_VALUES.includes(settings.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
     document.documentElement.lang = window.KLEARN_LOCALES?.[safeLanguage]?.htmlLang || safeLanguage;
     state.learningLanguage = safeLanguage;
   },
@@ -408,7 +408,14 @@ function getUserSettings() {
   return {
     showRomanization: typeof saved?.showRomanization === 'boolean' ? saved.showRomanization : migratedDefault,
     theme: ThemeService.isValid(saved?.theme) ? saved.theme : (ThemeService.isValid(settings?.theme) ? settings.theme : 'system'),
-    language: I18nService.isValid(saved?.language) ? saved.language : (I18nService.isValid(settings?.language) ? settings.language : 'vi')
+    language: I18nService.isValid(saved?.language) ? saved.language : (I18nService.isValid(settings?.language) ? settings.language : 'vi'),
+    translationDisplay: ['always', 'tap', 'hidden'].includes(saved?.translationDisplay) ? saved.translationDisplay : 'always',
+    audioSpeed: [0.5, 0.75, 1, 1.25, 1.5].includes(Number(saved?.audioSpeed)) ? Number(saved.audioSpeed) : 1,
+    autoPlayAudio: saved?.autoPlayAudio === true,
+    koreanFontSize: ['small', 'medium', 'large'].includes(saved?.koreanFontSize) ? saved.koreanFontSize : 'medium',
+    dailyVocabularyTarget: Math.max(5, Math.min(100, Number(saved?.dailyVocabularyTarget) || 10)),
+    practiceDifficulty: ['easy', 'balanced', 'challenging'].includes(saved?.practiceDifficulty) ? saved.practiceDifficulty : 'balanced',
+    guidanceLevel: ['self', 'guided', 'high'].includes(saved?.guidanceLevel) ? saved.guidanceLevel : 'guided'
   };
 }
 
@@ -419,7 +426,7 @@ function setShowRomanization(showRomanization) {
   const settings = storage.get(STORAGE_KEYS.settings, {});
   const users = settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
   users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), showRomanization: Boolean(showRomanization), updatedAt: new Date().toISOString() };
-  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 12, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
+  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 13, language: LANGUAGE_VALUES.includes(settings?.language) ? settings.language : 'vi', users, updatedAt: new Date().toISOString() });
 }
 
 function getRomanization(itemOrText = '') {
@@ -959,7 +966,7 @@ const USER_SYNC_KEYS = Object.freeze([
   STORAGE_KEYS.progress, STORAGE_KEYS.srs, STORAGE_KEYS.settings, STORAGE_KEYS.practice, STORAGE_KEYS.practiceHistory,
   STORAGE_KEYS.speaking, STORAGE_KEYS.writing, STORAGE_KEYS.dictionaryFavorites, STORAGE_KEYS.savedSentences,
   STORAGE_KEYS.translationHistory, STORAGE_KEYS.recentSearches, STORAGE_KEYS.handwriting, STORAGE_KEYS.learnerProfile,
-  STORAGE_KEYS.dailyPlan, STORAGE_KEYS.notifications, STORAGE_KEYS.errors, STORAGE_KEYS.weeklyReports, STORAGE_KEYS.dailyMissions, STORAGE_KEYS.learningGoals, STORAGE_KEYS.adaptiveRoadmaps, STORAGE_KEYS.aiMemory, STORAGE_KEYS.knowledgeProgress, STORAGE_KEYS.listeningSessions, STORAGE_KEYS.writingAttempts, STORAGE_KEYS.speakingSessions, STORAGE_KEYS.examAttempts, STORAGE_KEYS.notes, STORAGE_KEYS.bookmarks, STORAGE_KEYS.resourceProgress, STORAGE_KEYS.highlights, 'klearn_ai_conversations'
+  STORAGE_KEYS.dailyPlan, STORAGE_KEYS.notifications, STORAGE_KEYS.errors, STORAGE_KEYS.weeklyReports, STORAGE_KEYS.dailyMissions, STORAGE_KEYS.learningGoals, STORAGE_KEYS.adaptiveRoadmaps, STORAGE_KEYS.aiMemory, STORAGE_KEYS.knowledgeProgress, STORAGE_KEYS.listeningSessions, STORAGE_KEYS.writingAttempts, STORAGE_KEYS.speakingSessions, STORAGE_KEYS.examAttempts, STORAGE_KEYS.notes, STORAGE_KEYS.bookmarks, STORAGE_KEYS.resourceProgress, STORAGE_KEYS.highlights, STORAGE_KEYS.grammarNotebook, STORAGE_KEYS.typingProgress, STORAGE_KEYS.repairPaths, STORAGE_KEYS.focusSessions, STORAGE_KEYS.checkpoints, STORAGE_KEYS.shadowingProgress, STORAGE_KEYS.milestones, STORAGE_KEYS.vocabularyCollections, STORAGE_KEYS.sentenceBuilderProgress, STORAGE_KEYS.realLifeProgress, 'klearn_ai_conversations'
 ]);
 
 const CloudSyncService = {
@@ -988,7 +995,7 @@ const CloudSyncService = {
     const localUserId = state.currentUser.id; const userId = this.cloudUserId(); if (!userId) return null;
     const data = Object.fromEntries(USER_SYNC_KEYS.map((key) => { const value = storage.get(key, {}); return [key, key === STORAGE_KEYS.settings ? (value?.users?.[localUserId] || null) : (value?.[localUserId] ?? null)]; }));
     const user = normalizeUser(state.currentUser); if (user) { delete user.passwordHash; delete user.id; }
-    return { userId, user, data, updatedAt: new Date().toISOString(), schemaVersion: 2 };
+    return { userId, user, data, updatedAt: new Date().toISOString(), schemaVersion: 3 };
   },
   mergeValue(local, remote) {
     if (Array.isArray(local) || Array.isArray(remote)) {
@@ -1056,7 +1063,9 @@ const LearnerProfileService = {
     profile.weakGrammar = Object.entries(PracticeService.getMeta().weakTopics || {}).filter(([, score]) => Number(score) < 60).sort((a,b) => a[1]-b[1]).slice(0, 8).map(([topic, score]) => ({ topic, score }));
     profile.recentMistakes = history.slice(0, 5).flatMap((attempt) => (attempt.wrongQuestionIds || []).map((questionId) => ({ questionId, attemptId: attempt.id, date: attempt.completedAt }))).slice(0, 20);
     profile.recentLessons = Object.entries(progress.lessonProgress).sort((a,b) => new Date(b[1]?.updatedAt || b[1]?.completedAt || 0) - new Date(a[1]?.updatedAt || a[1]?.completedAt || 0)).slice(0, 10).map(([id, value]) => ({ id, ...MasteryService.lesson(value) }));
-    const weekAgo = Date.now() - 7 * 86400000; profile.weeklyStudyMinutes = history.filter((item) => new Date(item.completedAt).getTime() >= weekAgo).reduce((sum,item) => sum + Math.round((item.durationSeconds || 0) / 60), 0);
+    const weekAgo = Date.now() - 7 * 86400000;
+    const focusMinutes = userScoped(STORAGE_KEYS.focusSessions).filter((item) => item.status === 'completed' && new Date(item.completedAt).getTime() >= weekAgo).reduce((sum, item) => sum + Number(item.actualMinutes || 0), 0);
+    profile.weeklyStudyMinutes = history.filter((item) => new Date(item.completedAt).getTime() >= weekAgo).reduce((sum,item) => sum + Math.round((item.durationSeconds || 0) / 60), 0) + focusMinutes;
     return profile;
   },
   get() { if (!state.currentUser) return null; const profile = this.build(); const all = storage.get(STORAGE_KEYS.learnerProfile, {}); all[state.currentUser.id] = profile; storage.set(STORAGE_KEYS.learnerProfile, all); return profile; }
@@ -2080,7 +2089,7 @@ function editProfileView() {
 
 const GlobalSearchService = {
   search(query = '') {
-    const q = normalizeSearch(query); if (!q) return { lessons: [], vocabulary: [], practice: [], phrasebook: [], saved: [], resources: [], videos: [], notes: [], bookmarks: [] };
+    const q = normalizeSearch(query); if (!q) return { lessons: [], vocabulary: [], practice: [], phrasebook: [], saved: [], resources: [], videos: [], notes: [], bookmarks: [], studyTools: [] };
     const match = (value) => normalizeSearch(value).includes(q);
     const lessons = (window.KLEARN_THEORY_LESSONS || []).filter((item) => [item.id, item.title, item.topic, item.theory, item.grammar, item.summary].some(match)).slice(0, 20);
     const vocabulary = (window.KLEARN_DICTIONARY || []).filter((item) => [item.id, item.korean, item.romanization, item.meaningVi, item.meaningEn, item.meaningZh, item.meanings?.vi, item.meanings?.en, item.meanings?.['zh-CN']].some(match)).slice(0, 20);
@@ -2091,7 +2100,13 @@ const GlobalSearchService = {
     const videos = contentVideos().filter((item) => [item.id, item.title, item.instructor, item.courseId, ...(item.chapters || []).map((chapter) => chapter.title)].some(match)).slice(0, 20);
     const notes = NotesService.all().filter((item) => [item.content, item.sourceType, item.sourceId].some(match)).slice(0, 20);
     const bookmarks = BookmarkService.all().filter((item) => [item.title, item.type, item.id].some(match)).slice(0, 20);
-    return { lessons, vocabulary, practice, phrasebook, saved, resources, videos, notes, bookmarks };
+    const studyTools = [
+      ...(window.GrammarCompareService?.all?.() || []).map((item) => ({ id: item.id, title: item.title, description: item.overview?.vi || '', view: 'grammar-compare' })),
+      ...(window.GrammarNotebookService?.all?.() || []).map((item) => ({ id: item.id, title: item.grammarId, description: `${item.personalNote || ''} ${(item.tags || []).join(' ')}`, view: 'grammar-notebook' })),
+      ...(window.VocabularyCollectionService?.all?.() || []).map((item) => ({ id: item.id, title: item.title, description: `${item.wordIds?.length || 0} words`, view: 'vocabulary-collections' })),
+      ...(window.RealLifeMissionService?.catalog?.() || []).map((item) => ({ id: item.id, title: item.title?.vi || item.id, description: `${item.instructions?.vi || ''} ${item.category || ''}`, view: 'real-life-missions' }))
+    ].filter((item) => [item.id, item.title, item.description].some(match)).slice(0, 20);
+    return { lessons, vocabulary, practice, phrasebook, saved, resources, videos, notes, bookmarks, studyTools };
   }
 };
 window.GlobalSearchService = GlobalSearchService;
@@ -2132,7 +2147,7 @@ function videoView() { const video = videoById(state.selectedVideoId); if (!vide
 function globalSearchView() {
   const query = state.globalQuery || ''; const groups = GlobalSearchService.search(query); const total = Object.values(groups).reduce((sum, list) => sum + list.length, 0);
   const section = (title, items, renderItem) => items.length ? `<section class="card section search-group"><div class="section-heading"><h2 class="section-title">${title}</h2><span class="level-pill">${items.length}</span></div>${items.map(renderItem).join('')}</section>` : '';
-  return `<section class="section page-heading"><button class="back-link" data-view="home" aria-label="Quay lại">←</button><p class="eyebrow">🔍 Global Search</p><h1 class="headline">Tìm kiếm toàn app</h1></section><form id="globalSearchForm" class="search-box section"><span>⌕</span><input id="globalSearchInput" name="query" type="search" value="${escapeHtml(query)}" placeholder="학교 · hakgyo · trường học · school · 学校 · 은/는" autofocus><button class="btn primary" type="submit">Tìm</button></form>${query ? `<p class="results-count">${total} kết quả cho “${escapeHtml(query)}”</p>` : '<p class="subtle center">Tìm bài học, học liệu, video, ghi chú, từ điển và kho đề.</p>'}${section('BÀI HỌC', groups.lessons, (item) => `<button class="search-result-row" data-theory-lesson="${item.id}"><b>${escapeHtml(item.title)}</b><small>TOPIK ${item.topikLevel} · ${escapeHtml(item.topic)}</small></button>`)}${section('TỪ ĐIỂN', groups.vocabulary, (item) => `<button class="search-result-row" data-dictionary-id="${item.id}"><b lang="ko">${escapeHtml(item.korean)}</b><small>${escapeHtml(item.romanization || '')} · ${escapeHtml(item.meanings?.vi || item.meaningVi || '')}</small></button>`)}${section('KHO ĐỀ TOPIK', groups.practice, (item) => `<button class="search-result-row" data-start-set="${item.id}"><b>${escapeHtml(item.title || item.topic)}</b><small>${escapeHtml(item.levelLabel || '')} · ${item.questionCount || 0} câu</small></button>`)}${section('HỌC LIỆU', groups.resources, (item) => `<button class="search-result-row" data-resource-id="${item.id}"><b>${escapeHtml(item.title)}</b><small>${RESOURCE_TYPE_LABELS[item.type] || item.type} · ${escapeHtml(item.source)}</small></button>`)}${section('VIDEO', groups.videos, (item) => `<button class="search-result-row" data-video-id="${item.id}"><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.instructor)} · ${item.status === 'published' ? 'Published' : 'Draft'}</small></button>`)}${section('GHI CHÚ', groups.notes, (item) => `<button class="search-result-row" data-view="notes"><b>${escapeHtml(item.content)}</b><small>${escapeHtml(item.sourceType)} · ${escapeHtml(item.sourceId || '')}</small></button>`)}${section('ĐÃ LƯU', groups.bookmarks, (item) => `<button class="search-result-row" data-view="bookmarks"><b>${escapeHtml(item.title || item.id)}</b><small>${escapeHtml(item.type)}</small></button>`)}${section('PHRASEBOOK', groups.phrasebook, (item) => `<button class="search-result-row"><b lang="ko">${escapeHtml(item.korean)}</b><small>${escapeHtml(item.meanings?.vi || '')}</small></button>`)}${section('CÂU ĐÃ LƯU', groups.saved, (item) => `<button class="search-result-row" data-view="translation-hub"><b lang="ko">${escapeHtml(item.korean || '')}</b><small>${escapeHtml(item.translation || item.meaning || '')}</small></button>`)}`;
+  return `<section class="section page-heading"><button class="back-link" data-view="home" aria-label="Quay lại">←</button><p class="eyebrow">🔍 Global Search</p><h1 class="headline">Tìm kiếm toàn app</h1></section><form id="globalSearchForm" class="search-box section"><span>⌕</span><input id="globalSearchInput" name="query" type="search" value="${escapeHtml(query)}" placeholder="학교 · hakgyo · trường học · school · 学校 · 은/는" autofocus><button class="btn primary" type="submit">Tìm</button></form>${query ? `<p class="results-count">${total} kết quả cho “${escapeHtml(query)}”</p>` : '<p class="subtle center">Tìm bài học, học liệu, video, ghi chú, từ điển và kho đề.</p>'}${section('CÔNG CỤ HỌC', groups.studyTools, (item) => `<button class="search-result-row" data-view="${escapeHtml(item.view)}"><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.description)}</small></button>`)}${section('BÀI HỌC', groups.lessons, (item) => `<button class="search-result-row" data-theory-lesson="${item.id}"><b>${escapeHtml(item.title)}</b><small>TOPIK ${item.topikLevel} · ${escapeHtml(item.topic)}</small></button>`)}${section('TỪ ĐIỂN', groups.vocabulary, (item) => `<button class="search-result-row" data-dictionary-id="${item.id}"><b lang="ko">${escapeHtml(item.korean)}</b><small>${escapeHtml(item.romanization || '')} · ${escapeHtml(item.meanings?.vi || item.meaningVi || '')}</small></button>`)}${section('KHO ĐỀ TOPIK', groups.practice, (item) => `<button class="search-result-row" data-start-set="${item.id}"><b>${escapeHtml(item.title || item.topic)}</b><small>${escapeHtml(item.levelLabel || '')} · ${item.questionCount || 0} câu</small></button>`)}${section('HỌC LIỆU', groups.resources, (item) => `<button class="search-result-row" data-resource-id="${item.id}"><b>${escapeHtml(item.title)}</b><small>${RESOURCE_TYPE_LABELS[item.type] || item.type} · ${escapeHtml(item.source)}</small></button>`)}${section('VIDEO', groups.videos, (item) => `<button class="search-result-row" data-video-id="${item.id}"><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.instructor)} · ${item.status === 'published' ? 'Published' : 'Draft'}</small></button>`)}${section('GHI CHÚ', groups.notes, (item) => `<button class="search-result-row" data-view="notes"><b>${escapeHtml(item.content)}</b><small>${escapeHtml(item.sourceType)} · ${escapeHtml(item.sourceId || '')}</small></button>`)}${section('ĐÃ LƯU', groups.bookmarks, (item) => `<button class="search-result-row" data-view="bookmarks"><b>${escapeHtml(item.title || item.id)}</b><small>${escapeHtml(item.type)}</small></button>`)}${section('PHRASEBOOK', groups.phrasebook, (item) => `<button class="search-result-row"><b lang="ko">${escapeHtml(item.korean)}</b><small>${escapeHtml(item.meanings?.vi || '')}</small></button>`)}${section('CÂU ĐÃ LƯU', groups.saved, (item) => `<button class="search-result-row" data-view="translation-hub"><b lang="ko">${escapeHtml(item.korean || '')}</b><small>${escapeHtml(item.translation || item.meaning || '')}</small></button>`)}`;
 }
 
 function analyticsView() {
@@ -2865,12 +2880,13 @@ function rateSrs(rating) {
   render();
 }
 
-function speakKorean(text, rate = 0.85) {
+function speakKorean(text, rate = null) {
   if (!('speechSynthesis' in window)) return toast('Thiết bị chưa hỗ trợ đọc văn bản.');
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'ko-KR';
-  utterance.rate = Math.max(0.5, Math.min(1.2, Number(rate) || 0.85));
+  const preferredRate = rate === null ? getUserSettings().audioSpeed : Number(rate);
+  utterance.rate = Math.max(0.5, Math.min(1.5, Number(preferredRate) || 1));
   window.speechSynthesis.speak(utterance);
 }
 

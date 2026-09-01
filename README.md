@@ -46,7 +46,7 @@ Sau đó mở `http://localhost:8080`.
 - Listening/Reading Hub theo TOPIK level, Korean TTS, recommended practice và daily practice plan.
 - Ghi âm qua MediaRecorder và chấm tương đồng văn bản bằng Speech Recognition khi trình duyệt hỗ trợ.
 - Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
-- PWA manifest + service worker network-first (`klearn-v8`) để cài app, dùng offline và nhận bản deploy mới.
+- PWA manifest + service worker network-first (`klearn-v25`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
 
 Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **Tiếng Hàn - TamHoanq** mới.
 
@@ -84,10 +84,19 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - `AdaptiveLearningEngine` tạo Daily Mission cố định theo ngày bằng rule deterministic: kỹ năng yếu (+3), lỗi lặp (+3), lâu chưa luyện (+2), SRS đến hạn (+3), liên quan TOPIK mục tiêu (+2), memory/graph yếu (+2). Engine dùng learner profile, progress, practice history, SRS và Error Notebook; không random và không gửi secrets.
 - `GoalTrackingService` lưu mục tiêu/deadline/phút học tại `klearn_learning_goals`; `RoadmapService` tạo roadmap 6 phase tại `klearn_adaptive_roadmaps`. Lớp nhận xét từ trợ lý là tùy chọn, fallback local luôn hoạt động.
 - Daily Mission lưu tại `klearn_daily_missions`, giữ khoảng 30 ngày và khôi phục đúng mission khi reload. Ba domain mới được thêm vào `USER_SYNC_KEYS`, vì vậy Supabase `learning_sync.data` JSONB hiện có tự đồng bộ mà không cần bảng/migration SQL mới.
-- Schema local được nâng lên version 12 theo hướng additive/idempotent; các key mới tự khởi tạo khi cần, không reset users, progress, SRS, Auth hay dữ liệu cloud cũ.
+- Schema local được nâng lên version 13 theo hướng additive/idempotent; các key mới tự khởi tạo khi cần, không reset users, progress, SRS, Auth hay dữ liệu cloud cũ.
 - `LearningMemoryService` lưu long-term memory chọn lọc tại `klearn_ai_memory`: learning preference, weak/strong knowledge, learning goal và repeated mistakes. Không lưu toàn bộ hội thoại; `MemoryRetrievalService` chỉ lấy tối đa vài memory liên quan đến câu hỏi/bài học. `klearn_ai_memory` và `klearn_knowledge_progress` đều nằm trong `USER_SYNC_KEYS` và dùng JSONB cloud hiện có.
 - `KnowledgeGraphService` cung cấp core grammar graph và tự dựng vocabulary nodes từ dictionary theo topic (ví dụ 은/는 ↔ 이/가 và 학교 → 학생/선생님/수업/공부), related-node lookup và knowledge progress riêng từng user tại `klearn_knowledge_progress`. Graph weakness kết hợp Error Notebook, mastery và SRS để nâng điểm Smart Review/Daily Mission.
 - Hồ sơ có xu hướng học tập và phần ghi nhớ chọn lọc; các thẻ đều mobile-first, dark-mode và chỉ hiển thị tín hiệu học tập cần thiết.
+
+## Công cụ học thực hành
+
+- So sánh ngữ pháp song song, sổ ngữ pháp cá nhân và Repair Path nối trực tiếp với Sổ lỗi; lỗi chỉ được khép lại sau review, luyện tập và retest đạt yêu cầu.
+- Luyện gõ Hangul theo 6 stage với độ chính xác, CPM và cụm cách/phút; Focus Study 15/25/45 phút lấy ưu tiên từ SRS, lỗi và Adaptive Learning Engine.
+- Chapter Checkpoint kiểm tra từ vựng, ngữ pháp, nghe và đọc theo nhóm bài học, không khóa tiến độ và đưa điểm yếu về luồng ôn tập.
+- Gói học offline dùng Cache Storage theo thao tác tải/xóa của người dùng; metadata thiết bị không đưa lên CloudSync.
+- Shadowing Recorder chỉ giữ audio tạm trong tab, cùng Lịch học, Timeline cột mốc thật, bộ từ cá nhân, xếp câu và nhiệm vụ tiếng Hàn ngoài đời.
+- Cài đặt học tập theo từng user gồm romanization, bản dịch, tốc độ/tự phát audio, cỡ chữ Hangul, mục tiêu từ, độ khó và mức hướng dẫn; giao diện mới hỗ trợ Việt, English và 中文（简体）.
 
 ### Bật Supabase cloud sync (tùy chọn)
 

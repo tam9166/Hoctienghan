@@ -1,7 +1,7 @@
-const CACHE = 'klearn-v24';
+const CACHE = 'klearn-v25';
 const OFFLINE_ASSETS = [
   './index.html',
-  './styles.css?v=21',
+  './styles.css?v=22',
   './data/romanization.js?v=8',
   './data/vocabulary-bank.js?v=8',
   './data/dictionary.js?v=1',
@@ -11,13 +11,14 @@ const OFFLINE_ASSETS = [
   './data/ai-coach.js?v=4',
   './data/learning-memory.js?v=2',
   './data/adaptive-engine.js?v=3',
+  './data/practical-study.js?v=1',
   './data/learning-modules.js?v=9',
   './data/practice-bank.js?v=8',
   './locales/vi.js?v=2',
   './locales/en.js?v=3',
   './locales/zh-CN.js?v=3',
   './data/content-locales.js?v=1',
-  './app.js?v=19',
+  './app.js?v=20',
   './data/resource-library.js?v=1',
   './data/content-review.js?v=2',
   './data/curriculum.js?v=1',
@@ -36,7 +37,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
+      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE && !key.startsWith('klearn-pack-')).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
