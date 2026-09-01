@@ -980,6 +980,73 @@ body, .topbar, .bottom-nav, .card, .btn, .answer-button, input, select, textarea
 .memory-chip { padding:6px 9px; border-radius:999px; background:var(--primary-soft); color:var(--text); font-size:12px; line-height:1.35; }
 .memory-insight ul { margin:8px 0 10px; padding-left:20px; }
 .memory-insight li { margin:5px 0; line-height:1.5; }
+.course-curriculum { display:grid; gap:14px; }
+.course-card { display:grid; gap:12px; }
+.course-card-heading, .course-progress-row, .strategy-detail-meta { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.course-card h2 { margin:4px 0 0; color:var(--heading); font-size:21px; }
+.course-level, .strategy-skill { color:var(--secondary); font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.status-badge { padding:6px 9px; border-radius:999px; background:var(--surface-low); color:var(--muted); font-size:11px; font-weight:800; white-space:nowrap; }
+.course-card.in_progress { border-color:var(--primary); }
+.course-card.completed .status-badge { background:var(--primary-soft); color:var(--text); }
+.course-progress-row strong { color:var(--heading); font-size:14px; }
+.course-progress-row b { color:var(--secondary); font-size:14px; }
+.course-meta { color:var(--muted); font-size:12px; }
+.course-lesson-list { display:grid; gap:8px; }
+.course-lesson-row { width:100%; min-width:0; padding:14px; display:grid; grid-template-columns:38px minmax(0,1fr) 18px; align-items:center; gap:11px; border:1px solid var(--outline); border-radius:14px; background:var(--surface); color:var(--text); text-align:left; }
+.course-lesson-row.current { border-color:var(--primary); box-shadow:inset 3px 0 var(--primary); }
+.course-lesson-row.completed { background:var(--primary-soft); }
+.course-lesson-number { width:32px; height:32px; display:grid; place-items:center; border-radius:50%; background:var(--surface-low); color:var(--secondary); font-size:12px; font-weight:900; }
+.course-lesson-row.completed .course-lesson-number { background:var(--primary); color:var(--accent-ink); }
+.course-lesson-row b, .course-lesson-row small { display:block; overflow-wrap:anywhere; }
+.course-lesson-row small { margin-top:4px; color:var(--muted); font-size:11px; }
+.course-lesson-row i { color:var(--muted); font-size:21px; font-style:normal; }
+.course-detail-summary { display:flex; gap:14px; margin:14px 0 8px; color:var(--muted); font-size:13px; }
+.course-detail-summary strong { color:var(--heading); font-size:20px; }
+.strategy-group { display:grid; gap:10px; }
+.strategy-grid { display:grid; gap:10px; }
+.strategy-card { min-width:0; padding:16px; display:grid; gap:7px; border:1px solid var(--outline); border-radius:15px; background:var(--surface); color:var(--text); text-align:left; }
+.strategy-card:hover, .strategy-card:focus-visible { border-color:var(--primary); }
+.strategy-card b { color:var(--heading); font-size:16px; }
+.strategy-card small, .strategy-card em { color:var(--muted); line-height:1.45; }
+.strategy-card em { font-size:11px; font-style:normal; }
+.strategy-detail { display:grid; gap:10px; }
+.strategy-detail h2 { margin:12px 0 0; color:var(--heading); font-size:17px; }
+.strategy-detail ul, .strategy-detail ol { margin:0; padding-left:22px; color:var(--muted); line-height:1.65; }
+.strategy-steps li { margin:7px 0; padding-left:4px; }
+.strategy-example { margin-top:8px; padding:13px; border-left:3px solid var(--primary); background:var(--primary-soft); }
+.strategy-example p { margin:5px 0; color:var(--heading); }
+.strategy-example small { color:var(--muted); }
+.lesson-stepper { display:flex; gap:6px; margin:0 0 16px; overflow-x:auto; scrollbar-width:none; }
+.lesson-stepper span { flex:0 0 auto; padding:7px 9px; border:1px solid var(--outline); border-radius:999px; color:var(--muted); font-size:11px; font-weight:700; }
+.lesson-stepper span.active { background:var(--primary); border-color:var(--primary); color:var(--accent-ink); }
+.lesson-stepper span.done { background:var(--primary-soft); color:var(--text); }
+.lesson-step-card { min-height:250px; display:grid; align-content:start; gap:10px; }
+.lesson-goal-list { display:grid; gap:8px; color:var(--secondary); font-size:13px; font-weight:700; }
+.lesson-vocab-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; }
+.lesson-vocab-grid > div { padding:12px; border:1px solid var(--outline); border-radius:13px; background:var(--surface-low); }
+.lesson-vocab-grid small { display:block; margin-top:6px; color:var(--muted); line-height:1.4; }
+.context-word, .context-word-inline { border:0; border-bottom:2px solid var(--primary); background:transparent; color:var(--heading); font-weight:800; }
+.context-word { padding:2px 3px; font-size:inherit; }
+.context-word-inline { padding:0 5px; }
+.contextual-line { display:flex; flex-wrap:wrap; align-items:baseline; gap:.18em; }
+.lesson-choice-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.lesson-choice { min-height:52px; border:1px solid var(--outline); border-radius:13px; background:var(--surface); color:var(--heading); font-size:20px; font-weight:800; }
+.lesson-choice.selected, .lesson-choice:hover { border-color:var(--heading); background:var(--primary); color:var(--accent-ink); }
+.lesson-feedback { padding:12px; border-radius:12px; background:var(--surface-low); }
+.lesson-feedback.success { border-left:3px solid var(--primary); }
+.lesson-feedback.error { border-left:3px solid var(--danger); }
+.lesson-feedback p { margin:4px 0 0; color:var(--muted); font-size:13px; }
+.lesson-summary { text-align:center; justify-items:center; }
+.context-sheet-backdrop { position:fixed; inset:0; z-index:100; background:rgba(15,20,12,.38); }
+.context-sheet { position:fixed; left:50%; bottom:0; z-index:101; width:min(560px,100%); max-height:min(78dvh,620px); overflow:auto; transform:translateX(-50%); padding:22px 20px calc(22px + env(safe-area-inset-bottom)); border:1px solid var(--outline); border-bottom:0; border-radius:22px 22px 0 0; background:var(--surface); box-shadow:var(--shadow-strong); }
+.context-sheet-close { position:absolute; top:12px; right:14px; width:38px; height:38px; border:1px solid var(--outline); border-radius:50%; background:var(--surface-low); color:var(--text); font-size:22px; }
+.context-sheet h2 { margin:20px 0 3px; color:var(--heading); font-size:32px; }
+.context-romanization { margin:0; color:var(--muted); }
+.context-meaning { margin:15px 0 10px; color:var(--heading); font-size:20px; font-weight:700; }
+.context-meta { display:flex; gap:8px; margin-bottom:13px; }
+.context-meta span { padding:6px 9px; border-radius:999px; background:var(--primary-soft); color:var(--text); font-size:11px; font-weight:800; }
+.context-example { display:grid; gap:4px; margin:12px 0; padding:12px; border-left:3px solid var(--primary); background:var(--surface-low); }
+.context-example small { color:var(--muted); }
 @media (max-width:620px) { .adaptive-goal-form .coach-form { grid-template-columns:1fr; } .adaptive-goal-form .coach-form button { grid-column:auto; } .mission-priority article, .adaptive-mission article { grid-template-columns:26px minmax(0,1fr); } .mission-priority article em, .adaptive-mission article em, .adaptive-mission article .btn { grid-column:2; justify-self:start; } .roadmap-phase { align-items:flex-start; flex-direction:column; } }
 @media (max-width:520px) { .dna-grid { grid-template-columns:1fr; } }
 @media (max-width:520px) { .coach-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } .coach-columns { grid-template-columns:1fr; } }
@@ -1010,6 +1077,8 @@ body, .topbar, .bottom-nav, .card, .btn, .answer-button, input, select, textarea
   .ai-fab { right:28px; bottom:28px; }
   .dashboard-grid, .hub-grid, .theory-level-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
   .home-action-grid, .learning-directory { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+  .course-curriculum { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .strategy-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .home-shortcuts { grid-template-columns:repeat(4,minmax(0,1fr)); }
   .scenario-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
   .report-period-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }

@@ -170,6 +170,11 @@ const state = {
   writingPrompt: null,
   writingSubmission: null,
   selectedLessonPreview: '',
+  selectedCourseId: 'beginner',
+  selectedStrategyId: '',
+  lessonStep: 0,
+  lessonCheck: null,
+  contextDictionaryTerm: '',
   questionRomanization: {},
   roleplayHintVisible: false
   ,dictionaryQuery: '', dictionarySelectedId: '', dictionaryFilter: 'all', translationDraft: '', translationDirection: 'vi-ko', translationResult: null, handwritingCharacter: '한', handwritingStage: 1
@@ -177,7 +182,7 @@ const state = {
   ,globalQuery: '', smartReviewMinutes: 20, cloudUser: null, cloudAuthBusy: false, cloudAuthMessage: ''
 };
 
-const MAIN_VIEWS = ['home', 'lessons', 'theory', 'roadmap', 'topik', 'ai-coach', 'adaptive-plan', 'error-notebook', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'progress-reports', 'practical-korean', 'vocabulary-notebook', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
+const MAIN_VIEWS = ['home', 'lessons', 'courses', 'course-detail', 'theory', 'roadmap', 'topik', 'strategy-lab', 'strategy-detail', 'ai-coach', 'adaptive-plan', 'error-notebook', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'progress-reports', 'practical-korean', 'vocabulary-notebook', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'placement', 'onboarding-result'];
 
@@ -423,6 +428,20 @@ function getDisplayPronunciation(item = {}) {
   return pronunciationRomanization && pronunciationRomanization !== romanization ? pronunciationRomanization : '';
 }
 
+let contextDictionaryIndex = null;
+function contextualizeKorean(text = '') {
+  const value = String(text || '');
+  if (!value) return '';
+  if (!contextDictionaryIndex) {
+    contextDictionaryIndex = new Map((DictionaryService.all?.() || []).filter((item) => item?.korean && !/[\s?!.,。！？]/.test(item.korean)).map((item) => [normalizeSearch(item.korean), item]));
+  }
+  return value.split(/(\s+)/).map((part) => {
+    const clean = part.replace(/[.,!?。！？、:;()\[\]{}“”"']/g, '');
+    const entry = contextDictionaryIndex.get(normalizeSearch(clean));
+    return entry && clean ? `<button type="button" class="context-word" data-context-word="${escapeHtml(entry.korean)}" lang="ko">${escapeHtml(part)}</button>` : escapeHtml(part);
+  }).join('');
+}
+
 function renderKoreanLearningText(item = {}, options = {}) {
   const korean = item.korean || item.koreanText || item.appLine || '';
   const meaningVi = I18nService.localizedText(item, 'meaning');
@@ -431,7 +450,7 @@ function renderKoreanLearningText(item = {}, options = {}) {
   const pronunciationRomanization = getDisplayPronunciation({ ...item, korean });
   const showRomanization = options.forceRomanization ?? showRomanizationEnabled();
   const sizeClass = options.compact ? ' compact' : '';
-  return `<div class="korean-learning-text${sizeClass}"><div class="learning-hangul" lang="ko">${escapeHtml(korean)}</div>${showRomanization && romanization ? `<div class="learning-romanization">${pronunciationRomanization ? `<span><b>${I18nService.t('romanization.label')}:</b> ${escapeHtml(romanization)}</span><span><b>${I18nService.t('romanization.actual')}:</b> ${escapeHtml(pronunciationRomanization)}</span>` : escapeHtml(romanization)}</div>` : ''}${meaningVi ? `<div class="learning-meaning">${escapeHtml(meaningVi)}</div>` : ''}${options.includeExample && exampleVi ? `<div class="learning-example">${escapeHtml(exampleVi)}</div>` : ''}</div>`;
+  return `<div class="korean-learning-text${sizeClass}"><div class="learning-hangul${options.contextual ? ' contextual-line' : ''}" lang="ko">${options.contextual ? contextualizeKorean(korean) : escapeHtml(korean)}</div>${showRomanization && romanization ? `<div class="learning-romanization">${pronunciationRomanization ? `<span><b>${I18nService.t('romanization.label')}:</b> ${escapeHtml(romanization)}</span><span><b>${I18nService.t('romanization.actual')}:</b> ${escapeHtml(pronunciationRomanization)}</span>` : escapeHtml(romanization)}</div>` : ''}${meaningVi ? `<div class="learning-meaning">${escapeHtml(meaningVi)}</div>` : ''}${options.includeExample && exampleVi ? `<div class="learning-example">${escapeHtml(exampleVi)}</div>` : ''}</div>`;
 }
 
 function renderRomanizationToggle(compact = false) {
@@ -1275,10 +1294,10 @@ function syncShell() {
     const practiceViews = ['practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'skill-hub', 'writing-hub', 'writing-editor', 'writing-result', 'practice-session', 'practice-result', 'practice-review', 'quick-practice'];
     const speakingViews = ['practice', 'speaking-hub', 'speaking-session', 'speaking-result'];
     const activeView = state.currentView === 'lesson' ? 'lessons'
-      : ['lessons','theory','lesson-preview','handwriting','dictionary','translation-hub','phrasebook','practical-korean','vocabulary-notebook','vocabulary-hub','vocab-test-setup','vocab-test','vocab-test-result'].includes(state.currentView) ? 'lessons'
+      : ['lessons','courses','course-detail','theory','lesson-preview','handwriting','dictionary','translation-hub','phrasebook','practical-korean','vocabulary-notebook','vocabulary-hub','vocab-test-setup','vocab-test','vocab-test-result'].includes(state.currentView) ? 'lessons'
       : state.currentView === 'roadmap' ? 'profile'
       : ['review','smart-review','review-start','vocab-pretest','pretest-result'].includes(state.currentView) ? 'review'
-      : ['topik','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice','analytics','search'].includes(state.currentView) ? 'topik'
+      : ['topik','strategy-lab','strategy-detail','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice','analytics','search'].includes(state.currentView) ? 'topik'
       : ['ai-coach','adaptive-plan','error-notebook'].includes(state.currentView) ? 'ai-coach'
       : ['profile','edit-profile','weekly-insights','progress-reports'].includes(state.currentView) ? 'profile'
         : reviewViews.includes(state.currentView) ? 'review'
@@ -1440,9 +1459,21 @@ function dictionaryView() {
 
 function dictionaryEntryView(entry) {
   const favorite = DictionaryService.isFavorite(entry.id); const meaning = I18nService.localizedText(entry, 'meaning') || (I18nService.getPreference() === 'vi' ? entry.meanings?.vi || '' : '');
-  const examples = Array.isArray(entry.examples) && entry.examples.length ? `<h3>Ví dụ</h3>${entry.examples.map((example) => { const translation = I18nService.getLocalizedValue(example.translations, I18nService.getPreference(), example.translations?.vi || ''); return `<div class="example"><div class="korean" lang="ko">${escapeHtml(example.korean)}</div><div class="dictionary-romanization">${escapeHtml(example.romanization || getRomanization({ korean: example.korean }))}</div><div>${escapeHtml(translation)}</div><button class="audio-btn" data-speak="${escapeHtml(example.korean)}">🔊</button></div>`; }).join('')}` : '<p class="subtle">Chưa có ví dụ cho mục này.</p>';
+  const examples = Array.isArray(entry.examples) && entry.examples.length ? `<h3>Ví dụ</h3>${entry.examples.map((example) => { const translation = I18nService.getLocalizedValue(example.translations, I18nService.getPreference(), example.translations?.vi || ''); return `<div class="example"><div class="korean contextual-line" lang="ko">${contextualizeKorean(example.korean)}</div><div class="dictionary-romanization">${escapeHtml(example.romanization || getRomanization({ korean: example.korean }))}</div><div>${escapeHtml(translation)}</div><button class="audio-btn" data-speak="${escapeHtml(example.korean)}">🔊</button></div>`; }).join('')}` : '<p class="subtle">Chưa có ví dụ cho mục này.</p>';
   return `<section class="section page-heading"><button class="back-link" data-view="dictionary">← Quay lại</button><p class="eyebrow">📖 Từ điển</p><h1 class="headline" lang="ko">${escapeHtml(entry.korean)}</h1><p class="dictionary-romanization">${escapeHtml(entry.romanization || getRomanization(entry))}</p><p class="subtle">${escapeHtml(entry.partOfSpeech || 'Từ vựng')} · TOPIK ${entry.topikLevel || 1}</p></section><section class="card dictionary-entry section"><h2>${escapeHtml(meaning)}</h2><div class="entry-actions"><button class="btn primary" data-speak="${escapeHtml(entry.audioText || entry.korean)}">🔊 Nghe</button><button class="btn secondary" data-toggle-favorite="${entry.id}">${favorite ? '★ Đã lưu' : '☆ Lưu từ'}</button><button class="btn secondary" data-add-srs="${entry.id}">🧠 Thêm vào ôn tập</button></div>${examples}</section><button class="btn primary full" data-view="translation-hub" data-translate-seed="${escapeHtml(entry.korean)}">🌐 Dịch & đặt câu</button>`;
 }
+
+function renderContextDictionary() {
+  const root = document.getElementById('contextDictionaryRoot'); if (!root) return;
+  const term = String(state.contextDictionaryTerm || '').trim();
+  if (!term) { root.innerHTML = ''; return; }
+  const entry = DictionaryService.search(term)[0];
+  if (!entry) { root.innerHTML = `<div class="context-sheet-backdrop" data-context-close></div><aside class="context-sheet" role="dialog" aria-label="Tra từ nhanh"><button class="context-sheet-close" data-context-close>×</button><p class="eyebrow">Tra từ nhanh</p><h2 lang="ko">${escapeHtml(term)}</h2><p class="subtle">Chưa có dữ liệu từ này.</p><div class="action-row"><button class="btn secondary" data-context-close>Đóng</button><button class="btn primary" data-context-ask-ai>Hỏi trợ lý</button></div></aside>`; return; }
+  const favorite = DictionaryService.isFavorite(entry.id); const meaning = I18nService.localizedText(entry, 'meaning') || entry.meanings?.vi || '';
+  root.innerHTML = `<div class="context-sheet-backdrop" data-context-close></div><aside class="context-sheet" role="dialog" aria-label="Tra từ nhanh"><button class="context-sheet-close" data-context-close>×</button><p class="eyebrow">Từ trong bài học</p><h2 lang="ko">${escapeHtml(entry.korean)}</h2><p class="context-romanization">${escapeHtml(entry.romanization || getRomanization(entry))}</p><p class="context-meaning">${escapeHtml(meaning)}</p><div class="context-meta"><span>${escapeHtml(entry.partOfSpeech || 'Từ vựng')}</span><span>TOPIK ${entry.topikLevel || 1}</span></div>${entry.examples?.[0] ? `<div class="context-example"><b lang="ko">${escapeHtml(entry.examples[0].korean)}</b><small>${escapeHtml(I18nService.getLocalizedValue(entry.examples[0].translations, I18nService.getPreference(), ''))}</small></div>` : ''}<div class="entry-actions"><button class="btn primary" data-context-speak="${escapeHtml(entry.audioText || entry.korean)}">🔊 Nghe</button><button class="btn secondary" data-context-favorite="${entry.id}">${favorite ? '★ Đã lưu' : '☆ Lưu'}</button><button class="btn secondary" data-context-srs="${entry.id}">+ SRS</button></div><button class="text-link" data-context-open-dictionary="${entry.id}">Xem từ điển đầy đủ →</button></aside>`;
+}
+
+function closeContextDictionary() { state.contextDictionaryTerm = ''; renderContextDictionary(); }
 
 function translationHubView() {
   const result = state.translationResult; const direction = state.translationDirection || 'vi-ko'; const sourceLabel = direction === 'vi-ko' ? 'Tiếng Việt' : 'Tiếng Hàn'; const targetLabel = direction === 'vi-ko' ? 'Tiếng Hàn' : 'Tiếng Việt';
@@ -1451,19 +1482,31 @@ function translationHubView() {
 
 function phrasebookView() {
   const phrases = Array.isArray(window.KLEARN_PHRASEBOOK) ? window.KLEARN_PHRASEBOOK : [];
-  return `<section class="section page-heading"><p class="eyebrow">📒 Sổ tay câu</p><h1 class="headline">Câu thông dụng</h1><p class="subtle">Các mẫu câu có thể dùng offline.</p></section><section class="phrasebook-list section">${phrases.map((item) => `<article class="card phrasebook-row"><div class="korean" lang="ko">${escapeHtml(item.korean)}</div><div class="dictionary-romanization">${escapeHtml(item.romanization)}</div><p>${escapeHtml(item.meanings?.vi || '')}</p><div class="entry-actions"><button class="audio-btn" data-speak="${escapeHtml(item.korean)}">🔊</button><button class="btn secondary" data-toggle-favorite="${item.id}">☆ Lưu</button></div></article>`).join('')}</section>`;
+  return `<section class="section page-heading"><p class="eyebrow">📒 Sổ tay câu</p><h1 class="headline">Câu thông dụng</h1><p class="subtle">Các mẫu câu có thể dùng offline. Bấm vào từ tiếng Hàn để xem nhanh nghĩa.</p></section><section class="phrasebook-list section">${phrases.map((item) => `<article class="card phrasebook-row"><div class="korean contextual-line" lang="ko">${contextualizeKorean(item.korean)}</div><div class="dictionary-romanization">${escapeHtml(item.romanization)}</div><p>${escapeHtml(item.meanings?.vi || '')}</p><div class="entry-actions"><button class="audio-btn" data-speak="${escapeHtml(item.korean)}">🔊</button><button class="btn secondary" data-toggle-favorite="${item.id}">☆ Lưu</button></div></article>`).join('')}</section>`;
 }
 
 function lessonsView() {
   const profile = LearnerProfileService.get() || {}; const progress = getUserProgress(); const current = Number(state.currentUser.currentTopikLevel || 1);
   const levelLessons = (window.KLEARN_THEORY_LESSONS || []).filter((item) => item.topikLevel === current); const done = levelLessons.filter((item) => state.lessonProgress[item.id]?.completed).length;
   const groups = [
-    ['📚','Bài học TOPIK','Lý thuyết, ví dụ và mini quiz cuối bài','theory'], ['Aa','Từ vựng','Theo cấp độ, chủ đề và tình huống','vocabulary-hub'],
+    ['📚','Khóa học','Curriculum theo cấp độ, bài học và mastery','courses'], ['Aa','Từ vựng','Theo cấp độ, chủ đề và tình huống','vocabulary-hub'],
     ['🔊','Luyện nghe','Nghe từng câu và hội thoại ngắn','skill-hub','listening'], ['🎙','Luyện nói','Nói theo mẫu, shadowing và roleplay','speaking-hub'],
     ['✍️','Luyện viết','Viết theo bước từ câu đến TOPIK','writing-hub'], ['📖','Đọc hiểu','Đoạn đọc ngắn theo trình độ','skill-hub','reading'],
     ['한','Luyện viết chữ','Hangul theo nét và mức độ','handwriting'], ['💬','Tiếng Hàn thực tế','XKLĐ, du học và công sở','practical-korean']
   ];
-  return `<section class="section page-heading learning-heading"><p class="eyebrow">Học tập</p><h1 class="headline">Lộ trình TOPIK ${current}</h1><p class="subtle">${done}/${levelLessons.length} bài hoàn thành · Mục tiêu TOPIK ${state.currentUser.targetTopikLevel}</p></section><section class="learning-overview section"><div><span>Tiến độ cấp hiện tại</span><strong>${Math.round(done / Math.max(1, levelLessons.length) * 100)}%</strong></div><div class="bar"><span style="width:${Math.round(done / Math.max(1, levelLessons.length) * 100)}%"></span></div><button class="btn primary" data-view="theory">Xem bài học</button></section><section class="learning-directory section">${groups.map(([icon,title,description,view,skill]) => `<button class="learning-directory-item" ${skill ? `data-open-skill="${skill}"` : ''} data-view="${view}"><span>${icon}</span><div><b>${title}</b><small>${description}</small></div><i>›</i></button>`).join('')}</section><section class="learning-tools section"><div><h2>Mỗi ngày một phiên ngắn</h2><p>Ôn theo dữ liệu SRS, lỗi sai và kỹ năng cần củng cố.</p></div><button class="btn secondary" data-view="smart-review">Ôn 5–20 phút</button></section>`;
+  return `<section class="section page-heading learning-heading"><p class="eyebrow">Học tập</p><h1 class="headline">Lộ trình TOPIK ${current}</h1><p class="subtle">${done}/${levelLessons.length} bài hoàn thành · Mục tiêu TOPIK ${state.currentUser.targetTopikLevel}</p></section><section class="learning-overview section"><div><span>Tiến độ cấp hiện tại</span><strong>${Math.round(done / Math.max(1, levelLessons.length) * 100)}%</strong></div><div class="bar"><span style="width:${Math.round(done / Math.max(1, levelLessons.length) * 100)}%"></span></div><button class="btn primary" data-view="courses">Xem khóa học</button></section><section class="learning-directory section">${groups.map(([icon,title,description,view,skill]) => `<button class="learning-directory-item" ${skill ? `data-open-skill="${skill}"` : ''} data-view="${view}"><span>${icon}</span><div><b>${title}</b><small>${description}</small></div><i>›</i></button>`).join('')}</section><section class="learning-tools section"><div><h2>Mỗi ngày một phiên ngắn</h2><p>Ôn theo dữ liệu SRS, lỗi sai và kỹ năng cần củng cố.</p></div><button class="btn secondary" data-view="smart-review">Ôn 5–20 phút</button></section>`;
+}
+
+function coursesView() {
+  const courses = window.CurriculumService?.all?.() || [];
+  return `<section class="section page-heading"><button class="back-link" data-view="lessons">← Học tập</button><p class="eyebrow">Curriculum</p><h1 class="headline">Khóa học theo lộ trình</h1><p class="subtle">Chọn đúng chặng học; tiến độ được lấy trực tiếp từ các bài đã hoàn thành.</p></section><section class="course-curriculum section">${courses.map((course) => { const p = course.progress; return `<article class="course-card card ${p.status}"><div class="course-card-heading"><div><span class="course-level">${escapeHtml(course.level)}</span><h2>${escapeHtml(course.title)}</h2></div><span class="status-badge">${p.status === 'completed' ? 'Đã hoàn thành' : p.status === 'in_progress' ? 'Đang học' : 'Chưa bắt đầu'}</span></div><p class="subtle">${escapeHtml(course.description)}</p><div class="course-progress-row"><strong>${p.completed}/${p.total} bài</strong><b>${p.percent}%</b></div><div class="bar"><span style="width:${p.percent}%"></span></div><small class="course-meta">${course.lessonIds.length ? `${course.lessonIds.length} bài · khoảng ${course.estimatedMinutes} phút` : 'Chiến thuật và mock exam'}</small><button class="btn ${p.status === 'not_started' ? 'secondary' : 'primary'} full" data-course-id="${course.id}">${p.nextLessonId ? (p.status === 'in_progress' ? 'Tiếp tục khóa học' : 'Xem khóa học') : 'Mở chiến thuật TOPIK'}</button></article>`; }).join('')}</section>`;
+}
+
+function courseDetailView() {
+  const course = window.CurriculumService?.get?.(state.selectedCourseId) || window.CurriculumService?.all?.()[0];
+  if (!course) return '<section class="empty-state"><h1 class="headline">Chưa có khóa học</h1></section>';
+  const p = course.progress; const items = course.lessonIds.map((id) => window.CurriculumService.lesson(id)).filter(Boolean);
+  return `<section class="section page-heading"><button class="back-link" data-view="courses">← Khóa học</button><p class="eyebrow">${escapeHtml(course.level)}</p><h1 class="headline">${escapeHtml(course.title)}</h1><p class="subtle">${escapeHtml(course.description)}</p><div class="course-detail-summary"><strong>${p.completed}/${p.total} bài</strong><span>${p.percent}% hoàn thành</span></div><div class="bar large"><span style="width:${p.percent}%"></span></div></section><section class="course-lesson-list section">${items.length ? items.map((lesson, index) => { const mastery = window.CurriculumService.mastery(lesson.id); const value = state.lessonProgress[lesson.id] || {}; return `<button class="course-lesson-row ${value.completed ? 'completed' : index === items.findIndex((item) => item.id === p.nextLessonId) ? 'current' : ''}" data-theory-lesson="${lesson.id}"><span class="course-lesson-number">${value.completed ? '✓' : String(index + 1).padStart(2, '0')}</span><span><b>${escapeHtml(lesson.title)}</b><small>${lesson.estimatedMinutes || 10} phút · Mastery ${mastery.score}% · ${mastery.status}</small></span><i>›</i></button>`; }).join('') : '<div class="card empty-state"><p>Khóa này dùng Strategy Lab và kho đề TOPIK.</p><button class="btn primary" data-view="strategy-lab">Mở Chiến thuật TOPIK</button></div>'}</section>${items.length ? `<section class="learning-tools section"><div><h2>Bài tiếp theo</h2><p>${p.nextLessonId ? escapeHtml(window.CurriculumService.lesson(p.nextLessonId)?.title || '') : 'Bạn đã hoàn thành khóa học.'}</p></div><button class="btn primary" ${p.nextLessonId ? `data-theory-lesson="${p.nextLessonId}"` : 'data-view="courses"'}>${p.nextLessonId ? 'Bắt đầu' : 'Xem khóa khác'}</button></section>` : ''}`;
 }
 
 function vocabularyNotebookView() {
@@ -1517,14 +1560,22 @@ function renderAiWidget() {
 }
 
 function lessonView() {
-  const completed = Boolean(state.lessonProgress['topic-particle']?.completed);
-  const romanization = showRomanizationEnabled();
-  return `<div class="lesson-header"><button class="close-btn" data-view="lessons" aria-label="${I18nService.t('lesson.close')}">×</button><div class="lesson-progress"><div class="bar"><span style="width:${completed ? 100 : 60}%"></span></div></div><span class="subtle">${completed ? '10/10' : '6/10'}</span></div>
-    <section class="section lesson-title"><p class="eyebrow">${I18nService.t('lesson.grammarEyebrow')}</p><h1 class="headline">${I18nService.t('lesson.title')}</h1><div class="korean">은/는</div></section>
-    <section class="card glass section"><h2 class="section-title">${I18nService.t('lesson.compareTitle')}</h2><p class="subtle">${I18nService.t('lesson.compareBody')}</p><div class="grammar-box"><b>${I18nService.t('lesson.rule')}</b><ul class="subtle"><li>${I18nService.t('lesson.withBatchim')}</li><li>${I18nService.t('lesson.withoutBatchim')}</li></ul></div></section>
-    <section class="section"><div class="section-heading"><h2 class="section-title">${I18nService.t('lesson.examples')}</h2>${renderRomanizationToggle(true)}</div><div class="example"><div><div class="korean example-korean" lang="ko">저<span class="highlight">는</span> 학생입니다.</div>${romanization ? '<div class="learning-romanization">jeoneun haksaeng-imnida.</div>' : ''}<div class="learning-meaning">${I18nService.localizedText({ korean: '저는 학생입니다.' }, 'meaning')}</div></div><button class="audio-btn" data-speak="저는 학생입니다" aria-label="${I18nService.t('lesson.audio')}">🔊</button></div><div class="example"><div><div class="korean example-korean" lang="ko">선생님<span class="highlight">은</span> 한국 사람입니다.</div>${romanization ? '<div class="learning-romanization">seonsaengnimeun hanguk saram-imnida.</div>' : ''}<div class="learning-meaning">${I18nService.localizedText({ korean: '선생님은 한국 사람입니다.' }, 'meaning')}</div></div><button class="audio-btn" data-speak="선생님은 한국 사람입니다" aria-label="${I18nService.t('lesson.audio')}">🔊</button></div></section>
-    <section class="exercise section"><h2 class="section-title">${I18nService.t('lesson.arrange')}</h2><p class="subtle center">${I18nService.t('lesson.createSentence')}</p><div id="dropZone" class="drop-zone"></div><div id="chipBox" class="chips"></div><p id="sentenceFeedback" class="exercise-feedback" role="status"></p><div class="action-row"><button class="btn secondary" id="resetSentence">${I18nService.t('lesson.reset')}</button><button class="btn primary" id="checkSentence">${I18nService.t('lesson.check')}</button></div></section>
-    <div class="action-row lesson-actions"><button class="btn secondary" data-view="lessons">${I18nService.t('lesson.back')}</button><button class="btn secondary" data-open-ai="Giải thích bài học trợ từ chủ đề 은/는 và 이/가.">✨ Hỏi AI về bài này</button><button class="btn primary" id="completeLesson" ${!state.sentenceCorrect && !completed ? 'disabled' : ''}>${completed ? I18nService.t('lesson.completed') : I18nService.t('lesson.complete')}</button></div>`;
+  const lesson = window.CurriculumService?.lesson?.(state.selectedLessonPreview) || (window.KLEARN_THEORY_LESSONS || []).find((item) => item.id === state.selectedLessonPreview) || (window.KLEARN_THEORY_LESSONS || [])[0] || { id: 'topic-particle', title: 'Bài học tiếng Hàn', topic: 'Ngữ pháp', estimatedMinutes: 10, theory: { vi: 'Học một cấu trúc tiếng Hàn theo ngữ cảnh.' }, grammar: { vi: 'Luyện mẫu câu và kiểm tra ngay trong bài.' } };
+  const completed = Boolean(state.lessonProgress[lesson.id]?.completed); const step = Math.max(0, Math.min(6, Number(state.lessonStep) || 0)); const romanization = showRomanizationEnabled();
+  const words = DictionaryService.search(lesson.topic || '').slice(0, 3); const fallbackWords = [DictionaryService.byId('word-학교'), DictionaryService.byId('word-공부')].filter(Boolean); const lessonWords = words.length ? words : fallbackWords;
+  const wordButton = (word) => word ? `<button class="context-word" data-context-word="${escapeHtml(word.korean)}" lang="ko">${escapeHtml(word.korean)}</button>` : '';
+  const examples = lesson.id === 'topic-particle' ? [['저는 학생입니다.', 'Tôi là học sinh.'], ['선생님은 한국 사람입니다.', 'Giáo viên là người Hàn Quốc.']] : [['한국어를 꾸준히 연습해요.', 'Tôi luyện tiếng Hàn đều đặn.'], [`${lesson.topic || '오늘'}에 대해 이야기해요.`, `Cùng nói về chủ đề ${lesson.topic || 'hôm nay'}.`]];
+  const stepTitles = ['Mục tiêu', 'Từ vựng', 'Giải thích', 'Ví dụ', 'Quick Check', 'Practice', 'Tổng kết'];
+  const body = [
+    `<section class="lesson-step-card card"><p class="eyebrow">Mục tiêu bài học</p><h2 class="section-title">Sau bài này, bạn có thể học về ${escapeHtml(lesson.topic || 'chủ đề tiếng Hàn')}.</h2><p class="subtle">${escapeHtml(I18nService.localizedText(lesson, 'theory') || 'Nắm ý chính, nhận diện mẫu câu và áp dụng vào một tình huống ngắn.')}</p><div class="lesson-goal-list"><span>✓ Nhận diện cấu trúc</span><span>✓ Hiểu ví dụ</span><span>✓ Tự kiểm tra ngay</span></div></section>`,
+    `<section class="lesson-step-card card"><p class="eyebrow">Từ khóa</p><h2 class="section-title">Từ vựng cần biết</h2><p class="subtle">Chạm vào từ để xem nghĩa nhanh mà không rời bài học.</p><div class="lesson-vocab-grid">${lessonWords.map((word) => `<div><div class="lesson-context-line">${wordButton(word)}</div><small>${escapeHtml(I18nService.localizedText(word, 'meaning') || '')}</small></div>`).join('') || '<p class="subtle">Từ mới sẽ được bổ sung theo dữ liệu bài học.</p>'}</div></section>`,
+    `<section class="lesson-step-card card"><p class="eyebrow">Điểm ngữ pháp</p><h2 class="section-title">${escapeHtml(lesson.topic || 'Cấu trúc trọng tâm')}</h2><p class="subtle">${escapeHtml(I18nService.localizedText(lesson, 'grammar') || 'Đọc mẫu câu, xác định vai trò của từ và thử áp dụng vào một câu mới.')}</p><div class="grammar-box"><b>Cách học</b><ol><li>Nhìn vị trí cấu trúc trong câu.</li><li>Đối chiếu nghĩa và ngữ cảnh.</li><li>Thử thay một từ để tạo câu mới.</li></ol></div></section>`,
+    `<section class="lesson-step-card card"><div class="section-heading"><div><p class="eyebrow">Ví dụ trong ngữ cảnh</p><h2 class="section-title">Đọc, nghe và chạm từ</h2></div>${renderRomanizationToggle(true)}</div>${examples.map(([korean, meaning]) => `<div class="example"><div><div class="korean example-korean" lang="ko">${korean.split(/(학교|한국어|학생|선생님|공부)/).map((part) => /^(학교|한국어|학생|선생님|공부)$/.test(part) ? wordButton({ korean: part }) : escapeHtml(part)).join('')}</div>${romanization ? `<div class="learning-romanization">${escapeHtml(getRomanization({ korean }))}</div>` : ''}<div class="learning-meaning">${escapeHtml(meaning)}</div></div><button class="audio-btn" data-speak="${escapeHtml(korean)}" aria-label="${I18nService.t('lesson.audio')}">🔊</button></div>`).join('')}</section>`,
+    `<section class="lesson-step-card card"><p class="eyebrow">Kiểm tra nhanh</p><h2 class="section-title">Chọn câu đúng</h2><p class="korean" lang="ko">저는 학교<span class="context-word-inline">__</span> 가요.</p><div class="lesson-choice-grid">${['에', '를', '는'].map((answer) => `<button class="lesson-choice ${state.lessonCheck?.key === 'location' && state.lessonCheck.answer === answer ? 'selected' : ''}" data-lesson-choice="location" data-answer="${answer}">${answer}</button>`).join('')}</div>${state.lessonCheck?.key === 'location' ? `<div class="lesson-feedback ${state.lessonCheck.correct ? 'success' : 'error'}"><b>${state.lessonCheck.correct ? 'Đúng rồi!' : 'Chưa đúng'}</b><p>학교에 가요 nghĩa là “đi đến trường”; 에 đánh dấu địa điểm đến.</p></div>` : '<p class="subtle">Chọn một đáp án để xem giải thích.</p>'}</section>`,
+    `<section class="lesson-step-card card"><p class="eyebrow">Practice</p><h2 class="section-title">Áp dụng ngay</h2>${lesson.id === 'topic-particle' ? `<p class="subtle">Sắp xếp câu: “Tôi là người Việt Nam.”</p><div id="dropZone" class="drop-zone"></div><div id="chipBox" class="chips"></div><p id="sentenceFeedback" class="exercise-feedback" role="status"></p><div class="action-row"><button class="btn secondary" id="resetSentence">${I18nService.t('lesson.reset')}</button><button class="btn primary" id="checkSentence">${I18nService.t('lesson.check')}</button></div>` : `<p class="subtle">Chọn đuôi câu phù hợp: 어제 친구를 ___.</p><div class="lesson-choice-grid">${['만났어요', '만나요', '갈 거예요'].map((answer) => `<button class="lesson-choice ${state.lessonCheck?.key === 'past' && state.lessonCheck.answer === answer ? 'selected' : ''}" data-lesson-choice="past" data-answer="${answer}">${answer}</button>`).join('')}</div>${state.lessonCheck?.key === 'past' ? `<div class="lesson-feedback ${state.lessonCheck.correct ? 'success' : 'error'}"><b>${state.lessonCheck.correct ? 'Chính xác!' : 'Hãy thử lại'}</b><p>어제 là “hôm qua”, nên dùng thì quá khứ 만났어요.</p></div>` : ''}`}</section>`,
+    `<section class="lesson-step-card card lesson-summary"><div class="celebration">✓</div><p class="eyebrow">Hoàn thành bài</p><h2 class="headline">Bạn đã đi hết ${stepTitles.length} bước</h2><p class="subtle">Tiến độ và mastery sẽ được lưu vào đúng bài học ${escapeHtml(lesson.title || '')}.</p><div class="result-counts"><span>Thời lượng <b>${lesson.estimatedMinutes || 10}′</b></span><span>Trạng thái <b>${completed ? 'Đã hoàn thành' : 'Sẵn sàng lưu'}</b></span></div></section>`
+  ][step];
+  return `<div class="lesson-header"><button class="close-btn" data-view="lessons" aria-label="${I18nService.t('lesson.close')}">×</button><div class="lesson-progress"><div class="bar"><span style="width:${Math.round(((step + 1) / stepTitles.length) * 100)}%"></span></div></div><span class="subtle">${step + 1} / ${stepTitles.length}</span></div><section class="section lesson-title"><p class="eyebrow">${escapeHtml(lesson.title || 'Bài học')}</p><h1 class="headline">${stepTitles[step]}</h1><p class="subtle">${escapeHtml(lesson.topic || '')}</p></section><div class="lesson-stepper">${stepTitles.map((title, index) => `<span class="${index === step ? 'active' : index < step ? 'done' : ''}">${index + 1}. ${title}</span>`).join('')}</div>${body}<div class="action-row lesson-actions"><button class="btn secondary" data-lesson-prev ${step === 0 ? 'disabled' : ''}>← Quay lại</button>${step < stepTitles.length - 1 ? `<button class="btn primary" data-lesson-next>Tiếp theo →</button>` : `<button class="btn primary" id="completeLesson" ${!completed && !state.lessonCheck?.correct && !state.sentenceCorrect ? 'disabled' : ''}>${completed ? 'Đã hoàn thành ✓' : 'Lưu tiến độ'}</button>`}</div>`;
 }
 
 function practiceHubView() {
@@ -1532,7 +1583,7 @@ function practiceHubView() {
   const historyCount = PracticeService.getHistory().length;
   const savedCount = (PracticeService.getMeta().savedSetIds || []).length;
   const groups = [
-    ['📝','Kho đề TOPIK','270 bộ đề TOPIK 1–6','exam-catalog'], ['⏱','Thi thử full đề','50 câu tổng hợp theo mục tiêu','full-exam'], ['1–2','TOPIK 1–2','Nền tảng và TOPIK I','exam-catalog','TOPIK_1'],
+    ['🧭','Chiến thuật TOPIK','Học cách xử lý từng dạng câu','strategy-lab'], ['📝','Kho đề TOPIK','270 bộ đề TOPIK 1–6','exam-catalog'], ['⏱','Thi thử full đề','50 câu tổng hợp theo mục tiêu','full-exam'], ['1–2','TOPIK 1–2','Nền tảng và TOPIK I','exam-catalog','TOPIK_1'],
     ['3–4','TOPIK 3–4','Trung cấp và TOPIK II','exam-catalog','TOPIK_3'], ['5–6','TOPIK 5–6','Học thuật và chuyên sâu','advanced-practice'],
     ['🎲','Đề ngẫu nhiên','5–50 câu tùy chọn','random-exam'], ['🔥','Đề nâng cao','Advanced / Very Advanced','advanced-practice'],
     ['🗂','Từ vựng','1.000 từ TOPIK 1–6','vocabulary-hub'], ['문','Ngữ pháp','30 grammar challenge','skill-hub','grammar'],
@@ -1544,6 +1595,19 @@ function practiceHubView() {
   return `<section class="section page-heading"><button class="back-link" data-view="home" aria-label="Quay lại">←</button><p class="eyebrow">${PracticeService.bank.practiceTypeCount} dạng bài · ${PracticeService.bank.totalQuestionCount.toLocaleString('vi-VN')} câu</p><h1 class="headline">Trung tâm luyện tập</h1><p class="subtle">Hiện tại ${topikLabel(state.currentUser.currentTopikLevel)} · Mục tiêu ${topikLabel(target)}</p></section>
     <section class="card recommended-card section"><div><span class="eyebrow">Đề xuất theo mục tiêu</span><h2>${topikLabel(target)} · Đề 01</h2><p>Luyện theo cấp mục tiêu và các chủ đề bạn đang yếu.</p></div><button class="btn primary" data-recommended-set="TOPIK_${target}">Luyện đề xuất</button></section>
     <section class="topik-countdown section"><span>Còn 28 ngày</span><div><b>Kế hoạch luyện thi</b><small>Mốc cá nhân mẫu · điều chỉnh trong Hồ sơ</small></div><button class="text-link" data-view="adaptive-plan">Điều chỉnh</button></section><section class="hub-grid">${groups.map(([icon,title,description,view,value]) => `<button class="hub-card" ${view === 'full-exam' ? 'data-full-exam="true"' : `data-hub-view="${view}"`} ${value ? `data-hub-value="${value}"` : ''}><span>${icon}</span><div><b>${title}</b><small>${description}</small></div><i>›</i></button>`).join('')}</section>`;
+}
+
+function strategyLabView() {
+  const strategies = window.TopikStrategyService?.all?.() || [];
+  const groups = [['TOPIK I', ['listening', 'reading']], ['TOPIK II', ['listening', 'reading', 'writing']]];
+  return `<section class="section page-heading"><button class="back-link" data-view="topik">← TOPIK</button><p class="eyebrow">TOPIK Strategy Lab</p><h1 class="headline">Chiến thuật TOPIK</h1><p class="subtle">Học cách nhận diện và xử lý từng dạng câu trước khi bấm giờ làm đề.</p></section>${groups.map(([level, skills]) => `<section class="strategy-group section"><div class="section-heading"><h2 class="section-title">${level}</h2><span class="sync-status">${skills.map((skill) => skill === 'listening' ? 'Nghe' : skill === 'reading' ? 'Đọc' : 'Viết').join(' · ')}</span></div><div class="strategy-grid">${strategies.filter((item) => item.examLevel === level && skills.includes(item.skill)).map((item) => { const p = window.TopikStrategyService.progress(item.id); return `<button class="strategy-card" data-strategy-id="${item.id}"><span class="strategy-skill">${item.skill === 'listening' ? '🔊 Nghe' : item.skill === 'reading' ? '📖 Đọc' : '✍️ Viết'}</span><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.description)}</small><em>${p.attempts ? `Đã luyện · tốt nhất ${p.best}%` : 'Chưa luyện'}</em></button>`; }).join('') || '<div class="empty-state compact-empty">Chưa có dạng câu phù hợp trong dữ liệu hiện tại.</div>'}</div></section>`).join('')}<section class="support-message section"><b>Nói không phải là phần thi TOPIK chuẩn hóa.</b><span>Phần luyện nói vẫn nằm trong Học tập và được theo dõi riêng.</span></section>`;
+}
+
+function strategyDetailView() {
+  const strategy = window.TopikStrategyService?.get?.(state.selectedStrategyId);
+  if (!strategy) return strategyLabView();
+  const p = window.TopikStrategyService.progress(strategy.id);
+  return `<section class="section page-heading"><button class="back-link" data-view="strategy-lab">← Chiến thuật TOPIK</button><p class="eyebrow">${escapeHtml(strategy.examLevel)} · ${strategy.skill === 'listening' ? 'Nghe' : strategy.skill === 'reading' ? 'Đọc' : 'Viết'}</p><h1 class="headline">${escapeHtml(strategy.title)}</h1><p class="subtle">${escapeHtml(strategy.description)}</p></section><section class="strategy-detail card section"><div class="strategy-detail-meta"><span>Nhận biết dạng câu</span><span>${p.attempts ? `Đã luyện ${p.attempts} lượt · tốt nhất ${p.best}%` : 'Chưa có kết quả'}</span></div><h2>Nhận biết</h2><ul>${strategy.recognitionTips.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul><h2>Mục tiêu câu hỏi</h2><p>${escapeHtml(strategy.description)}</p><h2>4 bước xử lý</h2><ol class="strategy-steps">${strategy.solvingSteps.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ol><h2>Lỗi thường gặp</h2><ul>${strategy.commonMistakes.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>${strategy.examples.map((item) => `<div class="strategy-example"><b>Ví dụ</b><p>${escapeHtml(item.prompt)}</p><small>${escapeHtml(item.answer)}</small></div>`).join('')}<div class="action-row"><button class="btn secondary" data-strategy-practice="${strategy.id}" data-count="5">Luyện 5 câu</button><button class="btn primary" data-strategy-practice="${strategy.id}" data-count="10">Luyện 10 câu</button></div></section>`;
 }
 
 function randomExamView() {
@@ -1634,7 +1698,7 @@ function practiceSessionView() {
   const reviewRomanization = state.questionRomanization[question.id] ?? showRomanizationEnabled();
   return `<div class="lesson-header"><button class="close-btn" id="leavePractice" aria-label="Thoát bài luyện">×</button><div class="lesson-progress"><div class="bar"><span style="width:${Math.round(((session.index + (session.checked ? 1 : 0)) / session.questions.length) * 100)}%"></span></div></div><span class="subtle">${session.index + 1}/${session.questions.length}</span></div>
     <section class="section practice-session-title"><p class="eyebrow">${escapeHtml(session.set.levelLabel || session.set.level)} · ${escapeHtml(session.set.topic)}</p><h1>${escapeHtml(session.set.title)}</h1></section>
-    <section class="card live-question"><div class="question-tags"><span>${escapeHtml(question.skill)}</span><span>${escapeHtml(question.questionTypeLabel || question.questionType)}</span><span>Độ khó ${question.difficulty}</span></div>${question.koreanText && !isListening ? `<div class="question-korean" lang="ko">${escapeHtml(question.koreanText)}</div>` : ''}<h2>${escapeHtml(question.prompt)}</h2>${question.audioText ? `<button class="audio-inline" data-speak="${escapeHtml(question.audioText)}" aria-label="Nghe phát âm tiếng Hàn">🔊 Nghe</button>` : ''}<div class="answer-list">${question.options.map((option, index) => {
+    <section class="card live-question"><div class="question-tags"><span>${escapeHtml(question.skill)}</span><span>${escapeHtml(question.questionTypeLabel || question.questionType)}</span><span>Độ khó ${question.difficulty}</span></div>${question.koreanText && !isListening ? `<div class="question-korean contextual-line" lang="ko">${contextualizeKorean(question.koreanText)}</div>` : ''}<h2>${escapeHtml(question.prompt)}</h2>${question.audioText ? `<button class="audio-inline" data-speak="${escapeHtml(question.audioText)}" aria-label="Nghe phát âm tiếng Hàn">🔊 Nghe</button>` : ''}<div class="answer-list">${question.options.map((option, index) => {
       const answerClass = !session.checked ? (selectedAnswer === option ? 'selected' : '') : option === question.correctAnswer ? 'correct' : selectedAnswer === option ? 'wrong' : '';
       return `<button class="answer-button ${answerClass}" data-practice-answer="${escapeHtml(option)}" ${session.checked ? 'disabled' : ''}><span>${String.fromCharCode(65 + index)}</span>${escapeHtml(option)}</button>`;
     }).join('')}</div>${session.checked ? `<div class="answer-feedback ${correct ? 'success' : 'error'}"><strong>${correct ? '✓ Đúng rồi!' : 'Chưa đúng'}</strong>${!correct ? `<p>Đáp án đúng: <b>${escapeHtml(question.correctAnswer)}</b></p>` : ''}<p>${escapeHtml(question.explanationVi)}</p></div>${question.koreanText ? `<div class="question-learning-review"><div class="review-learning-heading"><b>${isListening ? 'Transcript sau khi trả lời' : 'Hỗ trợ học lại'}</b><button data-question-romanization="${escapeHtml(question.id)}">Aa ${reviewRomanization ? 'Ẩn' : 'Hiện'} phiên âm</button></div>${renderKoreanLearningText({ ...question, korean: question.koreanText }, { compact: true, forceRomanization: reviewRomanization })}${question.audioText ? `<button class="audio-inline" data-speak="${escapeHtml(question.audioText)}" aria-label="Nghe lại phát âm tiếng Hàn">🔊 Nghe lại</button>` : ''}</div>` : ''}` : ''}</section>
@@ -1658,7 +1722,7 @@ function practiceReviewView() {
   const wrongAnswers = result.attempt.answers.filter((answer) => !answer.correct && result.questions.some((question) => question.id === answer.questionId));
   return `<section class="section page-heading"><button class="back-link" data-view="practice-result" aria-label="Quay lại">←</button><p class="eyebrow">${wrongAnswers.length} câu cần xem lại</p><h1 class="headline">Giải thích câu sai</h1>${renderRomanizationToggle()}</section><section class="wrong-review-list">${wrongAnswers.map((answer, index) => {
     const question = result.questions.find((item) => item.id === answer.questionId);
-    return `<article class="card wrong-review-card"><span>Câu ${index + 1}</span>${question.koreanText ? renderKoreanLearningText({ ...question, korean: question.koreanText }, { compact: true }) : ''}<h2>${escapeHtml(question.prompt)}</h2><p>Bạn chọn: <b class="wrong-text">${escapeHtml(answer.selectedAnswer)}</b></p><p>Đáp án: <b class="correct-text">${escapeHtml(question.correctAnswer)}</b></p><div class="explanation-box">${escapeHtml(question.explanationVi)}</div>${question.audioText ? `<button class="audio-inline" data-speak="${escapeHtml(question.audioText)}" aria-label="Nghe lại phát âm tiếng Hàn">🔊 Nghe lại</button>` : ''}</article>`;
+      return `<article class="card wrong-review-card"><span>Câu ${index + 1}</span>${question.koreanText ? renderKoreanLearningText({ ...question, korean: question.koreanText }, { compact: true, contextual: true }) : ''}<h2>${escapeHtml(question.prompt)}</h2><p>Bạn chọn: <b class="wrong-text">${escapeHtml(answer.selectedAnswer)}</b></p><p>Đáp án: <b class="correct-text">${escapeHtml(question.correctAnswer)}</b></p><div class="explanation-box">${escapeHtml(question.explanationVi)}</div>${question.audioText ? `<button class="audio-inline" data-speak="${escapeHtml(question.audioText)}" aria-label="Nghe lại phát âm tiếng Hàn">🔊 Nghe lại</button>` : ''}</article>`;
   }).join('')}</section><button class="btn primary full" data-view="practice-result">Quay lại kết quả</button>`;
 }
 
@@ -1916,7 +1980,7 @@ function render() {
     'vocab-test-setup': vocabularyTestSetupView, 'vocab-test': vocabularyTestView, 'vocab-test-result': vocabularyTestResultView,
     practice: speakingHubView, 'speaking-hub': speakingHubView, 'speaking-session': speakingSessionView, 'speaking-result': speakingResultView,
     'writing-hub': writingHubView, 'writing-editor': writingEditorView, 'writing-result': writingResultView,
-    profile: profileView, 'edit-profile': editProfileView, 'progress-reports': progressReportsView, 'practical-korean': practicalKoreanView, 'vocabulary-notebook': vocabularyNotebookView,
+    profile: profileView, 'edit-profile': editProfileView, courses: coursesView, 'course-detail': courseDetailView, 'strategy-lab': strategyLabView, 'strategy-detail': strategyDetailView, 'progress-reports': progressReportsView, 'practical-korean': practicalKoreanView, 'vocabulary-notebook': vocabularyNotebookView,
     ...(window.KLEARN_EXTRA_VIEWS || {})
   };
   appElement().innerHTML = (views[state.currentView] || welcomeView)();
@@ -1925,6 +1989,7 @@ function render() {
   I18nService.applyDocument();
   bindEvents();
   renderAiWidget();
+  renderContextDictionary();
   window.KLEARN_AFTER_RENDER?.();
   window.scrollTo(0, 0);
 }
@@ -1933,8 +1998,16 @@ function bindEvents() {
   document.querySelectorAll('[data-view]').forEach((button) => { button.onclick = () => setView(button.dataset.view); });
   document.querySelectorAll('[data-open-lesson]').forEach((button) => { button.onclick = () => openLesson(button.dataset.openLesson); });
   document.querySelectorAll('[data-preview-lesson]').forEach((button) => { button.onclick = () => openLesson(button.dataset.previewLesson); });
-  document.querySelectorAll('[data-theory-lesson]').forEach((button) => { button.onclick = () => { const lesson = (window.KLEARN_THEORY_LESSONS || []).find((item) => item.id === button.dataset.theoryLesson); state.selectedLessonPreview = lesson?.id || ''; setView('lesson-preview'); }; });
+  document.querySelectorAll('[data-theory-lesson]').forEach((button) => { button.onclick = () => openLesson(button.dataset.theoryLesson); });
+  document.querySelectorAll('[data-course-id]').forEach((button) => { button.onclick = () => { state.selectedCourseId = button.dataset.courseId; setView('course-detail'); }; });
+  document.querySelectorAll('[data-strategy-id]').forEach((button) => { button.onclick = () => { state.selectedStrategyId = button.dataset.strategyId; setView('strategy-detail'); }; });
+  document.querySelectorAll('[data-strategy-practice]').forEach((button) => { button.onclick = () => { const questions = window.TopikStrategyService?.questions?.(button.dataset.strategyPractice, Number(button.dataset.count) || 5) || []; if (!PracticeService.startQuestions(questions, `Chiến thuật · ${window.TopikStrategyService?.get?.(button.dataset.strategyPractice)?.title || ''}`, 'strategy')) toast('Chưa có câu hỏi phù hợp cho dạng này.'); }; });
+  document.querySelectorAll('[data-lesson-next]').forEach((button) => { button.onclick = () => { state.lessonStep = Math.min(6, (Number(state.lessonStep) || 0) + 1); render(); }; });
+  document.querySelectorAll('[data-lesson-prev]').forEach((button) => { button.onclick = () => { state.lessonStep = Math.max(0, (Number(state.lessonStep) || 0) - 1); render(); }; });
+  document.querySelectorAll('[data-lesson-choice]').forEach((button) => { button.onclick = () => { const key = button.dataset.lessonChoice; const answer = button.dataset.answer; const correct = (key === 'location' && answer === '에') || (key === 'past' && answer === '만났어요'); state.lessonCheck = { key, answer, correct }; render(); }; });
   document.querySelectorAll('[data-speak]').forEach((button) => { button.onclick = (event) => { event.stopPropagation(); speakKorean(button.dataset.speak); }; });
+  document.querySelectorAll('[data-context-word]').forEach((button) => { button.onclick = (event) => { event.stopPropagation(); state.contextDictionaryTerm = button.dataset.contextWord; renderContextDictionary(); }; });
+  const contextRoot = document.getElementById('contextDictionaryRoot'); if (contextRoot) contextRoot.onclick = (event) => { const close = event.target.closest('[data-context-close]'); if (close) return closeContextDictionary(); const speak = event.target.closest('[data-context-speak]'); if (speak) return speakKorean(speak.dataset.contextSpeak); const favorite = event.target.closest('[data-context-favorite]'); if (favorite) { DictionaryService.toggleFavorite(favorite.dataset.contextFavorite); return renderContextDictionary(); } const srs = event.target.closest('[data-context-srs]'); if (srs) { DictionaryService.addToSrs(DictionaryService.byId(srs.dataset.contextSrs)); toast('Đã thêm vào bộ ôn tập.'); return; } const open = event.target.closest('[data-context-open-dictionary]'); if (open) { state.dictionarySelectedId = open.dataset.contextOpenDictionary; closeContextDictionary(); return setView('dictionary'); } const ask = event.target.closest('[data-context-ask-ai]'); if (ask) { closeContextDictionary(); state.aiOpen = true; renderAiWidget(); return; } };
   document.querySelectorAll('[data-romanization-toggle]').forEach((button) => { button.onclick = () => { setShowRomanization(!showRomanizationEnabled()); render(); }; });
   document.querySelectorAll('[data-theme-choice]').forEach((input) => { input.onchange = () => { ThemeService.setPreference(input.value); render(); }; });
   document.querySelectorAll('[data-theme-choice-header]').forEach((input) => { input.onclick = () => { ThemeService.setPreference(input.dataset.themeChoiceHeader); document.getElementById('themeMenu')?.classList.add('hidden'); render(); }; });
@@ -1960,7 +2033,7 @@ function bindEvents() {
   const levelContinue = document.getElementById('levelContinue'); if (levelContinue) levelContinue.onclick = continueLevel;
   document.querySelectorAll('[data-test-answer]').forEach((button) => { button.onclick = () => answerPlacement(Number(button.dataset.testAnswer)); });
   const finishOnboarding = document.getElementById('finishOnboarding'); if (finishOnboarding) finishOnboarding.onclick = completeOnboarding;
-  if (state.currentView === 'lesson') setupSentenceExercise();
+  if (state.currentView === 'lesson' && document.getElementById('dropZone') && document.getElementById('chipBox')) setupSentenceExercise();
   const completeLessonButton = document.getElementById('completeLesson'); if (completeLessonButton) completeLessonButton.onclick = completeLesson;
   const flipCard = document.getElementById('flipCard'); if (flipCard) {
     flipCard.onclick = () => { state.flashcardFlipped = !state.flashcardFlipped; render(); };
@@ -2481,13 +2554,11 @@ function submitWriting(event) {
 // Lesson, SRS, TTS and pronunciation handlers
 // ============================================================
 function openLesson(lessonId) {
-  if (lessonId !== 'topic-particle') {
-    state.selectedLessonPreview = lessonId;
-    setView('lesson-preview');
-    return;
-  }
+  state.selectedLessonPreview = lessonId;
+  state.lessonStep = 0;
+  state.lessonCheck = null;
   state.selectedWords = [];
-  state.sentenceCorrect = Boolean(state.lessonProgress['topic-particle']?.completed);
+  state.sentenceCorrect = Boolean(state.lessonProgress[lessonId]?.completed);
   setView('lesson');
 }
 
@@ -2514,17 +2585,20 @@ function setupSentenceExercise() {
 }
 
 function completeLesson() {
-  if (!state.sentenceCorrect && !state.lessonProgress['topic-particle']?.completed) return;
+  const lessonId = state.selectedLessonPreview || 'topic-particle';
+  if (!state.lessonCheck?.correct && !state.sentenceCorrect && !state.lessonProgress[lessonId]?.completed) return;
   const progress = getUserProgress();
-  if (!progress.lessonProgress['topic-particle']?.completed) {
-    progress.lessonProgress['topic-particle'] = { completed: true, completedAt: new Date().toISOString(), score: 100, masteryScore: 70, masteryStatus: 'understood', recallCount: 0, contentVersion: 1, updatedAt: new Date().toISOString() };
+  if (!progress.lessonProgress[lessonId]?.completed) {
+    const existing = progress.lessonProgress[lessonId] || {};
+    progress.lessonProgress[lessonId] = { ...existing, completed: true, completedAt: new Date().toISOString(), score: state.lessonCheck?.correct ? 100 : 80, masteryScore: Math.max(Number(existing.masteryScore) || 0, state.lessonCheck?.correct ? 80 : 70), masteryStatus: MasteryService.status(Math.max(Number(existing.masteryScore) || 0, state.lessonCheck?.correct ? 80 : 70)), recallCount: Number(existing.recallCount || 0) + 1, contentVersion: 1, updatedAt: new Date().toISOString() };
     progress.stats.lessonsCompleted += 1;
-    progress.skills.reading = Math.min(100, progress.skills.reading + 10);
+    progress.skills.reading = Math.min(100, progress.skills.reading + 5);
   }
   progress.daily.tasks.lesson = true;
   saveUserProgress(progress);
-  toast('Đã lưu tiến độ bài 은/는.');
-  setView('home');
+  toast('Đã lưu tiến độ bài học.');
+  state.lessonStep = 0;
+  setView('course-detail');
 }
 
 function rateSrs(rating) {
@@ -2702,7 +2776,7 @@ window.addEventListener('klearn-cloud-auth', (event) => {
 });
 window.SupabaseService?.init?.().then(() => CloudAccountService.restore()).then(() => { if (state.currentUser && state.currentView === 'profile') render(); });
 
-window.KLEARN_APP = { storage, state, STORAGE_KEYS, render, setView, toast, escapeHtml, normalizeSearch, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, LearnerProfileService, PracticeService, CloudSyncService, AITutorService, PronunciationProvider, getDisplayPronunciation };
+window.KLEARN_APP = { storage, state, STORAGE_KEYS, render, setView, toast, escapeHtml, normalizeSearch, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, LearnerProfileService, MasteryService, PracticeService, CloudSyncService, AITutorService, PronunciationProvider, getDisplayPronunciation };
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('[Tiếng Hàn - TamHoanq] Service worker không đăng ký được.', error)));
