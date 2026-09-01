@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v21';
+const CACHE = 'klearn-v22';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=20',
@@ -17,7 +17,8 @@ const OFFLINE_ASSETS = [
   './locales/en.js?v=3',
   './locales/zh-CN.js?v=3',
   './data/content-locales.js?v=1',
-  './app.js?v=16',
+  './app.js?v=17',
+  './data/resource-library.js?v=1',
   './data/curriculum.js?v=1',
   './data/topik-strategy.js?v=1',
   './manifest.json',
