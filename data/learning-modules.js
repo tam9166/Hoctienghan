@@ -67,7 +67,7 @@
 
   const writingModes = [
     ['word', 'Viết từ'], ['sentence', 'Viết câu'], ['complete', 'Hoàn thành câu'], ['rewrite', 'Viết lại câu'], ['arrange', 'Sắp xếp câu'],
-    ['translate', 'Dịch Việt → Hàn'], ['keywords', 'Viết theo từ khóa'], ['paragraph', 'Viết đoạn văn'], ['diary', 'Viết nhật ký'], ['topik', 'TOPIK Writing']
+    ['translate', 'Dịch Việt → Hàn'], ['keywords', 'Viết theo từ khóa'], ['short', 'Short response'], ['paragraph', 'Viết đoạn văn'], ['diary', 'Viết nhật ký'], ['topik', 'TOPIK Writing']
   ].map(([id, label]) => Object.freeze({ id, label }));
 
   const writingPrompts = [
@@ -78,6 +78,7 @@
     ['w2-02',2,'keywords','Kế hoạch','Viết 2 câu dùng: 내일, 도서관, 공부하다.',['내일','도서관','공부'],['내일','도서관','공부'],'내일 도서관에 갈 거예요. 거기에서 한국어를 공부할 거예요.','Dùng -(으)ㄹ 거예요 cho kế hoạch.'],
     ['w2-03',2,'rewrite','Nguyên nhân','Nối hai câu bằng -아서/어서: 배가 아파요. 병원에 가요.',['아파서'],['아파서','병원'],'배가 아파서 병원에 가요.','Bỏ 요 ở vế đầu rồi gắn -아서/어서.'],
     ['w2-04',2,'arrange','Sắp xếp câu','Sắp xếp và viết thành câu đúng: 친구를 / 주말에 / 만나요 / 저는.',['저는','만나요'],['저는','주말에','친구를','만나요'],'저는 주말에 친구를 만나요.','Thứ tự cơ bản: chủ đề + thời gian + tân ngữ + động từ.'],
+    ['w2-05',2,'short','Short response','Trả lời ngắn bằng 1–2 câu: 주말에 무엇을 해요?',['주말','해요'],['주말','친구'],'주말에 친구를 만나요. 같이 영화를 봐요.','Trả lời trực tiếp, đủ chủ ngữ hoặc trạng ngữ cần thiết.'],
     ['w3-01',3,'paragraph','Du học','Viết 3–5 câu về lý do bạn muốn du học Hàn Quốc.',['유학','한국','공부'],['유학','한국','공부'],'저는 한국 문화를 좋아해서 한국에서 유학하고 싶습니다. 한국어를 더 깊이 공부하고 제 전공 지식도 넓히고 싶습니다.','Nêu lý do, mục tiêu và kế hoạch.'],
     ['w3-02',3,'diary','Nhật ký','Viết nhật ký ngắn về một ngày đáng nhớ.',['오늘','느낌'],['오늘','기분','친구'],'오늘 친구와 한강에 갔다. 날씨가 좋아서 기분이 정말 좋았다.','Giữ thì quá khứ nhất quán.'],
     ['w3-03',3,'topik','TOPIK hoàn thành câu','Hoàn thành ý: 건강을 지키기 위해서는 ___.',['위해서는'],['운동','식습관'],'건강을 지키기 위해서는 규칙적으로 운동하고 건강한 음식을 먹어야 한다.','Dùng cấu trúc nghĩa vụ -아/어야 한다.'],

@@ -1,7 +1,7 @@
-const CACHE = 'klearn-v19';
+const CACHE = 'klearn-v21';
 const OFFLINE_ASSETS = [
   './index.html',
-  './styles.css?v=19',
+  './styles.css?v=20',
   './data/romanization.js?v=8',
   './data/vocabulary-bank.js?v=8',
   './data/dictionary.js?v=1',
@@ -11,13 +11,13 @@ const OFFLINE_ASSETS = [
   './data/ai-coach.js?v=4',
   './data/learning-memory.js?v=2',
   './data/adaptive-engine.js?v=3',
-  './data/learning-modules.js?v=8',
+  './data/learning-modules.js?v=9',
   './data/practice-bank.js?v=8',
   './locales/vi.js?v=2',
-  './locales/en.js?v=2',
-  './locales/zh-CN.js?v=2',
+  './locales/en.js?v=3',
+  './locales/zh-CN.js?v=3',
   './data/content-locales.js?v=1',
-  './app.js?v=15',
+  './app.js?v=16',
   './data/curriculum.js?v=1',
   './data/topik-strategy.js?v=1',
   './manifest.json',
