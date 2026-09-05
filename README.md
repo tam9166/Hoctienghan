@@ -130,6 +130,15 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Career Path bao gồm IT, Business, Tourism và Office Korean cùng Interview, Email, Presentation và Etiquette. Memory Graph chỉ là structured learning context; bài luyện phụ luôn giữ `sourceId` của content đã duyệt.
 - Nội dung P5–P10 nằm trong `content/ecosystem-expansion.json`, chỉ được fetch khi mở module, qua quality gate `verified + approved`, và được service worker cache cho lần dùng offline tiếp theo.
 
+### Learning Intelligence & Data Science
+
+- Trang Phân tích hiện tại được bổ sung một dashboard Learning Intelligence; không tạo chatbot hay trang AI mới.
+- `MemoryRiskService` tính `Recall Strength` 0–100 và `Memory Risk` từ số lần đúng/sai, mastery, khoảng cách ôn, thời gian chưa gặp và due date. Smart Review dùng cùng phép tính để ưu tiên kiến thức có rủi ro quên cao.
+- Bottleneck Detection so sánh các kỹ năng có dữ liệu; Mistake Root Cause phân nhóm tín hiệu thành lỗ hổng khái niệm, quên quy tắc, nhầm ngữ cảnh hoặc nhận biết âm. Kết quả luôn kèm bằng chứng và mức độ tin cậy.
+- Learning Pattern phân tích khung giờ, thời lượng và loại bài từ practice/focus session; Efficiency Score kết hợp kết quả, khả năng lưu giữ và mức hoàn thành, không thưởng điểm chỉ vì học lâu.
+- Knowledge Graph minh họa quan hệ vocabulary → form/grammar → sentence → topic; Skill Dependency Graph cho biết nền tảng nào còn thiếu trước mục tiêu TOPIK.
+- Forecast 3 tháng hiển thị một khoảng dự kiến, giả định và mức tin cậy; đây không phải cam kết điểm thi. Toàn bộ P18 chạy local từ dữ liệu học hiện có, không đọc chat history, password, token hay audio và không reset dữ liệu người dùng.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.

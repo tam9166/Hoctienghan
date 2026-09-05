@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v40';
+const CACHE = 'klearn-v41';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=31',
@@ -7,6 +7,7 @@ const OFFLINE_ASSETS = [
   './education-platform.css?v=1',
   './immersive-world.css?v=1',
   './ecosystem-expansion.css?v=1',
+  './learning-analytics.css?v=1',
   './data/romanization.js?v=8',
   './data/vocabulary-bank.js?v=8',
   './data/dictionary.js?v=1',
@@ -40,6 +41,7 @@ const OFFLINE_ASSETS = [
   './data/education-platform.js?v=1',
   './data/immersive-world.js?v=1',
   './data/ecosystem-expansion.js?v=1',
+  './data/learning-analytics-engine.js?v=1',
   './data/learning-modules.js?v=9',
   './data/practice-bank.js?v=8',
   './locales/vi.js?v=2',
