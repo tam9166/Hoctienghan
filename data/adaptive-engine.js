@@ -120,7 +120,7 @@
   window.KLEARN_EXTRA_PROFILE = () => `${previousProfileExtra ? previousProfileExtra() : ''}${goalCard()}`;
   window.KLEARN_AFTER_RENDER = () => {
     previousAfterRender?.();
-    if (state.currentView === 'home' && !document.querySelector('.adaptive-mission-home')) (document.getElementById('homeMissionAnchor') || document.getElementById('app'))?.insertAdjacentHTML(document.getElementById('homeMissionAnchor') ? 'afterend' : 'beforeend', missionCard());
+    if (state.currentView === 'home' && !window.DailyLearningExperienceService && !document.querySelector('.adaptive-mission-home')) (document.getElementById('homeMissionAnchor') || document.getElementById('app'))?.insertAdjacentHTML(document.getElementById('homeMissionAnchor') ? 'afterend' : 'beforeend', missionCard());
     if (state.currentView === 'profile' && !document.querySelector('.adaptive-goal-home')) document.getElementById('app')?.insertAdjacentHTML('afterbegin', goalCard());
     document.querySelectorAll('[data-view="adaptive-plan"]').forEach((button) => { button.onclick = () => setView('adaptive-plan'); });
     document.querySelectorAll('[data-adaptive-start]').forEach((button) => { button.onclick = () => { DailyMissionService.complete(button.dataset.adaptiveStart); DailyMissionService.start(button.dataset.adaptiveStart); }; });

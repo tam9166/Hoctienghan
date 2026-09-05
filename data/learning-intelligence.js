@@ -150,7 +150,7 @@
   global.KLEARN_AFTER_RENDER = () => {
     previousAfterRender?.();
     if (!state.currentUser) return;
-    if (state.currentView === 'home') {
+    if (state.currentView === 'home' && !global.DailyLearningExperienceService) {
       const anchor = document.getElementById('homeMissionAnchor');
       if (!document.querySelector('[data-learning-director]')) {
         const markup = `${comebackCard()}${fatigueCard()}${directorCard()}${feedCard()}${skillRadarCard()}${grammarDependencyCard()}`;
