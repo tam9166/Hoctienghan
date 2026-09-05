@@ -12,7 +12,7 @@ const STORAGE_KEYS = Object.freeze({
   practice: 'klearn_practice',
   practiceHistory: 'klearn_practice_history',
   speaking: 'klearn_speaking',
-  writing: 'klearn_writing', listeningSessions: 'klearn_listening_sessions', writingAttempts: 'klearn_writing_attempts', speakingSessions: 'klearn_speaking_sessions', conversationHistory: 'klearn_conversation_history', readingExpansion: 'klearn_reading_expansion', examAttempts: 'klearn_exam_attempts', notes: 'klearn_notes', bookmarks: 'klearn_bookmarks', resourceProgress: 'klearn_resource_progress', highlights: 'klearn_highlights', supportRequests: 'klearn_support_requests', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting', learnerProfile: 'klearn_learner_profile', syncMeta: 'klearn_sync_meta', dailyPlan: 'klearn_daily_plan', notifications: 'klearn_notifications', errors: 'klearn_errors', weeklyReports: 'klearn_weekly_reports', dailyMissions: 'klearn_daily_missions', learningGoals: 'klearn_learning_goals', adaptiveRoadmaps: 'klearn_adaptive_roadmaps', aiMemory: 'klearn_ai_memory', knowledgeProgress: 'klearn_knowledge_progress', grammarNotebook: 'klearn_grammar_notebook', typingProgress: 'klearn_typing_progress', repairPaths: 'klearn_repair_paths', focusSessions: 'klearn_focus_sessions', checkpoints: 'klearn_checkpoints', offlinePacks: 'klearn_offline_packs', shadowingProgress: 'klearn_shadowing_progress', milestones: 'klearn_milestones', achievements: 'klearn_achievements', contentDrafts: 'klearn_content_drafts', contentCatalogCache: 'klearn_content_catalog_cache', vocabularyCollections: 'klearn_vocabulary_collections', sentenceBuilderProgress: 'klearn_sentence_builder_progress', realLifeProgress: 'klearn_real_life_progress', migrationBackup: 'klearn_migration_backup_v8'
+  writing: 'klearn_writing', listeningSessions: 'klearn_listening_sessions', writingAttempts: 'klearn_writing_attempts', speakingSessions: 'klearn_speaking_sessions', conversationHistory: 'klearn_conversation_history', readingExpansion: 'klearn_reading_expansion', realGoalPlans: 'klearn_real_goal_plans', learningJournal: 'klearn_learning_journal', teacherFeedback: 'klearn_teacher_feedback', manualReviewQueue: 'klearn_manual_review_queue', teacherWorkspace: 'klearn_teacher_workspace', communityProgress: 'klearn_community_progress', examAttempts: 'klearn_exam_attempts', notes: 'klearn_notes', bookmarks: 'klearn_bookmarks', resourceProgress: 'klearn_resource_progress', highlights: 'klearn_highlights', supportRequests: 'klearn_support_requests', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting', learnerProfile: 'klearn_learner_profile', syncMeta: 'klearn_sync_meta', dailyPlan: 'klearn_daily_plan', notifications: 'klearn_notifications', errors: 'klearn_errors', weeklyReports: 'klearn_weekly_reports', dailyMissions: 'klearn_daily_missions', learningGoals: 'klearn_learning_goals', adaptiveRoadmaps: 'klearn_adaptive_roadmaps', aiMemory: 'klearn_ai_memory', knowledgeProgress: 'klearn_knowledge_progress', grammarNotebook: 'klearn_grammar_notebook', typingProgress: 'klearn_typing_progress', repairPaths: 'klearn_repair_paths', focusSessions: 'klearn_focus_sessions', checkpoints: 'klearn_checkpoints', offlinePacks: 'klearn_offline_packs', shadowingProgress: 'klearn_shadowing_progress', milestones: 'klearn_milestones', achievements: 'klearn_achievements', contentDrafts: 'klearn_content_drafts', contentCatalogCache: 'klearn_content_catalog_cache', vocabularyCollections: 'klearn_vocabulary_collections', sentenceBuilderProgress: 'klearn_sentence_builder_progress', realLifeProgress: 'klearn_real_life_progress', migrationBackup: 'klearn_migration_backup_v8'
 });
 
 const storage = {
@@ -193,6 +193,7 @@ const MAIN_VIEWS = ['home', 'lessons', 'courses', 'course-detail', 'theory', 'ro
 MAIN_VIEWS.push('conversation-simulator');
 MAIN_VIEWS.push('natural-korean');
 MAIN_VIEWS.push('reading-lab', 'reading-session', 'word-network', 'collocation-trainer', 'dictation-master');
+MAIN_VIEWS.push('topik-strategy-center', 'real-goal-planner', 'learning-journal', 'teacher-review', 'manual-review-queue', 'teacher-workspace', 'community-hub');
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'beginner-placement', 'placement', 'onboarding-result'];
 
@@ -985,6 +986,7 @@ async function submitContentReport({ contentId, contentType, reportType = 'other
 const USER_SYNC_KEYS = Object.freeze([
   STORAGE_KEYS.conversationHistory,
   STORAGE_KEYS.readingExpansion,
+  STORAGE_KEYS.realGoalPlans, STORAGE_KEYS.learningJournal, STORAGE_KEYS.teacherFeedback, STORAGE_KEYS.manualReviewQueue, STORAGE_KEYS.teacherWorkspace, STORAGE_KEYS.communityProgress,
   STORAGE_KEYS.progress, STORAGE_KEYS.srs, STORAGE_KEYS.settings, STORAGE_KEYS.practice, STORAGE_KEYS.practiceHistory,
   STORAGE_KEYS.speaking, STORAGE_KEYS.writing, STORAGE_KEYS.dictionaryFavorites, STORAGE_KEYS.savedSentences,
   STORAGE_KEYS.translationHistory, STORAGE_KEYS.recentSearches, STORAGE_KEYS.handwriting, STORAGE_KEYS.learnerProfile,
@@ -1403,10 +1405,10 @@ function syncShell() {
       : ['lessons','courses','course-detail','theory','lesson-preview','handwriting','dictionary','translation-hub','phrasebook','practical-korean','vocabulary-notebook','vocabulary-hub','vocab-test-setup','vocab-test','vocab-test-result','resources','resource-view','videos','video-view', ...FOUNDATION_VIEWS].includes(state.currentView) ? 'lessons'
       : state.currentView === 'roadmap' ? 'profile'
       : ['review','smart-review','review-start','vocab-pretest','pretest-result'].includes(state.currentView) ? 'review'
-      : ['topik','strategy-lab','strategy-detail','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice','analytics','search'].includes(state.currentView) ? 'topik'
+      : ['topik','strategy-lab','strategy-detail','topik-strategy-center','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice','analytics','search'].includes(state.currentView) ? 'topik'
       : ['ai-coach','adaptive-plan','error-notebook'].includes(state.currentView) ? 'ai-coach'
-      : ['profile','edit-profile','weekly-insights','progress-reports','notes','bookmarks'].includes(state.currentView) ? 'profile'
-        : reviewViews.includes(state.currentView) ? 'review'
+      : ['profile','edit-profile','weekly-insights','progress-reports','notes','bookmarks','real-goal-planner','learning-journal','teacher-review','teacher-workspace','community-hub'].includes(state.currentView) ? 'profile'
+        : [...reviewViews, 'manual-review-queue'].includes(state.currentView) ? 'review'
             : practiceViews.includes(state.currentView) ? 'topik'
             : speakingViews.includes(state.currentView) ? 'practice' : state.currentView;
     const active = button.dataset.route === activeView;
