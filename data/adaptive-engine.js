@@ -15,6 +15,8 @@
   const skillLabel = { vocabulary: 'Từ vựng', grammar: 'Ngữ pháp', listening: 'Nghe', reading: 'Đọc', writing: 'Viết', speaking: 'Nói' };
   const skillViews = { vocabulary: 'review', grammar: 'practice-hub', listening: 'skill-hub', reading: 'practice-hub', writing: 'writing-hub', speaking: 'speaking-hub' };
   const reasonText = (item) => item.reasons.join(' · ');
+  const STYLE_FOCUS = { visual: ['vocabulary', 'reading', 'writing'], audio: ['listening', 'speaking'], grammar: ['grammar', 'writing'], conversation: ['speaking', 'listening'], exam: ['reading', 'listening', 'grammar'] };
+  const MODE_FOCUS = { casual: ['vocabulary', 'listening'], topik: ['listening', 'reading', 'grammar', 'vocabulary'], conversation: ['speaking', 'listening'], work: ['speaking', 'listening', 'vocabulary'] };
 
   function recentActivity() {
     const history = PracticeService.getHistory?.() || [];
@@ -60,6 +62,9 @@
       if (id === 'vocabulary' && s.due > 0) { points += 3; reasons.push(`${s.due} thẻ SRS đến hạn`); }
       if (['reading', 'listening', 'grammar', 'vocabulary'].includes(id) && s.target >= 3) { points += 2; reasons.push(`liên quan TOPIK ${s.target}`); }
       if (focusNode?.weaknessScore >= 2) { points += 2; reasons.push(`graph yếu: ${focusNode.label}`); }
+      const style = s.profile.learningStyle || state.currentUser?.learningStyle || 'visual'; const mode = s.profile.learningMode || state.currentUser?.learningMode || 'casual';
+      if ((STYLE_FOCUS[style] || []).includes(id)) { points += 2; reasons.push(`hợp phong cách ${style}`); }
+      if ((MODE_FOCUS[mode] || []).includes(id)) { points += 2; reasons.push(`phù hợp chế độ ${mode}`); }
       if (!reasons.length) reasons.push('duy trì nhịp học');
       const minutes = id === 'vocabulary' ? 8 : (id === 'speaking' || id === 'writing' ? 7 : 6);
       return { id, type: id, title: `${skillLabel[id]}${focusNode ? ` · ${focusNode.label}` : focusMemory && focusMemory.topic !== id ? ` · ${focusMemory.topic}` : ''}`, score: points, rawScore: clamp(score), reasons, reason: reasonText({ reasons }), minutes, actionView: skillViews[id] };
@@ -71,13 +76,13 @@
     getToday() {
       if (!uid()) return null;
       const today = dateKey(); const existing = this.getAll().find((item) => item.date === today);
-      if (existing && (existing.generatedBy === 'adaptive-memory-v2' || existing.completed)) return existing;
+      if (existing && (existing.generatedBy === 'adaptive-memory-v3' || existing.completed)) return existing;
       const signals = prioritySignals();
       const baseMinutes = Number(state.currentUser?.studyMinutesPerDay || signals.profile.studyMinutesPerDay || 20) || 20;
       const reduced = signals.activity.daysSince >= 3 || Number(signals.progress.stats?.streak || 0) === 0;
       const totalMinutes = Math.max(10, Math.min(90, reduced ? Math.min(baseMinutes, 15) : baseMinutes));
       const priorities = buildPriorities().slice(0, 3).map((item, index) => ({ ...item, minutes: index === 0 ? Math.max(item.minutes, Math.round(totalMinutes * .4)) : item.minutes }));
-      const mission = { id: `mission-${uid()}-${today}`, userId: uid(), date: today, generatedAt: now(), totalMinutes, priorities, reducedPlan: reduced, habitHint: this.habitHint(signals.activity), completed: false, completedItems: [], generatedBy: 'adaptive-memory-v2' };
+      const mission = { id: `mission-${uid()}-${today}`, userId: uid(), date: today, generatedAt: now(), totalMinutes, priorities, reducedPlan: reduced, habitHint: this.habitHint(signals.activity), completed: false, completedItems: [], generatedBy: 'adaptive-memory-v3', learningStyle: signals.profile.learningStyle, learningMode: signals.profile.learningMode };
       writeUserMap(STORAGE_KEYS.dailyMissions, [mission, ...this.getAll().filter((item) => item.date !== today)].slice(0, 30), 'adaptive-mission');
       return mission;
     },

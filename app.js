@@ -153,7 +153,7 @@ const state = {
   practiceFilters: { level: 'all', skill: 'all', difficulty: 'all', status: 'all', topic: 'all', page: 1 },
   practiceSession: null,
   practiceResult: null,
-  listeningStudio: { mode: 'listen', index: 0, playing: false, speed: 1, position: 0, loopA: null, loopB: null, transcriptVisible: true, romanizationVisible: true, translationVisible: true, dictation: '', dictationResult: null, quizAnswer: null },
+  listeningStudio: { tier: 'beginner', mode: 'listen', index: 0, playing: false, speed: 1, position: 0, loopA: null, loopB: null, transcriptVisible: true, romanizationVisible: true, translationVisible: true, dictation: '', dictationResult: null, quizAnswer: null },
   writingRoom: { draft: '', startedAt: null, deadlineAt: null, mode: 'sentence' },
   speakingRoomMode: 'repeat',
   examSession: null,
@@ -189,7 +189,7 @@ const state = {
 };
 
 const FOUNDATION_VIEWS = ['foundation', 'hangul-academy', 'syllable-builder', 'reading-first', 'batchim-academy', 'minimal-pairs', 'first-words', 'first-sentence', 'beginner-checkpoint'];
-const MAIN_VIEWS = ['home', 'lessons', 'courses', 'course-detail', 'theory', 'roadmap', 'topik', 'strategy-lab', 'strategy-detail', 'listening-studio', 'writing-room', 'speaking-room', 'topik-exam', 'topik-exam-result', 'resources', 'resource-view', 'notes', 'bookmarks', 'videos', 'video-view', 'support', 'review-dashboard', 'ai-coach', 'adaptive-plan', 'error-notebook', 'grammar-compare', 'grammar-notebook', 'typing-trainer', 'repair-path', 'focus-study', 'chapter-checkpoint', 'offline-packs', 'shadowing-recorder', 'study-calendar', 'progress-timeline', 'vocabulary-collections', 'sentence-builder', 'real-life-missions', 'study-settings', ...FOUNDATION_VIEWS, 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'progress-reports', 'practical-korean', 'vocabulary-notebook', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
+const MAIN_VIEWS = ['home', 'lessons', 'courses', 'course-detail', 'theory', 'roadmap', 'topik', 'strategy-lab', 'strategy-detail', 'listening-studio', 'sentence-writing', 'writing-room', 'speaking-room', 'topik-exam', 'topik-exam-result', 'resources', 'resource-view', 'notes', 'bookmarks', 'videos', 'video-view', 'support', 'review-dashboard', 'ai-coach', 'adaptive-plan', 'error-notebook', 'grammar-compare', 'grammar-notebook', 'typing-trainer', 'repair-path', 'focus-study', 'chapter-checkpoint', 'offline-packs', 'shadowing-recorder', 'study-calendar', 'progress-timeline', 'vocabulary-collections', 'sentence-builder', 'real-life-missions', 'study-settings', ...FOUNDATION_VIEWS, 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'progress-reports', 'practical-korean', 'vocabulary-notebook', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'beginner-placement', 'placement', 'onboarding-result'];
 
@@ -737,6 +737,9 @@ function normalizeUser(user) {
   if (!user || typeof user !== 'object') return null;
   const currentTopikLevel = Math.max(1, Math.min(6, Number(user.currentTopikLevel) || inferredTopikLevel(user.level)));
   const learningTrack = user.learningTrack === 'foundation' ? 'foundation' : 'topik';
+  const learningStyle = ['visual', 'audio', 'grammar', 'conversation', 'exam'].includes(user.learningStyle) ? user.learningStyle : 'visual';
+  const learningMode = ['casual', 'topik', 'conversation', 'work'].includes(user.learningMode) ? user.learningMode : (Array.isArray(user.goals) && user.goals.includes('topik') ? 'topik' : 'casual');
+  const explanationStyle = ['concise', 'step-by-step', 'examples'].includes(user.explanationStyle) ? user.explanationStyle : 'step-by-step';
   return {
     ...user,
     fullName: typeof user.fullName === 'string' && user.fullName.trim() ? user.fullName : 'Người học Tiếng Hàn - TamHoanq',
@@ -745,6 +748,10 @@ function normalizeUser(user) {
     goals: Array.isArray(user.goals) ? user.goals : [],
     level: typeof user.level === 'string' ? user.level : 'Beginner',
     learningTrack,
+    learningStyle,
+    learningMode,
+    explanationStyle,
+    studyMinutesPerDay: Math.max(5, Math.min(180, Number(user.studyMinutesPerDay) || 20)),
     foundationLevel: learningTrack === 'foundation' ? 0 : null,
     foundationEntry: ['hangul-academy', 'reading-first', 'first-words'].includes(user.foundationEntry) ? user.foundationEntry : 'hangul-academy',
     currentTopikLevel,
@@ -776,7 +783,7 @@ function defaultProgress() {
     daily: { date: todayKey(), tasks: { vocabulary: false, lesson: false, practice: false, listening: false, speaking: false, writing: false } },
     lessonProgress: {},
     stats: { lessonsCompleted: 0, learningDays: 1, streak: 1, wordsLearned: 0 },
-    skills: { listening: 0, speaking: 0, reading: 0, writing: 0 },
+    skills: { vocabulary: 0, grammar: 0, listening: 0, speaking: 0, reading: 0, writing: 0 },
     pronunciationAttempts: [],
     writingSubmissions: [],
     foundation: { learnedCharacters: [], completedActivities: [], firstWords: [], checkpoint: null, updatedAt: null },
@@ -1067,16 +1074,21 @@ const MasteryService = {
 
 const LearnerProfileService = {
   build() {
-    const progress = getUserProgress(); const history = PracticeService.getHistory(); const profile = { currentTopikLevel: state.currentUser?.currentTopikLevel || 1, targetTopikLevel: state.currentUser?.targetTopikLevel || 2, goal: state.currentUser?.goals || [], studyMinutesPerDay: Number(state.currentUser?.studyMinutesPerDay || 20), strengths: [], weaknesses: [], weakGrammar: [], weakVocabulary: [], weakSkills: [], masteryByTopic: {}, skillScores: { ...progress.skills }, recentMistakes: [], recentLessons: [], dueSrsCount: state.srsData.filter((item) => new Date(item.nextReview) <= new Date()).length, streak: progress.stats.streak, weeklyStudyMinutes: 0, updatedAt: new Date().toISOString() };
+    const progress = getUserProgress(); const history = PracticeService.getHistory(); const profile = { currentTopikLevel: state.currentUser?.currentTopikLevel || 1, targetTopikLevel: state.currentUser?.targetTopikLevel || 2, goal: state.currentUser?.goals || [], learningStyle: state.currentUser?.learningStyle || 'visual', learningMode: state.currentUser?.learningMode || 'casual', explanationStyle: state.currentUser?.explanationStyle || 'step-by-step', studyMinutesPerDay: Number(state.currentUser?.studyMinutesPerDay || 20), strengths: [], weaknesses: [], weakGrammar: [], weakVocabulary: [], weakSkills: [], skillLevels: {}, frequentErrors: [], masteryByTopic: {}, skillScores: { ...progress.skills }, recentMistakes: [], recentLessons: [], dueSrsCount: state.srsData.filter((item) => new Date(item.nextReview) <= new Date()).length, streak: progress.stats.streak, weeklyStudyMinutes: 0, learningPace: 'steady', preferredStudyHour: null, updatedAt: new Date().toISOString() };
     const scoredSkills = Object.entries(progress.skills).filter(([, score]) => Number(score) > 0); profile.weakSkills = scoredSkills.filter(([, score]) => score < 60).sort((a,b) => a[1]-b[1]).map(([key]) => key); profile.strengths = scoredSkills.filter(([, score]) => score >= 80).sort((a,b) => b[1]-a[1]).map(([key]) => key); profile.weaknesses = profile.weakSkills.slice();
     profile.weakVocabulary = state.srsData.filter((item) => item.wrongCount > 0 || item.mastery < 50).sort((a,b) => (b.wrongCount-a.wrongCount) || (a.mastery-b.mastery)).slice(0, 8).map((item) => ({ id: item.wordId, korean: item.korean, mastery: item.mastery, wrongCount: item.wrongCount }));
     profile.masteryByTopic = Object.fromEntries([...new Set(state.srsData.map((item) => item.topic).filter(Boolean))].map((topic) => { const cards = state.srsData.filter((item) => item.topic === topic); return [topic, Math.round(cards.reduce((sum,item) => sum + (item.mastery || 0), 0) / Math.max(1, cards.length))]; }));
     profile.weakGrammar = Object.entries(PracticeService.getMeta().weakTopics || {}).filter(([, score]) => Number(score) < 60).sort((a,b) => a[1]-b[1]).slice(0, 8).map(([topic, score]) => ({ topic, score }));
+    profile.frequentErrors = (window.ErrorNotebookService?.top?.(20) || []).filter((item) => !item.resolved).sort((a,b) => Number(b.count || 1) - Number(a.count || 1)).slice(0, 8).map((item) => ({ id: item.id, type: item.type, topic: item.question || item.type, count: Number(item.count || 1), correction: item.correction || '' }));
     profile.recentMistakes = history.slice(0, 5).flatMap((attempt) => (attempt.wrongQuestionIds || []).map((questionId) => ({ questionId, attemptId: attempt.id, date: attempt.completedAt }))).slice(0, 20);
     profile.recentLessons = Object.entries(progress.lessonProgress).sort((a,b) => new Date(b[1]?.updatedAt || b[1]?.completedAt || 0) - new Date(a[1]?.updatedAt || a[1]?.completedAt || 0)).slice(0, 10).map(([id, value]) => ({ id, ...MasteryService.lesson(value) }));
     const weekAgo = Date.now() - 7 * 86400000;
     const focusMinutes = userScoped(STORAGE_KEYS.focusSessions).filter((item) => item.status === 'completed' && new Date(item.completedAt).getTime() >= weekAgo).reduce((sum, item) => sum + Number(item.actualMinutes || 0), 0);
     profile.weeklyStudyMinutes = history.filter((item) => new Date(item.completedAt).getTime() >= weekAgo).reduce((sum,item) => sum + Math.round((item.durationSeconds || 0) / 60), 0) + focusMinutes;
+    profile.skillLevels = Object.fromEntries(Object.entries(profile.skillScores).map(([skill, score]) => [skill, Number(score) >= 80 ? 'strong' : Number(score) >= 60 ? 'medium' : 'weak']));
+    const durations = history.map((item) => Number(item.durationSeconds || 0)).filter((value) => value > 0); const averageSeconds = durations.length ? durations.reduce((sum, value) => sum + value, 0) / durations.length : 0;
+    profile.learningPace = averageSeconds && averageSeconds < 180 ? 'fast' : averageSeconds > 600 ? 'slow' : 'steady';
+    const hours = history.map((item) => item.completedAt ? new Date(item.completedAt).getHours() : null).filter((value) => value !== null); profile.preferredStudyHour = hours.length ? Math.round(hours.reduce((sum, value) => sum + value, 0) / hours.length) : null;
     return profile;
   },
   get() { if (!state.currentUser) return null; const profile = this.build(); const all = storage.get(STORAGE_KEYS.learnerProfile, {}); all[state.currentUser.id] = profile; storage.set(STORAGE_KEYS.learnerProfile, all); return profile; }
@@ -1164,7 +1176,7 @@ const AITutorService = {
   current() { return this.all().find((item) => item.id === state.aiConversationId) || null; },
   start(title = 'Hỏi gia sư') { const conversation = { id: uniqueId(), userId: state.currentUser?.id, title, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), summary: '', messages: [] }; this.saveAll([conversation, ...this.all()]); state.aiConversationId = conversation.id; return conversation; },
   ensure() { return this.current() || this.start(); },
-  context(query = '') { const profile = LearnerProfileService.get() || {}; const currentLesson = (window.KLEARN_THEORY_LESSONS || []).find((lesson) => lesson.id === state.selectedLessonPreview); const extra = window.ErrorNotebookService?.context?.() || {}; const handwriting = userScoped(STORAGE_KEYS.handwriting).slice(0, 8).map((item) => ({ character: item.character, stage: item.stage, masteryScore: item.masteryScore })); const memoryQuery = `${query} ${currentLesson?.title || ''} ${currentLesson?.topic || ''}`.trim(); return { userLanguage: I18nService.getPreference(), currentTopikLevel: profile.currentTopikLevel || state.currentUser?.currentTopikLevel || null, targetTopikLevel: profile.targetTopikLevel || state.currentUser?.targetTopikLevel || null, currentLesson: currentLesson ? { id: currentLesson.id, title: currentLesson.title, topic: currentLesson.topic } : null, weakGrammar: (profile.weakGrammar || []).slice(0, 5), weakVocabulary: (profile.weakVocabulary || []).slice(0, 8), weakSkills: (profile.weakSkills || []).slice(0, 3), recentMistakes: (profile.recentMistakes || []).slice(0, 8), errorNotebook: extra.top || [], relevantMemory: window.MemoryRetrievalService?.retrieve?.(memoryQuery, { limit: 6 }) || [], knowledgeGraph: window.KnowledgeGraphService?.context?.(memoryQuery, 6) || [], dueSrsCount: profile.dueSrsCount || 0, recentScores: PracticeService.getHistory().slice(0, 5).map((item) => ({ percentage: item.percentage, skillBreakdown: item.skillBreakdown })), listeningScore: profile.skillScores?.listening || 0, speakingScore: profile.skillScores?.speaking || 0, writingScore: profile.skillScores?.writing || 0, handwritingProgress: handwriting, streak: profile.streak || 0, weeklyStudyMinutes: profile.weeklyStudyMinutes || 0, masteryByTopic: profile.masteryByTopic || {}, dailyPlan: getUserProgress().daily, conversationSummary: this.current()?.summary || '', currentView: state.currentView }; },
+  context(query = '') { const profile = LearnerProfileService.get() || {}; const currentLesson = (window.KLEARN_THEORY_LESSONS || []).find((lesson) => lesson.id === state.selectedLessonPreview); const extra = window.ErrorNotebookService?.context?.() || {}; const handwriting = userScoped(STORAGE_KEYS.handwriting).slice(0, 8).map((item) => ({ character: item.character, stage: item.stage, masteryScore: item.masteryScore })); const memoryQuery = `${query} ${currentLesson?.title || ''} ${currentLesson?.topic || ''}`.trim(); return { userLanguage: I18nService.getPreference(), currentTopikLevel: profile.currentTopikLevel || state.currentUser?.currentTopikLevel || null, targetTopikLevel: profile.targetTopikLevel || state.currentUser?.targetTopikLevel || null, learningStyle: profile.learningStyle, learningMode: profile.learningMode, explanationStyle: profile.explanationStyle, learningPace: profile.learningPace, currentLesson: currentLesson ? { id: currentLesson.id, title: currentLesson.title, topic: currentLesson.topic } : null, weakGrammar: (profile.weakGrammar || []).slice(0, 5), weakVocabulary: (profile.weakVocabulary || []).slice(0, 8), weakSkills: (profile.weakSkills || []).slice(0, 3), frequentErrors: (profile.frequentErrors || []).slice(0, 5), recentMistakes: (profile.recentMistakes || []).slice(0, 8), errorNotebook: extra.top || [], relevantMemory: window.MemoryRetrievalService?.retrieve?.(memoryQuery, { limit: 6 }) || [], knowledgeGraph: window.KnowledgeGraphService?.context?.(memoryQuery, 6) || [], recommendations: window.PersonalRecommendationService?.all?.().slice(0, 3) || [], dueSrsCount: profile.dueSrsCount || 0, recentScores: PracticeService.getHistory().slice(0, 5).map((item) => ({ percentage: item.percentage, skillBreakdown: item.skillBreakdown })), listeningScore: profile.skillScores?.listening || 0, speakingScore: profile.skillScores?.speaking || 0, writingScore: profile.skillScores?.writing || 0, handwritingProgress: handwriting, streak: profile.streak || 0, weeklyStudyMinutes: profile.weeklyStudyMinutes || 0, masteryByTopic: profile.masteryByTopic || {}, dailyPlan: getUserProgress().daily, conversationSummary: this.current()?.summary || '', currentView: state.currentView }; },
   addMessage(role, content) { const conversation = this.ensure(); conversation.messages.push({ role, content: String(content).slice(0, 4000), createdAt: new Date().toISOString() }); conversation.messages = conversation.messages.slice(-30); conversation.updatedAt = new Date().toISOString(); conversation.title = conversation.messages.find((m) => m.role === 'user')?.content.slice(0, 42) || conversation.title; this.saveAll([conversation, ...this.all().filter((item) => item.id !== conversation.id)]); return conversation; },
   async send(content) { const text = String(content || '').trim(); if (!text || state.aiBusy) return; window.LearningMemoryService?.captureQuery?.(text); this.addMessage('user', text); state.aiBusy = true; renderAiWidget(); const conversation = this.current(); const recentMessages = (conversation?.messages || []).slice(-12); try { const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: recentMessages, learnerContext: this.context(text), learningLanguage: I18nService.getPreference() }) }); const payload = await response.json().catch(() => ({})); const reply = response.ok && payload.reply ? payload.reply : payload.configured === false ? I18nService.t('ai.notConfigured') : I18nService.t('ai.error'); this.addMessage('assistant', reply); } catch (_) { this.addMessage('assistant', I18nService.t('ai.offline')); } finally { state.aiBusy = false; renderAiWidget(); } }
 };
@@ -1928,6 +1940,14 @@ function lessonPreviewView() {
 }
 
 function listeningStudioQuestions() {
+  const tier = state.listeningStudio.tier || 'beginner';
+  const curated = {
+    beginner: [{ id: 'sound-a-o', questionTypeLabel: 'Beginner · Âm', prompt: 'Nghe và chọn âm đúng.', koreanText: 'ㅏ', audioText: '아', correctAnswer: 'ㅏ', options: ['ㅏ', 'ㅗ', 'ㅓ'], explanationVi: 'ㅏ được đọc gần như “a”.' }, { id: 'sound-eu-u', questionTypeLabel: 'Beginner · Âm', prompt: 'Nghe và chọn âm đúng.', koreanText: 'ㅡ', audioText: '으', correctAnswer: 'ㅡ', options: ['ㅜ', 'ㅡ', 'ㅗ'], explanationVi: 'ㅡ là nguyên âm ngang, môi không tròn.' }],
+    topik1: [{ id: 't1-sentence-school', questionTypeLabel: 'TOPIK 1 · Câu', prompt: 'Nghe câu và chọn nghĩa.', koreanText: '저는 학교에 가요.', audioText: '저는 학교에 가요.', correctAnswer: 'Tôi đi đến trường.', options: ['Tôi đi đến trường.', 'Tôi học ở nhà.', 'Tôi gặp giáo viên.'], explanationVi: '학교에 가요 nghĩa là đi đến trường.' }],
+    topik2: [{ id: 't2-dialogue-cafe', questionTypeLabel: 'TOPIK 2 · Hội thoại', prompt: 'Hai người đang nói về điều gì?', koreanText: '가: 주말에 뭐 했어요? 나: 친구하고 카페에 갔어요.', audioText: '주말에 뭐 했어요? 친구하고 카페에 갔어요.', correctAnswer: 'Hoạt động cuối tuần.', options: ['Hoạt động cuối tuần.', 'Bài kiểm tra.', 'Thời tiết hôm nay.'], explanationVi: '주말 và 했어요 cho biết họ đang nói về cuối tuần.' }],
+    advanced: [{ id: 'advanced-dictation', questionTypeLabel: 'Advanced · Dictation', prompt: 'Nghe và chép lại câu.', koreanText: '환경을 보호하기 위해 대중교통을 이용합니다.', audioText: '환경을 보호하기 위해 대중교통을 이용합니다.', correctAnswer: 'Bảo vệ môi trường.', options: ['Bảo vệ môi trường.', 'Tìm việc làm.', 'Học ngoại ngữ.'], explanationVi: 'Tập trung nghe cụm -기 위해 và 대중교통.' }]
+  };
+  if (curated[tier]?.length) return curated[tier];
   const sets = (PracticeService.bank?.sets || []).filter((set) => set.skill === 'listening');
   const questions = sets.flatMap((set) => PracticeService.bank.getQuestions(set.id)).filter((question) => question.audioText || question.koreanText);
   return questions.length ? questions.slice(0, 8) : [{ id: 'listen-fallback', skill: 'listening', questionType: 'listen_meaning', prompt: 'Nghe câu mẫu và chọn ý nghĩa phù hợp.', koreanText: '한국어를 매일 연습해요.', audioText: '한국어를 매일 연습해요.', correctAnswer: 'Tôi luyện tiếng Hàn mỗi ngày.', options: ['Tôi luyện tiếng Hàn mỗi ngày.', 'Tôi nghỉ học hôm nay.', 'Tôi đang ăn tối.'], explanationVi: '매일 nghĩa là mỗi ngày.' }];
@@ -2719,11 +2739,21 @@ function startRoleplay(roleplayId) {
   setView('speaking-session');
 }
 
+const HANGUL_INITIALS = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const HANGUL_VOWELS = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+const HANGUL_FINALS = ['', 'ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+function decomposeHangulBlock(character = '') { const code = character.charCodeAt(0) - 0xAC00; if (code < 0 || code > 11171) return null; return { initial: HANGUL_INITIALS[Math.floor(code / 588)], vowel: HANGUL_VOWELS[Math.floor((code % 588) / 28)], final: HANGUL_FINALS[code % 28] }; }
+function pronunciationBreakdown(target = '', transcript = '') {
+  const expected = [...String(target).normalize('NFC')].filter((char) => /[가-힣]/.test(char)); const actual = [...String(transcript).normalize('NFC')].filter((char) => /[가-힣]/.test(char));
+  const segments = expected.map((syllable, index) => { const heard = actual[index] || ''; if (syllable === heard) return { syllable, heard, status: 'correct', score: 100, focus: [] }; const wanted = decomposeHangulBlock(syllable); const got = decomposeHangulBlock(heard); const focus = !got ? [wanted?.vowel || wanted?.initial].filter(Boolean) : [wanted.initial !== got.initial ? wanted.initial : '', wanted.vowel !== got.vowel ? wanted.vowel : '', wanted.final !== got.final ? wanted.final : ''].filter(Boolean); const matches = got ? ['initial','vowel','final'].filter((key) => wanted[key] === got[key]).length : 0; return { syllable, heard: heard || '—', status: matches >= 2 ? 'close' : 'retry', score: Math.round(matches / 3 * 100), focus }; });
+  return { segments, focusSounds: [...new Set(segments.flatMap((item) => item.focus))].slice(0, 6), method: 'speech-recognition-text-comparison' };
+}
+
 const PronunciationProvider = {
   id: 'text-similarity-mvp',
   evaluate({ target = '', transcript = '', keywords = [], roleplay = false } = {}) {
     if (roleplay) { const normalized = normalizeKorean(transcript); const matched = keywords.filter((keyword) => normalized.includes(normalizeKorean(keyword))).length; return { score: Math.round((matched / Math.max(1, keywords.length)) * 100), matched }; }
-    return { score: similarityScore(target, transcript) };
+    return { score: similarityScore(target, transcript), breakdown: pronunciationBreakdown(target, transcript) };
   }
 };
 window.PronunciationProvider = PronunciationProvider;
@@ -2737,14 +2767,15 @@ function speakingEvaluation(transcript) {
     const score = evaluated.score;
     return { score, feedback: matched ? `Đã dùng ${matched}/${prompt.keywords.length} từ khóa gợi ý.` : 'Hãy thử dùng một trong các từ khóa gợi ý để phản hồi đúng tình huống.' };
   }
-  const score = PronunciationProvider.evaluate({ target: prompt.korean, transcript }).score;
-  return { score, feedback: score >= 90 ? 'Văn bản nhận diện rất gần câu mẫu.' : score >= 70 ? 'Khá tốt; hãy chú ý nhịp câu và thử lại.' : 'Hãy nói chậm, rõ từng cụm rồi nghe lại câu mẫu.' };
+  const evaluated = PronunciationProvider.evaluate({ target: prompt.korean, transcript }); const score = evaluated.score;
+  return { ...evaluated, feedback: score >= 90 ? 'Văn bản nhận diện rất gần câu mẫu.' : score >= 70 ? 'Khá tốt; hãy chú ý các âm được đánh dấu rồi thử lại.' : 'Hãy nói chậm, rõ từng âm tiết rồi nghe lại câu mẫu.' };
 }
 
 function saveSpeakingAttempt(transcript) {
   const evaluation = speakingEvaluation(transcript);
   const result = { id: uniqueId(), mode: state.speakingMode, target: state.speakingPrompt?.korean || state.speakingPrompt?.appLine || '', transcript, ...evaluation, createdAt: new Date().toISOString() };
   if (evaluation.score < 85) window.ErrorNotebookService?.add?.({ type: 'speaking', question: result.target, mistake: result.transcript, correction: result.target, explanation: result.feedback });
+  (evaluation.breakdown?.focusSounds || []).forEach((sound) => window.LearningMemoryService?.upsert?.({ type: 'weak_knowledge', topic: `pronunciation:${sound}`, content: `Cần luyện lại âm ${sound}`, confidence: .72, importance: 3, source: 'pronunciation-breakdown' }, { increment: true }));
   state.speakingResult = result;
   state.pronunciationResult = result;
   const allSpeaking = storage.get(STORAGE_KEYS.speaking, {});

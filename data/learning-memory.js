@@ -42,8 +42,13 @@
       const profile = LearnerProfileService.get() || {}; const target = Number(profile.targetTopikLevel || state.currentUser?.targetTopikLevel || 2);
       this.upsert({ type: 'learning_goal', topic: 'topik', content: `Mục tiêu TOPIK ${target}`, confidence: .98, importance: 5, source: 'learner-profile' });
       this.upsert({ type: 'learning_preference', topic: 'explanation_language', content: 'Ưu tiên giải thích bằng tiếng Việt', confidence: .9, importance: 3, source: 'app-language' });
+      this.upsert({ type: 'learning_preference', topic: 'learning_style', content: `Phong cách học: ${profile.learningStyle || 'visual'}`, confidence: .98, importance: 4, source: 'learner-profile' });
+      this.upsert({ type: 'learning_preference', topic: 'learning_mode', content: `Chế độ học: ${profile.learningMode || 'casual'}`, confidence: .98, importance: 4, source: 'learner-profile' });
+      this.upsert({ type: 'learning_preference', topic: 'explanation_style', content: `Cách giải thích: ${profile.explanationStyle || 'step-by-step'}`, confidence: .98, importance: 4, source: 'learner-profile' });
       (profile.strengths || []).slice(0, 3).forEach((skill) => this.upsert({ type: 'strong_knowledge', topic: skill, content: `${skill} là kỹ năng mạnh`, confidence: .75, importance: 3, source: 'mastery-analysis' }));
       (profile.weakSkills || []).slice(0, 3).forEach((skill) => this.upsert({ type: 'weak_knowledge', topic: skill, content: `${skill} cần được củng cố`, confidence: .78, importance: 4, source: 'mastery-analysis' }));
+      (profile.weakGrammar || []).slice(0, 5).forEach((item) => this.upsert({ type: 'weak_knowledge', topic: item.topic || item, content: `Ngữ pháp cần ôn: ${item.topic || item}`, confidence: .82, importance: 4, source: 'grammar-analysis' }));
+      (profile.weakVocabulary || []).slice(0, 8).forEach((item) => this.upsert({ type: 'weak_knowledge', topic: item.korean || item.id || 'vocabulary', content: `Từ hay quên: ${item.korean || item.id}`, confidence: .8, importance: 3, source: 'srs-analysis' }));
       (window.ErrorNotebookService?.top?.(10) || []).filter((item) => Number(item.count || 1) >= 2).forEach((item) => this.captureError(item, { increment: false }));
     },
     summary() { const list = this.all(); const by = (type) => list.filter((item) => item.type === type).slice(0, 5); return { strengths: by('strong_knowledge'), weaknesses: [...by('repeated_mistake'), ...by('weak_knowledge')].slice(0, 5), preferences: by('learning_preference'), goals: by('learning_goal') }; }

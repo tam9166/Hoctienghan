@@ -997,6 +997,42 @@ button:focus-visible, input:focus-visible, select:focus-visible, audio:focus-vis
   .repair-stage-track li b { display: none; }
   .focus-presets { gap: 7px; }
 }
+
+/* Personal learning system */
+.personal-recommendations,.personal-profile,.sentence-writing-entry { border-color: var(--outline); }
+.personal-recommendation-list { display:grid; gap:8px; }
+.personal-recommendation-list button { width:100%; min-width:0; padding:13px; display:grid; grid-template-columns:34px minmax(0,1fr) auto; align-items:center; gap:10px; border:1px solid var(--outline); border-radius:13px; background:var(--surface-low); color:var(--text); text-align:left; }
+.personal-recommendation-list button>span { width:30px; height:30px; display:grid; place-items:center; border-radius:9px; background:var(--primary); color:var(--accent-ink); font-weight:900; }
+.personal-recommendation-list button div { display:grid; gap:3px; }
+.personal-recommendation-list small,.personal-recommendation-list em { color:var(--muted); font-style:normal; }
+.learner-skill-status { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:14px 0; }
+.learner-skill-status>div { min-width:0; padding:12px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:3px 8px; border:1px solid var(--outline); border-radius:12px; background:var(--surface-low); }
+.learner-skill-status small { color:var(--muted); }
+.learner-skill-status b { font-size:11px; text-transform:uppercase; }
+.status-strong { color:var(--success); }.status-medium { color:#8a6710; }.status-weak { color:var(--danger); }
+.preference-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:16px; }
+.preference-form label { display:grid; gap:5px; color:var(--muted); font-size:12px; font-weight:800; }
+.preference-form select,.preference-form input { width:100%; min-height:44px; padding:9px 11px; border:1px solid var(--outline); border-radius:10px; background:var(--surface); color:var(--text); }
+.preference-form .btn { align-self:end; }
+.listening-tier-tabs { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+.listening-tier-tabs button { min-width:0; padding:11px 8px; border:1px solid var(--outline); border-radius:11px; background:var(--surface); color:var(--text); font-weight:800; }
+.listening-tier-tabs button.active { border-color:var(--heading); background:var(--primary); color:var(--accent-ink); }
+.sentence-writing-entry { display:flex; align-items:center; justify-content:space-between; gap:18px; }
+.sentence-writing-entry h2,.sentence-writing-entry p { margin:3px 0; }
+.sentence-writing-card { max-width:760px; margin-inline:auto; }
+.sentence-writing-card form { display:grid; gap:10px; }
+.sentence-writing-card textarea { width:100%; padding:14px; border:1px solid var(--outline); border-radius:12px; background:var(--surface-low); color:var(--text); font:inherit; font-size:18px; }
+.sentence-check-result { margin-top:16px; padding:16px; border:1px solid var(--outline); border-radius:13px; background:var(--surface-low); }
+.sentence-check-result ul { padding-left:20px; line-height:1.8; }
+.pronunciation-breakdown { margin-top:14px; padding:13px; border:1px solid var(--outline); border-radius:12px; background:var(--surface-low); }
+.pronunciation-breakdown>p { display:flex; justify-content:space-between; gap:10px; margin:0 0 10px; }
+.pronunciation-breakdown>p small { color:var(--muted); }
+.pronunciation-breakdown>div { display:flex; flex-wrap:wrap; gap:8px; }
+.pronunciation-breakdown>div>span { min-width:60px; padding:9px; display:grid; grid-template-columns:1fr auto; gap:2px 5px; border:1px solid var(--outline); border-radius:10px; }
+.pronunciation-breakdown>div>span.correct { border-color:var(--success); }.pronunciation-breakdown>div>span.close,.pronunciation-breakdown>div>span.retry { border-color:#c78c28; }
+.pronunciation-breakdown span small { grid-column:1/-1; color:var(--muted); }
+.pronunciation-breakdown em { font-style:normal; }
+@media (max-width:680px) { .preference-form,.learner-skill-status { grid-template-columns:1fr; }.listening-tier-tabs { grid-template-columns:repeat(2,minmax(0,1fr)); }.sentence-writing-entry { align-items:stretch; flex-direction:column; }.sentence-writing-entry .btn { width:100%; }.pronunciation-breakdown>p { flex-direction:column; } }
 [data-theme="dark"] .common-mistake { border-left-color: #d49a61; }
 [data-theme="dark"] .success-text { color: #C5ED4F; }
 [data-theme="dark"] #koreanTypingInput { background: var(--surface-low); }
