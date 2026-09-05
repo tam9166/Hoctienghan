@@ -46,7 +46,7 @@ Sau đó mở `http://localhost:8080`.
 - Listening/Reading Hub theo TOPIK level, Korean TTS, recommended practice và daily practice plan.
 - Ghi âm qua MediaRecorder và chấm tương đồng văn bản bằng Speech Recognition khi trình duyệt hỗ trợ.
 - Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
-- PWA manifest + service worker network-first (`klearn-v39`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
+- PWA manifest + service worker network-first (`klearn-v40`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
 
 Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **Tiếng Hàn - TamHoanq** mới.
 
@@ -120,6 +120,15 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Mỗi lượt luyện chấm minh bạch theo ý nghĩa, grammar, độ tự nhiên và ngữ cảnh rồi theo dõi ba tín hiệu `confidence`, `fluency`, `accuracy`. Điểm thấp nối về Error Notebook; audio từ voice input không được lưu.
 - Immersion Mode dùng chung `StudySettingsService`, ẩn translation và romanization trong session, sau khi tắt sẽ khôi phục lựa chọn trước đó. Debate dùng rubric local; chỉ mở Trợ lý học tập hiện có khi người dùng chủ động yêu cầu phản biện.
 - Personal Learning Avatar hiện chỉ là nghiên cứu contract dữ liệu từ goal, mastery, SRS và speaking journey; không tạo khuôn mặt/giọng nói AI, không giả lập cảm xúc và không tự nhắn tin.
+
+### Advanced Korean Learning Ecosystem Expansion
+
+- Hub P5–P10 gom Journey Intelligence, Real Korean Life, Language Science, Skill World, Career & Purpose và Learning Architecture; không tạo thêm AI Tutor/Coach hoặc đặt AI Partner ở Home.
+- Journey Replay, Learning DNA, nhắc học theo thói quen và Mood/Energy chỉ dùng activity, progress, SRS, Mastery và Learner Profile thật. Mood không được diễn giải như dữ liệu tâm lý.
+- Life Simulator có Housing, Hospital, Bank, School và Work; Document/Sign Reader ưu tiên `TextDetector` chạy cục bộ và fallback nhập text. Ảnh, audio, token và dữ liệu riêng tư không được tải lên hoặc lưu.
+- Error Pattern Map tổng hợp xu hướng riêng với Error Notebook; Naturalness/Complexity lưu câu theo user; Skill Tree, Mastery Map, Weekly Boss và badge đều lấy từ mastery thay vì level ảo.
+- Career Path bao gồm IT, Business, Tourism và Office Korean cùng Interview, Email, Presentation và Etiquette. Memory Graph chỉ là structured learning context; bài luyện phụ luôn giữ `sourceId` của content đã duyệt.
+- Nội dung P5–P10 nằm trong `content/ecosystem-expansion.json`, chỉ được fetch khi mở module, qua quality gate `verified + approved`, và được service worker cache cho lần dùng offline tiếp theo.
 
 ## Dữ liệu MVP
 

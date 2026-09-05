@@ -42,7 +42,8 @@
     const target = Number(profile.targetTopikLevel || state.currentUser?.targetTopikLevel || 2);
     const memories = window.LearningMemoryService?.all?.() || [];
     const graphWeakness = window.KnowledgeGraphService?.weaknessAnalysis?.() || [];
-    return { profile, progress, stats, topErrors, due, scores, weakSkills, activity, target, memories, graphWeakness };
+    const patternMap = window.LanguageScienceService?.adaptiveContext?.().priorityErrors || [];
+    return { profile, progress, stats, topErrors, due, scores, weakSkills, activity, target, memories, graphWeakness, patternMap };
   }
 
   function buildPriorities() {
@@ -62,6 +63,8 @@
       if (id === 'vocabulary' && s.due > 0) { points += 3; reasons.push(`${s.due} thẻ SRS đến hạn`); }
       if (['reading', 'listening', 'grammar', 'vocabulary'].includes(id) && s.target >= 3) { points += 2; reasons.push(`liên quan TOPIK ${s.target}`); }
       if (focusNode?.weaknessScore >= 2) { points += 2; reasons.push(`graph yếu: ${focusNode.label}`); }
+      const pattern = s.patternMap.find((item) => item.type === id || (id === 'grammar' && ['particles', 'batchim'].includes(item.type)));
+      if (pattern) { points += Math.min(3, Math.max(1, Math.ceil(pattern.share / 25))); reasons.push(`xu hướng lỗi ${pattern.type} ${pattern.share}%`); }
       const style = s.profile.learningStyle || state.currentUser?.learningStyle || 'visual'; const mode = s.profile.learningMode || state.currentUser?.learningMode || 'casual';
       if ((STYLE_FOCUS[style] || []).includes(id)) { points += 2; reasons.push(`hợp phong cách ${style}`); }
       if ((MODE_FOCUS[mode] || []).includes(id)) { points += 2; reasons.push(`phù hợp chế độ ${mode}`); }

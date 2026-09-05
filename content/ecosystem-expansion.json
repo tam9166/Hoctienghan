@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "verified": true,
+  "source": "TamHoanq curriculum",
+  "reviewStatus": "approved",
+  "lifeScenarios": [
+    {"id":"life-housing","icon":"⌂","group":"Housing","title":{"vi":"Thuê nhà và hỏi tiền cọc","en":"Renting and deposit","zh-CN":"租房与押金"},"goal":{"vi":"Hỏi rõ tiền thuê, tiền cọc và phí quản lý trước khi đồng ý.","en":"Clarify rent, deposit and maintenance fees before agreeing.","zh-CN":"同意前确认租金、押金和管理费。"},"tasks":[{"prompt":"보증금은 얼마예요?","meaning":{"vi":"Tiền cọc là bao nhiêu?","en":"How much is the deposit?","zh-CN":"押金是多少？"},"keywords":["보증금","얼마"],"model":"보증금은 얼마예요?"},{"prompt":"관리비가 포함돼요?","meaning":{"vi":"Phí quản lý đã bao gồm chưa?","en":"Is the maintenance fee included?","zh-CN":"包含管理费吗？"},"keywords":["관리비","포함"],"model":"관리비가 월세에 포함돼요?"}]},
+    {"id":"life-hospital","icon":"＋","group":"Hospital","title":{"vi":"Đặt lịch và mô tả triệu chứng","en":"Appointment and symptoms","zh-CN":"预约与描述症状"},"goal":{"vi":"Đặt lịch và mô tả triệu chứng cơ bản rõ ràng.","en":"Book an appointment and clearly describe basic symptoms.","zh-CN":"预约并清楚描述基本症状。"},"tasks":[{"prompt":"오늘 진료를 예약하고 싶어요.","meaning":{"vi":"Tôi muốn đặt lịch khám hôm nay.","en":"I want to book an appointment today.","zh-CN":"我想预约今天看诊。"},"keywords":["오늘","예약"],"model":"오늘 진료를 예약하고 싶어요."},{"prompt":"어제부터 머리가 아파요.","meaning":{"vi":"Tôi đau đầu từ hôm qua.","en":"I have had a headache since yesterday.","zh-CN":"我从昨天开始头痛。"},"keywords":["어제부터","머리","아파요"],"model":"어제부터 머리가 아파요."}]},
+    {"id":"life-bank","icon":"₩","group":"Bank","title":{"vi":"Mở tài khoản ngân hàng","en":"Opening a bank account","zh-CN":"开设银行账户"},"goal":{"vi":"Nói mục đích và hỏi giấy tờ cần thiết.","en":"State your purpose and ask about required documents.","zh-CN":"说明目的并询问所需材料。"},"tasks":[{"prompt":"계좌를 만들고 싶어요.","meaning":{"vi":"Tôi muốn mở tài khoản.","en":"I want to open an account.","zh-CN":"我想开一个账户。"},"keywords":["계좌","만들"],"model":"계좌를 만들고 싶어요."},{"prompt":"어떤 서류가 필요해요?","meaning":{"vi":"Cần những giấy tờ nào?","en":"Which documents are required?","zh-CN":"需要哪些材料？"},"keywords":["서류","필요"],"model":"계좌를 만들려면 어떤 서류가 필요해요?"}]},
+    {"id":"life-school","icon":"学","group":"School","title":{"vi":"Giao tiếp ở trường","en":"School communication","zh-CN":"学校交流"},"goal":{"vi":"Hỏi phòng học và xác nhận hạn nộp bài.","en":"Ask for a classroom and confirm an assignment deadline.","zh-CN":"询问教室并确认作业截止日期。"},"tasks":[{"prompt":"한국어 교실이 어디예요?","meaning":{"vi":"Phòng học tiếng Hàn ở đâu?","en":"Where is the Korean classroom?","zh-CN":"韩语教室在哪里？"},"keywords":["교실","어디"],"model":"한국어 교실이 어디예요?"},{"prompt":"과제는 언제까지 내야 해요?","meaning":{"vi":"Bài tập phải nộp trước khi nào?","en":"When is the assignment due?","zh-CN":"作业什么时候交？"},"keywords":["과제","언제까지"],"model":"과제는 언제까지 내야 해요?"}]},
+    {"id":"life-work","icon":"▣","group":"Work","title":{"vi":"Giao tiếp công việc","en":"Workplace communication","zh-CN":"职场交流"},"goal":{"vi":"Xác nhận nhiệm vụ và báo cáo tiến độ lịch sự.","en":"Confirm tasks and politely report progress.","zh-CN":"确认任务并礼貌汇报进度。"},"tasks":[{"prompt":"이 업무를 먼저 하면 될까요?","meaning":{"vi":"Tôi làm việc này trước được không?","en":"Should I do this task first?","zh-CN":"我先做这项工作可以吗？"},"keywords":["업무","먼저"],"model":"이 업무를 먼저 하면 될까요?"},{"prompt":"오늘 오후까지 완료하겠습니다.","meaning":{"vi":"Tôi sẽ hoàn thành trước chiều nay.","en":"I will complete it by this afternoon.","zh-CN":"我会在今天下午前完成。"},"keywords":["오늘","오후","완료"],"model":"오늘 오후까지 완료해서 보고드리겠습니다."}]}
+  ],
+  "documentGlossary": [
+    {"term":"영업시간","romanization":"yeongeop sigan","meaning":{"vi":"giờ mở cửa","en":"business hours","zh-CN":"营业时间"},"parts":[["영업",{"vi":"kinh doanh","en":"business","zh-CN":"营业"}],["시간",{"vi":"thời gian","en":"time","zh-CN":"时间"}]]},
+    {"term":"휴무일","romanization":"hyumuil","meaning":{"vi":"ngày nghỉ","en":"closed day","zh-CN":"休息日"},"parts":[["휴무",{"vi":"nghỉ làm","en":"closed","zh-CN":"休业"}],["일",{"vi":"ngày","en":"day","zh-CN":"日"}]]},
+    {"term":"매운맛","romanization":"maeunmat","meaning":{"vi":"vị cay","en":"spicy flavor","zh-CN":"辣味"},"parts":[["매운",{"vi":"cay","en":"spicy","zh-CN":"辣"}],["맛",{"vi":"vị","en":"taste","zh-CN":"味道"}]]},
+    {"term":"출입금지","romanization":"churip geumji","meaning":{"vi":"cấm vào","en":"no entry","zh-CN":"禁止入内"},"parts":[["출입",{"vi":"ra vào","en":"entry","zh-CN":"出入"}],["금지",{"vi":"cấm","en":"prohibited","zh-CN":"禁止"}]]},
+    {"term":"현금결제","romanization":"hyeongeum gyeolje","meaning":{"vi":"thanh toán tiền mặt","en":"cash payment","zh-CN":"现金支付"},"parts":[["현금",{"vi":"tiền mặt","en":"cash","zh-CN":"现金"}],["결제",{"vi":"thanh toán","en":"payment","zh-CN":"支付"}]]},
+    {"term":"접수처","romanization":"jeopsucheo","meaning":{"vi":"quầy tiếp nhận","en":"reception desk","zh-CN":"接待处"},"parts":[["접수",{"vi":"tiếp nhận","en":"reception","zh-CN":"受理"}],["처",{"vi":"nơi","en":"place","zh-CN":"处"}]]}
+  ],
+  "addresses": [
+    {"text":"서울특별시 강남구 테헤란로","parts":[["서울특별시","thành phố đặc biệt Seoul"],["강남구","quận Gangnam"],["테헤란로","đường Teheran-ro"]]},
+    {"text":"부산광역시 해운대구 해운대로","parts":[["부산광역시","thành phố Busan"],["해운대구","quận Haeundae"],["해운대로","đường Haeundae-ro"]]},
+    {"text":"경기도 수원시 팔달구","parts":[["경기도","tỉnh Gyeonggi"],["수원시","thành phố Suwon"],["팔달구","quận Paldal"]]},
+    {"text":"제주특별자치도 제주시 연동","parts":[["제주특별자치도","tỉnh tự trị đặc biệt Jeju"],["제주시","thành phố Jeju"],["연동","phường Yeon-dong"]]}
+  ],
+  "numberExercises": [
+    {"id":"age","system":"native","context":"Tuổi","prompt":"스물세 살","answer":"23","note":"Tuổi thường dùng số thuần Hàn + 살."},
+    {"id":"items","system":"native","context":"Đếm đồ vật","prompt":"사과 세 개","answer":"3","note":"Đếm đồ vật dùng số thuần Hàn với đơn vị 개."},
+    {"id":"money","system":"sino","context":"Tiền","prompt":"만 오천 원","answer":"15000","note":"Giá tiền dùng số Hán Hàn + 원."},
+    {"id":"minutes","system":"sino","context":"Phút","prompt":"사십오 분","answer":"45","note":"Phút dùng số Hán Hàn + 분."},
+    {"id":"hour","system":"native","context":"Giờ","prompt":"일곱 시","answer":"7","note":"Giờ dùng số thuần Hàn + 시."},
+    {"id":"phone","system":"sino","context":"Điện thoại","prompt":"공일공-이삼사오-육칠팔구","answer":"01023456789","note":"Số điện thoại đọc từng chữ số theo Hán Hàn; 0 thường đọc 공."}
+  ],
+  "grammarEvolution": [
+    {"form":"먹어요","stage":{"vi":"Hiện tại lịch sự","en":"Polite present","zh-CN":"礼貌现在时"},"masteryKey":"grammar-present"},
+    {"form":"먹었어요","stage":{"vi":"Quá khứ","en":"Past","zh-CN":"过去时"},"masteryKey":"grammar-past"},
+    {"form":"먹을 거예요","stage":{"vi":"Dự định / tương lai","en":"Plan / future","zh-CN":"计划／将来"},"masteryKey":"grammar-future"},
+    {"form":"먹었으면 좋겠어요","stage":{"vi":"Mong muốn có điều kiện","en":"Conditional wish","zh-CN":"条件愿望"},"masteryKey":"grammar-conditional"}
+  ],
+  "thinkingPrompts": [
+    {"id":"meal","scene":"🍚 🥢","accepted":["밥","먹"],"model":"밥을 먹어요."},
+    {"id":"bus","scene":"🚌 🏃","accepted":["버스","타"],"model":"버스를 타러 가요."},
+    {"id":"rain","scene":"🌧 ☂","accepted":["비","우산"],"model":"비가 와서 우산을 써요."},
+    {"id":"study","scene":"📚 ✍","accepted":["공부","책"],"model":"도서관에서 한국어를 공부해요."}
+  ],
+  "weeklyChallenges": [
+    {"id":"batchim-100","metric":"batchim","target":100,"title":{"vi":"Làm chủ 100 từ có batchim","en":"Master 100 batchim words","zh-CN":"掌握100个收音词"}},
+    {"id":"listening-20","metric":"listening","target":20,"title":{"vi":"Hoàn thành 20 bài nghe","en":"Complete 20 listening exercises","zh-CN":"完成20次听力练习"}},
+    {"id":"conversation-5","metric":"conversation","target":5,"title":{"vi":"Hoàn thành 5 tình huống giao tiếp","en":"Complete 5 conversation scenarios","zh-CN":"完成5个会话情境"}}
+  ],
+  "badges": [
+    {"id":"hangul-reader","title":"Hangul Reader","metric":"hangul","target":20},
+    {"id":"listening-beginner","title":"Listening Beginner","metric":"listeningScore","target":50},
+    {"id":"conversation-beginner","title":"Conversation Beginner","metric":"conversation","target":3},
+    {"id":"topik-ready","title":"TOPIK Ready","metric":"topik","target":1}
+  ],
+  "careerPaths": [
+    {"id":"it","icon":"⌘","title":"IT Korean","skills":["기술 설명","버그 보고","일정 협의"],"milestones":["Tự giới thiệu vai trò","Báo lỗi ngắn","Cập nhật tiến độ sprint"]},
+    {"id":"business","icon":"▣","title":"Business Korean","skills":["존댓말","회의","이메일"],"milestones":["Xác nhận lịch","Nêu ý kiến trong họp","Viết email trang trọng"]},
+    {"id":"tourism","icon":"旅","title":"Tourism Korean","skills":["안내","예약","문제 해결"],"milestones":["Đón khách","Xác nhận booking","Xử lý yêu cầu"]},
+    {"id":"office","icon":"文","title":"Office Korean","skills":["보고","요청","발표"],"milestones":["Báo cáo công việc","Xin hỗ trợ","Trình bày ngắn"]}
+  ],
+  "careerPractice": {
+    "interview":[{"prompt":"자기소개를 해 주세요.","goal":"Tên, chuyên môn và một điểm mạnh","model":"안녕하세요. 저는 웹 개발자 민수입니다. 협업과 문제 해결에 강점이 있습니다."},{"prompt":"왜 우리 회사에 지원했어요?","goal":"Lý do phù hợp công ty và vai trò","model":"회사의 서비스 방향에 공감하고 제 개발 경험을 활용하고 싶어서 지원했습니다."}],
+    "email":[{"type":"leave","title":"Email xin nghỉ","subject":"휴가 신청드립니다","body":"안녕하세요, 팀장님. 개인 사정으로 9월 10일 휴가를 신청드립니다. 업무 인수인계는 오늘까지 완료하겠습니다. 감사합니다."},{"type":"request","title":"Email yêu cầu","subject":"자료 요청드립니다","body":"안녕하세요. 회의 준비를 위해 지난달 보고서를 요청드립니다. 가능하시면 오늘 오후까지 보내 주시기 바랍니다."},{"type":"work","title":"Email công việc","subject":"프로젝트 진행 상황 공유","body":"안녕하세요. 현재 개발은 계획대로 진행 중이며 금요일까지 테스트 결과를 공유드리겠습니다."}],
+    "presentation":[{"phase":"Opening","korean":"안녕하세요. 오늘은 프로젝트 결과를 발표하겠습니다."},{"phase":"Explaining","korean":"먼저 주요 결과를 보시면 사용 시간이 증가했습니다."},{"phase":"Conclusion","korean":"이상으로 발표를 마치겠습니다. 질문 있으시면 말씀해 주세요."}],
+    "etiquette":[{"title":"Kính ngữ","body":"Dùng 직함 + 님 và đuôi -습니다/-세요 khi quan hệ công việc yêu cầu lịch sự."},{"title":"Báo cáo trước","body":"Thông báo sớm khi tiến độ thay đổi; nêu tình trạng, nguyên nhân và phương án."},{"title":"Trao danh thiếp","body":"Nhận và trao bằng hai tay; dành một nhịp đọc thông tin trước khi cất."},{"title":"Giao tiếp gián tiếp","body":"Yêu cầu mềm bằng -주실 수 있을까요? thay cho mệnh lệnh trực tiếp."}]
+  }
+}
