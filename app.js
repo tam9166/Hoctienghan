@@ -69,11 +69,10 @@ const APP_DATA = Object.freeze({
     { id: 'living', icon: '🇰🇷', label: 'Sinh sống tại Hàn Quốc' }
   ],
   levelChoices: [
-    { id: 'none', icon: '🌱', label: 'Chưa biết gì', level: 'Beginner' },
-    { id: 'hangul', icon: 'ㄱ', label: 'Biết bảng chữ cái Hangul', level: 'Beginner+' },
-    { id: 'basic', icon: '📗', label: 'Đã học tiếng Hàn cơ bản', level: 'TOPIK I' },
-    { id: 'topik', icon: '🏆', label: 'Đã từng thi TOPIK', level: '' },
-    { id: 'placement', icon: '📝', label: 'Tôi muốn làm bài kiểm tra đầu vào', level: 'Placement Test' }
+    { id: 'foundation-unknown', icon: '🌱', label: 'Tôi chưa biết chữ Hàn', level: 'Level 0', path: 'foundation' },
+    { id: 'foundation-reading', icon: '가', label: 'Tôi biết Hangul nhưng đọc chậm', level: 'Beginner Reading', path: 'reading' },
+    { id: 'beginner-placement', icon: '첫', label: 'Tôi biết một số từ', level: 'Beginner Placement', path: 'beginner-placement' },
+    { id: 'placement', icon: '🏆', label: 'Tôi đã học TOPIK', level: 'Placement Test', path: 'placement' }
   ],
   placementQuestions: [
     { prompt: 'Chữ nào đọc gần giống âm “ga/ka”?', options: ['ㄱ', 'ㄴ', 'ㅁ', 'ㅅ'], answer: 0 },
@@ -135,6 +134,7 @@ const state = {
   onboardingStep: 'goals',
   selectedGoals: [],
   selectedLevel: '',
+  selectedOnboardingPath: '',
   dailyProgress: null,
   lessonProgress: {},
   srsData: [],
@@ -188,9 +188,10 @@ const state = {
   ,globalQuery: '', smartReviewMinutes: 20, cloudUser: null, cloudAuthBusy: false, cloudAuthMessage: ''
 };
 
-const MAIN_VIEWS = ['home', 'lessons', 'courses', 'course-detail', 'theory', 'roadmap', 'topik', 'strategy-lab', 'strategy-detail', 'listening-studio', 'writing-room', 'speaking-room', 'topik-exam', 'topik-exam-result', 'resources', 'resource-view', 'notes', 'bookmarks', 'videos', 'video-view', 'support', 'review-dashboard', 'ai-coach', 'adaptive-plan', 'error-notebook', 'grammar-compare', 'grammar-notebook', 'typing-trainer', 'repair-path', 'focus-study', 'chapter-checkpoint', 'offline-packs', 'shadowing-recorder', 'study-calendar', 'progress-timeline', 'vocabulary-collections', 'sentence-builder', 'real-life-missions', 'study-settings', 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'progress-reports', 'practical-korean', 'vocabulary-notebook', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
+const FOUNDATION_VIEWS = ['foundation', 'hangul-academy', 'syllable-builder', 'reading-first', 'batchim-academy', 'minimal-pairs', 'first-words', 'first-sentence', 'beginner-checkpoint'];
+const MAIN_VIEWS = ['home', 'lessons', 'courses', 'course-detail', 'theory', 'roadmap', 'topik', 'strategy-lab', 'strategy-detail', 'listening-studio', 'writing-room', 'speaking-room', 'topik-exam', 'topik-exam-result', 'resources', 'resource-view', 'notes', 'bookmarks', 'videos', 'video-view', 'support', 'review-dashboard', 'ai-coach', 'adaptive-plan', 'error-notebook', 'grammar-compare', 'grammar-notebook', 'typing-trainer', 'repair-path', 'focus-study', 'chapter-checkpoint', 'offline-packs', 'shadowing-recorder', 'study-calendar', 'progress-timeline', 'vocabulary-collections', 'sentence-builder', 'real-life-missions', 'study-settings', ...FOUNDATION_VIEWS, 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'progress-reports', 'practical-korean', 'vocabulary-notebook', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
-const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'placement', 'onboarding-result'];
+const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'beginner-placement', 'placement', 'onboarding-result'];
 
 function escapeHtml(value = '') {
   return String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
@@ -735,6 +736,7 @@ function saveUsers(users) { storage.set(STORAGE_KEYS.users, users); }
 function normalizeUser(user) {
   if (!user || typeof user !== 'object') return null;
   const currentTopikLevel = Math.max(1, Math.min(6, Number(user.currentTopikLevel) || inferredTopikLevel(user.level)));
+  const learningTrack = user.learningTrack === 'foundation' ? 'foundation' : 'topik';
   return {
     ...user,
     fullName: typeof user.fullName === 'string' && user.fullName.trim() ? user.fullName : 'Người học Tiếng Hàn - TamHoanq',
@@ -742,12 +744,18 @@ function normalizeUser(user) {
     avatar: typeof user.avatar === 'string' ? user.avatar : initials(user.fullName || ''),
     goals: Array.isArray(user.goals) ? user.goals : [],
     level: typeof user.level === 'string' ? user.level : 'Beginner',
+    learningTrack,
+    foundationLevel: learningTrack === 'foundation' ? 0 : null,
+    foundationEntry: ['hangul-academy', 'reading-first', 'first-words'].includes(user.foundationEntry) ? user.foundationEntry : 'hangul-academy',
     currentTopikLevel,
     targetTopikLevel: Math.max(currentTopikLevel, Math.min(6, Number(user.targetTopikLevel) || Math.min(6, currentTopikLevel + 1))),
     onboardingCompleted: user.onboardingCompleted === true,
     onboardingStep: typeof user.onboardingStep === 'string' ? user.onboardingStep : 'goals',
     placement: user.placement && typeof user.placement === 'object'
       ? { index: Number(user.placement.index) || 0, answers: Array.isArray(user.placement.answers) ? user.placement.answers : [], score: Number(user.placement.score) || 0 }
+      : { index: 0, answers: [], score: 0 },
+    beginnerPlacement: user.beginnerPlacement && typeof user.beginnerPlacement === 'object'
+      ? { index: Number(user.beginnerPlacement.index) || 0, answers: Array.isArray(user.beginnerPlacement.answers) ? user.beginnerPlacement.answers : [], score: Number(user.beginnerPlacement.score) || 0 }
       : { index: 0, answers: [], score: 0 }
   };
 }
@@ -771,6 +779,7 @@ function defaultProgress() {
     skills: { listening: 0, speaking: 0, reading: 0, writing: 0 },
     pronunciationAttempts: [],
     writingSubmissions: [],
+    foundation: { learnedCharacters: [], completedActivities: [], firstWords: [], checkpoint: null, updatedAt: null },
     mockTests: [
       { title: 'TOPIK I - Đề mẫu', date: 'Chưa làm', score: '—/200' },
       { title: 'Đề luyện tập Nghe', date: 'Chưa làm', score: '—/100' }
@@ -1016,6 +1025,8 @@ const CloudSyncService = {
     const ids = new Set([...Object.keys(local.lessonProgress || {}), ...Object.keys(remote.lessonProgress || {})]);
     ids.forEach((id) => { const a = local.lessonProgress?.[id] || {}; const b = remote.lessonProgress?.[id] || {}; const latest = new Date(b.updatedAt || b.completedAt || 0) >= new Date(a.updatedAt || a.completedAt || 0) ? { ...a, ...b } : { ...b, ...a }; lessons[id] = { ...latest, completed: Boolean(a.completed || b.completed), score: Math.max(a.score || 0, b.score || 0), masteryScore: Math.max(a.masteryScore || 0, b.masteryScore || 0), masteryStatus: MasteryService.status(Math.max(a.masteryScore || 0, b.masteryScore || 0)) }; });
     merged.lessonProgress = lessons; merged.stats = Object.fromEntries([...new Set([...Object.keys(local.stats || {}), ...Object.keys(remote.stats || {})])].map((key) => [key, Math.max(local.stats?.[key] || 0, remote.stats?.[key] || 0)])); merged.skills = Object.fromEntries([...new Set([...Object.keys(local.skills || {}), ...Object.keys(remote.skills || {})])].map((key) => [key, Math.max(local.skills?.[key] || 0, remote.skills?.[key] || 0)]));
+    const localFoundation = local.foundation && typeof local.foundation === 'object' ? local.foundation : {}; const remoteFoundation = remote.foundation && typeof remote.foundation === 'object' ? remote.foundation : {}; const latestFoundation = new Date(remoteFoundation.updatedAt || 0) >= new Date(localFoundation.updatedAt || 0) ? { ...localFoundation, ...remoteFoundation } : { ...remoteFoundation, ...localFoundation };
+    merged.foundation = { ...latestFoundation, learnedCharacters: [...new Set([...(Array.isArray(localFoundation.learnedCharacters) ? localFoundation.learnedCharacters : []), ...(Array.isArray(remoteFoundation.learnedCharacters) ? remoteFoundation.learnedCharacters : [])])], completedActivities: [...new Set([...(Array.isArray(localFoundation.completedActivities) ? localFoundation.completedActivities : []), ...(Array.isArray(remoteFoundation.completedActivities) ? remoteFoundation.completedActivities : [])])], firstWords: [...new Set([...(Array.isArray(localFoundation.firstWords) ? localFoundation.firstWords : []), ...(Array.isArray(remoteFoundation.firstWords) ? remoteFoundation.firstWords : [])])] };
     merged.pronunciationAttempts = this.mergeValue(local.pronunciationAttempts, remote.pronunciationAttempts); merged.writingSubmissions = this.mergeValue(local.writingSubmissions, remote.writingSubmissions); return merged;
   },
   mergeDomain(key, local, remote) { if (key === STORAGE_KEYS.srs) return this.mergeSrs(local, remote); if (key === STORAGE_KEYS.progress) return this.mergeProgress(local, remote); return this.mergeValue(local, remote); },
@@ -1327,6 +1338,7 @@ window.CloudAccountService = CloudAccountService;
 function onboardingViewFor(user) {
   const step = user?.onboardingStep || 'goals';
   if (step === 'level') return 'onboarding-level';
+  if (step === 'beginner-placement') return 'beginner-placement';
   if (step === 'placement') return 'placement';
   if (step === 'result') return 'onboarding-result';
   return 'onboarding-goals';
@@ -1367,7 +1379,7 @@ function syncShell() {
     const practiceViews = ['practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'skill-hub', 'writing-hub', 'writing-editor', 'writing-result', 'listening-studio', 'writing-room', 'speaking-room', 'topik-exam', 'topik-exam-result', 'practice-session', 'practice-result', 'practice-review', 'quick-practice'];
     const speakingViews = ['practice', 'speaking-hub', 'speaking-session', 'speaking-result'];
     const activeView = state.currentView === 'lesson' ? 'lessons'
-      : ['lessons','courses','course-detail','theory','lesson-preview','handwriting','dictionary','translation-hub','phrasebook','practical-korean','vocabulary-notebook','vocabulary-hub','vocab-test-setup','vocab-test','vocab-test-result','resources','resource-view','videos','video-view'].includes(state.currentView) ? 'lessons'
+      : ['lessons','courses','course-detail','theory','lesson-preview','handwriting','dictionary','translation-hub','phrasebook','practical-korean','vocabulary-notebook','vocabulary-hub','vocab-test-setup','vocab-test','vocab-test-result','resources','resource-view','videos','video-view', ...FOUNDATION_VIEWS].includes(state.currentView) ? 'lessons'
       : state.currentView === 'roadmap' ? 'profile'
       : ['review','smart-review','review-start','vocab-pretest','pretest-result'].includes(state.currentView) ? 'review'
       : ['topik','strategy-lab','strategy-detail','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice','analytics','search'].includes(state.currentView) ? 'topik'
@@ -1444,15 +1456,13 @@ function goalsView() {
 }
 
 function levelView() {
-  const selectedId = APP_DATA.levelChoices.find((choice) => choice.level === state.selectedLevel)?.id || '';
-  const showTopikFollowup = state.selectedLevel === 'TOPIK experience';
+  const selectedId = state.selectedOnboardingPath || APP_DATA.levelChoices.find((choice) => choice.level === state.selectedLevel)?.id || '';
   const content = `<div class="choice-list">${APP_DATA.levelChoices.map((choice) => {
-    const selected = selectedId === choice.id || (choice.id === 'topik' && showTopikFollowup);
+    const selected = selectedId === choice.id;
     return `<button class="choice-card ${selected ? 'selected' : ''}" data-level-choice="${choice.id}"><span class="choice-icon">${choice.icon}</span><span>${choice.label}</span><span class="choice-check">${selected ? '✓' : ''}</span></button>`;
   }).join('')}</div>
-    ${showTopikFollowup ? `<div class="followup-card"><strong>Kết quả TOPIK gần nhất của bạn?</strong><button class="mini-choice" data-level-result="TOPIK I nâng cao">TOPIK I (cấp 1–2)</button><button class="mini-choice" data-level-result="TOPIK II khởi đầu">TOPIK II (cấp 3 trở lên)</button><button class="mini-choice" data-level-result="Placement Test">Tôi muốn kiểm tra lại</button></div>` : ''}
     <p id="formError" class="form-error hidden" role="alert"></p><div class="action-row"><button class="btn secondary" data-view="onboarding-goals">Quay lại</button><button class="btn primary" id="levelContinue">Tiếp tục</button></div>`;
-  return onboardingFrame('2 / 3', I18nService.t('onboarding.levelTitle'), I18nService.t('onboarding.levelSubtitle'), content);
+  return onboardingFrame('2 / 3', 'Bạn đang ở trình độ nào?', 'Chọn phương án gần nhất để bắt đầu đúng chỗ. Người chưa biết Hangul sẽ không phải làm bài TOPIK.', content);
 }
 
 function placementQuestionAt(placement, index = placement?.index || 0) {
@@ -1475,8 +1485,9 @@ function goalLabels(goals = []) { return goals.map((id) => APP_DATA.goals.find((
 function onboardingResultView() {
   const goals = goalLabels(state.currentUser.goals);
   const placement = state.currentUser.placement || {}; const answers = placement.answers || []; const ids = placement.questionIds || [4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1]; const dimensions = ['vocabulary','grammar','reading','listening']; const breakdown = dimensions.map((dimension) => { const relevant = ids.map((id, index) => ({ question: APP_DATA.placementQuestions[id], answer: answers[index] })).filter((item) => (item.question?.dimension || 'vocabulary') === dimension && item.answer !== undefined); const correct = relevant.filter((item) => item.answer === item.question.answer).length; return { dimension, score: relevant.length ? Math.round(correct / relevant.length * 100) : 0 }; });
+  const foundation = state.currentUser.learningTrack === 'foundation';
   return `<section class="onboarding-page result-page"><div class="celebration">🎉</div><p class="eyebrow">Cá nhân hóa hoàn tất</p><h1 class="headline">Lộ trình của bạn đã sẵn sàng</h1>
-    <p class="subtle">Tiếng Hàn - TamHoanq sẽ ưu tiên bài học phù hợp với trình độ và mục tiêu của bạn.</p><div class="result-summary"><div><span>Trình độ ước tính</span><strong>${escapeHtml(state.currentUser.level || state.selectedLevel)}</strong></div><div><span>Mục tiêu</span><strong>${escapeHtml(goals.join(' · '))}</strong></div>${answers.length ? `<div><span>Placement Test</span><strong>${state.currentUser.placement.score}/${answers.length} điểm</strong></div>` : ''}</div><section class="card placement-breakdown"><h2>Phân tích theo kỹ năng</h2>${breakdown.map((item) => `<div class="skill"><div class="section-heading"><span>${item.dimension}</span><b>${item.score}%</b></div><div class="bar"><span style="width:${item.score}%"></span></div></div>`).join('')}<p class="subtle">Gợi ý: ${breakdown.sort((a,b) => a.score-b.score)[0]?.dimension || 'vocabulary'} nên được củng cố trước.</p></section>
+    <p class="subtle">${foundation ? 'Bạn sẽ học từ mặt chữ, âm tiết và những từ đầu tiên trước khi vào TOPIK 1.' : 'Tiếng Hàn - TamHoanq sẽ ưu tiên bài học phù hợp với trình độ và mục tiêu của bạn.'}</p><div class="result-summary"><div><span>Điểm bắt đầu</span><strong>${escapeHtml(state.currentUser.level || state.selectedLevel)}</strong></div><div><span>Mục tiêu</span><strong>${escapeHtml(goals.join(' · '))}</strong></div>${answers.length ? `<div><span>Placement Test</span><strong>${state.currentUser.placement.score}/${answers.length} điểm</strong></div>` : ''}</div>${answers.length ? `<section class="card placement-breakdown"><h2>Phân tích theo kỹ năng</h2>${breakdown.map((item) => `<div class="skill"><div class="section-heading"><span>${item.dimension}</span><b>${item.score}%</b></div><div class="bar"><span style="width:${item.score}%"></span></div></div>`).join('')}<p class="subtle">Gợi ý: ${breakdown.sort((a,b) => a.score-b.score)[0]?.dimension || 'vocabulary'} nên được củng cố trước.</p></section>` : `<section class="card foundation-result-note"><strong>${foundation ? 'Level 0 · Nhập môn tiếng Hàn' : 'Lộ trình đã chọn'}</strong><p>${foundation ? 'Hangul → Ghép âm → Đọc từ → Câu đầu tiên → TOPIK 1' : 'Bạn có thể bắt đầu học ngay.'}</p></section>`}
     <button class="btn primary full" id="finishOnboarding">Bắt đầu học</button></section>`;
 }
 
@@ -1498,6 +1509,7 @@ function roadmapFor(level) {
 }
 
 function homeView() {
+  if (state.currentUser?.learningTrack === 'foundation' && window.BeginnerFoundation?.homeView) return window.BeginnerFoundation.homeView();
   const progress = getUserProgress();
   const pct = dailyCompletion(progress);
   const dueCount = VocabularyService.dueCards().length;
@@ -1559,6 +1571,7 @@ function phrasebookView() {
 }
 
 function lessonsView() {
+  if (state.currentUser?.learningTrack === 'foundation' && window.BeginnerFoundation?.learningView) return window.BeginnerFoundation.learningView();
   const profile = LearnerProfileService.get() || {}; const progress = getUserProgress(); const current = Number(state.currentUser.currentTopikLevel || 1);
   const levelLessons = (window.KLEARN_THEORY_LESSONS || []).filter((item) => item.topikLevel === current); const done = levelLessons.filter((item) => state.lessonProgress[item.id]?.completed).length;
   const groups = [
@@ -1604,6 +1617,7 @@ function theoryView() {
 }
 
 function roadmapView() {
+  if (state.currentUser?.learningTrack === 'foundation' && window.BeginnerFoundation?.roadmapView) return window.BeginnerFoundation.roadmapView();
   const progress = getUserProgress(); const lessons = window.KLEARN_THEORY_LESSONS || []; const completed = lessons.filter((lesson) => state.lessonProgress[lesson.id]?.completed).length; const currentLevel = state.currentUser?.currentTopikLevel || 1;
   return `<section class="section page-heading"><p class="eyebrow">🗺 Lộ trình học</p><h1 class="headline">Kế hoạch của bạn</h1><p class="subtle">Từ ${escapeHtml(state.currentUser.level)} đến TOPIK ${state.currentUser.targetTopikLevel} · bắt đầu ${formatDate(state.currentUser.createdAt || Date.now())}</p></section><section class="card roadmap-summary section"><div class="stats stats-four"><div class="stat"><b>${currentLevel}</b><small>TOPIK hiện tại</small></div><div class="stat"><b>${state.currentUser.targetTopikLevel}</b><small>Mục tiêu</small></div><div class="stat"><b>${completed}</b><small>Bài có hoạt động</small></div><div class="stat"><b>${progress.stats.wordsLearned}</b><small>Từ đã học</small></div></div></section><section class="card section"><h2 class="section-title">Hôm nay</h2><div class="daily-plan"><span>📚 1 bài lý thuyết</span><span>🧠 15 từ</span><span>📝 10 câu luyện</span><span>🎧 5 phút nghe</span><span>🎙 5 phút nói</span><span>✍️ 1 bài viết ngắn</span></div></section><section class="card section"><h2 class="section-title">Roadmap TOPIK · Mastery</h2><div class="roadmap-list">${[1,2,3,4,5,6].map((level) => { const list = lessons.filter((lesson) => lesson.topikLevel === level); const score = Math.round(list.reduce((sum, lesson) => sum + MasteryService.lesson(state.lessonProgress[lesson.id]).score, 0) / Math.max(1, list.length)); return `<div class="roadmap-row ${level <= currentLevel ? 'active' : 'locked'}"><span class="roadmap-icon">${level <= currentLevel ? '▶' : '🔒'}</span><div><strong>TOPIK ${level}</strong><div class="bar"><span style="width:${score}%"></span></div></div><b>${score}%</b></div>`; }).join('')}</div><p class="subtle">Mastery: Chưa học → Đang học → Đã hiểu → Thành thạo.</p></section><section class="card section"><h2 class="section-title">Điểm yếu của tôi</h2><p class="subtle">${progress.skills.listening < progress.skills.reading ? 'Tăng thêm thời lượng nghe trong kế hoạch tuần này.' : 'Tiếp tục củng cố từ vựng và ngữ pháp theo SRS.'}</p><button class="btn primary" data-view="wrong-practice">Luyện lại lỗi sai</button></section>`;
 }
@@ -2352,7 +2366,7 @@ function bindEvents() {
   const handwritingClear = document.getElementById('handwritingClear'); if (handwritingClear) handwritingClear.onclick = () => handwritingCanvas?._clear?.();
   const handwritingUndo = document.getElementById('handwritingUndo'); if (handwritingUndo) handwritingUndo.onclick = () => handwritingCanvas?._undo?.();
   const handwritingRetry = document.getElementById('handwritingRetry'); if (handwritingRetry) handwritingRetry.onclick = () => { state.handwritingStage = 1; render(); };
-  const handwritingNext = document.getElementById('handwritingNext'); if (handwritingNext) handwritingNext.onclick = () => { const all = storage.get(STORAGE_KEYS.handwriting, {}); const list = Array.isArray(all?.[state.currentUser?.id]) ? all[state.currentUser.id] : []; const current = list.find((item) => item.character === state.handwritingCharacter) || { character: state.handwritingCharacter, attempts: 0, stage: 0, strokes: 0 }; const evaluated = HandwritingProvider.evaluate({ strokes: current.strokes, stage: state.handwritingStage }); const next = { ...current, attempts: current.attempts + 1, strokes: current.strokes + 1, stage: Math.min(3, state.handwritingStage), masteryScore: Math.max(current.masteryScore || 0, evaluated.score), masteryStatus: state.handwritingStage >= 3 ? 'mastered' : 'learning', completed: state.handwritingStage >= 3, lastPracticed: new Date().toISOString(), updatedAt: new Date().toISOString() }; saveUserScoped(STORAGE_KEYS.handwriting, [next, ...list.filter((item) => item.character !== next.character)], 100); state.handwritingStage = Math.min(3, state.handwritingStage + 1); if (next.completed) toast('Đã hoàn thành chữ này.'); render(); };
+  const handwritingNext = document.getElementById('handwritingNext'); if (handwritingNext) handwritingNext.onclick = () => { const all = storage.get(STORAGE_KEYS.handwriting, {}); const list = Array.isArray(all?.[state.currentUser?.id]) ? all[state.currentUser.id] : []; const current = list.find((item) => item.character === state.handwritingCharacter) || { character: state.handwritingCharacter, attempts: 0, stage: 0, strokes: 0 }; const evaluated = HandwritingProvider.evaluate({ strokes: current.strokes, stage: state.handwritingStage }); const next = { ...current, attempts: current.attempts + 1, strokes: current.strokes + 1, stage: Math.min(3, state.handwritingStage), masteryScore: Math.max(current.masteryScore || 0, evaluated.score), masteryStatus: state.handwritingStage >= 3 ? 'mastered' : 'learning', completed: state.handwritingStage >= 3, lastPracticed: new Date().toISOString(), updatedAt: new Date().toISOString() }; saveUserScoped(STORAGE_KEYS.handwriting, [next, ...list.filter((item) => item.character !== next.character)], 100); state.handwritingStage = Math.min(3, state.handwritingStage + 1); if (next.completed) { toast('Đã hoàn thành chữ này.'); window.BeginnerFoundation?.recordHandwriting?.(next.character); } render(); };
 }
 
 function setupHandwritingCanvas(canvas) {
@@ -2377,6 +2391,7 @@ async function handleRegister(event) {
     await auth.register({ fullName, email, password });
     state.selectedGoals = [];
     state.selectedLevel = '';
+    state.selectedOnboardingPath = '';
     setView('onboarding-goals');
   } catch (error) { setFormError(error.message); }
 }
@@ -2391,6 +2406,7 @@ async function handleLogin(event) {
     const user = await auth.login(email, password);
     state.selectedGoals = [...(user.goals || [])];
     state.selectedLevel = user.level || '';
+    state.selectedOnboardingPath = APP_DATA.levelChoices.find((choice) => choice.level === state.selectedLevel)?.id || '';
     setView(user.onboardingCompleted ? 'home' : onboardingViewFor(user));
   } catch (error) { setFormError(error.message); }
 }
@@ -2409,19 +2425,27 @@ function continueGoals() {
 
 function selectLevelChoice(choiceId) {
   const choice = APP_DATA.levelChoices.find((item) => item.id === choiceId);
-  state.selectedLevel = choiceId === 'topik' ? 'TOPIK experience' : choice.level;
+  if (!choice) return;
+  state.selectedLevel = choice.level;
+  state.selectedOnboardingPath = choice.id;
   render();
 }
 
 function continueLevel() {
-  if (!state.selectedLevel || state.selectedLevel === 'TOPIK experience') return setFormError('Hãy chọn trình độ hoặc phương án kiểm tra phù hợp.');
-  if (state.selectedLevel === 'Placement Test') {
+  if (!state.selectedLevel || !state.selectedOnboardingPath) return setFormError('Hãy chọn trình độ hoặc phương án kiểm tra phù hợp.');
+  if (state.selectedOnboardingPath === 'placement') {
     const existing = state.currentUser.placement || { index: 0, answers: [], score: 0 };
-    persistOnboarding('placement', { placement: existing.index >= 10 ? { index: 0, answers: [], score: 0 } : existing });
+    persistOnboarding('placement', { learningTrack: 'topik', placement: existing.index >= 10 ? { index: 0, answers: [], score: 0 } : existing });
     setView('placement');
     return;
   }
-  persistOnboarding('result', { level: state.selectedLevel });
+  if (state.selectedOnboardingPath === 'beginner-placement') {
+    persistOnboarding('beginner-placement', { beginnerPlacement: { index: 0, answers: [], score: 0 } });
+    setView('beginner-placement');
+    return;
+  }
+  const foundationEntry = state.selectedOnboardingPath === 'foundation-reading' ? 'reading-first' : 'hangul-academy';
+  persistOnboarding('result', { level: state.selectedLevel, learningTrack: 'foundation', foundationLevel: 0, foundationEntry });
   setView('onboarding-result');
 }
 
@@ -2458,8 +2482,9 @@ function answerPlacement(answerIndex) {
 }
 
 function completeOnboarding() {
-  const currentTopikLevel = inferredTopikLevel(state.currentUser.level || state.selectedLevel);
-  updateCurrentUser({ onboardingCompleted: true, onboardingStep: 'completed', currentTopikLevel, targetTopikLevel: Math.min(6, currentTopikLevel + 1) });
+  const foundation = state.currentUser.learningTrack === 'foundation';
+  const currentTopikLevel = foundation ? 1 : inferredTopikLevel(state.currentUser.level || state.selectedLevel);
+  updateCurrentUser({ onboardingCompleted: true, onboardingStep: 'completed', currentTopikLevel, targetTopikLevel: foundation ? 1 : Math.min(6, currentTopikLevel + 1) });
   syncUserData();
   toast('Lộ trình cá nhân đã được tạo!');
   setView('home');
@@ -3022,7 +3047,7 @@ window.addEventListener('klearn-cloud-auth', (event) => {
 });
 window.SupabaseService?.init?.().then(() => CloudAccountService.restore()).then(() => { if (state.currentUser && state.currentView === 'profile') render(); });
 
-window.KLEARN_APP = { storage, state, STORAGE_KEYS, render, setView, toast, escapeHtml, normalizeSearch, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, LearnerProfileService, MasteryService, PracticeService, CloudSyncService, AITutorService, PronunciationProvider, getDisplayPronunciation, AccessControlService, ContentReviewService: window.ContentReviewService, NotesService, BookmarkService, SupportService, QuestionBankService };
+window.KLEARN_APP = { storage, state, STORAGE_KEYS, render, setView, toast, escapeHtml, normalizeSearch, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, updateCurrentUser, LearnerProfileService, MasteryService, PracticeService, CloudSyncService, AITutorService, PronunciationProvider, getDisplayPronunciation, AccessControlService, ContentReviewService: window.ContentReviewService, NotesService, BookmarkService, SupportService, QuestionBankService };
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('[Tiếng Hàn - TamHoanq] Service worker không đăng ký được.', error)));
