@@ -46,7 +46,7 @@ Sau đó mở `http://localhost:8080`.
 - Listening/Reading Hub theo TOPIK level, Korean TTS, recommended practice và daily practice plan.
 - Ghi âm qua MediaRecorder và chấm tương đồng văn bản bằng Speech Recognition khi trình duyệt hỗ trợ.
 - Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
-- PWA manifest + service worker network-first (`klearn-v25`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
+- PWA manifest + service worker network-first (`klearn-v38`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
 
 Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **Tiếng Hàn - TamHoanq** mới.
 
@@ -105,6 +105,13 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 3. Trong Supabase Auth → URL Configuration đặt Site URL là production URL, đồng thời thêm production/preview/local URLs cần dùng để email confirmation quay về app.
 4. Người dùng local tiếp tục học bình thường. Chỉ khi họ chủ động “Đăng nhập & liên kết” hoặc “Đăng ký & liên kết”, app mới gắn local profile hiện tại với `session.user.id`, merge và upsert cloud.
 5. Nếu thiếu config, timeout hoặc Supabase outage, app vẫn chạy local mode đầy đủ.
+
+### Education Platform
+
+- `EducationPermissionService` chỉ đọc role `student`, `teacher`, `reviewer`, `admin` từ `Supabase session.user.app_metadata`; app không cho tự nâng role bằng localStorage.
+- Teacher/Admin có khu quản lý School/Center, lớp học, roster, assignment lesson/vocabulary/test, phản hồi writing/speaking, Course Builder và báo cáo tiến độ lớp. Student chỉ đọc assignment/feedback mà RLS trả về cho chính họ.
+- Course Builder có mẫu Business Korean, Travel Korean và TOPIK. Mỗi course item giữ `verified`, `difficulty`, `status`; nội dung chưa verified không thể chuyển thẳng sang `approved`.
+- Chạy migration `supabase/migrations/20260906_education_platform_foundation.sql` sau migration teacher foundation để tạo organization, classroom, course, assignment và RLS. Dashboard giáo viên chỉ nhận snapshot tiến độ tối thiểu; learning journal, chat và audio không được trả qua RPC.
 
 ## Dữ liệu MVP
 
