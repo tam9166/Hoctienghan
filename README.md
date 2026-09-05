@@ -139,6 +139,15 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Knowledge Graph minh họa quan hệ vocabulary → form/grammar → sentence → topic; Skill Dependency Graph cho biết nền tảng nào còn thiếu trước mục tiêu TOPIK.
 - Forecast 3 tháng hiển thị một khoảng dự kiến, giả định và mức tin cậy; đây không phải cam kết điểm thi. Toàn bộ P18 chạy local từ dữ liệu học hiện có, không đọc chat history, password, token hay audio và không reset dữ liệu người dùng.
 
+### Korean Real-World Ecosystem
+
+- Hub `Chuẩn bị cuộc sống tại Hàn` mở rộng Real Korean Life hiện có với Document Assistant, Menu Reader, Sign Reader, Shopping, Banking, Rental, University, Workplace và Survival Checklist; không tạo chatbot mới.
+- Document Assistant nhận text hoặc ảnh tối đa 8 MB, ưu tiên `TextDetector` trên thiết bị và fallback sang nhập text. Ảnh, OCR text và kết quả phân tích chỉ nằm trong runtime hiện tại, không upload, không ghi localStorage/cloud; app cũng không yêu cầu OTP, PIN hay thông tin ngân hàng.
+- Menu Reader có Restaurant, Cafe và Convenience Store với tên món, thành phần tham khảo, câu gọi món và cảnh báo dị ứng. Sign Reader phân biệt danger/warning/info, giải nghĩa và nêu hành động cần làm.
+- Banking, Rental, University và Workplace Guide cung cấp từng bước, phrase kit và audio TTS hiện có. Shopping Guide giải thích size tham khảo, thử đồ, thanh toán và đổi trả.
+- Culture Warning kiểm tra sắc thái theo ngữ cảnh bằng rule minh bạch: câu đúng ngữ pháp vẫn có thể bị cảnh báo nếu thiếu lịch sự. Survival Checklist chỉ lưu các mục người dùng tự xác nhận trong domain user-scoped hiện có.
+- Nội dung P19 ở `content/real-world-assistant.json`, lazy-load qua quality gate `verified + approved` và được service worker cache cho offline. Vocabulary đã duyệt có thể đưa vào SRS mà không thay đổi TOPIK data.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.
