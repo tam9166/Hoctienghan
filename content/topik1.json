@@ -1,0 +1,11 @@
+{
+  "page": "topik1",
+  "items": [
+    { "id": "cms-t1-introduction", "type": "lesson", "title": "Giới thiệu bản thân", "verified": true, "difficulty": "TOPIK_1", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "summary": "Nói tên và nghề nghiệp bằng câu lịch sự.", "lessonId": "topik-1-01" } },
+    { "id": "cms-t1-student", "type": "vocabulary", "title": "학생", "verified": true, "difficulty": "TOPIK_1", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "korean": "학생", "meaningVi": "học sinh, sinh viên", "topic": "school" } },
+    { "id": "cms-t1-topic-particle", "type": "grammar", "title": "은/는", "verified": true, "difficulty": "TOPIK_1", "source": "curriculum", "reviewStatus": "approved", "version": 2, "body": { "meaningVi": "trợ từ chủ đề", "example": "저는 학생이에요." } },
+    { "id": "cms-t1-audio-intro", "type": "audio", "title": "저는 학생이에요", "verified": true, "difficulty": "TOPIK_1", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "audioText": "저는 학생이에요.", "lang": "ko-KR", "fallback": "speech-synthesis" } },
+    { "id": "cms-t1-quiz-particle", "type": "quiz", "title": "Chọn trợ từ chủ đề", "verified": true, "difficulty": "TOPIK_1", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "prompt": "저__ 학생이에요.", "options": ["는", "를", "에"], "answer": "는" } },
+    { "id": "cms-t1-writing", "type": "exercise", "title": "Viết câu giới thiệu", "verified": false, "difficulty": "TOPIK_1", "source": "curriculum", "reviewStatus": "draft", "version": 1, "body": { "promptVi": "Tôi là sinh viên.", "answer": "저는 학생이에요." } }
+  ]
+}

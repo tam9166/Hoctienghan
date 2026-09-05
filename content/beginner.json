@@ -1,0 +1,11 @@
+{
+  "page": "beginner",
+  "items": [
+    { "id": "cms-beginner-vowels", "type": "lesson", "title": "Nguyên âm Hangul cơ bản", "verified": true, "difficulty": "TOPIK_0", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "summary": "Nhận diện ㅏ, ㅓ, ㅗ, ㅜ.", "lessonId": "hangul-vowels" } },
+    { "id": "cms-beginner-country", "type": "vocabulary", "title": "나라", "verified": true, "difficulty": "TOPIK_0", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "korean": "나라", "meaningVi": "đất nước", "topic": "first-words" } },
+    { "id": "cms-beginner-audio-a", "type": "audio", "title": "Âm ㅏ", "verified": true, "difficulty": "TOPIK_0", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "audioText": "아", "lang": "ko-KR", "fallback": "speech-synthesis" } },
+    { "id": "cms-beginner-quiz-a", "type": "quiz", "title": "Nhận diện âm ㅏ", "verified": true, "difficulty": "TOPIK_0", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "prompt": "Chọn âm ㅏ", "options": ["ㅏ", "ㅗ", "ㅓ"], "answer": "ㅏ" } },
+    { "id": "cms-beginner-build-ga", "type": "exercise", "title": "Ghép 가", "verified": true, "difficulty": "TOPIK_0", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "parts": ["ㄱ", "ㅏ"], "answer": "가" } },
+    { "id": "cms-beginner-batchim", "type": "lesson", "title": "Batchim nhập môn", "verified": false, "difficulty": "TOPIK_0", "source": "curriculum", "reviewStatus": "draft", "version": 1, "body": { "summary": "Phụ âm cuối đơn cơ bản." } }
+  ]
+}

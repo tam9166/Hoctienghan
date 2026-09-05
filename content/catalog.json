@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-05T00:00:00.000Z",
+  "pages": [
+    { "id": "beginner", "url": "content/beginner.json", "difficulty": "TOPIK_0", "types": ["lesson", "vocabulary", "audio", "quiz", "exercise"], "count": 6 },
+    { "id": "topik1", "url": "content/topik1.json", "difficulty": "TOPIK_1", "types": ["lesson", "vocabulary", "grammar", "audio", "quiz", "exercise"], "count": 6 },
+    { "id": "topik2", "url": "content/topik2.json", "difficulty": "TOPIK_2", "types": ["lesson", "vocabulary", "grammar", "audio", "quiz", "exercise"], "count": 6 }
+  ]
+}

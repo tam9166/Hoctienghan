@@ -1,0 +1,11 @@
+{
+  "page": "topik2",
+  "items": [
+    { "id": "cms-t2-weekend", "type": "lesson", "title": "Kể về cuối tuần", "verified": true, "difficulty": "TOPIK_2", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "summary": "Dùng quá khứ để kể hoạt động.", "lessonId": "topik-2-01" } },
+    { "id": "cms-t2-weekend-word", "type": "vocabulary", "title": "주말", "verified": true, "difficulty": "TOPIK_2", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "korean": "주말", "meaningVi": "cuối tuần", "topic": "time" } },
+    { "id": "cms-t2-purpose", "type": "grammar", "title": "-기 위해", "verified": true, "difficulty": "TOPIK_2", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "meaningVi": "để, nhằm mục đích", "example": "건강을 위해 운동해요." } },
+    { "id": "cms-t2-audio-weekend", "type": "audio", "title": "주말에 뭐 했어요?", "verified": true, "difficulty": "TOPIK_2", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "audioText": "주말에 뭐 했어요?", "lang": "ko-KR", "fallback": "speech-synthesis" } },
+    { "id": "cms-t2-quiz-past", "type": "quiz", "title": "Nhận diện quá khứ", "verified": true, "difficulty": "TOPIK_2", "source": "curriculum", "reviewStatus": "approved", "version": 1, "body": { "prompt": "Dạng quá khứ của 가다?", "options": ["가요", "갔어요", "갈 거예요"], "answer": "갔어요" } },
+    { "id": "cms-t2-dialogue", "type": "exercise", "title": "Hội thoại cuối tuần", "verified": false, "difficulty": "TOPIK_2", "source": "curriculum", "reviewStatus": "draft", "version": 1, "body": { "prompt": "Trả lời: 주말에 뭐 했어요?", "sample": "친구하고 카페에 갔어요." } }
+  ]
+}
