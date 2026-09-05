@@ -1,7 +1,7 @@
-const CACHE = 'klearn-v29';
+const CACHE = 'klearn-v30';
 const OFFLINE_ASSETS = [
   './index.html',
-  './styles.css?v=25',
+  './styles.css?v=26',
   './data/romanization.js?v=8',
   './data/vocabulary-bank.js?v=8',
   './data/dictionary.js?v=1',
@@ -15,13 +15,15 @@ const OFFLINE_ASSETS = [
   './data/practical-study.js?v=2',
   './data/beginner-foundation.js?v=1',
   './data/ecosystem-scale.js?v=7',
+  './data/conversation-scenarios.js?v=1',
+  './data/conversation-simulator.js?v=1',
   './data/learning-modules.js?v=9',
   './data/practice-bank.js?v=8',
   './locales/vi.js?v=2',
   './locales/en.js?v=3',
   './locales/zh-CN.js?v=3',
   './data/content-locales.js?v=1',
-  './app.js?v=24',
+  './app.js?v=25',
   './data/resource-library.js?v=1',
   './data/content-review.js?v=2',
   './data/curriculum.js?v=1',
