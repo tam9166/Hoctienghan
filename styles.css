@@ -1732,6 +1732,86 @@ body, .topbar, .bottom-nav, .card, .btn, .answer-button, input, select, textarea
   .natural-toolbar form .btn { width: 100%; }
 }
 
+/* Personal learning intelligence */
+.learning-director-card, .korean-today-card, .skill-radar-card, .grammar-dependency-card, .comeback-card, .fatigue-card, .personal-report-summary { border: 1px solid var(--border, #D6E8A8); background: var(--surface, #fff); box-shadow: none; }
+.learning-director-card .section-heading, .korean-today-card .section-heading, .skill-radar-card .section-heading, .grammar-dependency-card .section-heading { align-items: flex-start; }
+.time-badge, .verified-badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 6px 10px; background: var(--primary-soft, #F7FFD1); color: var(--text-strong, #1F2A1A); font-size: .78rem; font-weight: 700; white-space: nowrap; }
+.director-task-list { display: grid; gap: 10px; list-style: none; margin: 18px 0 0; padding: 0; }
+.director-task { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 0; border-top: 1px solid var(--border, #D6E8A8); }
+.director-task > div:first-child { display: flex; gap: 10px; min-width: 0; align-items: flex-start; }
+.director-task b, .director-task small { display: block; }
+.director-task small { color: var(--text-muted, #65715f); margin-top: 3px; line-height: 1.45; }
+.director-check { color: var(--accent, #A8CF35); font-size: 1.2rem; line-height: 1.1; }
+.director-task.is-complete b { text-decoration: line-through; opacity: .62; }
+.director-task-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.director-task-actions .btn { padding: 8px 12px; }
+.director-task-actions .text-link { font-size: .78rem; }
+.comeback-card { display: grid; grid-template-columns: minmax(0,1fr) minmax(220px,.7fr) auto; gap: 18px; align-items: center; }
+.comeback-card ul { display: grid; gap: 8px; list-style: none; padding: 0; margin: 0; }
+.comeback-card li { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--border, #D6E8A8); padding-bottom: 7px; }
+.comeback-card li span { color: var(--text-muted, #65715f); font-size: .85rem; }
+.fatigue-card { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.fatigue-card p, .fatigue-card h2 { margin-right: auto; }
+.fatigue-card small { width: 100%; color: var(--text-muted, #65715f); }
+.feed-phrase { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 0; }
+.feed-phrase b { font-size: clamp(1.6rem, 3vw, 2rem); }
+.feed-phrase span { color: var(--text-muted, #65715f); }
+.feed-phrase .audio-btn { margin-left: auto; }
+.feed-note { border-left: 3px solid var(--accent, #C5ED4F); padding-left: 12px; line-height: 1.55; }
+.feed-reading { border-top: 1px solid var(--border, #D6E8A8); border-bottom: 1px solid var(--border, #D6E8A8); padding: 12px 0; }
+.feed-reading p { margin: 0 0 4px; font-size: 1.1rem; }
+.feed-reading small, .feed-vocab small { color: var(--text-muted, #65715f); }
+.feed-vocab { display: flex; align-items: baseline; gap: 10px; padding-top: 12px; flex-wrap: wrap; }
+.feed-vocab span { color: var(--text-muted, #65715f); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+.feed-vocab b { font-size: 1.2rem; }
+.audio-speed-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.audio-speed-row .chip { cursor: pointer; }
+.skill-radar-list { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px 24px; }
+.skill-radar-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 5px 10px; align-items: center; }
+.skill-radar-row span { font-weight: 600; }
+.skill-radar-row strong { color: var(--text-strong, #1F2A1A); }
+.skill-radar-row em { grid-column: 2; color: var(--text-muted, #65715f); font-size: .8rem; }
+.skill-radar-row .bar { grid-column: 1 / -1; }
+.grammar-chain { display: flex; align-items: stretch; gap: 8px; overflow-x: auto; padding: 8px 0 4px; }
+.grammar-chain-node { display: flex; align-items: center; gap: 8px; min-width: 130px; }
+.grammar-chain-node > span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--primary, #DDFF66); color: var(--text-strong, #1F2A1A); font-weight: 800; }
+.grammar-chain-node b, .grammar-chain-node small { display: block; }
+.grammar-chain-node small { color: var(--text-muted, #65715f); margin-top: 2px; }
+.grammar-chain-node i { color: var(--accent, #A8CF35); font-style: normal; font-size: 1.2rem; margin-left: auto; }
+.personal-report-summary { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1px; padding: 0; overflow: hidden; }
+.personal-report-summary > div { display: grid; gap: 4px; padding: 20px; background: var(--surface, #fff); }
+.personal-report-summary b { font-size: 1.55rem; color: var(--text-strong, #1F2A1A); }
+.personal-report-summary span { color: var(--text-muted, #65715f); font-size: .85rem; }
+.report-skill-list { display: grid; gap: 12px; }
+.report-skill-row { display: grid; grid-template-columns: minmax(100px, 1fr) 48px; gap: 5px 12px; align-items: center; }
+.report-skill-row .bar { grid-column: 1 / -1; }
+.example-quality-panel { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 18px; border-top: 1px solid var(--border, #D6E8A8); margin-top: 18px; padding-top: 18px; }
+.example-quality-panel h3 { margin: 0 0 5px; }
+.importance-score { display: grid; gap: 4px; min-width: 180px; text-align: right; }
+.importance-score span, .importance-score small { color: var(--text-muted, #65715f); font-size: .8rem; }
+.importance-score b { color: var(--accent, #A8CF35); letter-spacing: .1em; }
+[data-theme="dark"] .learning-director-card, [data-theme="dark"] .korean-today-card, [data-theme="dark"] .skill-radar-card, [data-theme="dark"] .grammar-dependency-card, [data-theme="dark"] .comeback-card, [data-theme="dark"] .fatigue-card, [data-theme="dark"] .personal-report-summary, [data-theme="dark"] .personal-report-summary > div { background: var(--surface, #182016); }
+[data-theme="dark"] .time-badge, [data-theme="dark"] .verified-badge { background: #29381d; color: #E7F7B2; }
+.adaptive-controls-list { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px 18px; }
+.adaptive-control-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border, #D6E8A8); }
+.adaptive-control-row b, .adaptive-control-row small { display: block; }
+.adaptive-control-row small { color: var(--text-muted, #65715f); margin-top: 3px; }
+.adaptive-control-row select { min-width: 130px; }
+@media (max-width: 800px) {
+  .comeback-card { grid-template-columns: 1fr; }
+  .skill-radar-list { grid-template-columns: 1fr; }
+  .personal-report-summary { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .example-quality-panel { grid-template-columns: 1fr; }
+  .importance-score { text-align: left; min-width: 0; }
+  .adaptive-controls-list { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .director-task { align-items: flex-start; flex-direction: column; }
+  .director-task-actions { width: 100%; justify-content: flex-end; }
+  .feed-phrase .audio-btn { margin-left: 0; }
+  .personal-report-summary > div { padding: 15px; }
+}
+
 /* Long-term learning ecosystem */
 .strategy-center-entry, .manual-review-entry, .strategy-center-footer, .achievement-share-preview, .security-principle, .teacher-access-note { padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border: 1px solid var(--outline); border-radius: 15px; background: var(--primary-soft); }
 .strategy-center-entry h2, .strategy-center-entry p, .strategy-center-footer b, .strategy-center-footer small, .manual-review-entry b, .manual-review-entry small, .achievement-share-preview h2, .achievement-share-preview p, .security-principle p, .teacher-access-note p { margin: 0; }
