@@ -1,0 +1,99 @@
+{
+  "id": "p36-advanced-voice",
+  "version": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "updatedAt": "2026-09-06",
+  "analysis": {
+    "preferredProvider": "KLEARN_NATIVE_PHONEME_PROVIDER",
+    "fallbackMethod": "speech-transcript-alignment-and-local-audio-signals",
+    "audioStored": false,
+    "disclaimer": "Điểm âm vị fallback là ước tính từ transcript và tín hiệu nhịp nói, không thay thế đánh giá của giáo viên hoặc mô hình acoustic chuyên dụng."
+  },
+  "scenarios": [
+    {
+      "id": "daily-introduction",
+      "type": "conversation",
+      "levelMin": 0,
+      "levelMax": 2,
+      "title": "Giới thiệu bản thân",
+      "description": "Hội thoại ngắn cho người mới bắt đầu.",
+      "turns": [
+        {
+          "id": "intro-name",
+          "partner": "안녕하세요. 이름이 뭐예요?",
+          "translation": "Xin chào. Bạn tên là gì?",
+          "practiceLine": "안녕하세요. 저는 민수예요.",
+          "expectedKeywords": ["안녕하세요", "저는", "예요"],
+          "targetSeconds": 4
+        },
+        {
+          "id": "intro-study",
+          "partner": "요즘 무엇을 공부해요?",
+          "translation": "Dạo này bạn học gì?",
+          "practiceLine": "저는 한국어를 공부해요.",
+          "expectedKeywords": ["한국어", "공부해요"],
+          "targetSeconds": 4
+        }
+      ]
+    },
+    {
+      "id": "job-interview",
+      "type": "interview",
+      "levelMin": 2,
+      "levelMax": 6,
+      "title": "Phỏng vấn xin việc",
+      "description": "Tự giới thiệu và trình bày kinh nghiệm bằng giọng trang trọng.",
+      "turns": [
+        {
+          "id": "interview-intro",
+          "partner": "자기소개를 해 주세요.",
+          "translation": "Hãy giới thiệu bản thân.",
+          "practiceLine": "안녕하세요. 저는 책임감 있게 일하는 지원자입니다.",
+          "expectedKeywords": ["저는", "지원자", "입니다"],
+          "targetSeconds": 8
+        },
+        {
+          "id": "interview-strength",
+          "partner": "본인의 장점을 말씀해 주세요.",
+          "translation": "Hãy nói về điểm mạnh của bạn.",
+          "practiceLine": "제 장점은 협업 능력과 꾸준함입니다.",
+          "expectedKeywords": ["장점", "능력", "입니다"],
+          "targetSeconds": 8
+        }
+      ]
+    },
+    {
+      "id": "project-presentation",
+      "type": "presentation",
+      "levelMin": 3,
+      "levelMax": 6,
+      "title": "Thuyết trình dự án",
+      "description": "Luyện mở bài, chuyển ý và kết luận rõ ràng.",
+      "turns": [
+        {
+          "id": "presentation-opening",
+          "partner": "발표를 시작해 주세요.",
+          "translation": "Hãy bắt đầu bài thuyết trình.",
+          "practiceLine": "안녕하세요. 지금부터 프로젝트 결과를 발표하겠습니다.",
+          "expectedKeywords": ["지금부터", "프로젝트", "발표하겠습니다"],
+          "targetSeconds": 9
+        },
+        {
+          "id": "presentation-summary",
+          "partner": "핵심 결과를 정리해 주세요.",
+          "translation": "Hãy tổng kết kết quả chính.",
+          "practiceLine": "핵심 결과는 사용자 만족도가 높아졌다는 것입니다.",
+          "expectedKeywords": ["핵심", "결과", "만족도"],
+          "targetSeconds": 10
+        }
+      ]
+    }
+  ],
+  "goals": [
+    { "id": "continuous-3m", "title": "Nói liên tục 3 phút", "metric": "continuousSeconds", "target": 180 },
+    { "id": "practice-10", "title": "Hoàn thành 10 lượt luyện", "metric": "attempts", "target": 10 },
+    { "id": "fluency-80", "title": "Đạt Fluency 80", "metric": "bestFluency", "target": 80 },
+    { "id": "interview-3", "title": "Luyện phỏng vấn 3 lần", "metric": "interviewAttempts", "target": 3 }
+  ]
+}
