@@ -1,0 +1,114 @@
+{
+  "id": "p42-korean-career-ecosystem",
+  "version": "1.0.0",
+  "createdDate": "2026-09-06",
+  "updatedDate": "2026-09-06",
+  "verified": true,
+  "reviewStatus": "approved",
+  "source": "TamHoanq professional Korean curriculum",
+  "paths": [
+    {
+      "id": "it", "icon": "⌘", "title": { "vi": "IT", "en": "IT", "zh-CN": "信息技术" }, "level": "TOPIK 2+",
+      "outcome": { "vi": "Trao đổi tiến độ, lỗi và yêu cầu kỹ thuật.", "en": "Discuss progress, bugs and technical requirements.", "zh-CN": "沟通进度、缺陷和技术需求。" },
+      "vocabulary": [
+        { "id": "it-development", "korean": "개발", "meaning": { "vi": "phát triển", "en": "development", "zh-CN": "开发" }, "example": "기능을 개발하고 있습니다." },
+        { "id": "it-server", "korean": "서버", "meaning": { "vi": "máy chủ", "en": "server", "zh-CN": "服务器" }, "example": "서버 상태를 확인해 주세요." },
+        { "id": "it-data", "korean": "데이터", "meaning": { "vi": "dữ liệu", "en": "data", "zh-CN": "数据" }, "example": "데이터를 분석했습니다." },
+        { "id": "it-bug", "korean": "오류", "meaning": { "vi": "lỗi", "en": "error", "zh-CN": "错误" }, "example": "로그인 오류를 수정했습니다." },
+        { "id": "it-deploy", "korean": "배포", "meaning": { "vi": "triển khai", "en": "deployment", "zh-CN": "部署" }, "example": "오늘 새 버전을 배포합니다." },
+        { "id": "it-requirement", "korean": "요구 사항", "meaning": { "vi": "yêu cầu", "en": "requirement", "zh-CN": "需求" }, "example": "요구 사항을 다시 확인하겠습니다." }
+      ]
+    },
+    {
+      "id": "business", "icon": "▣", "title": { "vi": "Kinh doanh", "en": "Business", "zh-CN": "商务" }, "level": "TOPIK 2+",
+      "outcome": { "vi": "Tham gia họp, trao đổi hợp đồng và báo cáo.", "en": "Join meetings, discuss contracts and report progress.", "zh-CN": "参加会议、讨论合同并汇报进度。" },
+      "vocabulary": [
+        { "id": "business-contract", "korean": "계약", "meaning": { "vi": "hợp đồng", "en": "contract", "zh-CN": "合同" }, "example": "계약 내용을 검토했습니다." },
+        { "id": "business-meeting", "korean": "회의", "meaning": { "vi": "cuộc họp", "en": "meeting", "zh-CN": "会议" }, "example": "오후에 회의가 있습니다." },
+        { "id": "business-report", "korean": "보고", "meaning": { "vi": "báo cáo", "en": "report", "zh-CN": "汇报" }, "example": "진행 상황을 보고드리겠습니다." },
+        { "id": "business-client", "korean": "고객", "meaning": { "vi": "khách hàng", "en": "client", "zh-CN": "客户" }, "example": "고객의 의견을 확인했습니다." },
+        { "id": "business-schedule", "korean": "일정", "meaning": { "vi": "lịch trình", "en": "schedule", "zh-CN": "日程" }, "example": "일정을 조정할 수 있을까요?" },
+        { "id": "business-document", "korean": "자료", "meaning": { "vi": "tài liệu", "en": "material", "zh-CN": "资料" }, "example": "회의 자료를 보내 드립니다." }
+      ]
+    },
+    {
+      "id": "tourism", "icon": "旅", "title": { "vi": "Du lịch", "en": "Tourism", "zh-CN": "旅游" }, "level": "TOPIK 1+",
+      "outcome": { "vi": "Đón khách, xác nhận đặt chỗ và xử lý yêu cầu.", "en": "Welcome guests, confirm bookings and handle requests.", "zh-CN": "接待客人、确认预订并处理需求。" },
+      "vocabulary": [
+        { "id": "tourism-booking", "korean": "예약", "meaning": { "vi": "đặt chỗ", "en": "booking", "zh-CN": "预订" }, "example": "예약을 확인해 드리겠습니다." },
+        { "id": "tourism-guide", "korean": "안내", "meaning": { "vi": "hướng dẫn", "en": "guidance", "zh-CN": "引导" }, "example": "관광지를 안내해 드리겠습니다." },
+        { "id": "tourism-guest", "korean": "고객", "meaning": { "vi": "khách", "en": "guest", "zh-CN": "客人" }, "example": "고객님, 무엇을 도와드릴까요?" },
+        { "id": "tourism-itinerary", "korean": "일정표", "meaning": { "vi": "lịch trình", "en": "itinerary", "zh-CN": "行程表" }, "example": "오늘 일정표를 확인해 주세요." },
+        { "id": "tourism-departure", "korean": "출발", "meaning": { "vi": "khởi hành", "en": "departure", "zh-CN": "出发" }, "example": "아홉 시에 출발합니다." },
+        { "id": "tourism-cancel", "korean": "취소", "meaning": { "vi": "hủy", "en": "cancellation", "zh-CN": "取消" }, "example": "취소 수수료가 있습니다." }
+      ]
+    },
+    {
+      "id": "translation", "icon": "文", "title": { "vi": "Biên phiên dịch", "en": "Translation", "zh-CN": "翻译" }, "level": "TOPIK 3+",
+      "outcome": { "vi": "Làm rõ thuật ngữ, sắc thái và yêu cầu bản dịch.", "en": "Clarify terminology, register and translation briefs.", "zh-CN": "明确术语、语体和翻译要求。" },
+      "vocabulary": [
+        { "id": "translation-interpret", "korean": "통역", "meaning": { "vi": "phiên dịch", "en": "interpretation", "zh-CN": "口译" }, "example": "회의 통역을 담당합니다." },
+        { "id": "translation-translate", "korean": "번역", "meaning": { "vi": "biên dịch", "en": "translation", "zh-CN": "笔译" }, "example": "계약서를 번역했습니다." },
+        { "id": "translation-term", "korean": "용어", "meaning": { "vi": "thuật ngữ", "en": "term", "zh-CN": "术语" }, "example": "전문 용어를 확인하겠습니다." },
+        { "id": "translation-context", "korean": "맥락", "meaning": { "vi": "ngữ cảnh", "en": "context", "zh-CN": "语境" }, "example": "문장의 맥락이 중요합니다." },
+        { "id": "translation-draft", "korean": "초안", "meaning": { "vi": "bản nháp", "en": "draft", "zh-CN": "初稿" }, "example": "번역 초안을 보내 드립니다." },
+        { "id": "translation-revise", "korean": "수정", "meaning": { "vi": "chỉnh sửa", "en": "revision", "zh-CN": "修改" }, "example": "표현을 자연스럽게 수정했습니다." }
+      ]
+    },
+    {
+      "id": "manufacturing", "icon": "製", "title": { "vi": "Sản xuất", "en": "Manufacturing", "zh-CN": "制造业" }, "level": "TOPIK 1+",
+      "outcome": { "vi": "Hiểu chỉ dẫn an toàn, quy trình và báo cáo sự cố.", "en": "Understand safety instructions, processes and incident reports.", "zh-CN": "理解安全指示、流程和事故报告。" },
+      "vocabulary": [
+        { "id": "manufacturing-safety", "korean": "안전", "meaning": { "vi": "an toàn", "en": "safety", "zh-CN": "安全" }, "example": "안전 수칙을 지켜 주세요." },
+        { "id": "manufacturing-equipment", "korean": "장비", "meaning": { "vi": "thiết bị", "en": "equipment", "zh-CN": "设备" }, "example": "작업 전에 장비를 확인합니다." },
+        { "id": "manufacturing-process", "korean": "공정", "meaning": { "vi": "công đoạn", "en": "process", "zh-CN": "工序" }, "example": "다음 공정을 시작합니다." },
+        { "id": "manufacturing-defect", "korean": "불량", "meaning": { "vi": "lỗi sản phẩm", "en": "defect", "zh-CN": "不良品" }, "example": "불량 제품을 분리해 주세요." },
+        { "id": "manufacturing-inspection", "korean": "검사", "meaning": { "vi": "kiểm tra", "en": "inspection", "zh-CN": "检查" }, "example": "품질 검사를 완료했습니다." },
+        { "id": "manufacturing-incident", "korean": "사고", "meaning": { "vi": "sự cố", "en": "incident", "zh-CN": "事故" }, "example": "사고가 나면 바로 보고하세요." }
+      ]
+    },
+    {
+      "id": "study-abroad", "icon": "學", "title": { "vi": "Du học", "en": "Study abroad", "zh-CN": "留学" }, "level": "TOPIK 1+",
+      "outcome": { "vi": "Trao đổi với giáo viên, đăng ký môn và làm việc nhóm.", "en": "Speak with instructors, register courses and collaborate.", "zh-CN": "与教师沟通、选课并参与小组合作。" },
+      "vocabulary": [
+        { "id": "study-course", "korean": "수강 신청", "meaning": { "vi": "đăng ký môn", "en": "course registration", "zh-CN": "选课" }, "example": "수강 신청 기간이 언제예요?" },
+        { "id": "study-assignment", "korean": "과제", "meaning": { "vi": "bài tập", "en": "assignment", "zh-CN": "作业" }, "example": "과제 마감일을 확인했습니다." },
+        { "id": "study-scholarship", "korean": "장학금", "meaning": { "vi": "học bổng", "en": "scholarship", "zh-CN": "奖学金" }, "example": "장학금을 신청하고 싶습니다." },
+        { "id": "study-professor", "korean": "교수님", "meaning": { "vi": "giáo sư", "en": "professor", "zh-CN": "教授" }, "example": "교수님께 질문이 있습니다." },
+        { "id": "study-group", "korean": "조별 과제", "meaning": { "vi": "bài tập nhóm", "en": "group project", "zh-CN": "小组作业" }, "example": "조별 과제 역할을 정합시다." },
+        { "id": "study-credit", "korean": "학점", "meaning": { "vi": "tín chỉ/điểm", "en": "credit/grade", "zh-CN": "学分" }, "example": "졸업에 필요한 학점을 확인하세요." }
+      ]
+    }
+  ],
+  "workplaceScenarios": [
+    { "id": "meeting-update", "type": "meeting", "title": { "vi": "Cập nhật trong cuộc họp", "en": "Meeting update", "zh-CN": "会议进度汇报" }, "prompt": "현재 진행 상황을 말씀해 주세요.", "goal": { "vi": "Nêu tình trạng, vướng mắc và bước tiếp theo.", "en": "State status, blocker and next step.", "zh-CN": "说明状态、阻碍和下一步。" }, "keywords": ["진행", "문제", "계획"], "model": "현재 작업은 80% 완료되었습니다. 한 가지 문제가 있어서 확인 중이며, 내일까지 결과를 공유드리겠습니다." },
+    { "id": "email-request", "type": "email", "title": { "vi": "Yêu cầu tài liệu", "en": "Request a document", "zh-CN": "请求资料" }, "prompt": "회의 자료를 요청하는 이메일을 작성하세요.", "goal": { "vi": "Có tiêu đề, lời chào, yêu cầu lịch sự và hạn cần nhận.", "en": "Include a subject, greeting, polite request and deadline.", "zh-CN": "包含主题、问候、礼貌请求和截止时间。" }, "keywords": ["안녕하세요", "요청", "주시", "감사"], "model": "제목: 회의 자료 요청드립니다\n안녕하세요. 내일 회의 준비를 위해 관련 자료를 요청드립니다. 가능하시면 오늘 오후까지 보내 주실 수 있을까요? 감사합니다." },
+    { "id": "presentation-result", "type": "presentation", "title": { "vi": "Trình bày kết quả", "en": "Present results", "zh-CN": "展示成果" }, "prompt": "프로젝트 결과를 짧게 발표하세요.", "goal": { "vi": "Mở bài, hai ý chính và kết luận.", "en": "Give an opening, two key points and a closing.", "zh-CN": "包含开场、两个重点和结语。" }, "keywords": ["발표", "결과", "먼저", "마치"], "model": "안녕하세요. 지금부터 프로젝트 결과를 발표하겠습니다. 먼저 이용자가 증가했고 만족도도 높아졌습니다. 이상으로 발표를 마치겠습니다." }
+  ],
+  "interviewQuestions": [
+    { "id": "self-introduction", "question": "자기소개를 해 주세요.", "goal": { "vi": "Vai trò, kinh nghiệm và một điểm mạnh.", "en": "Role, experience and one strength.", "zh-CN": "职位、经验和一个优势。" }, "keywords": ["저는", "경험", "강점"], "model": "안녕하세요. 저는 웹 개발 경력이 3년 있는 지원자입니다. 문제 해결과 협업에 강점이 있습니다." },
+    { "id": "motivation", "question": "왜 우리 회사에 지원했습니까?", "goal": { "vi": "Nối kinh nghiệm với vai trò và công ty.", "en": "Connect experience with the role and company.", "zh-CN": "把经验与岗位和公司联系起来。" }, "keywords": ["경험", "회사", "기여", "지원"], "model": "제 경험을 활용하여 회사의 서비스 발전에 기여하고 싶어서 지원했습니다." },
+    { "id": "strength", "question": "본인의 장점을 말씀해 주세요.", "goal": { "vi": "Một điểm mạnh và bằng chứng ngắn.", "en": "One strength with brief evidence.", "zh-CN": "说明一个优势并给出简短证据。" }, "keywords": ["장점", "경험", "결과"], "model": "제 장점은 책임감입니다. 이전 프로젝트에서 일정을 지키며 팀 목표를 달성했습니다." }
+  ],
+  "resumeSections": [
+    { "id": "headline", "label": { "vi": "Tiêu đề nghề nghiệp", "en": "Professional headline", "zh-CN": "职业标题" }, "placeholder": "웹 개발자 | Web Developer", "maxLength": 100 },
+    { "id": "summary", "label": { "vi": "Tóm tắt", "en": "Summary", "zh-CN": "简介" }, "placeholder": "3년 경력의 웹 개발자입니다...", "maxLength": 600 },
+    { "id": "experience", "label": { "vi": "Kinh nghiệm", "en": "Experience", "zh-CN": "经历" }, "placeholder": "2023–현재 · 회사 · 담당 업무와 결과", "maxLength": 1800 },
+    { "id": "skills", "label": { "vi": "Kỹ năng", "en": "Skills", "zh-CN": "技能" }, "placeholder": "JavaScript · 한국어 TOPIK 3", "maxLength": 600 }
+  ],
+  "emailPatterns": [
+    { "id": "formal-request", "title": { "vi": "Yêu cầu trang trọng", "en": "Formal request", "zh-CN": "正式请求" }, "subject": "자료 요청드립니다", "opening": "안녕하세요, 담당자님.", "body": "업무 진행을 위해 관련 자료를 요청드립니다. 가능하시면 금요일까지 보내 주실 수 있을까요?", "closing": "확인 부탁드립니다. 감사합니다." },
+    { "id": "formal-reply", "title": { "vi": "Phản hồi công việc", "en": "Work reply", "zh-CN": "工作回复" }, "subject": "요청하신 자료 전달드립니다", "opening": "안녕하세요.", "body": "요청하신 자료를 첨부하여 전달드립니다. 추가로 필요한 내용이 있으시면 말씀해 주세요.", "closing": "감사합니다." }
+  ],
+  "presentationStructure": [
+    { "id": "opening", "label": { "vi": "Mở bài", "en": "Opening", "zh-CN": "开场" }, "model": "안녕하세요. 지금부터 프로젝트 결과를 발표하겠습니다." },
+    { "id": "structure", "label": { "vi": "Cấu trúc", "en": "Structure", "zh-CN": "结构" }, "model": "먼저 배경을 설명하고, 다음으로 결과를 말씀드리겠습니다." },
+    { "id": "closing", "label": { "vi": "Kết bài", "en": "Closing", "zh-CN": "结语" }, "model": "이상으로 발표를 마치겠습니다. 질문 있으시면 말씀해 주세요." }
+  ],
+  "cultureGuide": [
+    { "id": "hierarchy", "title": { "vi": "Vai trò và thứ bậc", "en": "Roles and hierarchy", "zh-CN": "角色与层级" }, "body": { "vi": "Ưu tiên chức danh + 님 khi gọi đồng nghiệp cấp trên; quy tắc cụ thể khác nhau theo tổ chức.", "en": "Use title + 님 for senior colleagues; exact norms vary by organisation.", "zh-CN": "称呼资深同事时优先使用职务+님；具体规范因组织而异。" } },
+    { "id": "honorific", "title": { "vi": "Kính ngữ", "en": "Honorifics", "zh-CN": "敬语" }, "body": { "vi": "Dùng -습니다/-ㅂ니다 trong phỏng vấn và văn bản trang trọng; -요 thường phù hợp hội thoại công sở hằng ngày.", "en": "Use -습니다/-ㅂ니다 in interviews and formal writing; -요 often fits everyday workplace talk.", "zh-CN": "面试和正式文书使用-습니다/-ㅂ니다；日常职场对话常用-요。" } },
+    { "id": "meeting", "title": { "vi": "Văn hóa họp", "en": "Meeting culture", "zh-CN": "会议文化" }, "body": { "vi": "Chuẩn bị dữ liệu, báo sớm vướng mắc và dùng cách diễn đạt mềm khi phản biện.", "en": "Bring evidence, flag blockers early and soften disagreement.", "zh-CN": "准备依据，尽早说明阻碍，表达异议时注意缓和语气。" } }
+  ],
+  "privacy": { "storesContactDetails": false, "analyticsStoresDraftText": false, "userScopedDrafts": true }
+}

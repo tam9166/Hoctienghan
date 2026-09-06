@@ -107,9 +107,9 @@ function boot(initialRole = 'content_editor') {
 
   assert.match(index, /ai-content-creation\.css\?v=1/);
   assert.match(index, /data\/ai-content-creation\.js\?v=1/);
-  assert.match(index, /app\.js\?v=50/);
+  assert.match(index, /app\.js\?v=51/);
   assert.match(css, /@media\(max-width:600px\)/);
-  assert.match(worker, /klearn-v64/);
+  assert.match(worker, /klearn-v65/);
   assert.match(worker, /ai-content-creation\.json/);
   assert.match(migration, /human_approved = true and reviewed_by is not null/);
   assert.match(migration, /Only admins can publish human-approved content/);
