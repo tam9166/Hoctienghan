@@ -58,7 +58,7 @@ assert.equal(student.window.ContentQualityService.all().length, 3);
 assert.match(appSource, /content-quality-dashboard/);
 assert.match(indexSource, /content-quality\.css\?v=1/);
 assert.match(indexSource, /data\/content-quality-system\.js\?v=1/);
-assert.match(workerSource, /klearn-v56/);
+assert.match(workerSource, /klearn-v57/);
 assert.match(workerSource, /content-quality-system\.json/);
 assert.match(migration, /content_quality_reviews/);
 assert.match(migration, /content_quality_reports/);

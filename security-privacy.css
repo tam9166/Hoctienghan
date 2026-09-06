@@ -1,0 +1,9 @@
+.p34-privacy-panel { border-top: 3px solid var(--primary); }
+.p34-privacy-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 14px 0; }
+.p34-privacy-grid label { display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; }
+.p34-security-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+.p34-security-actions form { display: flex; gap: 8px; flex: 1 1 260px; }
+.p34-security-actions input { min-width: 0; flex: 1; }
+.p34-device-list { display: grid; gap: 6px; color: var(--muted); font-size: 13px; }
+.link-button { border: 0; background: none; color: var(--primary-strong, var(--heading)); cursor: pointer; text-decoration: underline; }
+@media (max-width: 720px) { .p34-privacy-grid { grid-template-columns: 1fr; } }

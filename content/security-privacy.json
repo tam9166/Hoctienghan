@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "providers": ["google", "apple", "passwordless"],
+  "roles": ["student", "teacher", "admin", "content_editor"],
+  "privacy": {
+    "gdprFoundation": true,
+    "vietnamPrivacyFoundation": true,
+    "preciseLocation": false,
+    "rawTelemetry": false,
+    "exportFormats": ["json", "csv", "pdf"]
+  },
+  "securityScanner": {
+    "secretLeak": "client-safe-config-only",
+    "dependencyVulnerability": "ci-required",
+    "exposedApi": "server-config-required"
+  },
+  "updatedAt": "2026-09-06"
+}

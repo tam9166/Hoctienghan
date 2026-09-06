@@ -35,7 +35,7 @@
     role() { return AccessControlService?.role?.() || 'student'; },
     can(capability) { return Boolean(data.capabilities[this.role()]?.includes(capability)); },
     require(capability) { if (!this.can(capability)) return false; return true; },
-    label() { return ({ student: 'Student', teacher: 'Teacher', reviewer: 'Reviewer', admin: 'Admin' })[this.role()] || 'Student'; }
+    label() { return ({ student: 'Student', teacher: 'Teacher', reviewer: 'Reviewer', content_editor: 'Content Editor', admin: 'Admin' })[this.role()] || 'Student'; }
   };
 
   const OrganizationService = {

@@ -35,6 +35,7 @@
     student: ['view_own_learning', 'view_own_assignments', 'view_own_feedback'],
     teacher: ['view_own_learning', 'view_own_assignments', 'view_own_feedback', 'view_teacher_dashboard', 'manage_class', 'assign_content', 'review_submission', 'build_course', 'create_organization'],
     reviewer: ['view_own_learning', 'view_own_assignments', 'view_own_feedback', 'review_content'],
+    content_editor: ['view_own_learning', 'view_own_assignments', 'view_own_feedback', 'review_content', 'manage_content'],
     admin: ['view_own_learning', 'view_own_assignments', 'view_own_feedback', 'view_teacher_dashboard', 'manage_class', 'assign_content', 'review_submission', 'build_course', 'create_organization', 'manage_organization', 'manage_content', 'review_content']
   });
 

@@ -72,7 +72,7 @@ assert.match(appSource, /STORAGE_KEYS\.premiumLearning/);
 assert.match(appSource, /startTopikExam/);
 assert.match(indexSource, /premium-learning\.css\?v=1/);
 assert.match(indexSource, /data\/premium-learning-experience\.js\?v=1/);
-assert.match(workerSource, /klearn-v56/);
+assert.match(workerSource, /klearn-v57/);
 assert.match(workerSource, /premium-learning-experience\.json/);
 assert.match(migration, /premium_family_accounts/);
 assert.match(migration, /premium_family_members/);

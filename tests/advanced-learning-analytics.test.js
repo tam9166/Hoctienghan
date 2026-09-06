@@ -76,7 +76,7 @@ assert.equal(analytics.reports.save('monthly').type, 'monthly');
 assert.equal(analytics.reports.all().length, 1);
 assert.match(appSource, /analyticsReports: 'klearn_analytics_reports'/);
 assert.match(indexSource, /data\/advanced-learning-analytics\.js\?v=1/);
-assert.match(workerSource, /klearn-v56/);
+assert.match(workerSource, /klearn-v57/);
 assert.match(workerSource, /advanced-learning-analytics\.json/);
 assert.match(migration, /learning_analytics_reports/);
 assert.match(migration, /auth\.uid\(\)/);

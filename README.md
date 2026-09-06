@@ -272,6 +272,14 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Admin Control Center có thẻ System status; local fallback hiển thị rõ dữ liệu chưa có backend aggregate thay vì bịa số 0. PWA cache đã nâng lên `klearn-v56`.
 - Contract vận hành nằm ở `content/production-stability.json`; mọi telemetry bị giới hạn field/độ dài và không chứa raw stack, payload, credential hay token.
 
+### Security & Privacy Framework
+
+- `SecurityAuthService` bổ sung facade cho Google, Apple, passwordless email và Supabase MFA (TOTP); email/password hiện tại không bị thay đổi. OAuth/MFA chỉ hoạt động khi Supabase Auth đã cấu hình.
+- `PrivacyCenterService` cho user bật/tắt cloud sync, AI usage và telemetry; precise location tắt mặc định. `DeviceManagementService` chỉ lưu device label, thời điểm và location hint thô, không theo dõi vị trí chính xác.
+- `DataExportService` xuất learning history, vocabulary, progress và notes dạng JSON/CSV hoặc print-to-PDF. `AccountDeletionService` yêu cầu xác nhận rõ ràng, tạo deletion request RLS và không tự xoá cloud bằng client.
+- `RolePermissionService` chuẩn hoá student/teacher/admin/content_editor từ Supabase metadata; localStorage không thể tự cấp role. Audit log chỉ allowlist metadata, không lưu credential/raw learning content.
+- `SecurityScannerService` kiểm tra public config phía client; dependency vulnerability và secret scan đầy đủ vẫn chạy ở CI/server. Contract nằm ở `content/security-privacy.json`, migration `20260906_security_privacy.sql` có RLS owner/admin. PWA cache nâng lên `klearn-v57`.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.
