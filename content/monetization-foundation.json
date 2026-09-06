@@ -1,0 +1,84 @@
+{
+  "contentVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "updatedAt": "2026-09-06",
+  "principles": [
+    "core-learning-remains-free",
+    "server-authoritative-entitlements",
+    "no-card-data-in-browser",
+    "no-client-side-premium-upgrade",
+    "aggregate-revenue-only"
+  ],
+  "plans": [
+    {
+      "id": "free",
+      "name": "Free",
+      "summary": "Học cốt lõi, ôn tập chuẩn và theo dõi tiến độ cơ bản.",
+      "features": ["core_learning", "standard_practice", "basic_progress"],
+      "billingPeriods": []
+    },
+    {
+      "id": "premium",
+      "name": "Premium",
+      "summary": "Phân tích sâu, khóa chuyên biệt và phiên luyện mở rộng.",
+      "features": ["advanced_analytics", "premium_courses", "extended_practice"],
+      "billingPeriods": ["monthly", "yearly"]
+    }
+  ],
+  "payment": {
+    "status": "architecture-ready",
+    "checkoutEndpoint": "/api/billing/checkout",
+    "portalEndpoint": "/api/billing/portal",
+    "couponEndpoint": "/api/billing/coupons/validate",
+    "referralEndpoint": "/api/billing/referrals/attribute",
+    "allowedCheckoutHosts": [],
+    "webhookRequired": true,
+    "clientCanActivatePremium": false,
+    "storesCardData": false,
+    "supportedStatuses": ["pending", "active", "trialing", "past_due", "canceled", "failed"]
+  },
+  "coupon": {
+    "minimumCodeLength": 4,
+    "maximumCodeLength": 32,
+    "allowedPattern": "^[A-Z0-9_-]+$",
+    "validation": "server-only",
+    "supportedBenefits": ["percentage", "fixed_amount", "trial_extension"]
+  },
+  "referral": {
+    "attribution": "server-only",
+    "selfReferralBlocked": true,
+    "rewardAfterQualifiedEvent": true,
+    "codeSource": "server-issued"
+  },
+  "organizationPackages": [
+    {
+      "id": "corporate-team",
+      "audience": "corporate",
+      "name": "Corporate Korean",
+      "seatRange": "10–250",
+      "features": ["Lộ trình theo công việc", "Báo cáo tổng hợp", "Quản lý nhóm", "Hỗ trợ triển khai"]
+    },
+    {
+      "id": "school-license",
+      "audience": "school",
+      "name": "School License",
+      "seatRange": "30–2.000",
+      "features": ["Quản lý lớp", "Giao bài", "Theo dõi tiến độ", "Phân quyền giáo viên"]
+    }
+  ],
+  "supportCategories": [
+    { "id": "subscription", "label": "Gói dịch vụ" },
+    { "id": "billing", "label": "Thanh toán" },
+    { "id": "coupon", "label": "Mã ưu đãi" },
+    { "id": "referral", "label": "Giới thiệu bạn bè" },
+    { "id": "organization", "label": "Gói doanh nghiệp / trường học" }
+  ],
+  "crmStages": [
+    { "id": "new", "label": "Mới" },
+    { "id": "qualified", "label": "Đủ điều kiện" },
+    { "id": "proposal", "label": "Đã gửi đề xuất" },
+    { "id": "customer", "label": "Khách hàng" },
+    { "id": "closed", "label": "Đã đóng" }
+  ]
+}

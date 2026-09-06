@@ -100,7 +100,7 @@ setTimeout(() => {
   assert.match(appSource, /retention-center/);
   assert.match(indexSource, /retention-system\.css\?v=1/);
   assert.match(indexSource, /data\/retention-system\.js\?v=1/);
-assert.match(workerSource, /klearn-v61/);
+assert.match(workerSource, /klearn-v62/);
   assert.match(workerSource, /retention-system\.json/);
   assert.match(migration, /enable row level security/i);
   assert.match(migration, /app_metadata/);
