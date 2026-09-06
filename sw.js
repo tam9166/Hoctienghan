@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v53';
+const CACHE = 'klearn-v54';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=31',
@@ -83,6 +83,9 @@ const OFFLINE_ASSETS = [
   './edtech-business-intelligence.css?v=1',
   './data/edtech-business-intelligence.js?v=1',
   './content/edtech-business-intelligence.json',
+  './premium-learning.css?v=1',
+  './data/premium-learning-experience.js?v=1',
+  './content/premium-learning-experience.json',
   './content/product-ux.json',
   './docs/partner-api-v1.openapi.json',
   './manifest.json',

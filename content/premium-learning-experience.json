@@ -1,0 +1,40 @@
+{
+  "contentVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "privacy": {
+    "userScoped": true,
+    "noAutoUpgrade": true,
+    "basicFeaturesRemainAvailable": true,
+    "noRawAudioUpload": true,
+    "familyIsArchitectureOnly": true
+  },
+  "plans": [
+    {
+      "id": "topik-6-months",
+      "title": { "vi": "TOPIK trong 6 tháng", "en": "TOPIK in 6 months", "zh-CN": "6个月 TOPIK" },
+      "goal": "topik",
+      "durationMonths": 6,
+      "milestones": ["Foundation review", "Listening and reading", "Timed practice", "Full mock readiness"]
+    },
+    {
+      "id": "conversation-3-months",
+      "title": { "vi": "Giao tiếp trong 3 tháng", "en": "Conversation in 3 months", "zh-CN": "3个月会话" },
+      "goal": "conversation",
+      "durationMonths": 3,
+      "milestones": ["Survival phrases", "Scenario practice", "Shadowing", "Real-use checkpoint"]
+    }
+  ],
+  "mockExams": [
+    { "id": "topik-1-real-mode", "level": 1, "durationMinutes": 40, "questionCount": 50, "features": ["timer", "exam-mode", "skill-breakdown"] },
+    { "id": "topik-2-real-mode", "level": 2, "durationMinutes": 70, "questionCount": 50, "features": ["timer", "exam-mode", "skill-breakdown"] }
+  ],
+  "contentPacks": [
+    { "id": "business-korean", "title": "Business Korean", "topics": ["email", "meeting", "workplace"] },
+    { "id": "academic-korean", "title": "Academic Korean", "topics": ["reading", "presentation", "research"] },
+    { "id": "travel-korean", "title": "Travel Korean", "topics": ["airport", "restaurant", "directions"] }
+  ],
+  "exportFormats": ["notes", "vocabulary", "print-pdf"],
+  "family": { "maxLearners": 4, "status": "architecture-only", "roles": ["owner", "learner"] },
+  "updatedAt": "2026-09-06"
+}

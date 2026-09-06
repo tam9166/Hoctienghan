@@ -245,6 +245,16 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Khi BI backend chưa kết nối, UI hiển thị trạng thái unavailable/`—`, không bịa số 0. Quick links gom Content Health, Retention, Support và Enterprise trong một control center.
 - Content contract nằm ở `content/edtech-business-intelligence.json`; migration `20260906_edtech_business_intelligence.sql` tạo aggregate tables với RLS admin-only. Không có user ID, email, credential, password, token, chat, journal hoặc audio trong BI tables.
 
+### Premium Learning Experience
+
+- `premium-features` hiện là một hub P31 dùng entitlement Premium do `SubscriptionService` đọc từ Supabase metadata; không có thao tác tự nâng gói bằng localStorage và học cơ bản/SRS/TOPIK hiện tại không bị khóa.
+- Premium Study Plan có TOPIK 6 tháng và Conversation 3 tháng; Advanced Mock Exam dùng PracticeService hiện có với timer/exam-mode/skill breakdown, không tạo ngân hàng câu hỏi giả.
+- Premium Content Pack gồm Business, Academic và Travel Korean. Private Learning Report tái sử dụng P18 report, Learner Profile và Forecast để tạo weakness/prediction/recommendation riêng user.
+- Advanced Speaking Review đọc pronunciation attempts và skill profile thật; Personal Curriculum tạo module từ plan + điểm yếu hiện tại. Không tuyên bố chấm phoneme AI chính xác.
+- Notes/Vocabulary export dùng dữ liệu user-scoped; PDF dùng print dialog của trình duyệt, không upload dữ liệu. Certificate tái sử dụng CertificationService và chỉ dùng completion evidence.
+- Premium Support mở luồng teacher feedback hiện có. Family Account mới là architecture foundation (`owner/learner`, tối đa 4 slot), chưa tự gửi invitation hoặc chia sẻ progress giữa người dùng.
+- Content contract nằm ở `content/premium-learning-experience.json`; migration `20260906_premium_learning_experience.sql` chuẩn bị family account/member với RLS owner/member và entitlement server-managed.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.
