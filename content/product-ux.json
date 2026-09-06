@@ -1,0 +1,74 @@
+{
+  "contentVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "updatedAt": "2026-09-06",
+  "segments": {
+    "beginner": {
+      "label": { "vi": "Nhập môn", "en": "Beginner", "zh-CN": "入门" },
+      "description": { "vi": "Ưu tiên Hangul, từ đầu tiên và nhịp học ngắn.", "en": "Prioritize Hangul, first words and short sessions.", "zh-CN": "优先学习韩文、首批词汇和短时学习。" },
+      "features": [
+        { "id": "beginner-path", "weight": 70, "icon": "가", "title": { "vi": "Tiếp tục Hangul", "en": "Continue Hangul", "zh-CN": "继续学习韩文" }, "description": { "vi": "Chữ → âm tiết → từ đầu tiên", "en": "Letters → syllables → first words", "zh-CN": "字母 → 音节 → 首批词汇" }, "route": "foundation" },
+        { "id": "beginner-vocabulary", "weight": 20, "icon": "Aa", "title": { "vi": "Từ đầu tiên", "en": "First vocabulary", "zh-CN": "首批词汇" }, "description": { "vi": "Học theo nhóm dễ nhớ", "en": "Learn in memorable groups", "zh-CN": "按易记主题学习" }, "route": "first-words" },
+        { "id": "beginner-help", "weight": 10, "icon": "?", "title": { "vi": "Giải thích khi cần", "en": "Help when needed", "zh-CN": "需要时获取帮助" }, "description": { "vi": "Trợ lý chỉ xuất hiện khi bạn chủ động mở", "en": "The assistant appears only when you open it", "zh-CN": "仅在你主动打开时显示助手" }, "route": "ai-coach" }
+      ]
+    },
+    "topik": {
+      "label": { "vi": "Luyện TOPIK", "en": "TOPIK learner", "zh-CN": "TOPIK 学习者" },
+      "description": { "vi": "Ưu tiên đề thi, ngữ pháp yếu và ôn lỗi.", "en": "Prioritize mock tests, weak grammar and mistake review.", "zh-CN": "优先模拟考试、薄弱语法和错题复习。" },
+      "features": [
+        { "id": "topik-mock", "weight": 50, "icon": "✓", "title": { "vi": "Làm đề TOPIK", "en": "Take a TOPIK test", "zh-CN": "进行 TOPIK 测试" }, "description": { "vi": "Tiếp tục theo cấp độ hiện tại", "en": "Continue at your current level", "zh-CN": "按当前级别继续" }, "route": "exam-catalog" },
+        { "id": "topik-grammar", "weight": 30, "icon": "文", "title": { "vi": "Sửa ngữ pháp yếu", "en": "Repair weak grammar", "zh-CN": "强化薄弱语法" }, "description": { "vi": "Dựa trên lỗi gần đây", "en": "Based on recent mistakes", "zh-CN": "基于近期错题" }, "route": "error-notebook" },
+        { "id": "topik-review", "weight": 20, "icon": "↻", "title": { "vi": "Ôn từ đến hạn", "en": "Review due words", "zh-CN": "复习到期词汇" }, "description": { "vi": "SRS theo lịch ghi nhớ", "en": "SRS by memory schedule", "zh-CN": "按记忆计划进行 SRS" }, "route": "review" }
+      ]
+    },
+    "conversation": {
+      "label": { "vi": "Giao tiếp", "en": "Conversation learner", "zh-CN": "会话学习者" },
+      "description": { "vi": "Ưu tiên nói, nghe và tình huống đời thật.", "en": "Prioritize speaking, listening and real situations.", "zh-CN": "优先口语、听力和真实场景。" },
+      "features": [
+        { "id": "conversation-scenario", "weight": 50, "icon": "話", "title": { "vi": "Luyện tình huống", "en": "Practice a scenario", "zh-CN": "情景练习" }, "description": { "vi": "Hội thoại có mục tiêu rõ ràng", "en": "Goal-based conversations", "zh-CN": "有明确目标的会话" }, "route": "conversation-simulator" },
+        { "id": "conversation-speaking", "weight": 30, "icon": "◉", "title": { "vi": "Luyện nói", "en": "Speaking practice", "zh-CN": "口语练习" }, "description": { "vi": "Nghe, nói lại và so sánh", "en": "Listen, repeat and compare", "zh-CN": "听、复述并比较" }, "route": "speaking-hub" },
+        { "id": "conversation-listening", "weight": 20, "icon": "♪", "title": { "vi": "Luyện nghe", "en": "Listening practice", "zh-CN": "听力练习" }, "description": { "vi": "Từ âm đến hội thoại", "en": "From sounds to dialogue", "zh-CN": "从语音到对话" }, "route": "listening-studio" }
+      ]
+    },
+    "general": {
+      "label": { "vi": "Học cân bằng", "en": "Balanced learner", "zh-CN": "均衡学习" },
+      "description": { "vi": "Một bài, một lượt ôn và một kỹ năng mỗi ngày.", "en": "One lesson, one review and one skill each day.", "zh-CN": "每天一课、一次复习和一项技能。" },
+      "features": [
+        { "id": "general-lesson", "weight": 50, "icon": "▶", "title": { "vi": "Tiếp tục bài học", "en": "Continue learning", "zh-CN": "继续学习" }, "description": { "vi": "Theo lộ trình hiện tại", "en": "Follow your current path", "zh-CN": "按当前路径学习" }, "route": "lessons" },
+        { "id": "general-review", "weight": 30, "icon": "↻", "title": { "vi": "Ôn tập", "en": "Review", "zh-CN": "复习" }, "description": { "vi": "Từ và lỗi đến hạn", "en": "Due words and mistakes", "zh-CN": "到期词汇和错题" }, "route": "review" },
+        { "id": "general-practice", "weight": 20, "icon": "◎", "title": { "vi": "Luyện kỹ năng", "en": "Practice a skill", "zh-CN": "技能练习" }, "description": { "vi": "Nghe, nói, đọc hoặc viết", "en": "Listen, speak, read or write", "zh-CN": "听、说、读或写" }, "route": "skill-hub" }
+      ]
+    }
+  },
+  "commands": [
+    { "id": "learn", "icon": "▶", "title": { "vi": "Học bài", "en": "Learn a lesson", "zh-CN": "学习课程" }, "route": "lessons", "minimumTier": "core" },
+    { "id": "review", "icon": "↻", "title": { "vi": "Ôn từ", "en": "Review words", "zh-CN": "复习词汇" }, "route": "review", "minimumTier": "core" },
+    { "id": "speak", "icon": "◉", "title": { "vi": "Luyện nói", "en": "Practice speaking", "zh-CN": "口语练习" }, "route": "speaking-hub", "minimumTier": "developing" },
+    { "id": "test", "icon": "✓", "title": { "vi": "Làm test", "en": "Take a test", "zh-CN": "进行测试" }, "route": "practice-hub", "minimumTier": "developing" },
+    { "id": "analytics", "icon": "∑", "title": { "vi": "Xem phân tích", "en": "View analytics", "zh-CN": "查看分析" }, "route": "analytics", "minimumTier": "advanced" }
+  ],
+  "onboarding": {
+    "goals": [
+      { "id": "study", "icon": "🎓", "label": { "vi": "Du học", "en": "Study abroad", "zh-CN": "留学" } },
+      { "id": "work", "icon": "💼", "label": { "vi": "Làm việc", "en": "Work", "zh-CN": "工作" } },
+      { "id": "eps", "icon": "🏭", "label": { "vi": "EPS / XKLĐ", "en": "EPS / Employment", "zh-CN": "EPS / 就业" } },
+      { "id": "topik", "icon": "🏆", "label": { "vi": "Thi TOPIK", "en": "TOPIK exam", "zh-CN": "TOPIK 考试" } },
+      { "id": "hobby", "icon": "♥", "label": { "vi": "Sở thích", "en": "Personal interest", "zh-CN": "兴趣" } },
+      { "id": "living", "icon": "⌂", "label": { "vi": "Sống tại Hàn", "en": "Live in Korea", "zh-CN": "在韩国生活" } }
+    ],
+    "levels": [
+      { "id": "foundation-unknown", "label": { "vi": "Chưa biết chữ Hàn", "en": "New to Hangul", "zh-CN": "尚未学习韩文" }, "level": "Level 0", "track": "foundation", "entry": "hangul-academy" },
+      { "id": "foundation-reading", "label": { "vi": "Biết Hangul, đọc chậm", "en": "Know Hangul, read slowly", "zh-CN": "认识韩文但阅读较慢" }, "level": "Beginner Reading", "track": "foundation", "entry": "reading-first" },
+      { "id": "beginner", "label": { "vi": "Biết một số từ", "en": "Know some words", "zh-CN": "认识一些词汇" }, "level": "Beginner", "track": "topik", "entry": "lessons" },
+      { "id": "topik", "label": { "vi": "Đã học TOPIK", "en": "Have studied TOPIK", "zh-CN": "学过 TOPIK" }, "level": "TOPIK I", "track": "topik", "entry": "practice-hub" }
+    ],
+    "minutes": [5, 15, 30, 60]
+  },
+  "errors": {
+    "network": { "cause": { "vi": "Kết nối mạng hoặc dịch vụ cloud đang gián đoạn.", "en": "The network or cloud service is unavailable.", "zh-CN": "网络或云服务暂时不可用。" }, "resolution": { "vi": "Dữ liệu local vẫn an toàn. Kiểm tra mạng rồi thử lại.", "en": "Local data is safe. Check your connection and retry.", "zh-CN": "本地数据安全。请检查网络后重试。" }, "action": "retry" },
+    "permission": { "cause": { "vi": "Tài khoản hiện tại chưa có quyền cho thao tác này.", "en": "The current account lacks permission for this action.", "zh-CN": "当前账户没有此操作权限。" }, "resolution": { "vi": "Đăng nhập đúng tài khoản hoặc quay lại khu học tập cá nhân.", "en": "Use the correct account or return to personal learning.", "zh-CN": "请使用正确账户或返回个人学习区。" }, "action": "home" },
+    "content": { "cause": { "vi": "Nội dung chưa tải được hoặc chưa phát hành.", "en": "Content could not load or is not released.", "zh-CN": "内容无法加载或尚未发布。" }, "resolution": { "vi": "Tải lại trang hoặc chọn một hoạt động khác.", "en": "Reload or choose another activity.", "zh-CN": "请重新加载或选择其他活动。" }, "action": "lessons" },
+    "generic": { "cause": { "vi": "Ứng dụng chưa hoàn thành thao tác vừa rồi.", "en": "The app could not complete the last action.", "zh-CN": "应用未能完成刚才的操作。" }, "resolution": { "vi": "Thử lại. Nếu lỗi lặp lại, quay về Home mà không mất dữ liệu.", "en": "Retry. If it repeats, return Home without losing data.", "zh-CN": "请重试；若重复出现，可返回首页且不会丢失数据。" }, "action": "home" }
+  }
+}

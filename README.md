@@ -46,7 +46,7 @@ Sau đó mở `http://localhost:8080`.
 - Listening/Reading Hub theo TOPIK level, Korean TTS, recommended practice và daily practice plan.
 - Ghi âm qua MediaRecorder và chấm tương đồng văn bản bằng Speech Recognition khi trình duyệt hỗ trợ.
 - Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
-- PWA manifest + service worker network-first (`klearn-v40`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
+- PWA manifest + service worker network-first (`klearn-v46`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
 
 Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **Tiếng Hàn - TamHoanq** mới.
 
@@ -88,6 +88,17 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - `LearningMemoryService` lưu long-term memory chọn lọc tại `klearn_ai_memory`: learning preference, weak/strong knowledge, learning goal và repeated mistakes. Không lưu toàn bộ hội thoại; `MemoryRetrievalService` chỉ lấy tối đa vài memory liên quan đến câu hỏi/bài học. `klearn_ai_memory` và `klearn_knowledge_progress` đều nằm trong `USER_SYNC_KEYS` và dùng JSONB cloud hiện có.
 - `KnowledgeGraphService` cung cấp core grammar graph và tự dựng vocabulary nodes từ dictionary theo topic (ví dụ 은/는 ↔ 이/가 và 학교 → 학생/선생님/수업/공부), related-node lookup và knowledge progress riêng từng user tại `klearn_knowledge_progress`. Graph weakness kết hợp Error Notebook, mastery và SRS để nâng điểm Smart Review/Daily Mission.
 - Hồ sơ có xu hướng học tập và phần ghi nhớ chọn lọc; các thẻ đều mobile-first, dark-mode và chỉ hiển thị tín hiệu học tập cần thiết.
+
+## Product UX Optimization (P23)
+
+- Home tự nhận diện nhóm `beginner`, `topik`, `conversation` hoặc `general` từ hồ sơ hiện có, sau đó ưu tiên một hành động chính và phân bổ tính năng theo tỷ lệ rõ ràng.
+- Progressive disclosure có ba mức `core → developing → advanced`; người mới không bị đẩy vào analytics hoặc công cụ nâng cao quá sớm.
+- Command Center trả lời nhanh câu hỏi “Bạn muốn làm gì?” bằng các lối tắt học bài, ôn từ, luyện nói và làm test; danh sách tự thu gọn theo mức tiến bộ.
+- Smart Search hợp nhất lesson, grammar/công cụ, vocabulary, câu, Sổ lỗi, ghi chú và bookmark; autocomplete hỗ trợ Arrow Up/Down, Enter và Escape.
+- Onboarding rút còn hai màn hình, chỉ thu thập mục tiêu, trình độ và số phút học. Người chưa biết Hangul được đưa thẳng vào Level 0, không bị bắt làm placement test.
+- Empty state luôn có hành động tiếp theo; lỗi được trình bày theo nguyên nhân, cách xử lý và nút retry/Home thay cho thông báo mơ hồ.
+- Trợ năng theo user gồm cỡ chữ lớn, tương phản cao và giảm chuyển động; có skip link, focus ring, nhãn screen reader và vùng chạm tối thiểu 44–48px.
+- Cấu hình P23 lưu user-scoped trong `klearn_product_ux`, tham gia CloudSync JSONB hiện có và không reset bất kỳ dữ liệu học nào.
 
 ## Công cụ học thực hành
 
