@@ -86,8 +86,8 @@ function boot(userId = 'learner-a', shared = new Map()) {
   assert.doesNotMatch(migration, /\n\s+(?:email|phone|precise_location)\s+text/i);
   assert.match(index, /community-ecosystem\.css\?v=1/);
   assert.match(index, /data\/community-ecosystem\.js\?v=1/);
-  assert.match(index, /app\.js\?v=48/);
-  assert.match(worker, /klearn-v62/);
+  assert.match(index, /app\.js\?v=49/);
+  assert.match(worker, /klearn-v63/);
   assert.match(worker, /community-ecosystem\.json/);
   assert.match(appSource, /'language-exchange', 'community-moderation'/);
   assert.match(css, /@media\(max-width:600px\)/);

@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v62';
+const CACHE = 'klearn-v63';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=31',
@@ -9,6 +9,7 @@ const OFFLINE_ASSETS = [
   './advanced-voice.css?v=1',
   './ai-content-creation.css?v=1',
   './monetization-foundation.css?v=1',
+  './future-language-platform.css?v=1',
   './language-mastery.css?v=1',
   './immersion-motivation.css?v=1',
   './education-platform.css?v=1',
@@ -70,7 +71,7 @@ const OFFLINE_ASSETS = [
   './locales/en.js?v=4',
   './locales/zh-CN.js?v=4',
   './data/content-locales.js?v=1',
-  './app.js?v=48',
+  './app.js?v=49',
   './content/retention-system.json',
   './content/content-quality-system.json',
   './data/resource-library.js?v=1',
@@ -109,6 +110,8 @@ const OFFLINE_ASSETS = [
   './content/community-ecosystem.json',
   './data/monetization-foundation.js?v=1',
   './content/monetization-foundation.json',
+  './data/future-language-platform.js?v=1',
+  './content/future-language-platform.json',
   './content/advanced-voice.json',
   './mobile/mobile-app.config.json',
   './mobile/mobile-app.schema.json',

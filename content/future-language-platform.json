@@ -1,0 +1,53 @@
+{
+  "contentVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "architectureVersion": "p40-v1",
+  "updatedAt": "2026-09-06",
+  "principles": [
+    "reuse-existing-language-core",
+    "capability-before-feature",
+    "explicit-user-consent",
+    "no-raw-audio-or-transcript-history",
+    "approved-content-only",
+    "graceful-fallback"
+  ],
+  "languages": [
+    { "id": "ko", "name": "Korean", "nativeName": "한국어", "locale": "ko-KR", "contentStatus": "active", "engineStatus": "ready" },
+    { "id": "ja", "name": "Japanese", "nativeName": "日本語", "locale": "ja-JP", "contentStatus": "foundation", "engineStatus": "foundation" },
+    { "id": "zh", "name": "Chinese", "nativeName": "中文", "locale": "zh-CN", "contentStatus": "foundation", "engineStatus": "foundation" },
+    { "id": "en", "name": "English", "nativeName": "English", "locale": "en-US", "contentStatus": "foundation", "engineStatus": "foundation" }
+  ],
+  "crossLanguageModes": [
+    { "id": "compare", "name": "So sánh cách diễn đạt", "storesContent": false },
+    { "id": "transfer", "name": "Chuyển kiến thức", "storesContent": false },
+    { "id": "contrast", "name": "Đối chiếu ngữ pháp", "storesContent": false }
+  ],
+  "capabilities": [
+    { "id": "universal-engine", "status": "ready", "adapter": "LanguagePlatformService", "requires": [] },
+    { "id": "cross-language", "status": "ready", "adapter": "LanguageComparisonService", "requires": ["two-languages"] },
+    { "id": "personal-brain", "status": "ready", "adapter": "LanguageProfileService", "requires": ["signed-in-user"] },
+    { "id": "ai-immersion", "status": "korean-ready", "adapter": "AICompanionService", "requires": ["active-content-pack", "ai-consent"] },
+    { "id": "ar-learning", "status": "device-dependent", "adapter": "WebXR-or-camera-fallback", "requires": ["user-gesture", "camera-consent"] },
+    { "id": "wearable", "status": "bridge-only", "adapter": "KLearnNativeBridge.wearable", "requires": ["native-bridge", "user-opt-in"] },
+    { "id": "realtime-translation", "status": "text-ready", "adapter": "TranslationService", "requires": ["user-gesture-for-microphone"] },
+    { "id": "global-marketplace", "status": "korean-catalog-ready", "adapter": "CourseMarketplaceService", "requires": ["approved-and-verified-content"] },
+    { "id": "language-ai-os", "status": "router-ready", "adapter": "AICompanionService", "requires": ["minimal-context", "fallback"] }
+  ],
+  "wearableEvents": ["study-reminder", "review-due", "session-completed"],
+  "forbiddenWearableData": ["health", "location", "contacts", "microphone", "raw-learning-content"],
+  "translation": {
+    "modes": ["text", "push-to-talk"],
+    "continuousBackgroundListening": false,
+    "storesRawAudio": false,
+    "storesTranscriptHistory": false,
+    "fallback": "text-input"
+  },
+  "operatingSystemIntents": ["study-plan", "explain", "practice", "immerse", "translate", "marketplace"],
+  "extensionContract": {
+    "requiredFields": ["id", "version", "languageIds", "capabilities", "permissions", "fallback"],
+    "isolatedAdapters": true,
+    "versionedEvents": true,
+    "serverAuthoritativeEntitlements": true
+  }
+}
