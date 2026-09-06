@@ -57,7 +57,7 @@ function boot() {
   assert.match(migration, /has_any_role/);
   assert.match(index, /security-privacy\.css\?v=1/);
   assert.match(index, /data\/security-privacy\.js\?v=1/);
-  assert.match(worker, /klearn-v63/);
+  assert.match(worker, /klearn-v64/);
   assert.match(worker, /security-privacy\.json/);
   assert.match(appSource, /privacyPreferences: 'klearn_privacy_preferences'/);
   console.log('security privacy: OAuth/passwordless/MFA facade, privacy center, devices, export, deletion workflow, audit, roles, scanner and RLS passed');

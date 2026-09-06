@@ -211,6 +211,7 @@ MAIN_VIEWS.push('ai-content-studio');
 MAIN_VIEWS.push('language-exchange', 'community-moderation');
 MAIN_VIEWS.push('business-center', 'billing-center', 'organization-plans', 'revenue-center', 'crm-center');
 MAIN_VIEWS.push('future-language-platform', 'cross-language-lab', 'language-brain', 'future-integrations', 'global-course-marketplace');
+MAIN_VIEWS.push('learning-science', 'active-recall', 'interleaved-practice', 'concept-mastery');
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'beginner-placement', 'placement', 'onboarding-result'];
 

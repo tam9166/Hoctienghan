@@ -1,0 +1,49 @@
+{
+  "id": "p41-learning-science-engine",
+  "version": "1.0.0",
+  "modelVersion": "p41-heuristic-v1",
+  "createdDate": "2026-09-06",
+  "updatedDate": "2026-09-06",
+  "verified": true,
+  "reviewStatus": "approved",
+  "method": "deterministic-local-rules",
+  "srs": {
+    "difficultyWeights": { "easy": 0.82, "normal": 1, "hard": 1.22 },
+    "priorityWeights": { "forgetting": 0.42, "mistakes": 0.24, "difficulty": 0.18, "lowConfidence": 0.16 },
+    "minimumIntervalDays": 1,
+    "maximumIntervalDays": 120
+  },
+  "adaptation": {
+    "windowSize": 6,
+    "easyThreshold": 55,
+    "hardThreshold": 85,
+    "minimumEvidence": 3
+  },
+  "cognitiveLoad": {
+    "minimumMinutes": 5,
+    "maximumMinutes": 60,
+    "maximumTasks": 3,
+    "fatigueMinutes": 45,
+    "consecutiveMistakes": 3
+  },
+  "conceptTree": [
+    { "id": "hangul", "label": { "vi": "Hangul", "en": "Hangul", "zh-CN": "韩文" }, "skill": "reading", "dependsOn": [] },
+    { "id": "vocabulary", "label": { "vi": "Từ vựng", "en": "Vocabulary", "zh-CN": "词汇" }, "skill": "vocabulary", "dependsOn": ["hangul"] },
+    { "id": "grammar", "label": { "vi": "Ngữ pháp", "en": "Grammar", "zh-CN": "语法" }, "skill": "grammar", "dependsOn": ["vocabulary"] },
+    { "id": "sentence", "label": { "vi": "Tạo câu", "en": "Sentence production", "zh-CN": "造句" }, "skill": "writing", "dependsOn": ["grammar"] }
+  ],
+  "misconceptions": [
+    { "id": "topic-vs-subject", "tokens": ["은/는", "이/가"], "label": { "vi": "Nhầm trợ từ chủ đề và chủ ngữ", "en": "Topic and subject particle confusion", "zh-CN": "主题助词与主格助词混淆" }, "route": "error-notebook" },
+    { "id": "location-vs-direction", "tokens": ["에", "에서"], "label": { "vi": "Nhầm nơi đến và nơi diễn ra hành động", "en": "Destination and action-location confusion", "zh-CN": "目的地与动作地点混淆" }, "route": "grammar-compare" }
+  ],
+  "privacy": {
+    "storesRawAnswers": false,
+    "storesAudio": false,
+    "medicalInference": false
+  },
+  "disclaimer": {
+    "vi": "Các điểm số là ước tính minh bạch từ lịch sử học, không phải đánh giá y khoa hay cam kết kết quả.",
+    "en": "Scores are transparent estimates from learning history, not medical assessments or outcome guarantees.",
+    "zh-CN": "分数是基于学习历史的透明估算，不是医学评估或结果保证。"
+  }
+}
