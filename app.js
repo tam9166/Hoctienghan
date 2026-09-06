@@ -201,6 +201,7 @@ MAIN_VIEWS.push('immersive-world', 'virtual-korean-city', 'immersive-session', '
 MAIN_VIEWS.push('ecosystem-expansion', 'journey-intelligence', 'real-korean-life', 'life-simulator', 'document-reader', 'address-number-trainer', 'language-science', 'korean-thinking', 'skill-world', 'career-purpose', 'career-practice', 'learning-architecture');
 MAIN_VIEWS.push('real-world-assistant', 'korean-document-assistant', 'korean-menu-reader', 'korean-sign-reader', 'real-world-guide', 'survival-checklist');
 MAIN_VIEWS.push('content-platform', 'content-explorer', 'content-detail', 'korean-notebook', 'content-feedback');
+MAIN_VIEWS.push('learning-community', 'study-groups', 'community-challenge', 'peer-practice', 'community-questions', 'community-profile', 'community-safety');
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'beginner-placement', 'placement', 'onboarding-result'];
 
@@ -1418,7 +1419,7 @@ function syncShell() {
       : ['review','smart-review','review-start','vocab-pretest','pretest-result'].includes(state.currentView) ? 'review'
       : ['topik','strategy-lab','strategy-detail','topik-strategy-center','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice','analytics','search'].includes(state.currentView) ? 'topik'
       : ['ai-coach','adaptive-plan','error-notebook'].includes(state.currentView) ? 'ai-coach'
-      : ['profile','edit-profile','weekly-insights','progress-reports','personal-report','notes','bookmarks','real-goal-planner','learning-journal','teacher-review','teacher-workspace','community-hub','education-platform','teacher-dashboard','organization-center','education-assignments','education-feedback','course-builder','organization-analytics','education-content'].includes(state.currentView) ? 'profile'
+      : ['profile','edit-profile','weekly-insights','progress-reports','personal-report','notes','bookmarks','real-goal-planner','learning-journal','teacher-review','teacher-workspace','community-hub','learning-community','study-groups','community-challenge','peer-practice','community-questions','community-profile','community-safety','education-platform','teacher-dashboard','organization-center','education-assignments','education-feedback','course-builder','organization-analytics','education-content'].includes(state.currentView) ? 'profile'
         : [...reviewViews, 'manual-review-queue'].includes(state.currentView) ? 'review'
             : practiceViews.includes(state.currentView) ? 'topik'
             : speakingViews.includes(state.currentView) ? 'practice' : state.currentView;

@@ -48,5 +48,5 @@ async function evaluate(cdp, expression) { const output = await cdp.send('Runtim
     assert.equal(await evaluate(cdp, `localStorage.getItem('klearn_content_feedback')?.includes('Cần thêm ví dụ đời thường.')`), true, 'content feedback was not persisted');
     assert.equal(await evaluate(cdp, `document.documentElement.scrollWidth > document.documentElement.clientWidth`), false, 'feedback view overflows at 360px');
     console.log(JSON.stringify(results)); console.log('advanced content platform responsive: 360, 768, 1024, 1440, 1920, dark mode, search, notebook and feedback passed'); cdp.close();
-  } finally { browser.kill(); await wait(150); fs.rmSync(profile, { recursive: true, force: true }); }
+  } finally { browser.kill(); await wait(200); fs.rmSync(profile, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 }); }
 })().catch((error) => { console.error(error); process.exitCode = 1; });

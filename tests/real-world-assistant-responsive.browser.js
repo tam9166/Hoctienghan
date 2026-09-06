@@ -42,5 +42,5 @@ async function evaluate(cdp, expression) { const output = await cdp.send('Runtim
     assert.equal(await evaluate(cdp, `document.documentElement.scrollWidth > document.documentElement.clientWidth`), false, 'document assistant overflows at 360px');
     assert.equal(await evaluate(cdp, `localStorage.getItem('klearn_ecosystem_expansion')?.includes('계약서') || false`), false, 'private document text leaked into storage');
     console.log(JSON.stringify(results)); console.log('real world assistant responsive: 360, 768, 1024, 1440, 1920, dark mode, interaction and private-text checks passed'); cdp.close();
-  } finally { browser.kill(); await wait(150); fs.rmSync(profile, { recursive: true, force: true }); }
+  } finally { browser.kill(); await wait(200); fs.rmSync(profile, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 }); }
 })().catch((error) => { console.error(error); process.exitCode = 1; });

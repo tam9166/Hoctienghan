@@ -157,6 +157,16 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - `My Korean Notebook` dùng chung Bookmark và Notes user-scoped. Feedback `khó hiểu / có lỗi / thiếu ví dụ` được lưu theo tài khoản trong `klearn_content_feedback` và đi qua CloudSync hiện có.
 - Nội dung nguồn nằm ở `content/advanced-content-platform.json`, lazy-load qua quality gate và được cache cho offline bởi service worker.
 
+### Community Learning Foundation
+
+- `Community Hub` mở rộng foundation cũ bằng ba nhóm TOPIK 1, Conversation và Business Korean, challenge 30 ngày Hangul, Community Q&A và Peer Practice. Không có social feed hay leaderboard.
+- Profile mặc định `private` và chỉ cho phép chia sẻ display name, level, tối đa bốn interest cùng learning goal sau khi người dùng opt-in. Email, điện thoại, URL và social handle bị chặn khỏi nội dung cộng đồng.
+- Achievement sharing không tự đăng. Người dùng chọn milestone thật và phạm vi `private/groups`; Learning Friend chỉ theo dõi hồ sơ học tập, không mở direct message.
+- Community Safety hỗ trợ report, block và unblock. Hồ sơ đã block bị loại khỏi peer matching; report và block được lưu user-scoped trong domain `klearn_community_progress` hiện có.
+- Hồ sơ peer đi kèm hiện là dữ liệu mẫu được gắn nhãn rõ ràng. Lời mời luyện tập, câu hỏi, báo cáo và milestone share chỉ tạo bản nháp/bản xem trước cục bộ, không giả vờ đã gửi tới người thật hoặc moderation backend.
+- Nội dung seed đã kiểm duyệt nằm ở `content/community-learning.json`, lazy-load và cache offline. Migration `20260906_community_learning_foundation.sql` chuẩn bị tables cùng RLS cho profile, group, challenge, Q&A, useful rating, peer request, milestone share, block và report; cần áp dụng migration và nối backend trước khi bật tương tác đa người dùng trực tuyến.
+- Community Statistics chỉ hiển thị số nhóm, ngày challenge, câu hỏi và lời mời của chính tài khoản hiện tại; không tính rank hoặc so sánh từng người.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.

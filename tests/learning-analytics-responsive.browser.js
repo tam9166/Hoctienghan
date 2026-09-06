@@ -61,6 +61,6 @@ async function evaluate(cdp, expression) { const result = await cdp.send('Runtim
   } finally {
     browser.kill();
     await wait(150);
-    fs.rmSync(profile, { recursive: true, force: true });
+    fs.rmSync(profile, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 });
   }
 })().catch((error) => { console.error(error); process.exitCode = 1; });

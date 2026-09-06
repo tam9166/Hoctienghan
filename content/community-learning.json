@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "createdAt": "2026-09-06T00:00:00.000Z",
+  "updatedAt": "2026-09-06T00:00:00.000Z",
+  "verified": true,
+  "reviewStatus": "approved",
+  "source": "TamHoanq community curriculum",
+  "principles": ["learning-first", "privacy-by-default", "no-leaderboard", "no-direct-messaging", "opt-in-discovery"],
+  "groups": [
+    { "id": "group-topik-1", "icon": "初", "title": { "vi": "Cùng học TOPIK 1", "en": "TOPIK 1 Study Group", "zh-CN": "TOPIK 1 学习小组" }, "description": { "vi": "Ôn từ, ngữ pháp và đọc ngắn theo mục tiêu tuần.", "en": "Review words, grammar and short readings through weekly goals.", "zh-CN": "按每周目标复习词汇、语法和短文。" }, "track": "topik", "level": "TOPIK 1", "practiceTopics": ["은/는", "에/에서", "Đọc biển báo"] },
+    { "id": "group-conversation", "icon": "話", "title": { "vi": "Hội thoại mỗi ngày", "en": "Everyday Conversation", "zh-CN": "每日会话" }, "description": { "vi": "Luyện tình huống ngắn, phản hồi lịch sự và shadowing.", "en": "Practice short scenarios, polite responses and shadowing.", "zh-CN": "练习短场景、礼貌回应和跟读。" }, "track": "conversation", "level": "Mixed", "practiceTopics": ["Giới thiệu", "Gọi món", "Hỏi đường"] },
+    { "id": "group-business", "icon": "業", "title": { "vi": "Business Korean", "en": "Business Korean", "zh-CN": "商务韩语" }, "description": { "vi": "Email, họp và mẫu câu công sở có mức độ lịch sự phù hợp.", "en": "Email, meetings and workplace expressions with suitable politeness.", "zh-CN": "学习邮件、会议和礼貌得体的职场表达。" }, "track": "business", "level": "TOPIK 3+", "practiceTopics": ["Email", "Báo cáo", "Trao đổi ý kiến"] }
+  ],
+  "challenges": [
+    { "id": "challenge-hangul-30", "icon": "한", "title": { "vi": "30 ngày Hangul", "en": "30 Days of Hangul", "zh-CN": "30 天韩文字母" }, "description": { "vi": "Mỗi ngày hoàn thành một hoạt động Hangul hoặc đọc câu ngắn.", "en": "Complete one Hangul or short-reading activity each day.", "zh-CN": "每天完成一项韩文字母或短句阅读练习。" }, "durationDays": 30, "metric": "daily-check-in", "dailyMinutes": 10, "rules": ["Mỗi ngày chỉ tính một lần", "Không có bảng xếp hạng", "Bỏ lỡ một ngày không làm mất tiến độ"] }
+  ],
+  "discoverableProfiles": [
+    { "id": "peer-hana", "displayName": "Hana L.", "level": "TOPIK 1", "interests": ["conversation", "travel"], "goal": { "vi": "Giao tiếp khi du lịch", "en": "Travel conversations", "zh-CN": "旅行会话" }, "groupIds": ["group-topik-1", "group-conversation"], "availability": "evening", "discoverable": true, "dataStatus": "sample-profile" },
+    { "id": "peer-min", "displayName": "Min K.", "level": "TOPIK 1", "interests": ["grammar", "reading"], "goal": { "vi": "Hoàn thành TOPIK 1", "en": "Complete TOPIK 1", "zh-CN": "完成 TOPIK 1" }, "groupIds": ["group-topik-1"], "availability": "weekend", "discoverable": true, "dataStatus": "sample-profile" },
+    { "id": "peer-yun", "displayName": "Yun P.", "level": "TOPIK 3", "interests": ["business", "speaking"], "goal": { "vi": "Giao tiếp công sở", "en": "Workplace communication", "zh-CN": "职场沟通" }, "groupIds": ["group-business", "group-conversation"], "availability": "evening", "discoverable": true, "dataStatus": "sample-profile" },
+    { "id": "peer-seo", "displayName": "Seo N.", "level": "TOPIK 2", "interests": ["listening", "conversation"], "goal": { "vi": "Nói tự nhiên hơn", "en": "Speak more naturally", "zh-CN": "说得更自然" }, "groupIds": ["group-conversation"], "availability": "morning", "discoverable": true, "dataStatus": "sample-profile" }
+  ],
+  "questions": [
+    { "id": "question-topic-particle", "category": "grammar", "authorAlias": "Learner 214", "title": "Khi nào dùng 은 và 는?", "body": "Mình hiểu đây là trợ từ chủ đề nhưng chưa rõ chọn 은 hay 는 theo 받침.", "createdAt": "2026-09-02T00:00:00.000Z", "status": "answered", "answers": [
+      { "id": "answer-topic-particle", "authorAlias": "Study Mentor", "body": "Dùng 은 sau danh từ có 받침 và 는 sau danh từ không có 받침: 책은, 학교는. Khi đối chiếu, quy tắc 받침 vẫn giữ nguyên.", "usefulCount": 38, "verified": true }
+    ] },
+    { "id": "question-school-collocation", "category": "vocabulary", "authorAlias": "Learner 087", "title": "학교 đi với 에 hay 에서?", "body": "Hai mẫu 학교에 가요 và 학교에서 공부해요 khác nhau thế nào?", "createdAt": "2026-09-03T00:00:00.000Z", "status": "answered", "answers": [
+      { "id": "answer-school-location", "authorAlias": "Study Mentor", "body": "에 đánh dấu đích đến trong 학교에 가요. 에서 đánh dấu nơi hành động diễn ra trong 학교에서 공부해요.", "usefulCount": 46, "verified": true }
+    ] },
+    { "id": "question-request-natural", "category": "grammar", "authorAlias": "Learner 163", "title": "주세요 có dùng với mọi yêu cầu không?", "body": "Mình muốn nhờ đồng nghiệp xem tài liệu thì nói thế nào tự nhiên?", "createdAt": "2026-09-04T00:00:00.000Z", "status": "answered", "answers": [
+      { "id": "answer-request-natural", "authorAlias": "Study Mentor", "body": "Trong công việc, 검토해 주세요 đúng nhưng 검토해 주실 수 있을까요? mềm và phù hợp hơn khi nhờ đồng nghiệp.", "usefulCount": 29, "verified": true }
+    ] }
+  ],
+  "safety": {
+    "reportReasons": ["spam", "harassment", "unsafe_content", "personal_information", "misinformation"],
+    "visibilityOptions": ["private", "groups", "public"],
+    "defaultVisibility": "private",
+    "blockedFields": ["email", "phone", "address", "social_handle"],
+    "guidelines": [
+      { "title": { "vi": "Học tập trước", "en": "Learning first", "zh-CN": "学习优先" }, "body": { "vi": "Chỉ trao đổi nội dung liên quan đến học tiếng Hàn.", "en": "Keep exchanges focused on learning Korean.", "zh-CN": "交流仅围绕韩语学习。" } },
+      { "title": { "vi": "Không chia sẻ liên hệ", "en": "No contact sharing", "zh-CN": "不分享联系方式" }, "body": { "vi": "Không đăng email, số điện thoại, địa chỉ hoặc tài khoản mạng xã hội.", "en": "Do not post email, phone, address or social handles.", "zh-CN": "不要发布邮箱、电话、地址或社交账号。" } },
+      { "title": { "vi": "Bạn kiểm soát hồ sơ", "en": "You control your profile", "zh-CN": "你控制个人资料" }, "body": { "vi": "Hồ sơ mặc định riêng tư; chỉ level, sở thích và mục tiêu được phép hiển thị khi opt-in.", "en": "Profiles are private by default; only level, interests and goal may appear after opt-in.", "zh-CN": "个人资料默认私密；选择加入后仅显示级别、兴趣和目标。" } }
+    ]
+  },
+  "activitySnapshot": { "dataStatus": "local-account-only", "competitiveRanking": false }
+}
