@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "humanApprovalRequired": true,
+  "aiCanPublish": false,
+  "aiCanChangeCurriculum": false,
+  "allowedContentTypes": ["lesson", "example", "audio", "quiz"],
+  "levels": ["TOPIK_0", "TOPIK_1", "TOPIK_2", "TOPIK_3", "TOPIK_4", "TOPIK_5", "TOPIK_6"],
+  "workflow": ["ai_draft", "human_review", "needs_revision", "approved", "published"],
+  "promptVersions": {
+    "lesson": "p37-lesson-v1",
+    "example": "p37-example-v1",
+    "difficulty": "p37-difficulty-v1",
+    "translation": "p37-translation-v1",
+    "audio": "p37-audio-script-v1",
+    "quiz": "p37-quiz-v1",
+    "curriculum": "p37-curriculum-advice-v1"
+  },
+  "qualityWeights": {
+    "completeness": 25,
+    "levelFit": 20,
+    "sourceTraceability": 20,
+    "languageQuality": 20,
+    "originality": 15
+  },
+  "levelGuidance": {
+    "TOPIK_0": { "maxSentenceLength": 12, "maxGrammarPatterns": 1 },
+    "TOPIK_1": { "maxSentenceLength": 22, "maxGrammarPatterns": 2 },
+    "TOPIK_2": { "maxSentenceLength": 34, "maxGrammarPatterns": 3 },
+    "TOPIK_3": { "maxSentenceLength": 48, "maxGrammarPatterns": 4 },
+    "TOPIK_4": { "maxSentenceLength": 64, "maxGrammarPatterns": 5 },
+    "TOPIK_5": { "maxSentenceLength": 82, "maxGrammarPatterns": 6 },
+    "TOPIK_6": { "maxSentenceLength": 100, "maxGrammarPatterns": 8 }
+  }
+}
