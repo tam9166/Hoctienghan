@@ -37,7 +37,7 @@ function boot(userId = 'learner-a') {
 const app = boot();
 const worlds = app.KLEARN_IMMERSIVE_WORLD_DATA.worlds;
 assert.deepEqual(Array.from(worlds, (item) => item.id), ['city', 'roleplay', 'career', 'university', 'travel', 'voice']);
-assert.deepEqual(Array.from(app.KLEARN_IMMERSIVE_WORLD_DATA.missions.filter((item) => item.world === 'city'), (item) => item.place), ['Restaurant', 'Airport', 'School', 'Hospital']);
+assert.deepEqual(Array.from(app.KLEARN_IMMERSIVE_WORLD_DATA.missions.filter((item) => item.world === 'city'), (item) => item.place), ['Restaurant', 'Airport', 'School', 'Office', 'Hospital']);
 assert.deepEqual(Array.from(app.KLEARN_IMMERSIVE_WORLD_DATA.missions.filter((item) => item.world === 'roleplay'), (item) => item.title), ['Du học sinh mới', 'Nhân viên mới', 'Du lịch Hàn Quốc']);
 assert.deepEqual(Array.from(app.KLEARN_IMMERSIVE_WORLD_DATA.missions.filter((item) => item.world === 'career'), (item) => item.title), ['Phỏng vấn', 'Cuộc họp', 'Email công việc']);
 assert.deepEqual(Array.from(app.KLEARN_IMMERSIVE_WORLD_DATA.missions.filter((item) => item.world === 'university'), (item) => item.title), ['Trong lớp', 'Trò chuyện với bạn', 'Trong khuôn viên']);

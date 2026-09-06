@@ -1,0 +1,183 @@
+{
+  "id": "p44-immersive-korean-world",
+  "version": "1.0.0",
+  "createdDate": "2026-09-06",
+  "updatedDate": "2026-09-06",
+  "verified": true,
+  "reviewStatus": "approved",
+  "levels": [
+    { "id": "beginner", "label": "Beginner", "description": "Câu ngắn, lựa chọn có hỗ trợ và tình huống sinh tồn." },
+    { "id": "intermediate", "label": "Intermediate", "description": "Đoạn hội thoại dài hơn, register và quyết định theo ngữ cảnh." },
+    { "id": "advanced", "label": "Advanced", "description": "Tự xử lý tình huống, giải thích lựa chọn và phản hồi tự nhiên." }
+  ],
+  "cityPlaces": [
+    { "id": "restaurant", "icon": "食", "title": "Restaurant", "korean": "식당", "missionId": "city-restaurant" },
+    { "id": "school", "icon": "學", "title": "School", "korean": "학교", "missionId": "city-school" },
+    { "id": "office", "icon": "職", "title": "Office", "korean": "회사", "missionId": "city-office" },
+    { "id": "airport", "icon": "✈", "title": "Airport", "korean": "공항", "missionId": "city-airport" }
+  ],
+  "dailyLife": [
+    {
+      "id": "morning-store",
+      "level": "beginner",
+      "time": "07:30",
+      "place": "편의점",
+      "prompt": "봉투 필요하세요?",
+      "translation": "Bạn có cần túi không?",
+      "goal": "Từ chối lịch sự.",
+      "choices": [
+        { "id": "store-polite", "text": "아니요, 괜찮아요.", "correct": true, "feedback": "Phù hợp và tự nhiên trong cửa hàng." },
+        { "id": "store-blunt", "text": "필요 없어.", "correct": false, "feedback": "Câu hiểu được nhưng 반말 quá trực tiếp với nhân viên." },
+        { "id": "store-unrelated", "text": "학교에 가요.", "correct": false, "feedback": "Đúng ngữ pháp nhưng không trả lời câu hỏi." }
+      ]
+    },
+    {
+      "id": "subway-transfer",
+      "level": "beginner",
+      "time": "08:10",
+      "place": "지하철역",
+      "prompt": "어디에 가세요?",
+      "translation": "Bạn đi đâu?",
+      "goal": "Nói điểm đến.",
+      "choices": [
+        { "id": "subway-destination", "text": "강남역에 가요.", "correct": true, "feedback": "에 + 가요 diễn đạt điểm đến rõ ràng." },
+        { "id": "subway-object", "text": "강남역을 가요.", "correct": false, "feedback": "Với điểm đến cơ bản, dùng 에 thay cho 을/를." },
+        { "id": "subway-time", "text": "여덟 시예요.", "correct": false, "feedback": "Đây là thời gian, chưa trả lời địa điểm." }
+      ]
+    },
+    {
+      "id": "office-greeting",
+      "level": "intermediate",
+      "time": "09:00",
+      "place": "회사",
+      "prompt": "오늘부터 함께 일하게 됐네요.",
+      "translation": "Từ hôm nay chúng ta làm việc cùng nhau.",
+      "goal": "Chào đồng nghiệp ngày đầu.",
+      "choices": [
+        { "id": "office-formal", "text": "안녕하세요. 잘 부탁드립니다.", "correct": true, "feedback": "Lịch sự, tự nhiên trong lần gặp đầu ở công ty." },
+        { "id": "office-casual", "text": "응, 잘 부탁해.", "correct": false, "feedback": "반말 chưa phù hợp khi mới gặp đồng nghiệp." },
+        { "id": "office-silent", "text": "괜찮습니다.", "correct": false, "feedback": "Không sai riêng lẻ nhưng không đáp lại lời chào phù hợp." }
+      ]
+    },
+    {
+      "id": "lunch-order",
+      "level": "beginner",
+      "time": "12:20",
+      "place": "식당",
+      "prompt": "주문하시겠어요?",
+      "translation": "Bạn gọi món chứ?",
+      "goal": "Gọi một món và nước.",
+      "choices": [
+        { "id": "lunch-order-good", "text": "비빔밥 하나하고 물 주세요.", "correct": true, "feedback": "Số lượng và yêu cầu đều rõ ràng." },
+        { "id": "lunch-order-noun", "text": "비빔밥.", "correct": false, "feedback": "Có thể hiểu nhưng thiếu cách yêu cầu lịch sự." },
+        { "id": "lunch-order-wrong", "text": "비빔밥을 마셔요.", "correct": false, "feedback": "비빔밥 dùng với 먹다, không dùng với 마시다." }
+      ]
+    },
+    {
+      "id": "evening-neighbor",
+      "level": "intermediate",
+      "time": "19:30",
+      "place": "아파트",
+      "prompt": "새로 이사 오셨어요?",
+      "translation": "Bạn mới chuyển đến à?",
+      "goal": "Xác nhận và giới thiệu ngắn.",
+      "choices": [
+        { "id": "neighbor-polite", "text": "네, 어제 이사 왔어요. 잘 부탁드려요.", "correct": true, "feedback": "해요체 thân thiện và vẫn lịch sự với hàng xóm mới." },
+        { "id": "neighbor-command", "text": "조용히 하세요.", "correct": false, "feedback": "Đây là mệnh lệnh, không phù hợp với lời chào." },
+        { "id": "neighbor-casual", "text": "응, 어제 왔어.", "correct": false, "feedback": "반말 có thể quá thân mật khi chưa biết tuổi hoặc quan hệ." }
+      ]
+    }
+  ],
+  "story": {
+    "id": "first-day-seoul",
+    "title": "Ngày đầu ở Seoul",
+    "koreanTitle": "서울에서의 첫날",
+    "startNode": "arrival",
+    "nodes": [
+      {
+        "id": "arrival",
+        "scene": "공항",
+        "narration": "공항 직원이 교통편을 묻습니다.",
+        "translation": "Nhân viên sân bay hỏi bạn cần phương tiện gì.",
+        "choices": [
+          { "id": "airport-train", "text": "서울역까지 가는 열차표 한 장 주세요.", "next": "station", "score": 2 },
+          { "id": "airport-vague", "text": "서울 주세요.", "next": "help", "score": 0 }
+        ]
+      },
+      {
+        "id": "help",
+        "scene": "안내소",
+        "narration": "직원이 목적지를 다시 확인합니다.",
+        "translation": "Nhân viên hỏi lại điểm đến.",
+        "choices": [
+          { "id": "help-repair", "text": "서울역에 가고 싶어요. 어떻게 가요?", "next": "station", "score": 1 },
+          { "id": "help-exit", "text": "괜찮아요.", "next": "lost", "score": 0 }
+        ]
+      },
+      {
+        "id": "station",
+        "scene": "서울역",
+        "narration": "친구가 점심 메뉴를 제안해 달라고 합니다.",
+        "translation": "Bạn bè đề nghị bạn chọn món trưa.",
+        "choices": [
+          { "id": "station-polite", "text": "비빔밥을 먹고 싶어요. 같이 갈까요?", "next": "welcome", "score": 2 },
+          { "id": "station-short", "text": "비빔밥 먹자.", "next": "welcome", "score": 1 }
+        ]
+      },
+      { "id": "welcome", "scene": "식당", "narration": "첫날의 모든 일을 스스로 해결했습니다.", "translation": "Bạn đã tự xử lý trọn vẹn ngày đầu.", "ending": true, "outcome": "ready" },
+      { "id": "lost", "scene": "공항", "narration": "도움을 다시 요청해 보세요.", "translation": "Bạn cần thử yêu cầu trợ giúp lại.", "ending": true, "outcome": "practice" }
+    ]
+  },
+  "cultureDecisions": [
+    {
+      "id": "bow-first-meeting",
+      "level": "beginner",
+      "situation": "Lần đầu gặp giáo viên lớn tuổi.",
+      "question": "Cách chào nào phù hợp nhất?",
+      "choices": ["안녕!", "안녕하세요. 처음 뵙겠습니다.", "야, 선생님!"],
+      "correctIndex": 1,
+      "explanation": "Dùng 존댓말 và cúi nhẹ khi chào lần đầu."
+    },
+    {
+      "id": "receive-card",
+      "level": "intermediate",
+      "situation": "Đồng nghiệp cấp trên đưa danh thiếp.",
+      "question": "Bạn nên làm gì?",
+      "choices": ["Nhận bằng hai tay và xem tên", "Bỏ ngay vào túi sau", "Đặt úp xuống bàn"],
+      "correctIndex": 0,
+      "explanation": "Nhận bằng hai tay thể hiện sự tôn trọng trong bối cảnh công việc."
+    },
+    {
+      "id": "office-disagreement",
+      "level": "advanced",
+      "situation": "Bạn không đồng ý với đề xuất của trưởng nhóm.",
+      "question": "Cách mở lời nào phù hợp?",
+      "choices": ["그건 틀렸어요.", "죄송하지만 다른 방법도 검토해 보면 어떨까요?", "싫어요."],
+      "correctIndex": 1,
+      "explanation": "Nêu ý kiến gián tiếp và đề xuất phương án giúp giảm đối đầu trong cuộc họp."
+    },
+    {
+      "id": "friend-age",
+      "level": "intermediate",
+      "situation": "Bạn mới quen muốn chuyển sang 반말.",
+      "question": "Câu nào tự nhiên và tôn trọng?",
+      "choices": ["이제 반말해도 돼요?", "지금부터 반말이야.", "너 몇 살이야?"],
+      "correctIndex": 0,
+      "explanation": "Nên hỏi sự đồng ý trước khi chuyển sang 반말."
+    }
+  ],
+  "readiness": {
+    "weights": { "city": 30, "roleplay": 20, "dailyLife": 15, "story": 15, "culture": 15, "survival": 5 },
+    "bands": [
+      { "minimum": 80, "id": "ready", "label": "Sẵn sàng xử lý tình huống quen thuộc" },
+      { "minimum": 55, "id": "developing", "label": "Đang hình thành phản xạ đời thực" },
+      { "minimum": 0, "id": "foundation", "label": "Cần thêm trải nghiệm có hướng dẫn" }
+    ],
+    "disclaimer": "Điểm dựa trên hoạt động trong ứng dụng, không phải chứng nhận năng lực chính thức."
+  },
+  "privacy": {
+    "storesRawAudio": false,
+    "storesFreeText": false,
+    "progressIsUserScoped": true
+  }
+}

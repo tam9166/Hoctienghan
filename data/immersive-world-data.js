@@ -20,6 +20,10 @@
       step('school-1', '안녕하세요. 이름이 뭐예요?', 'Xin chào, bạn tên gì?', '저는 민수예요. 반갑습니다.', [['저는'], ['예요', '이에요']], [['topic', '은/는', ['는', '은']], ['copula', '이에요/예요', ['예요', '이에요']]], ['이름', '반갑'], '자기소개를 하세요.'),
       step('school-2', '첫 수업은 3층에서 해요.', 'Buổi học đầu ở tầng 3.', '3층 교실이 어디예요?', [['3층', '교실'], ['어디']], [['location', 'Hỏi vị trí', ['어디']]], ['교실', '어디'], '교실을 찾으세요.')
     ]),
+    mission('city-office', 'city', 'Văn phòng', '회사', '職', 'Intermediate', 'Office', 'Nhân viên mới', 'Chào đồng nghiệp và xác nhận nhiệm vụ đầu tiên.', [
+      step('office-1', '오늘부터 함께 일하게 됐네요.', 'Từ hôm nay chúng ta làm việc cùng nhau.', '안녕하세요. 잘 부탁드립니다.', [['안녕'], ['부탁']], [['formal', 'Lời chào công việc', ['습니다', '드립니다']]], ['일', '부탁'], '첫인사를 하세요.'),
+      step('office-2', '이 자료를 오후까지 확인해 주세요.', 'Hãy kiểm tra tài liệu này trước buổi chiều.', '네, 오후 세 시까지 확인하겠습니다.', [['확인'], ['오후', '시']], [['commitment', 'Cam kết -겠습니다', ['겠습니다']]], ['자료', '확인', '오후'], '업무와 마감 시간을 확인하세요.')
+    ]),
     mission('city-hospital', 'city', 'Bệnh viện', '병원', '十', 'Beginner', 'Hospital', 'Bệnh nhân', 'Mô tả triệu chứng cơ bản và nghe hướng dẫn.', [
       step('hospital-1', '어디가 아프세요?', 'Bạn đau ở đâu?', '머리가 아프고 열이 나요.', [['아프'], ['머리', '배', '목', '열']], [['subject', '이/가', ['이', '가']]], ['아프', '열', '머리', '목'], '증상을 말하세요.'),
       step('hospital-2', '언제부터 아팠어요?', 'Bạn đau từ khi nào?', '어제 밤부터 아팠어요.', [['부터'], ['어제', '오늘', '일주일']], [['from-time', '부터', ['부터']]], ['어제', '오늘', '밤'], '증상이 시작된 시간을 말하세요.')
@@ -86,7 +90,7 @@
   global.KLEARN_IMMERSIVE_WORLD_DATA = Object.freeze({
     missions: Object.freeze(missions), debateTopics,
     worlds: Object.freeze([
-      { id: 'city', title: 'Virtual Korean City', subtitle: 'Restaurant · Airport · School · Hospital', icon: '城', view: 'virtual-korean-city' },
+      { id: 'city', title: 'Virtual Korean City', subtitle: 'Restaurant · School · Office · Airport · Hospital', icon: '城', view: 'virtual-korean-city' },
       { id: 'roleplay', title: 'Roleplay Game', subtitle: 'Du học sinh · Nhân viên · Du lịch', icon: '◇', view: 'roleplay-game' },
       { id: 'career', title: 'Career Korean', subtitle: 'Interview · Meeting · Email', icon: '▣', view: 'career-korean' },
       { id: 'university', title: 'University Life', subtitle: 'Class · Friends · Campus', icon: '学', view: 'university-life' },
