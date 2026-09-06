@@ -1,0 +1,22 @@
+{
+  "contentVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "privacy": {
+    "defaultConsent": "unknown",
+    "scope": "in-app-learning-only",
+    "disallowedFields": ["password", "token", "secret", "email", "phone", "audio", "chat", "journal", "freeform-private-data"],
+    "retentionDays": 180
+  },
+  "events": ["lesson_started", "lesson_completed", "practice_abandoned", "feature_used", "review_completed", "feedback_submitted", "survey_submitted", "experiment_exposed"],
+  "funnel": ["app_opened", "lesson_started", "lesson_completed", "returned"],
+  "segments": ["beginner", "topik_learner", "conversation_learner"],
+  "experiments": [
+    { "id": "home_layout", "goal": "increase lesson starts", "status": "ready", "variants": ["A", "B"], "allocation": [50, 50] },
+    { "id": "daily_plan_cta", "goal": "increase lesson completion", "status": "ready", "variants": ["control", "focused"], "allocation": [50, 50] }
+  ],
+  "feedbackTypes": ["lesson_rating", "issue_report", "feature_suggestion"],
+  "surveyQuestions": [
+    { "id": "learning-blocker", "question": { "vi": "Bạn đang gặp khó khăn gì?", "en": "What is blocking your learning?" }, "answers": ["time", "listening", "grammar", "vocabulary", "motivation", "other"] }
+  ]
+}

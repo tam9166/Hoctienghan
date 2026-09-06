@@ -1,0 +1,71 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+
+const root = path.join(__dirname, '..');
+const source = fs.readFileSync(path.join(root, 'data', 'user-research.js'), 'utf8');
+const content = JSON.parse(fs.readFileSync(path.join(root, 'content', 'user-research-experiments.json'), 'utf8'));
+const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
+const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const workerSource = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
+const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_user_research_experiments.sql'), 'utf8');
+
+function boot(profile = {}) {
+  const values = new Map();
+  const state = { currentUser: { id: 'research-user', currentTopikLevel: 1, targetTopikLevel: 2, learningMode: 'topik', goals: ['topik'] }, currentView: 'profile' };
+  const storage = { get(key, fallback = null) { return values.has(key) ? values.get(key) : fallback; }, set(key, value) { values.set(key, value); return true; } };
+  const userScoped = (key) => { const value = values.get(key); return Array.isArray(value?.[state.currentUser.id]) ? value[state.currentUser.id] : []; };
+  const saveUserScoped = (key, list) => { const all = values.get(key) || {}; all[state.currentUser.id] = list; values.set(key, all); };
+  const window = { KLEARN_APP: { state, STORAGE_KEYS: { research: 'research' }, userScoped, saveUserScoped, CloudSyncService: { schedule: () => {} }, LearnerProfileService: { get: () => profile } }, document: null };
+  const context = { window, console, Date, String, Number, Object, Array, Math, Set, Map, RegExp, Promise, JSON };
+  vm.createContext(context); vm.runInContext(source, context); return { window, state, storage };
+}
+
+assert.equal(content.privacy.defaultConsent, 'unknown');
+assert.ok(content.privacy.disallowedFields.includes('password'));
+assert.ok(content.events.includes('practice_abandoned'));
+assert.deepEqual(content.segments, ['beginner', 'topik_learner', 'conversation_learner']);
+
+const app = boot();
+const research = app.window.UserResearchService;
+const experiments = app.window.ExperimentService;
+assert.equal(research.consent.get(), 'unknown');
+assert.equal(research.track('lesson_started', { contentId: 'lesson-1' }), null, 'tracking must be opt-in');
+assert.equal(research.consent.set('granted'), 'granted');
+research.track('lesson_started', { contentId: 'lesson-1', password: 'blocked', message: 'secret token' });
+research.track('feature_used', { feature: 'ai-coach' });
+research.track('lesson_completed', { contentId: 'lesson-1', score: 88 });
+research.track('practice_abandoned', { step: 'placement-5' });
+assert.equal(research.all().events.length, 5, 'consent and bounded event count should be recorded');
+assert.equal(research.featureUsage()['ai-coach'], 1);
+assert.equal(research.dropOffs()['placement-5'], 1);
+assert.equal(research.metrics().segment, 'topik_learner');
+assert.equal(research.metrics().funnel.lessonCompleted, true);
+assert.equal(research.metrics().funnel.dropOff, null);
+const feedback = research.submitFeedback({ type: 'lesson_rating', targetId: 'lesson-1', rating: 5, message: 'Bài rõ ràng và dễ theo dõi.' });
+assert.equal(feedback.rating, 5);
+assert.equal(research.submitFeedback({ type: 'issue_report', message: 'my password is wrong' }), null);
+const survey = research.submitSurvey({ questionId: 'learning-blocker', answer: 'listening' });
+assert.equal(survey.answer, 'listening');
+assert.equal(research.submitSurvey({ questionId: 'learning-blocker', answer: 'free text not allowed' }), null);
+const firstAssignment = experiments.assign('home_layout');
+const secondAssignment = experiments.assign('home_layout');
+assert.equal(firstAssignment.variant, secondAssignment.variant);
+assert.equal(experiments.log({ experimentId: 'home_layout', outcome: 'positive', metric: 'lesson_started', value: 1 }).outcome, 'positive');
+research.consent.set('denied');
+const countBefore = research.events().length;
+assert.equal(research.track('feature_used', { feature: 'conversation' }), null);
+assert.equal(research.events().length, countBefore);
+assert.match(appSource, /research: 'klearn_user_research'/);
+assert.match(appSource, /UserResearchService\?\.track/);
+assert.match(indexSource, /data\/user-research\.js\?v=1/);
+assert.match(workerSource, /klearn-v51/);
+assert.match(workerSource, /user-research-experiments\.json/);
+assert.match(migration, /research_consents/);
+assert.match(migration, /learning_research_events/);
+assert.match(migration, /research_feedback/);
+assert.match(migration, /research_experiment_logs/);
+assert.match(migration, /auth\.uid\(\)/);
+assert.match(migration, /row level security/i);
+console.log('user research: opt-in events, privacy allowlist, funnel, feature usage, drop-off, feedback, survey, deterministic A/B, segmentation and RLS passed');

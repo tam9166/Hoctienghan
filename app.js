@@ -12,7 +12,7 @@ const STORAGE_KEYS = Object.freeze({
   practice: 'klearn_practice',
   practiceHistory: 'klearn_practice_history',
   speaking: 'klearn_speaking',
-  writing: 'klearn_writing', listeningSessions: 'klearn_listening_sessions', writingAttempts: 'klearn_writing_attempts', speakingSessions: 'klearn_speaking_sessions', conversationHistory: 'klearn_conversation_history', readingExpansion: 'klearn_reading_expansion', languageMastery: 'klearn_language_mastery', immersionMotivation: 'klearn_immersion_motivation', immersiveWorld: 'klearn_immersive_world', ecosystemExpansion: 'klearn_ecosystem_expansion', realGoalPlans: 'klearn_real_goal_plans', learningJournal: 'klearn_learning_journal', teacherFeedback: 'klearn_teacher_feedback', manualReviewQueue: 'klearn_manual_review_queue', teacherWorkspace: 'klearn_teacher_workspace', educationPlatform: 'klearn_education_platform', communityProgress: 'klearn_community_progress', enterprisePlatform: 'klearn_enterprise_platform', productUx: 'klearn_product_ux', retention: 'klearn_retention', examAttempts: 'klearn_exam_attempts', notes: 'klearn_notes', bookmarks: 'klearn_bookmarks', contentFeedback: 'klearn_content_feedback', resourceProgress: 'klearn_resource_progress', highlights: 'klearn_highlights', supportRequests: 'klearn_support_requests', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting', learnerProfile: 'klearn_learner_profile', languageProfiles: 'klearn_language_profiles', syncMeta: 'klearn_sync_meta', dailyPlan: 'klearn_daily_plan', dailyExperience: 'klearn_daily_experience', notifications: 'klearn_notifications', errors: 'klearn_errors', weeklyReports: 'klearn_weekly_reports', dailyMissions: 'klearn_daily_missions', learningGoals: 'klearn_learning_goals', learningIntelligence: 'klearn_learning_intelligence', adaptiveRoadmaps: 'klearn_adaptive_roadmaps', aiMemory: 'klearn_ai_memory', aiInfrastructure: 'klearn_ai_infrastructure', knowledgeProgress: 'klearn_knowledge_progress', grammarNotebook: 'klearn_grammar_notebook', typingProgress: 'klearn_typing_progress', repairPaths: 'klearn_repair_paths', focusSessions: 'klearn_focus_sessions', checkpoints: 'klearn_checkpoints', offlinePacks: 'klearn_offline_packs', shadowingProgress: 'klearn_shadowing_progress', milestones: 'klearn_milestones', achievements: 'klearn_achievements', contentDrafts: 'klearn_content_drafts', contentCatalogCache: 'klearn_content_catalog_cache', vocabularyCollections: 'klearn_vocabulary_collections', sentenceBuilderProgress: 'klearn_sentence_builder_progress', realLifeProgress: 'klearn_real_life_progress', migrationBackup: 'klearn_migration_backup_v8'
+  writing: 'klearn_writing', listeningSessions: 'klearn_listening_sessions', writingAttempts: 'klearn_writing_attempts', speakingSessions: 'klearn_speaking_sessions', conversationHistory: 'klearn_conversation_history', readingExpansion: 'klearn_reading_expansion', languageMastery: 'klearn_language_mastery', immersionMotivation: 'klearn_immersion_motivation', immersiveWorld: 'klearn_immersive_world', ecosystemExpansion: 'klearn_ecosystem_expansion', realGoalPlans: 'klearn_real_goal_plans', learningJournal: 'klearn_learning_journal', teacherFeedback: 'klearn_teacher_feedback', manualReviewQueue: 'klearn_manual_review_queue', teacherWorkspace: 'klearn_teacher_workspace', educationPlatform: 'klearn_education_platform', communityProgress: 'klearn_community_progress', enterprisePlatform: 'klearn_enterprise_platform', productUx: 'klearn_product_ux', retention: 'klearn_retention', research: 'klearn_user_research', examAttempts: 'klearn_exam_attempts', notes: 'klearn_notes', bookmarks: 'klearn_bookmarks', contentFeedback: 'klearn_content_feedback', resourceProgress: 'klearn_resource_progress', highlights: 'klearn_highlights', supportRequests: 'klearn_support_requests', dictionaryFavorites: 'klearn_dictionary_favorites', savedSentences: 'klearn_saved_sentences', translationHistory: 'klearn_translation_history', recentSearches: 'klearn_recent_searches', handwriting: 'klearn_handwriting', learnerProfile: 'klearn_learner_profile', languageProfiles: 'klearn_language_profiles', syncMeta: 'klearn_sync_meta', dailyPlan: 'klearn_daily_plan', dailyExperience: 'klearn_daily_experience', notifications: 'klearn_notifications', errors: 'klearn_errors', weeklyReports: 'klearn_weekly_reports', dailyMissions: 'klearn_daily_missions', learningGoals: 'klearn_learning_goals', learningIntelligence: 'klearn_learning_intelligence', adaptiveRoadmaps: 'klearn_adaptive_roadmaps', aiMemory: 'klearn_ai_memory', aiInfrastructure: 'klearn_ai_infrastructure', knowledgeProgress: 'klearn_knowledge_progress', grammarNotebook: 'klearn_grammar_notebook', typingProgress: 'klearn_typing_progress', repairPaths: 'klearn_repair_paths', focusSessions: 'klearn_focus_sessions', checkpoints: 'klearn_checkpoints', offlinePacks: 'klearn_offline_packs', shadowingProgress: 'klearn_shadowing_progress', milestones: 'klearn_milestones', achievements: 'klearn_achievements', contentDrafts: 'klearn_content_drafts', contentCatalogCache: 'klearn_content_catalog_cache', vocabularyCollections: 'klearn_vocabulary_collections', sentenceBuilderProgress: 'klearn_sentence_builder_progress', realLifeProgress: 'klearn_real_life_progress', migrationBackup: 'klearn_migration_backup_v8'
 });
 
 const storage = {
@@ -1000,7 +1000,7 @@ async function submitContentReport({ contentId, contentType, reportType = 'other
 const USER_SYNC_KEYS = Object.freeze([
   STORAGE_KEYS.conversationHistory,
   STORAGE_KEYS.readingExpansion, STORAGE_KEYS.immersiveWorld, STORAGE_KEYS.ecosystemExpansion,
-  STORAGE_KEYS.realGoalPlans, STORAGE_KEYS.learningJournal, STORAGE_KEYS.teacherFeedback, STORAGE_KEYS.manualReviewQueue, STORAGE_KEYS.teacherWorkspace, STORAGE_KEYS.educationPlatform, STORAGE_KEYS.communityProgress, STORAGE_KEYS.enterprisePlatform, STORAGE_KEYS.productUx, STORAGE_KEYS.retention,
+  STORAGE_KEYS.realGoalPlans, STORAGE_KEYS.learningJournal, STORAGE_KEYS.teacherFeedback, STORAGE_KEYS.manualReviewQueue, STORAGE_KEYS.teacherWorkspace, STORAGE_KEYS.educationPlatform, STORAGE_KEYS.communityProgress, STORAGE_KEYS.enterprisePlatform, STORAGE_KEYS.productUx, STORAGE_KEYS.retention, STORAGE_KEYS.research,
   STORAGE_KEYS.progress, STORAGE_KEYS.srs, STORAGE_KEYS.settings, STORAGE_KEYS.practice, STORAGE_KEYS.practiceHistory,
   STORAGE_KEYS.speaking, STORAGE_KEYS.writing, STORAGE_KEYS.dictionaryFavorites, STORAGE_KEYS.savedSentences,
   STORAGE_KEYS.translationHistory, STORAGE_KEYS.recentSearches, STORAGE_KEYS.handwriting, STORAGE_KEYS.learnerProfile, STORAGE_KEYS.languageProfiles,
@@ -1399,6 +1399,7 @@ function setView(view, options = {}) {
   if (state.currentUser && !state.currentUser.onboardingCompleted && !ONBOARDING_VIEWS.includes(target)) target = onboardingViewFor(state.currentUser);
   if (state.currentUser?.onboardingCompleted && (PUBLIC_VIEWS.includes(target) || ONBOARDING_VIEWS.includes(target))) target = 'home';
   state.currentView = target;
+  window.UserResearchService?.track?.('feature_used', { feature: target });
   if (!options.fromHash && location.hash !== `#${target}`) history.replaceState(null, '', `#${target}`);
   render();
 }
@@ -2886,6 +2887,7 @@ function submitWriting(event) {
 // ============================================================
 function openLesson(lessonId) {
   state.selectedLessonPreview = lessonId;
+  window.UserResearchService?.track?.('lesson_started', { contentId: lessonId, feature: 'lesson' });
   state.lessonStep = 0;
   state.lessonCheck = null;
   state.selectedWords = [];
@@ -2924,6 +2926,7 @@ function completeLesson() {
     progress.lessonProgress[lessonId] = { ...existing, completed: true, completedAt: new Date().toISOString(), score: state.lessonCheck?.correct ? 100 : 80, masteryScore: Math.max(Number(existing.masteryScore) || 0, state.lessonCheck?.correct ? 80 : 70), masteryStatus: MasteryService.status(Math.max(Number(existing.masteryScore) || 0, state.lessonCheck?.correct ? 80 : 70)), recallCount: Number(existing.recallCount || 0) + 1, contentVersion: 1, updatedAt: new Date().toISOString() };
     progress.stats.lessonsCompleted += 1;
     progress.skills.reading = Math.min(100, progress.skills.reading + 5);
+    window.UserResearchService?.track?.('lesson_completed', { contentId: lessonId, feature: 'lesson', score: progress.lessonProgress[lessonId].score });
   }
   progress.daily.tasks.lesson = true;
   saveUserProgress(progress);
@@ -2958,6 +2961,7 @@ function rateSrs(rating) {
   const progress = getUserProgress();
   progress.daily.tasks.vocabulary = true;
   progress.stats.wordsLearned = Math.max(progress.stats.wordsLearned, state.srsData.filter((item) => item.reviewCount > 0).length);
+  window.UserResearchService?.track?.('review_completed', { feature: 'srs', result: rating === 'forgot' ? 'forgot' : 'remembered' });
   saveUserProgress(progress);
   session.index += 1;
   session.completed += 1;

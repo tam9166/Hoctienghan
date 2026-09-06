@@ -221,6 +221,14 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - `LanguageComparisonService` hỗ trợ so sánh song song Vietnamese/Korean/Japanese/Chinese/English mà không trộn SRS hoặc mastery giữa ngôn ngữ. `GlobalLanguageContentService` yêu cầu `verified + approved + architectureOnly` trước khi hydrate.
 - Migration `20260906_global_language_platform.sql` tạo hồ sơ đa ngôn ngữ user-scoped với RLS; không lưu nội dung riêng tư, audio thô hoặc credential.
 
+### User Research and Experiment System
+
+- `UserResearchService` chỉ ghi event học tập tối thiểu khi người dùng bật consent: bắt đầu/hoàn thành lesson, feature usage, review, drop-off, feedback và survey. Mặc định là `unknown`; từ chối consent thì event tracking dừng nhưng app vẫn hoạt động.
+- Properties được allowlist và chặn password, token, secret, email, phone, chat, journal, audio/recording. Không có tracking ngoài phạm vi app; dữ liệu local được namespace theo user và CloudSync không reset progress hiện có.
+- `ResearchAnalyticsService.metrics()` tính funnel, feature usage, drop-off và segment Beginner/TOPIK/Conversation từ event đã consent. `ExperimentService` gán A/B deterministic theo user + experiment, ghi exposure/result tối thiểu và không tạo chatbot/menu mới.
+- Consent notice xuất hiện trong Profile; feedback lesson/report/suggestion và khảo sát ngắn là hành động chủ động của người dùng, nội dung bị giới hạn và lọc dữ liệu nhạy cảm.
+- Content contract nằm ở `content/user-research-experiments.json`; migration `20260906_user_research_experiments.sql` chuẩn bị consent, bounded events, feedback và experiment logs với RLS user/admin.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.

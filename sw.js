@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v50';
+const CACHE = 'klearn-v51';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=31',
@@ -76,6 +76,8 @@ const OFFLINE_ASSETS = [
   './content/ai-infrastructure.json',
   './data/global-language-platform.js?v=1',
   './content/global-language-platform.json',
+  './data/user-research.js?v=1',
+  './content/user-research-experiments.json',
   './content/product-ux.json',
   './docs/partner-api-v1.openapi.json',
   './manifest.json',
