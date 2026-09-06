@@ -1,0 +1,25 @@
+{
+  "$schema": "./mobile-app.schema.json",
+  "appId": "com.tamhoanq.korean",
+  "appName": "Tiếng Hàn - TamHoanq",
+  "webDir": ".",
+  "nativeWrapper": "capacitor-compatible",
+  "platforms": {
+    "android": { "enabled": true, "status": "wrapper-not-generated" },
+    "ios": { "enabled": true, "status": "wrapper-not-generated" }
+  },
+  "bridge": {
+    "notifications": "MobileNotificationService",
+    "offlinePacks": "MobileOfflineService",
+    "backgroundAudio": "BackgroundAudioService",
+    "camera": "MobileCameraService",
+    "widget": "MobileWidgetService",
+    "shortcuts": "AppShortcutService"
+  },
+  "security": {
+    "allowCleartext": false,
+    "cameraProcessing": "on-device",
+    "notificationPermission": "user-initiated",
+    "privateDataInWebCache": false
+  }
+}

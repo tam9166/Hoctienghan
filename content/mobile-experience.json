@@ -1,0 +1,70 @@
+{
+  "id": "p35-mobile-experience",
+  "version": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "updatedAt": "2026-09-06",
+  "native": {
+    "strategy": "web-first-native-bridge",
+    "appId": "com.tamhoanq.korean",
+    "platforms": [
+      { "id": "android", "status": "foundation-ready", "minimumVersion": "Android 8" },
+      { "id": "ios", "status": "foundation-ready", "minimumVersion": "iOS 15" }
+    ],
+    "dataOwnership": "existing-local-and-cloud-services"
+  },
+  "offline": {
+    "service": "OfflinePackService",
+    "contentTypes": ["lesson", "audio", "vocabulary"],
+    "largeDataInLocalStorage": false,
+    "privateDataInPublicCache": false
+  },
+  "notifications": {
+    "types": ["study-reminder", "review-reminder"],
+    "permission": "user-initiated",
+    "quietHours": { "start": 22, "end": 7 },
+    "minimumIntervalHours": 6,
+    "maximumPerDay": 2,
+    "defaultRoute": "home"
+  },
+  "backgroundAudio": {
+    "api": "MediaSession",
+    "requiresAudioAsset": true,
+    "speechSynthesisFallbackIsBackgroundCapable": false,
+    "controls": ["play", "pause", "seekbackward", "seekforward"]
+  },
+  "camera": {
+    "modes": ["text", "menu", "sign"],
+    "processing": "on-device",
+    "uploads": false,
+    "imageStored": false,
+    "textStored": false,
+    "fallback": "text-input"
+  },
+  "widget": {
+    "status": "native-bridge-contract",
+    "items": ["todays-korean", "review-words"],
+    "containsPrivateContent": false
+  },
+  "shortcuts": [
+    { "id": "speaking", "name": "Luyện nói", "route": "speaking-hub" },
+    { "id": "review", "name": "Ôn từ", "route": "review" },
+    { "id": "topik", "name": "Luyện TOPIK", "route": "topik" }
+  ],
+  "lowPerformance": {
+    "automaticSignals": ["saveData", "slow-2g", "2g", "deviceMemory<=2", "hardwareConcurrency<=2"],
+    "effects": ["reduce-motion", "reduce-effects", "avoid-prefetch", "compact-media"]
+  },
+  "appStore": {
+    "name": "Tiếng Hàn - TamHoanq",
+    "category": "Education",
+    "contentRating": "Everyone",
+    "privacyPolicyRequired": true,
+    "assets": {
+      "sourceIcon": "icons/logo-source.svg",
+      "pwa192": "icons/icon-192.png",
+      "pwa512": "icons/icon-512.png",
+      "appleTouch": "icons/apple-touch-icon.png"
+    }
+  }
+}

@@ -1,10 +1,11 @@
-const CACHE = 'klearn-v57';
+const CACHE = 'klearn-v58';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=31',
   './global-ai-companion.css?v=1',
   './production-stability.css?v=1',
   './security-privacy.css?v=1',
+  './mobile-experience.css?v=1',
   './language-mastery.css?v=1',
   './immersion-motivation.css?v=1',
   './education-platform.css?v=1',
@@ -65,7 +66,7 @@ const OFFLINE_ASSETS = [
   './locales/en.js?v=4',
   './locales/zh-CN.js?v=4',
   './data/content-locales.js?v=1',
-  './app.js?v=43',
+  './app.js?v=44',
   './content/retention-system.json',
   './content/content-quality-system.json',
   './data/resource-library.js?v=1',
@@ -95,6 +96,10 @@ const OFFLINE_ASSETS = [
   './content/production-stability.json',
   './data/security-privacy.js?v=1',
   './content/security-privacy.json',
+  './data/mobile-experience.js?v=1',
+  './content/mobile-experience.json',
+  './mobile/mobile-app.config.json',
+  './mobile/mobile-app.schema.json',
   './content/product-ux.json',
   './docs/partner-api-v1.openapi.json',
   './manifest.json',
@@ -140,4 +145,58 @@ self.addEventListener('fetch', (event) => {
         return Response.error();
       })
   );
+});
+
+const MOBILE_NOTIFICATION_POLICY = Object.freeze({ quietStart: 22, quietEnd: 7, minimumIntervalMs: 6 * 60 * 60 * 1000, maximumPerDay: 2 });
+function openNotificationHistoryDb() {
+  if (!self.indexedDB) return Promise.resolve(null);
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('klearn-mobile-system', 1);
+    request.onupgradeneeded = () => { if (!request.result.objectStoreNames.contains('notification-history')) request.result.createObjectStore('notification-history', { keyPath: 'sentAt' }); };
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+  });
+}
+async function notificationHistory() {
+  const db = await openNotificationHistoryDb(); if (!db) return [];
+  return new Promise((resolve) => { const request = db.transaction('notification-history').objectStore('notification-history').getAll(); request.onerror = () => resolve([]); request.onsuccess = () => resolve(request.result || []); });
+}
+async function notificationAllowed(date = new Date()) {
+  const hour = date.getHours(); if (hour >= MOBILE_NOTIFICATION_POLICY.quietStart || hour < MOBILE_NOTIFICATION_POLICY.quietEnd) return false;
+  const history = (await notificationHistory()).sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt)); const today = date.toISOString().slice(0, 10);
+  if (history.filter((item) => item.day === today).length >= MOBILE_NOTIFICATION_POLICY.maximumPerDay) return false;
+  return !history[0] || date.getTime() - new Date(history[0].sentAt).getTime() >= MOBILE_NOTIFICATION_POLICY.minimumIntervalMs;
+}
+async function recordNotification(date = new Date()) {
+  const db = await openNotificationHistoryDb(); if (!db) return;
+  await new Promise((resolve) => { const request = db.transaction('notification-history', 'readwrite').objectStore('notification-history').put({ sentAt: date.toISOString(), day: date.toISOString().slice(0, 10) }); request.onerror = resolve; request.onsuccess = resolve; });
+}
+self.addEventListener('push', (event) => {
+  event.waitUntil((async () => {
+    const date = new Date(); if (!(await notificationAllowed(date))) return;
+    let payload = {};
+    try { payload = event.data?.json?.() || {}; } catch (_) { payload = { body: event.data?.text?.() || '' }; }
+    const allowedRoutes = new Set(['home', 'review', 'speaking-hub', 'topik']);
+    const route = allowedRoutes.has(payload.route) ? payload.route : 'home';
+    const options = {
+      body: String(payload.body || 'Đến giờ học một phiên ngắn.').slice(0, 180),
+      icon: './icons/icon-192.png', badge: './icons/icon-192.png',
+      tag: String(payload.tag || 'klearn-study-reminder').slice(0, 80), renotify: false,
+      data: { route }
+    };
+    await self.registration.showNotification('Tiếng Hàn - TamHoanq', options); await recordNotification(date);
+  })());
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const allowedRoutes = new Set(['home', 'review', 'speaking-hub', 'topik']);
+  const requested = event.notification.data?.route;
+  const route = allowedRoutes.has(requested) ? requested : 'home';
+  const targetUrl = new URL(`./#${route}`, self.registration.scope).href;
+  event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+    const existing = clients.find((client) => new URL(client.url).origin === self.location.origin);
+    if (existing) return existing.navigate(targetUrl).then(() => existing.focus());
+    return self.clients.openWindow(targetUrl);
+  }));
 });

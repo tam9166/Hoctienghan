@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TamHoanq mobile wrapper contract",
+  "type": "object",
+  "required": ["appId", "appName", "webDir", "platforms", "bridge", "security"],
+  "properties": {
+    "appId": { "type": "string", "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$" },
+    "appName": { "type": "string", "minLength": 1 },
+    "webDir": { "type": "string" },
+    "nativeWrapper": { "type": "string" },
+    "platforms": { "type": "object", "required": ["android", "ios"] },
+    "bridge": { "type": "object" },
+    "security": { "type": "object" }
+  }
+}

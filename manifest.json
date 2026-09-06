@@ -11,6 +11,30 @@
   "orientation": "portrait-primary",
   "lang": "vi",
   "categories": ["education"],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Luyện nói",
+      "short_name": "Nói",
+      "description": "Mở luyện nói tiếng Hàn",
+      "url": "./#speaking-hub",
+      "icons": [{"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"}]
+    },
+    {
+      "name": "Ôn từ",
+      "short_name": "Ôn từ",
+      "description": "Mở phiên ôn từ đến hạn",
+      "url": "./#review",
+      "icons": [{"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"}]
+    },
+    {
+      "name": "Luyện TOPIK",
+      "short_name": "TOPIK",
+      "description": "Mở khu luyện thi TOPIK",
+      "url": "./#topik",
+      "icons": [{"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"}]
+    }
+  ],
   "icons": [
     {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
     {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
