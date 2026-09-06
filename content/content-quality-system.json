@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "sourcePolicy": ["TOPIK curriculum", "Frequency vocabulary", "Native-reviewed examples"],
+  "confidenceBands": { "high": 90, "review": 80 },
+  "reportTypes": [
+    { "id": "meaning", "vi": "Sai nghĩa / bản dịch chưa tự nhiên", "en": "Meaning or unnatural translation", "zh-CN": "释义或翻译不自然" },
+    { "id": "audio", "vi": "Audio hoặc phát âm", "en": "Audio or pronunciation", "zh-CN": "音频或发音" },
+    { "id": "example", "vi": "Ví dụ không tự nhiên", "en": "Unnatural example", "zh-CN": "例句不自然" },
+    { "id": "difficulty", "vi": "Mức độ chưa đúng", "en": "Difficulty seems wrong", "zh-CN": "难度可能不准确" },
+    { "id": "duplicate", "vi": "Nội dung trùng", "en": "Duplicate content", "zh-CN": "重复内容" }
+  ],
+  "reviews": [
+    {
+      "contentId": "grammar-topic-particle",
+      "nativeChecked": true,
+      "grammarChecked": true,
+      "exampleChecked": true,
+      "accuracyScore": 98,
+      "source": ["TOPIK curriculum", "Native-reviewed examples"],
+      "translationNaturalness": 96,
+      "difficultyValidated": true,
+      "audio": { "volume": "pass", "pronunciation": "pass", "speed": "pass", "score": 92 },
+      "reviewStatus": "approved",
+      "reviewer": "native-review-team",
+      "versionHistory": [{ "version": 4, "oldVersion": 3, "changedAt": "2026-09-01T00:00:00.000Z", "change": "Bổ sung ví dụ đối chiếu nâng cao và kiểm tra audio." }]
+    },
+    {
+      "contentId": "lesson-cafe-order",
+      "nativeChecked": true,
+      "grammarChecked": true,
+      "exampleChecked": true,
+      "accuracyScore": 95,
+      "source": ["TOPIK curriculum", "Native-reviewed examples"],
+      "translationNaturalness": 94,
+      "difficultyValidated": true,
+      "audio": { "volume": "pass", "pronunciation": "pass", "speed": "pass", "score": 90 },
+      "reviewStatus": "approved",
+      "reviewer": "native-review-team",
+      "versionHistory": [{ "version": 3, "oldVersion": 2, "changedAt": "2026-09-04T00:00:00.000Z", "change": "Chuẩn hóa câu gọi món và hỏi size." }]
+    },
+    {
+      "contentId": "ex-topic-beginner",
+      "nativeChecked": true,
+      "grammarChecked": true,
+      "exampleChecked": true,
+      "accuracyScore": 97,
+      "source": ["TOPIK curriculum", "Native-reviewed examples"],
+      "translationNaturalness": 98,
+      "difficultyValidated": true,
+      "audio": { "volume": "pass", "pronunciation": "pass", "speed": "pass", "score": 91 },
+      "reviewStatus": "approved",
+      "reviewer": "native-review-team",
+      "versionHistory": [{ "version": 2, "oldVersion": 1, "changedAt": "2026-08-20T00:00:00.000Z", "change": "Rà soát bản dịch tiếng Việt." }]
+    },
+    {
+      "contentId": "freq-학교",
+      "nativeChecked": true,
+      "grammarChecked": true,
+      "exampleChecked": false,
+      "accuracyScore": 93,
+      "source": ["Frequency vocabulary", "TOPIK curriculum"],
+      "translationNaturalness": 95,
+      "difficultyValidated": true,
+      "audio": { "volume": "pass", "pronunciation": "pass", "speed": "review", "score": 78 },
+      "reviewStatus": "review",
+      "reviewer": "native-review-team",
+      "versionHistory": [{ "version": 2, "oldVersion": 1, "changedAt": "2026-08-17T00:00:00.000Z", "change": "Cập nhật tần suất và chờ kiểm tra audio tốc độ." }]
+    }
+  ]
+}

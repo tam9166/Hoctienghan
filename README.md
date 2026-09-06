@@ -109,6 +109,15 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - `retention_daily_metrics` là aggregate-only cho admin, có RLS chỉ đọc qua Supabase `app_metadata.role = 'admin'`; frontend không bịa số 0 khi migration/backend chưa sẵn sàng. Chạy `supabase/migrations/20260906_advanced_retention_system.sql` khi bật analytics quản trị.
 - P24 nối vào CloudSync JSONB hiện có, cache PWA `klearn-v47`, hỗ trợ dark mode/mobile-first và không thay đổi Auth, SRS, Mastery hoặc dữ liệu cũ.
 
+## Learning Trust and Quality System (P25)
+
+- Content detail hiển thị `Native checked`, `Grammar checked`, `Example checked`, `Difficulty validated`, confidence score, learning source và kiểm tra translation/audio.
+- Quality content được quality-gate bằng `content/content-quality-system.json`; nguồn được ghi rõ theo TOPIK curriculum, frequency vocabulary hoặc native-reviewed examples.
+- Người học có thể báo sai nghĩa, audio, ví dụ, độ khó hoặc nội dung trùng ngay tại nội dung đang xem. Báo cáo local user-scoped dùng CloudSync hiện có; Supabase có bảng riêng với RLS cho reporter/reviewer/admin.
+- Content Health Dashboard chỉ dành cho admin, tổng hợp coverage review, confidence, nguồn, audio/difficulty issues và duplicate detection; không trả dữ liệu user riêng tư.
+- Version history nối với lịch sử P20 và metadata P25 để hiển thị old/new version, ngày cập nhật và lý do thay đổi.
+- Chạy `supabase/migrations/20260906_content_quality_system.sql` để bật native validation, quality review và quality reports trên Supabase. PWA cache nâng lên `klearn-v48`.
+
 ## Công cụ học thực hành
 
 - So sánh ngữ pháp song song, sổ ngữ pháp cá nhân và Repair Path nối trực tiếp với Sổ lỗi; lỗi chỉ được khép lại sau review, luyện tập và retest đạt yêu cầu.

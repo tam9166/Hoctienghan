@@ -1,0 +1,58 @@
+/* P25 · Learning trust and quality · mobile first */
+.p25-heading { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: start; }
+.p25-heading .back-link { width: 44px; height: 44px; padding: 0; border: 1px solid var(--outline); border-radius: 12px; background: var(--surface); color: var(--text); font-size: 20px; }
+.p25-heading .eyebrow { grid-column: 2; grid-row: 1; margin: 0; }
+.p25-heading .headline { grid-column: 2; grid-row: 2; margin: 0 0 7px; }
+.p25-heading .subtle { grid-column: 2; grid-row: 3; margin: 0; }
+
+.p25-trust-panel { margin: 18px 0; padding: 17px; border: 1px solid var(--outline); border-left: 5px solid var(--primary-hover); border-radius: 16px; background: var(--surface); }
+.p25-trust-panel header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.p25-trust-panel header small { color: var(--secondary); font-size: 10px; font-weight: 900; letter-spacing: .05em; }
+.p25-trust-panel header h2 { margin: 4px 0 0; color: var(--heading); font-size: 20px; }
+.p25-trust-panel header > strong { color: var(--heading); font-size: 26px; }
+.p25-check-grid { margin-top: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.p25-check { min-height: 40px; padding: 9px 10px; display: flex; align-items: center; gap: 5px; border-radius: 10px; font-size: 10px; font-weight: 800; }
+.p25-check.pass { background: var(--primary-soft); color: var(--secondary); }
+.p25-check.pending { background: var(--surface-low); color: var(--muted); }
+.p25-trust-meta { margin-top: 14px; display: grid; gap: 8px; }
+.p25-trust-meta p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.p25-trust-meta p b { color: var(--heading); }
+.p25-trust-meta p span { margin: 3px 3px 0 0; padding: 3px 7px; display: inline-block; border: 1px solid var(--outline); border-radius: 999px; color: var(--text); font-size: 10px; }
+.p25-version-history { margin-top: 14px; border-top: 1px solid var(--outline); }
+.p25-version-history summary { min-height: 44px; padding: 12px 0; color: var(--heading); font-size: 12px; font-weight: 800; cursor: pointer; }
+.p25-version-history p { margin: 0; padding: 9px 0; display: grid; grid-template-columns: 35px minmax(0, 1fr); gap: 3px 8px; border-top: 1px solid var(--surface-mid); }
+.p25-version-history p b { color: var(--heading); }
+.p25-version-history p span { color: var(--text); font-size: 11px; }
+.p25-version-history p small { grid-column: 2; color: var(--muted); font-size: 10px; }
+.p25-report-form { margin-top: 15px; padding-top: 14px; display: grid; gap: 9px; border-top: 1px solid var(--outline); }
+.p25-report-form label { color: var(--heading); font-size: 11px; font-weight: 800; }
+.p25-report-form select,
+.p25-report-form textarea { width: 100%; margin-top: 6px; padding: 10px; border: 1px solid var(--outline); border-radius: 10px; background: var(--surface-low); color: var(--text); font: inherit; }
+.p25-report-form textarea { min-height: 82px; resize: vertical; }
+.p25-report-form .btn { min-height: 44px; }
+
+.p25-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.p25-metrics article { min-width: 0; padding: 15px; display: grid; gap: 6px; border: 1px solid var(--outline); border-radius: 13px; background: var(--surface); }
+.p25-metrics small { color: var(--muted); font-size: 10px; }
+.p25-metrics b { color: var(--heading); font-size: 25px; }
+.p25-health-grid { display: grid; gap: 9px; }
+.p25-health-grid article { min-width: 0; padding: 16px; border: 1px solid var(--outline); border-radius: 15px; background: var(--surface); }
+.p25-health-grid h2,
+.p25-issues h2 { margin: 0 0 10px; color: var(--heading); font-size: 18px; }
+.p25-health-grid p { margin: 0; padding: 9px 0; display: flex; justify-content: space-between; gap: 9px; border-bottom: 1px solid var(--surface-mid); color: var(--muted); font-size: 11px; }
+.p25-health-grid p b { color: var(--heading); }
+.p25-issues { padding: 16px; border: 1px solid var(--outline); border-radius: 15px; background: var(--surface); }
+.p25-issues article { padding: 10px 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid var(--surface-mid); }
+.p25-issues article div { min-width: 0; display: grid; gap: 3px; }
+.p25-issues article b { overflow-wrap: anywhere; color: var(--heading); font-size: 12px; }
+.p25-issues article small { color: var(--muted); font-size: 10px; }
+.p25-issues article .btn { min-height: 44px; flex: 0 0 auto; }
+.p25-denied { min-height: 220px; display: grid; place-items: center; border: 1px dashed var(--outline); border-radius: 15px; background: var(--surface-low); font-size: 42px; }
+
+@media (min-width: 600px) {
+  .p25-check-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .p25-health-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .p25-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
