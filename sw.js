@@ -1,8 +1,9 @@
-const CACHE = 'klearn-v55';
+const CACHE = 'klearn-v56';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=31',
   './global-ai-companion.css?v=1',
+  './production-stability.css?v=1',
   './language-mastery.css?v=1',
   './immersion-motivation.css?v=1',
   './education-platform.css?v=1',
@@ -89,6 +90,8 @@ const OFFLINE_ASSETS = [
   './content/premium-learning-experience.json',
   './data/global-ai-language-companion.js?v=1',
   './content/global-ai-language-companion.json',
+  './data/production-stability.js?v=1',
+  './content/production-stability.json',
   './content/product-ux.json',
   './docs/partner-api-v1.openapi.json',
   './manifest.json',
@@ -113,8 +116,9 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
-  if (url.pathname === '/api/chat' || url.pathname.startsWith('/api/')) return;
+  if (url.pathname.startsWith('/api/') || request.headers.has('authorization') || /no-store/i.test(request.headers.get('cache-control') || '')) return;
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
+  if (!/\.(?:html?|css|js|json|svg|png|webp|woff2?|mp3|wav)$/i.test(url.pathname) && url.pathname !== '/') return;
 
   event.respondWith(
     fetch(request)

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "source": "production-stability-contract",
+  "telemetry": {
+    "allowedTypes": ["frontend", "backend", "api", "database", "ai", "sync", "cache"],
+    "retentionDays": 30,
+    "rawPayloads": false,
+    "rawStacks": false,
+    "secrets": false
+  },
+  "performance": {
+    "metrics": ["page_load", "api", "database", "ai", "cache", "sync"],
+    "percentiles": [50, 95]
+  },
+  "backup": {
+    "periods": ["daily", "weekly"],
+    "scope": ["progress", "srs", "learnerProfile", "settings"],
+    "localFirst": true
+  },
+  "offlineQueue": {
+    "allowedActions": ["completed_lesson", "updated_vocabulary", "finished_quiz"],
+    "maxItems": 100,
+    "privateData": false
+  },
+  "updatedAt": "2026-09-06"
+}

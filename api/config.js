@@ -1,5 +1,8 @@
+const rateLimit = require('./_rate-limit');
 module.exports = function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+  const limit = rateLimit(req, { bucket: 'config', max: 30, windowMs: 60000 });
+  if (!limit.allowed) { res.setHeader('Retry-After', String(limit.retryAfterSeconds)); return res.status(429).json({ error: 'Too many config requests', retryAfterSeconds: limit.retryAfterSeconds }); }
   res.setHeader('Cache-Control', 'no-store, max-age=0');
   const supabaseUrl = String(process.env.SUPABASE_URL || '').trim();
   const supabasePublishableKey = String(process.env.SUPABASE_ANON_KEY || '').trim();

@@ -263,6 +263,15 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Mọi response đều qua quality/safety gate và có fallback deterministic khi provider lỗi hoặc hết budget. Advisor cơ bản dùng SRS, Learner Profile và progress cục bộ để user vẫn biết việc cần làm hôm nay khi offline.
 - Contract nằm ở `content/global-ai-language-companion.json`; migration `20260906_global_ai_language_companion.sql` chuẩn bị memory có RLS owner-only và quality log aggregate, tuyệt đối không lưu prompt/response thô.
 
+### Production Engineering & System Stability
+
+- `ProductionMonitoringService` ghi nhận frontend/API/database/AI/sync/cache error theo fingerprint, module, timestamp và frequency; performance telemetry gom page load, API, database và AI latency mà không lưu stack trace hay payload riêng tư.
+- `RecoveryService` checkpoint progress/SRS/profile/settings theo user trước khi rời trang; `BackupService` giữ daily/weekly local backup. Restore là thao tác explicit, không tự ghi đè dữ liệu hiện tại.
+- `BackgroundSyncQueueService` giữ các action học tập được phép (`completed_lesson`, `updated_vocabulary`, `finished_quiz`) khi offline và flush qua `CloudSyncService` khi online. Không đưa private payload vào PWA cache; service worker chỉ cache public assets.
+- `/api/health` trả backend/database/AI status và latency với `Cache-Control: no-store`; `/api/chat`, `/api/config` và health có in-memory rate limit. Migration `20260906_production_stability.sql` thêm aggregate error/performance/health tables, index và RLS admin-only.
+- Admin Control Center có thẻ System status; local fallback hiển thị rõ dữ liệu chưa có backend aggregate thay vì bịa số 0. PWA cache đã nâng lên `klearn-v56`.
+- Contract vận hành nằm ở `content/production-stability.json`; mọi telemetry bị giới hạn field/độ dài và không chứa raw stack, payload, credential hay token.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.
