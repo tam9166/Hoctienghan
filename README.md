@@ -167,6 +167,16 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Nội dung seed đã kiểm duyệt nằm ở `content/community-learning.json`, lazy-load và cache offline. Migration `20260906_community_learning_foundation.sql` chuẩn bị tables cùng RLS cho profile, group, challenge, Q&A, useful rating, peer request, milestone share, block và report; cần áp dụng migration và nối backend trước khi bật tương tác đa người dùng trực tuyến.
 - Community Statistics chỉ hiển thị số nhóm, ngày challenge, câu hỏi và lời mời của chính tài khoản hiện tại; không tính rank hoặc so sánh từng người.
 
+### Enterprise Education Platform
+
+- `SubscriptionService` tách tier thương mại `free/premium` khỏi role giáo dục `student/teacher/reviewer/admin`. Tier và trạng thái Premium chỉ được đọc từ `Supabase session.user.app_metadata`; localStorage không thể tự nâng gói, và trạng thái không còn `active/trialing` sẽ dùng entitlement Free.
+- Premium foundation định nghĩa Advanced Analytics, Premium Courses và Extended Practice nhưng không khóa hoặc làm hỏng tính năng học hiện có. Thanh toán chưa được tích hợp và UI không tạo giao dịch giả.
+- Course Marketplace chỉ hiển thị khóa `approved + verified`; enrollment được lưu user-scoped. Certificate preview chỉ tạo khi tiến độ khóa đạt yêu cầu, được ghi rõ là local preview cho tới khi backend ký/xác minh.
+- School Management và Center Dashboard tái sử dụng Organization, Classroom, Teacher Dashboard cùng role/RLS hiện có. Dashboard chỉ đọc snapshot tổng hợp, không đọc journal, chat, recording hoặc nội dung cá nhân thô.
+- Partner API mới dừng ở hợp đồng `docs/partner-api-v1.openapi.json`: OAuth client credentials, scope theo organization và audit request. Không có endpoint thật hoặc secret nào được phát hành trong browser.
+- Admin Analytics chỉ dành cho role `admin`; chỉ số backend chưa kết nối hiển thị `—` thay vì bịa dữ liệu. Product Language schema hỗ trợ `ko/ja/zh`, nhưng chỉ Korean đang active; Japanese và Chinese được ghi rõ là foundation/planned.
+- Migration `20260906_enterprise_education_platform.sql` thêm subscription, entitlement, marketplace, certificate, organization plan, partner client/audit, aggregate analytics và product languages với RLS. Credential hash nằm ở bảng server-only không có authenticated policy.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.

@@ -1,0 +1,47 @@
+{
+  "contentVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "updatedAt": "2026-09-06",
+  "plans": [
+    {
+      "id": "free",
+      "name": { "vi": "Free", "en": "Free", "zh-CN": "免费" },
+      "features": ["core_learning", "standard_practice", "basic_progress"],
+      "description": { "vi": "Lộ trình cốt lõi, ôn tập chuẩn và tiến độ cơ bản.", "en": "Core pathway, standard practice and basic progress.", "zh-CN": "核心学习路径、标准练习和基础进度。" }
+    },
+    {
+      "id": "premium",
+      "name": { "vi": "Premium", "en": "Premium", "zh-CN": "高级版" },
+      "features": ["core_learning", "standard_practice", "basic_progress", "advanced_analytics", "premium_courses", "extended_practice"],
+      "description": { "vi": "Phân tích nâng cao, khóa chuyên sâu và nhiều phiên luyện hơn.", "en": "Advanced analytics, specialist courses and extended practice.", "zh-CN": "高级分析、专业课程和更多练习。" }
+    }
+  ],
+  "premiumFeatures": [
+    { "id": "advanced_analytics", "title": { "vi": "Phân tích nâng cao", "en": "Advanced analytics", "zh-CN": "高级分析" }, "description": { "vi": "Xu hướng ghi nhớ, kỹ năng nghẽn và dự báo học tập.", "en": "Memory trends, skill bottlenecks and learning forecasts.", "zh-CN": "记忆趋势、技能瓶颈和学习预测。" } },
+    { "id": "premium_courses", "title": { "vi": "Khóa học Premium", "en": "Premium courses", "zh-CN": "高级课程" }, "description": { "vi": "Các lộ trình chuyên sâu đã qua kiểm duyệt nội dung.", "en": "Reviewed specialist learning pathways.", "zh-CN": "经审核的专业学习路径。" } },
+    { "id": "extended_practice", "title": { "vi": "Luyện tập mở rộng", "en": "Extended practice", "zh-CN": "扩展练习" }, "description": { "vi": "Thêm phiên luyện tập theo mục tiêu và kỹ năng yếu.", "en": "More goal-based practice for weaker skills.", "zh-CN": "针对目标和薄弱技能的更多练习。" } }
+  ],
+  "marketplaceCourses": [
+    { "id": "market-beginner-korean", "language": "ko", "title": { "vi": "Beginner Korean Foundation", "en": "Beginner Korean Foundation", "zh-CN": "韩语入门基础" }, "provider": "TamHoanq Learning", "difficulty": "Level 0", "access": "free", "verified": true, "status": "approved", "modules": 8, "certificateId": "beginner-korean", "description": { "vi": "Hangul, âm tiết, 100 từ đầu tiên và câu cơ bản.", "en": "Hangul, syllables, first 100 words and basic sentences.", "zh-CN": "韩文、音节、首100词和基础句子。" } },
+    { "id": "market-topik-strategy", "language": "ko", "title": { "vi": "TOPIK Strategy Intensive", "en": "TOPIK Strategy Intensive", "zh-CN": "TOPIK强化策略" }, "provider": "TamHoanq Learning", "difficulty": "TOPIK 2", "access": "premium", "verified": true, "status": "approved", "modules": 12, "certificateId": "topik-strategy", "description": { "vi": "Chiến thuật, quản lý thời gian và bài luyện theo dạng đề.", "en": "Strategy, time management and exam-style practice.", "zh-CN": "策略、时间管理和题型练习。" } },
+    { "id": "market-business-korean", "language": "ko", "title": { "vi": "Business Korean Essentials", "en": "Business Korean Essentials", "zh-CN": "商务韩语基础" }, "provider": "TamHoanq Learning", "difficulty": "TOPIK 2", "access": "premium", "verified": true, "status": "approved", "modules": 10, "certificateId": "business-korean", "description": { "vi": "Email, họp và giao tiếp công sở bằng tiếng Hàn.", "en": "Korean email, meetings and workplace communication.", "zh-CN": "韩语邮件、会议与职场沟通。" } }
+  ],
+  "certificates": [
+    { "id": "beginner-korean", "courseId": "market-beginner-korean", "title": { "vi": "Completed Beginner Korean", "en": "Completed Beginner Korean", "zh-CN": "完成韩语入门" }, "minimumProgress": 100 },
+    { "id": "topik-strategy", "courseId": "market-topik-strategy", "title": { "vi": "TOPIK Strategy Ready", "en": "TOPIK Strategy Ready", "zh-CN": "TOPIK策略准备" }, "minimumProgress": 100 },
+    { "id": "business-korean", "courseId": "market-business-korean", "title": { "vi": "Business Korean Essentials", "en": "Business Korean Essentials", "zh-CN": "商务韩语基础" }, "minimumProgress": 100 }
+  ],
+  "productLanguages": [
+    { "id": "ko", "name": "Korean", "nativeName": "한국어", "contentStatus": "active", "interfaceStatus": "active" },
+    { "id": "ja", "name": "Japanese", "nativeName": "日本語", "contentStatus": "foundation", "interfaceStatus": "planned" },
+    { "id": "zh", "name": "Chinese", "nativeName": "中文", "contentStatus": "foundation", "interfaceStatus": "planned" }
+  ],
+  "partnerApi": {
+    "version": "v1",
+    "status": "architecture-only",
+    "authentication": "OAuth 2.0 client credentials",
+    "scopes": ["organizations:read", "classes:read", "learning_summary:read", "courses:read"],
+    "principles": ["No raw journal, chat, recording or auth token", "Organization-scoped access", "Aggregate learning summaries", "Audit every request"]
+  }
+}

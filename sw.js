@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v44';
+const CACHE = 'klearn-v45';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=31',
@@ -11,6 +11,7 @@ const OFFLINE_ASSETS = [
   './real-world-assistant.css?v=1',
   './advanced-content-platform.css?v=1',
   './community-learning.css?v=1',
+  './enterprise-platform.css?v=1',
   './data/romanization.js?v=8',
   './data/vocabulary-bank.js?v=8',
   './data/dictionary.js?v=1',
@@ -48,13 +49,14 @@ const OFFLINE_ASSETS = [
   './data/real-world-assistant.js?v=1',
   './data/advanced-content-platform.js?v=1',
   './data/community-learning.js?v=1',
+  './data/enterprise-platform.js?v=1',
   './data/learning-modules.js?v=9',
   './data/practice-bank.js?v=8',
   './locales/vi.js?v=2',
   './locales/en.js?v=4',
   './locales/zh-CN.js?v=4',
   './data/content-locales.js?v=1',
-  './app.js?v=38',
+  './app.js?v=39',
   './data/resource-library.js?v=1',
   './data/content-review.js?v=2',
   './data/curriculum.js?v=1',
@@ -62,6 +64,8 @@ const OFFLINE_ASSETS = [
   './content/real-world-assistant.json',
   './content/advanced-content-platform.json',
   './content/community-learning.json',
+  './content/enterprise-platform.json',
+  './docs/partner-api-v1.openapi.json',
   './manifest.json',
   './icons/logo-source.svg',
   './icons/apple-touch-icon.png',

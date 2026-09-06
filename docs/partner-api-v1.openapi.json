@@ -1,0 +1,47 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TamHoanq Education Partner API",
+    "version": "1.0.0-foundation",
+    "description": "Architecture contract only. No public partner endpoint or credential issuance is enabled yet."
+  },
+  "servers": [{ "url": "https://api.example.invalid/v1", "description": "Placeholder host; not a live endpoint" }],
+  "security": [{ "partnerOAuth": [] }],
+  "paths": {
+    "/organizations/{organizationId}/classes": {
+      "get": {
+        "summary": "List classes visible to an authorized organization partner",
+        "operationId": "listPartnerClasses",
+        "parameters": [{ "$ref": "#/components/parameters/OrganizationId" }],
+        "responses": { "200": { "description": "Organization-scoped class summaries" }, "403": { "description": "Scope or organization membership denied" } }
+      }
+    },
+    "/organizations/{organizationId}/learning-summary": {
+      "get": {
+        "summary": "Read aggregate learning activity without private journals, chats or recordings",
+        "operationId": "readPartnerLearningSummary",
+        "parameters": [{ "$ref": "#/components/parameters/OrganizationId" }],
+        "responses": { "200": { "description": "Aggregate progress and activity" }, "403": { "description": "Scope or organization membership denied" } }
+      }
+    },
+    "/courses": {
+      "get": {
+        "summary": "List approved marketplace courses",
+        "operationId": "listApprovedCourses",
+        "responses": { "200": { "description": "Approved, verified courses only" } }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "partnerOAuth": {
+        "type": "oauth2",
+        "description": "Client credentials are issued by a secure backend. Secrets are never stored in the browser.",
+        "flows": { "clientCredentials": { "tokenUrl": "https://api.example.invalid/oauth/token", "scopes": { "organizations:read": "Read organization identity", "classes:read": "Read class summaries", "learning_summary:read": "Read aggregate learning summaries", "courses:read": "Read approved courses" } } }
+      }
+    },
+    "parameters": {
+      "OrganizationId": { "name": "organizationId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+    }
+  }
+}
