@@ -208,6 +208,7 @@ MAIN_VIEWS.push('retention-center', 'weekly-review', 'monthly-reflection', 'goal
 MAIN_VIEWS.push('content-quality-dashboard');
 MAIN_VIEWS.push('advanced-voice', 'voice-session', 'voice-history', 'voice-goals', 'voice-report');
 MAIN_VIEWS.push('ai-content-studio');
+MAIN_VIEWS.push('language-exchange', 'community-moderation');
 const PUBLIC_VIEWS = ['welcome', 'login', 'register'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'beginner-placement', 'placement', 'onboarding-result'];
 
@@ -1427,7 +1428,7 @@ function syncShell() {
       : ['review','smart-review','review-start','vocab-pretest','pretest-result'].includes(state.currentView) ? 'review'
       : ['topik','strategy-lab','strategy-detail','topik-strategy-center','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice','analytics','search'].includes(state.currentView) ? 'topik'
       : ['ai-coach','adaptive-plan','error-notebook'].includes(state.currentView) ? 'ai-coach'
-      : ['profile','edit-profile','ux-settings','weekly-insights','progress-reports','personal-report','notes','bookmarks','real-goal-planner','learning-journal','teacher-review','teacher-workspace','community-hub','learning-community','study-groups','community-challenge','peer-practice','community-questions','community-profile','community-safety','education-platform','teacher-dashboard','organization-center','education-assignments','education-feedback','course-builder','organization-analytics','education-content','enterprise-platform','subscription-center','premium-features','school-management','center-dashboard','course-marketplace','certification-center','partner-api','admin-analytics','language-platform','retention-center','weekly-review','monthly-reflection','goal-milestones','retention-analytics','content-quality-dashboard','ai-content-studio'].includes(state.currentView) ? 'profile'
+      : ['profile','edit-profile','ux-settings','weekly-insights','progress-reports','personal-report','notes','bookmarks','real-goal-planner','learning-journal','teacher-review','teacher-workspace','community-hub','learning-community','study-groups','community-challenge','peer-practice','community-questions','community-profile','community-safety','language-exchange','community-moderation','education-platform','teacher-dashboard','organization-center','education-assignments','education-feedback','course-builder','organization-analytics','education-content','enterprise-platform','subscription-center','premium-features','school-management','center-dashboard','course-marketplace','certification-center','partner-api','admin-analytics','language-platform','retention-center','weekly-review','monthly-reflection','goal-milestones','retention-analytics','content-quality-dashboard','ai-content-studio'].includes(state.currentView) ? 'profile'
         : [...reviewViews, 'manual-review-queue'].includes(state.currentView) ? 'review'
             : practiceViews.includes(state.currentView) ? 'topik'
             : speakingViews.includes(state.currentView) ? 'practice' : state.currentView;

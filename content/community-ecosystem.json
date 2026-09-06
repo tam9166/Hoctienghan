@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": 1,
+  "createdAt": "2026-09-06T00:00:00.000Z",
+  "verified": true,
+  "reviewStatus": "approved",
+  "principles": ["learning-first", "explicit-opt-in", "privacy-by-default", "no-direct-messaging", "no-leaderboard", "moderated-content"],
+  "languages": [
+    { "id": "vi", "label": "Tiếng Việt" },
+    { "id": "ko", "label": "한국어" },
+    { "id": "en", "label": "English" },
+    { "id": "zh", "label": "中文" }
+  ],
+  "practiceFormats": ["text-prompts", "voice-scenario", "shadowing"],
+  "topics": ["greeting", "daily-life", "travel", "topik", "work", "culture"],
+  "availability": ["morning", "afternoon", "evening", "weekend"],
+  "exchangeProfiles": [
+    { "id": "peer-hana", "displayName": "Hana L.", "nativeLanguage": "ko", "learningLanguage": "vi", "koreanLevel": "Native", "topics": ["daily-life", "culture"], "formats": ["text-prompts", "voice-scenario"], "availability": "evening", "discoverable": true, "dataStatus": "sample-profile" },
+    { "id": "peer-min", "displayName": "Min K.", "nativeLanguage": "ko", "learningLanguage": "vi", "koreanLevel": "Native", "topics": ["topik", "travel"], "formats": ["text-prompts", "shadowing"], "availability": "weekend", "discoverable": true, "dataStatus": "sample-profile" },
+    { "id": "exchange-lan", "displayName": "Lan N.", "nativeLanguage": "vi", "learningLanguage": "ko", "koreanLevel": "TOPIK 2", "topics": ["work", "daily-life"], "formats": ["voice-scenario"], "availability": "evening", "discoverable": true, "dataStatus": "sample-profile" }
+  ],
+  "sessionPrompts": [
+    { "id": "exchange-introduction", "topic": "greeting", "minutes": 10, "korean": "서로 자기소개하고 오늘의 목표를 말해 보세요.", "vi": "Lần lượt giới thiệu bản thân và nói mục tiêu hôm nay." },
+    { "id": "exchange-ordering", "topic": "travel", "minutes": 15, "korean": "식당에서 주문하는 역할을 바꾸어 연습하세요.", "vi": "Đổi vai và luyện gọi món trong nhà hàng." },
+    { "id": "exchange-workday", "topic": "work", "minutes": 15, "korean": "오늘 한 일을 존댓말로 설명해 보세요.", "vi": "Kể việc đã làm hôm nay bằng lối nói lịch sự." }
+  ],
+  "moderation": {
+    "decisions": ["reviewing", "resolved", "dismissed"],
+    "contentDecisions": ["approved", "removed"],
+    "requiredRole": "admin",
+    "hardDelete": false,
+    "auditRequired": true
+  }
+}
