@@ -54,7 +54,7 @@ assert.equal(typeof pending.then, 'function');
   assert.match(migration, /auth\.uid\(\)/);
   assert.match(index, /data\/ai-infrastructure\.js\?v=1/);
   assert.match(index, /app\.js\?v=43/);
-  assert.match(worker, /klearn-v49/);
+  assert.match(worker, /klearn-v50/);
   assert.match(worker, /ai-infrastructure\.json/);
   console.log('AI infrastructure: orchestration, minimal context, routing, safety, quality, fallback, cost telemetry, experiments and RLS passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

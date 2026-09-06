@@ -1,0 +1,27 @@
+{
+  "contentVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "architectureOnly": true,
+  "updatedAt": "2026-09-06",
+  "supportedLanguages": [
+    { "id": "ko", "locale": "ko-KR", "nativeName": "한국어", "englishName": "Korean", "contentStatus": "active", "direction": "ltr", "script": "Hangul" },
+    { "id": "ja", "locale": "ja-JP", "nativeName": "日本語", "englishName": "Japanese", "contentStatus": "foundation", "direction": "ltr", "script": "Kana + Kanji" },
+    { "id": "zh", "locale": "zh-CN", "nativeName": "中文", "englishName": "Chinese", "contentStatus": "foundation", "direction": "ltr", "script": "Han" },
+    { "id": "en", "locale": "en-US", "nativeName": "English", "englishName": "English", "contentStatus": "foundation", "direction": "ltr", "script": "Latin" }
+  ],
+  "examSystems": [
+    { "id": "topik", "languageId": "ko", "name": "TOPIK", "levels": [1, 2, 3, 4, 5, 6], "status": "active" },
+    { "id": "jlpt", "languageId": "ja", "name": "JLPT", "levels": ["N5", "N4", "N3", "N2", "N1"], "status": "framework" },
+    { "id": "hsk", "languageId": "zh", "name": "HSK", "levels": [1, 2, 3, 4, 5, 6], "status": "framework" }
+  ],
+  "contentModel": {
+    "course": ["id", "languageId", "title", "level", "units", "status"],
+    "lesson": ["id", "courseId", "languageId", "skill", "content", "examples", "audioIds"],
+    "vocabulary": ["id", "languageId", "term", "meaning", "reading", "partOfSpeech", "level", "audioIds"],
+    "grammar": ["id", "languageId", "pattern", "explanation", "examples", "level"],
+    "audio": ["id", "languageId", "text", "url", "locale", "speed", "qualityStatus"]
+  },
+  "levelSystems": { "ko": "TOPIK", "ja": "JLPT", "zh": "HSK", "en": "CEFR" },
+  "comparison": { "sourceLanguages": ["vi", "ko", "ja", "zh", "en"], "mode": "side-by-side", "storesRawAudio": false }
+}

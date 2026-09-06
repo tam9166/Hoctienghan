@@ -213,6 +213,14 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Quality/safety gate kiểm tra response rỗng, claim không được xác minh và secret pattern. Khi provider lỗi, vượt budget hoặc bị chặn, app dùng fallback nội bộ và vẫn giữ nguyên Auth, CloudSync, SRS và lịch sử học.
 - Usage telemetry chỉ lưu request count, token ước lượng/thực tế, route, prompt version, quality status và fallback; không lưu raw prompt/response. Local metrics nằm trong `klearn_ai_infrastructure`, migration `20260906_korean_ai_infrastructure.sql` chuẩn bị bảng evaluation logs với RLS user/admin.
 
+### Global Language Platform Foundation
+
+- `LanguageCoreService` tách logic language-independent khỏi content Korean, với mã chuẩn `ko`, `ja`, `zh`, `en`, locale, script, hướng chữ và trạng thái content. Korean là gói duy nhất đang active; các ngôn ngữ khác chỉ là foundation, không giả lập curriculum.
+- `LanguageProfileService` lưu active language, level, goal và trạng thái riêng cho từng ngôn ngữ trong `klearn_language_profiles`; dữ liệu được đưa vào `USER_SYNC_KEYS` để không phá CloudSync hiện có.
+- `ExamFrameworkService` chuẩn hóa mapping TOPIK/JLPT/HSK; `CourseStructureService`, `LanguageVocabularyEngine`, `GrammarFrameworkService` và `AudioFrameworkService` dùng schema chung nhưng nhận `languageId` bắt buộc.
+- `LanguageComparisonService` hỗ trợ so sánh song song Vietnamese/Korean/Japanese/Chinese/English mà không trộn SRS hoặc mastery giữa ngôn ngữ. `GlobalLanguageContentService` yêu cầu `verified + approved + architectureOnly` trước khi hydrate.
+- Migration `20260906_global_language_platform.sql` tạo hồ sơ đa ngôn ngữ user-scoped với RLS; không lưu nội dung riêng tư, audio thô hoặc credential.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.
