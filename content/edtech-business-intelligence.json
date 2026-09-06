@@ -1,0 +1,36 @@
+{
+  "contentVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "privacy": {
+    "scope": "aggregate-only",
+    "noUserIds": true,
+    "noRawSupportMessages": true,
+    "noPasswordsTokensOrAudio": true,
+    "adminRoleRequired": true
+  },
+  "metricGroups": [
+    "user_lifecycle",
+    "retention",
+    "course_performance",
+    "content_roi",
+    "premium_conversion",
+    "user_value",
+    "support",
+    "system_health",
+    "operation_reports"
+  ],
+  "periods": ["daily", "weekly", "monthly"],
+  "lifecycleStates": ["new", "active", "returning", "churn"],
+  "retentionDays": [1, 7, 30],
+  "dataSources": {
+    "aggregateMetrics": "edtech_bi_daily_metrics",
+    "coursePerformance": "edtech_bi_course_metrics",
+    "contentEngagement": "edtech_bi_content_metrics",
+    "premiumConversion": "edtech_bi_premium_metrics",
+    "supportQueue": "support_requests",
+    "systemHealth": "edtech_bi_system_health",
+    "operationReports": "edtech_bi_operation_reports"
+  },
+  "updatedAt": "2026-09-06"
+}

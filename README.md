@@ -237,6 +237,14 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Weekly, monthly và yearly report được tạo deterministically từ SRS, Practice History, Mastery, Learner Profile và lesson progress. Người dùng có thể lưu tối đa 30 báo cáo trong `klearn_analytics_reports`; CloudSync vẫn dùng namespace user-scoped hiện có.
 - Content contract nằm ở `content/advanced-learning-analytics.json`; migration `20260906_advanced_learning_analytics.sql` chuẩn bị bảng report cá nhân với RLS owner-only. Không lưu raw chat, journal, token, password hoặc audio.
 
+### EdTech Business Intelligence Platform
+
+- Route `Admin Control Center` mở rộng `admin-analytics` hiện có cho role `admin` từ Supabase metadata; không tạo một admin dashboard song song và không cho học viên xem aggregate vận hành.
+- `BusinessIntelligenceService` đọc các bảng aggregate server-generated để theo dõi lifecycle New/Active/Returning/Churn, Day 1/7/30 retention, course performance, content engagement/ROI, free → premium conversion và learning value.
+- Support queue chỉ lấy `type/status` (bug report, feedback, question), không đọc raw message. System health chỉ lấy error rate, API success, latency P95 và slow requests. Operation reports hỗ trợ daily/weekly/monthly.
+- Khi BI backend chưa kết nối, UI hiển thị trạng thái unavailable/`—`, không bịa số 0. Quick links gom Content Health, Retention, Support và Enterprise trong một control center.
+- Content contract nằm ở `content/edtech-business-intelligence.json`; migration `20260906_edtech_business_intelligence.sql` tạo aggregate tables với RLS admin-only. Không có user ID, email, credential, password, token, chat, journal hoặc audio trong BI tables.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.
