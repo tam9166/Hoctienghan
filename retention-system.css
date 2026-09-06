@@ -1,0 +1,217 @@
+/* P24 · Advanced retention system · mobile first */
+.home-retention-card,
+.retention-habit,
+.retention-reactivation,
+.retention-celebration,
+.retention-loop,
+.retention-grid,
+.retention-comparison,
+.weekly-review-summary,
+.weekly-review-body,
+.monthly-reflection-form,
+.goal-milestone-summary,
+.goal-milestone-list,
+.retention-admin-metrics,
+.retention-drop-points,
+.retention-profile-entry,
+.retention-admin-entry,
+.retention-unavailable,
+.retention-denied { min-width: 0; }
+
+.retention-heading { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: start; }
+.retention-heading .back-btn { width: 44px; height: 44px; padding: 0; border: 1px solid var(--outline); border-radius: 12px; background: var(--surface); color: var(--text); font-size: 20px; }
+.retention-heading small { color: var(--secondary); font-size: 10px; font-weight: 900; }
+.retention-heading h1 { margin: 3px 0 7px; color: var(--heading); font-size: clamp(25px, 7vw, 38px); line-height: 1.15; }
+.retention-heading p { margin: 0; color: var(--muted); line-height: 1.6; }
+
+.home-retention-card {
+  margin: 14px 0 20px;
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--outline);
+  border-left: 5px solid var(--primary-hover);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.home-retention-card small,
+.retention-habit small,
+.retention-loop small,
+.retention-celebration small,
+.weekly-review-body > article > small,
+.goal-milestone-summary small,
+.retention-profile-entry small,
+.retention-admin-entry small {
+  color: var(--secondary);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+.home-retention-card h2,
+.home-retention-card p,
+.retention-habit h2,
+.retention-habit p,
+.retention-loop h2,
+.retention-loop p,
+.retention-celebration h2,
+.retention-celebration p,
+.retention-profile-entry h2,
+.retention-profile-entry p,
+.retention-admin-entry h2,
+.retention-admin-entry p { margin: 4px 0 0; }
+.home-retention-card h2,
+.retention-habit h2,
+.retention-loop h2,
+.retention-celebration h2,
+.retention-profile-entry h2,
+.retention-admin-entry h2 { color: var(--heading); font-size: clamp(17px, 5vw, 23px); }
+.home-retention-card p,
+.retention-habit p,
+.retention-loop p,
+.retention-celebration p,
+.retention-profile-entry p,
+.retention-admin-entry p { color: var(--muted); font-size: 12px; line-height: 1.55; }
+
+.retention-habit {
+  padding: 17px;
+  border: 1px solid var(--outline);
+  border-radius: 18px;
+  background: var(--surface);
+}
+.retention-habit > article { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 14px; align-items: center; }
+.retention-score {
+  width: 76px;
+  aspect-ratio: 1;
+  display: grid;
+  place-content: center;
+  border: 6px solid var(--primary-hover);
+  border-radius: 50%;
+  color: var(--heading);
+  text-align: center;
+}
+.retention-score strong { font-size: 26px; line-height: 1; }
+.retention-score small { margin-top: 2px; color: var(--muted); }
+.retention-habit-parts { margin-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; overflow: hidden; border: 1px solid var(--outline); border-radius: 12px; background: var(--outline); }
+.retention-habit-parts span { min-width: 0; padding: 11px 9px; display: grid; gap: 3px; background: var(--surface-low); color: var(--muted); font-size: 10px; }
+.retention-habit-parts b { color: var(--heading); font-size: 15px; }
+
+.retention-reactivation { padding: 17px; border: 1px solid var(--primary-hover); border-radius: 18px; background: var(--primary-soft); }
+.retention-reactivation header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.retention-reactivation header h2 { margin: 3px 0 5px; color: var(--heading); font-size: 21px; }
+.retention-reactivation header p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.retention-reactivation header > button { width: 44px; height: 44px; flex: 0 0 44px; border: 0; border-radius: 50%; background: var(--surface); color: var(--text); font-size: 22px; }
+.retention-reactivation > div { margin-top: 14px; display: grid; gap: 8px; }
+.retention-reactivation article { min-width: 0; padding: 10px; display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 9px; border: 1px solid var(--outline); border-radius: 12px; background: var(--surface); }
+.retention-reactivation article > span { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: var(--primary); color: var(--accent-ink); font-weight: 900; }
+.retention-reactivation article div { display: grid; gap: 3px; }
+.retention-reactivation article b { overflow-wrap: anywhere; color: var(--heading); font-size: 12px; }
+.retention-reactivation article small { color: var(--muted); font-size: 10px; }
+.retention-reactivation article button { min-height: 44px; padding: 8px 11px; border: 1px solid var(--outline); border-radius: 10px; background: var(--surface-low); color: var(--text); font-weight: 800; }
+.retention-reactivation article.done { opacity: .7; }
+
+.retention-celebration { padding: 18px; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; border: 2px solid var(--primary-hover); border-radius: 18px; background: var(--primary-soft); }
+.retention-celebration > span { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: var(--primary); font-size: 25px; }
+.retention-celebration .btn { grid-column: 1 / -1; }
+
+.retention-loop { padding: 15px; display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 11px; align-items: center; border-block: 1px solid var(--outline); }
+.retention-loop > span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; background: var(--primary); color: var(--accent-ink); font-size: 20px; font-weight: 900; }
+.retention-loop .btn { grid-column: 1 / -1; }
+
+.retention-grid { display: grid; gap: 9px; }
+.retention-grid > button,
+.retention-reminder { min-width: 0; min-height: 105px; padding: 14px; display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 4px 11px; align-content: center; border: 1px solid var(--outline); border-radius: 14px; background: var(--surface); color: var(--text); text-align: left; }
+.retention-grid > button > span,
+.retention-reminder > span { width: 42px; height: 42px; grid-row: 1 / 3; display: grid; place-items: center; border-radius: 11px; background: var(--surface-low); color: var(--secondary); font-weight: 900; }
+.retention-grid b { color: var(--heading); }
+.retention-grid small { color: var(--muted); font-size: 10px; line-height: 1.4; }
+.retention-reminder > div { grid-column: 1 / -1; margin-top: 6px; display: flex; flex-wrap: wrap; gap: 7px; }
+.retention-reminder button { min-height: 44px; padding: 8px 10px; border: 1px solid var(--outline); border-radius: 9px; background: var(--surface-low); color: var(--text); font-size: 11px; font-weight: 800; }
+
+.retention-comparison { padding: 17px; border: 1px solid var(--outline); border-radius: 18px; background: var(--surface); }
+.retention-comparison header { display: flex; flex-direction: column; gap: 8px; }
+.retention-comparison header small { color: var(--secondary); font-size: 10px; font-weight: 900; }
+.retention-comparison header h2 { margin: 3px 0 0; color: var(--heading); font-size: 19px; }
+.retention-comparison header > span { align-self: flex-start; padding: 6px 9px; border-radius: 999px; background: var(--primary-soft); color: var(--text); font-size: 10px; font-weight: 800; }
+.retention-comparison > div { margin-top: 14px; display: grid; gap: 8px; }
+.retention-comparison article { padding: 12px; border-radius: 11px; background: var(--surface-low); }
+.retention-comparison article small { color: var(--muted); font-size: 10px; }
+.retention-comparison article div { margin: 6px 0; display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.retention-comparison article strong { color: var(--heading); font-size: 19px; }
+.retention-comparison article > span,
+.weekly-review-summary article > span { color: var(--muted); font-size: 10px; }
+.retention-comparison .positive,
+.weekly-review-summary .positive { color: var(--success); }
+.retention-comparison .negative,
+.weekly-review-summary .negative { color: var(--danger); }
+
+.weekly-review-summary,
+.retention-admin-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.weekly-review-summary article,
+.retention-admin-metrics article { min-width: 0; padding: 14px; display: grid; gap: 5px; border: 1px solid var(--outline); border-radius: 13px; background: var(--surface); }
+.weekly-review-summary small,
+.retention-admin-metrics small { color: var(--muted); font-size: 10px; }
+.weekly-review-summary b,
+.retention-admin-metrics b { color: var(--heading); font-size: clamp(20px, 7vw, 30px); }
+.weekly-review-body { display: grid; gap: 9px; }
+.weekly-review-body > article { min-width: 0; padding: 16px; border-top: 3px solid var(--primary-hover); border-radius: 4px 4px 14px 14px; background: var(--surface); }
+.weekly-review-body h2 { margin: 6px 0; overflow-wrap: anywhere; color: var(--heading); font-size: 18px; }
+.weekly-review-body p { margin: 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.weekly-review-body ul { margin: 11px 0 0; padding: 0; list-style: none; }
+.weekly-review-body li { padding: 8px 0; display: flex; justify-content: space-between; gap: 9px; border-bottom: 1px solid var(--surface-mid); }
+
+.monthly-reflection-form { padding: 17px; display: grid; gap: 16px; border: 1px solid var(--outline); border-radius: 17px; background: var(--surface); }
+.monthly-reflection-form label { display: grid; gap: 8px; color: var(--heading); font-weight: 800; }
+.monthly-reflection-form textarea { width: 100%; min-height: 120px; padding: 12px; resize: vertical; border: 1px solid var(--outline); border-radius: 12px; background: var(--surface-low); color: var(--text); font: inherit; line-height: 1.55; }
+.retention-privacy,
+.retention-note { color: var(--muted); font-size: 11px; line-height: 1.55; }
+
+.goal-milestone-summary { padding: 17px; display: grid; grid-template-columns: 74px minmax(0, 1fr); align-items: center; gap: 13px; border: 1px solid var(--outline); border-radius: 17px; background: var(--surface); }
+.goal-milestone-summary > div:first-child { width: 74px; height: 74px; display: grid; place-content: center; border-radius: 50%; background: var(--primary); color: var(--accent-ink); text-align: center; }
+.goal-milestone-summary strong { font-size: 26px; line-height: 1; }
+.goal-milestone-summary h2 { margin: 4px 0 9px; overflow-wrap: anywhere; color: var(--heading); font-size: 16px; }
+.goal-milestone-summary .bar { height: 8px; overflow: hidden; border-radius: 999px; background: var(--surface-mid); }
+.goal-milestone-summary .bar i { display: block; height: 100%; border-radius: inherit; background: var(--primary-hover); }
+.goal-milestone-list { margin-inline: 0; padding: 0; display: grid; gap: 7px; list-style: none; }
+.goal-milestone-list li { min-width: 0; padding: 10px; display: grid; grid-template-columns: 38px minmax(0, 1fr); align-items: center; gap: 10px; border: 1px solid var(--outline); border-radius: 11px; background: var(--surface); }
+.goal-milestone-list li > span { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: var(--surface-low); color: var(--muted); font-size: 11px; font-weight: 900; }
+.goal-milestone-list li div { min-width: 0; display: grid; gap: 3px; }
+.goal-milestone-list b { overflow-wrap: anywhere; color: var(--heading); font-size: 11px; }
+.goal-milestone-list small { color: var(--muted); font-size: 9px; }
+.goal-milestone-list li.reached > span { background: var(--primary); color: var(--accent-ink); }
+.goal-milestone-list li.current { border: 2px solid var(--primary-hover); background: var(--primary-soft); }
+
+.retention-profile-entry,
+.retention-admin-entry { padding: 16px; display: grid; gap: 13px; border: 1px solid var(--outline); border-left: 5px solid var(--primary-hover); border-radius: 15px; background: var(--surface); }
+.retention-unavailable { padding: 18px; border: 1px dashed var(--outline); border-radius: 15px; background: var(--surface-low); }
+.retention-unavailable h2 { margin: 0 0 7px; color: var(--heading); }
+.retention-unavailable p { margin: 0; color: var(--muted); line-height: 1.6; }
+.retention-denied { min-height: 220px; display: grid; place-items: center; border: 1px dashed var(--outline); border-radius: 15px; background: var(--surface-low); font-size: 42px; }
+.retention-drop-points { padding: 17px; border: 1px solid var(--outline); border-radius: 15px; background: var(--surface); }
+.retention-drop-points h2 { margin: 0 0 10px; color: var(--heading); }
+.retention-drop-points article { padding: 9px 0; display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--surface-mid); }
+.retention-drop-points p { color: var(--muted); }
+
+@media (min-width: 600px) {
+  .home-retention-card,
+  .retention-profile-entry,
+  .retention-admin-entry { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .retention-loop { grid-template-columns: 42px minmax(0, 1fr) auto; }
+  .retention-loop .btn { grid-column: 3; }
+  .retention-grid,
+  .weekly-review-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .retention-comparison header { flex-direction: row; align-items: flex-start; justify-content: space-between; }
+  .retention-comparison > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .goal-milestone-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .retention-celebration { grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center; }
+  .retention-celebration .btn { grid-column: 3; }
+}
+
+@media (min-width: 1024px) {
+  .retention-habit { padding: 21px; }
+  .retention-habit-parts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .retention-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .weekly-review-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .weekly-review-body { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .goal-milestone-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .retention-admin-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

@@ -100,6 +100,15 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Trợ năng theo user gồm cỡ chữ lớn, tương phản cao và giảm chuyển động; có skip link, focus ring, nhãn screen reader và vùng chạm tối thiểu 44–48px.
 - Cấu hình P23 lưu user-scoped trong `klearn_product_ux`, tham gia CloudSync JSONB hiện có và không reset bất kỳ dữ liệu học nào.
 
+## Advanced User Retention System (P24)
+
+- `HabitFormationService` đo nhịp học bằng bốn tín hiệu: độ đều, đủ thời lượng mục tiêu, tỷ lệ hoàn thành và độ ổn định khung giờ; không quy habit thành một con số streak.
+- Home có retention card, vòng lặp động lực, so sánh 30 ngày và smart reminder. Reminder tôn trọng cài đặt thông báo, không nhắc sau khi đã học trong ngày, không xin quyền browser và tối đa một đề xuất/ngày.
+- Tổng kết tuần, phản tư tháng và mục tiêu lớn được lưu user-scoped trong `klearn_retention`; Goal Engine được chia thành đúng 50 milestone phản ánh tiến độ thật, không tự mở chỉ vì xem trang.
+- Reactivation chọn kế hoạch nhẹ cho người vắng 7–29 ngày hoặc từ 30 ngày trở lên. Celebration chỉ mở khi có bằng chứng: 100 từ mastered, 50 giờ học tập thực tế (không tính lượt SRS như giờ học), hoặc một kết quả TOPIK đạt từ 60%.
+- `retention_daily_metrics` là aggregate-only cho admin, có RLS chỉ đọc qua Supabase `app_metadata.role = 'admin'`; frontend không bịa số 0 khi migration/backend chưa sẵn sàng. Chạy `supabase/migrations/20260906_advanced_retention_system.sql` khi bật analytics quản trị.
+- P24 nối vào CloudSync JSONB hiện có, cache PWA `klearn-v47`, hỗ trợ dark mode/mobile-first và không thay đổi Auth, SRS, Mastery hoặc dữ liệu cũ.
+
 ## Công cụ học thực hành
 
 - So sánh ngữ pháp song song, sổ ngữ pháp cá nhân và Repair Path nối trực tiếp với Sổ lỗi; lỗi chỉ được khép lại sau review, luyện tập và retest đạt yêu cầu.

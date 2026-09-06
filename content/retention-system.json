@@ -1,0 +1,84 @@
+{
+  "contentVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "updatedAt": "2026-09-06",
+  "habit": {
+    "minimumEvidence": 3,
+    "lookbackDays": 30,
+    "weights": {
+      "regularity": 40,
+      "goalCompletion": 30,
+      "sessionCompletion": 20,
+      "timeConsistency": 10
+    }
+  },
+  "reactivation": [
+    {
+      "id": "return-7",
+      "minimumAwayDays": 7,
+      "maximumAwayDays": 29,
+      "title": {
+        "vi": "Lấy lại nhịp trong 10 phút",
+        "en": "Restart your rhythm in 10 minutes",
+        "zh-CN": "用 10 分钟恢复学习节奏"
+      },
+      "tasks": [
+        { "type": "review", "minutes": 5, "route": "review", "vi": "Ôn từ quan trọng" },
+        { "type": "repair", "minutes": 2, "route": "error-notebook", "vi": "Sửa một lỗi gần đây" },
+        { "type": "lesson", "minutes": 3, "route": "lessons", "vi": "Học một phần ngắn" }
+      ]
+    },
+    {
+      "id": "return-30",
+      "minimumAwayDays": 30,
+      "title": {
+        "vi": "Khởi động lại, không học bù",
+        "en": "Restart without catching up",
+        "zh-CN": "重新开始，无需补课"
+      },
+      "tasks": [
+        { "type": "check", "minutes": 3, "route": "quick-practice", "vi": "Kiểm tra nhanh những gì còn nhớ" },
+        { "type": "review", "minutes": 5, "route": "smart-review", "vi": "Ôn nhóm có nguy cơ quên" },
+        { "type": "plan", "minutes": 2, "route": "command-center", "vi": "Chọn bước tiếp theo" }
+      ]
+    }
+  ],
+  "goalMilestones": {
+    "count": 50,
+    "themes": [
+      { "id": "foundation", "vi": "Củng cố nền tảng" },
+      { "id": "vocabulary", "vi": "Mở rộng từ vựng" },
+      { "id": "grammar", "vi": "Nắm chắc ngữ pháp" },
+      { "id": "listening", "vi": "Tăng phản xạ nghe" },
+      { "id": "reading", "vi": "Tăng tốc độ đọc" },
+      { "id": "practice", "vi": "Luyện dạng bài thật" }
+    ]
+  },
+  "celebrations": [
+    {
+      "id": "mastered-100",
+      "icon": "100",
+      "title": { "vi": "100 từ đã thành thạo", "en": "100 words mastered", "zh-CN": "掌握 100 个词汇" },
+      "description": { "vi": "Một kho từ thật đã được xây từ các lần ôn.", "en": "A real vocabulary base built through review.", "zh-CN": "通过真实复习建立的词汇基础。" }
+    },
+    {
+      "id": "study-50-hours",
+      "icon": "50h",
+      "title": { "vi": "50 giờ học có ghi nhận", "en": "50 recorded study hours", "zh-CN": "已记录 50 小时学习" },
+      "description": { "vi": "Thời gian được tính từ các phiên và bài luyện đã hoàn thành.", "en": "Time comes from completed sessions and practice.", "zh-CN": "时长来自已完成的学习和练习。" }
+    },
+    {
+      "id": "topik-milestone",
+      "icon": "T",
+      "title": { "vi": "Milestone TOPIK có bằng chứng", "en": "Evidence-based TOPIK milestone", "zh-CN": "有实证的 TOPIK 里程碑" },
+      "description": { "vi": "Một bài luyện TOPIK đã đạt từ 60%.", "en": "A TOPIK practice result reached at least 60%.", "zh-CN": "TOPIK 练习成绩达到 60% 或以上。" }
+    }
+  ],
+  "reminder": {
+    "maximumPerDay": 1,
+    "quietAfterCompletedSession": true,
+    "defaultHour": 20,
+    "snoozeHours": 24
+  }
+}
