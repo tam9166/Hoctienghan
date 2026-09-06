@@ -42,8 +42,12 @@
     const progress = getUserProgress();
     return { currentTopikLevel: profile.currentTopikLevel, targetTopikLevel: profile.targetTopikLevel, streak: progress.stats?.streak || 0, weeklyStudyMinutes: profile.weeklyStudyMinutes || 0, lessonProgress: (profile.recentLessons || []).slice(0, 8), masteryByTopic: profile.masteryByTopic || {}, srs: { due: profile.dueSrsCount || 0, mastered: app.state.srsData.filter((item) => item.status === 'mastered').length, weak: (profile.weakVocabulary || []).slice(0, 8) }, scores: { listening: progress.skills?.listening || 0, speaking: progress.skills?.speaking || 0, writing: progress.skills?.writing || 0, reading: progress.skills?.reading || 0, practice: PracticeService.statistics().average || 0 }, errors: ErrorNotebookService.context(), relevantMemory: window.MemoryRetrievalService?.retrieve?.(query, { limit: 6 }) || [], knowledgeGraph: window.KnowledgeGraphService?.context?.(query, 6) || [], handwriting: userScoped(STORAGE_KEYS.handwriting).slice(0, 8).map((item) => ({ character: item.character, stage: item.stage, masteryScore: item.masteryScore })) };
   };
-  const request = async (instruction) => {
-    const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: String(instruction).slice(0, 4000) }], learnerContext: safeContext(instruction), learningLanguage: 'vi' }) });
+  const request = async (instruction, task = 'coach') => {
+    if (window.AIOrchestrationService?.request) {
+      const result = await window.AIOrchestrationService.request({ task, input: instruction, messages: [{ role: 'user', content: String(instruction).slice(0, 4000) }], context: safeContext(instruction), language: 'vi' });
+      if (result?.reply) return result.reply;
+    }
+    const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: String(instruction).slice(0, 4000) }], learnerContext: safeContext(instruction), learningLanguage: 'vi', task }) });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok || !payload.reply) throw new Error(payload.configured === false ? 'AI chưa được cấu hình. Dữ liệu học vẫn được giữ trên thiết bị.' : 'AI tạm thời không phản hồi.');
     return String(payload.reply).slice(0, 8000);

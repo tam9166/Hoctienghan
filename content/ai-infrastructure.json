@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "status": "approved",
+  "source": "korean-learning-safety-policy",
+  "promptVersions": {
+    "default": "p26-v1",
+    "tutor": "p26-tutor-v1",
+    "coach": "p26-coach-v1",
+    "grammar": "p26-grammar-v1",
+    "speaking": "p26-speaking-v1",
+    "writing": "p26-writing-v1"
+  },
+  "experiments": {
+    "promptTone": { "enabled": true, "variants": ["clear", "supportive"], "allocation": [50, 50] }
+  },
+  "routing": {
+    "simple": ["translation", "definition", "flashcard", "short_feedback", "tutor"],
+    "strong": ["grammar", "coach", "speaking", "writing", "conversation", "planning"]
+  },
+  "limits": {
+    "maxInputChars": 4000,
+    "maxContextChars": 9000,
+    "maxResponseChars": 8000,
+    "dailyRequests": 80,
+    "dailyEstimatedTokens": 30000,
+    "maxOutputTokens": 900
+  },
+  "quality": {
+    "minimumScore": 0.7,
+    "blockedClaims": ["official TOPIK answer", "guaranteed score", "phoneme analysis"],
+    "requiredForLearningReply": ["uncertainty disclosure", "level-aware explanation"]
+  }
+}

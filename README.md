@@ -206,6 +206,13 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Admin Analytics chỉ dành cho role `admin`; chỉ số backend chưa kết nối hiển thị `—` thay vì bịa dữ liệu. Product Language schema hỗ trợ `ko/ja/zh`, nhưng chỉ Korean đang active; Japanese và Chinese được ghi rõ là foundation/planned.
 - Migration `20260906_enterprise_education_platform.sql` thêm subscription, entitlement, marketplace, certificate, organization plan, partner client/audit, aggregate analytics và product languages với RLS. Credential hash nằm ở bảng server-only không có authenticated policy.
 
+### Korean AI Infrastructure
+
+- AI Tutor và AI Coach dùng chung `AIOrchestrationService`: request, learner context và response được tách riêng; context chỉ giữ các trường học tập cần thiết, giới hạn độ dài và loại bỏ dữ liệu nhạy cảm.
+- Routing `small/strong`, prompt version và thử nghiệm tone được cấu hình trong `content/ai-infrastructure.json`; model thật chỉ được chọn ở server qua `OPENAI_SMALL_MODEL`, `OPENAI_STRONG_MODEL` hoặc `OPENAI_MODEL`, không đưa secret vào frontend.
+- Quality/safety gate kiểm tra response rỗng, claim không được xác minh và secret pattern. Khi provider lỗi, vượt budget hoặc bị chặn, app dùng fallback nội bộ và vẫn giữ nguyên Auth, CloudSync, SRS và lịch sử học.
+- Usage telemetry chỉ lưu request count, token ước lượng/thực tế, route, prompt version, quality status và fallback; không lưu raw prompt/response. Local metrics nằm trong `klearn_ai_infrastructure`, migration `20260906_korean_ai_infrastructure.sql` chuẩn bị bảng evaluation logs với RLS user/admin.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.

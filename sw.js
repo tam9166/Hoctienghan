@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v48';
+const CACHE = 'klearn-v49';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=31',
@@ -62,7 +62,7 @@ const OFFLINE_ASSETS = [
   './locales/en.js?v=4',
   './locales/zh-CN.js?v=4',
   './data/content-locales.js?v=1',
-  './app.js?v=42',
+  './app.js?v=43',
   './content/retention-system.json',
   './content/content-quality-system.json',
   './data/resource-library.js?v=1',
@@ -73,6 +73,7 @@ const OFFLINE_ASSETS = [
   './content/advanced-content-platform.json',
   './content/community-learning.json',
   './content/enterprise-platform.json',
+  './content/ai-infrastructure.json',
   './content/product-ux.json',
   './docs/partner-api-v1.openapi.json',
   './manifest.json',
