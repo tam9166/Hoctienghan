@@ -1,0 +1,13 @@
+{
+  "contentVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "architectureOnly": false,
+  "updatedAt": "2026-09-06",
+  "periods": { "weekDays": 7, "monthDays": 30, "quarterDays": 90, "halfYearDays": 180, "yearDays": 365 },
+  "retentionCheckpoints": [1, 7, 30],
+  "qualityWeights": { "accuracy": 0.5, "focus": 0.25, "progress": 0.25 },
+  "healthBands": { "healthy": 75, "stable": 50, "at_risk": 0 },
+  "reportTypes": ["weekly", "monthly", "yearly"],
+  "privacy": { "scope": "personal-only", "usesPeerComparison": false, "usesRawChat": false, "usesAudio": false }
+}

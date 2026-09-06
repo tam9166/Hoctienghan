@@ -229,6 +229,14 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Consent notice xuất hiện trong Profile; feedback lesson/report/suggestion và khảo sát ngắn là hành động chủ động của người dùng, nội dung bị giới hạn và lọc dữ liệu nhạy cảm.
 - Content contract nằm ở `content/user-research-experiments.json`; migration `20260906_user_research_experiments.sql` chuẩn bị consent, bounded events, feedback và experiment logs với RLS user/admin.
 
+### Advanced Learning Analytics Platform
+
+- Trang Phân tích bổ sung `AdvancedLearningAnalyticsService` để biến số liệu thành tiến bộ dễ đọc: tốc độ học theo tuần, retention curve ở mốc 1/7/30 ngày, skill growth, learning efficiency và Knowledge Health Score.
+- Course Completion Analysis nhóm lesson theo course/TOPIK/topic để chỉ ra phần hoàn thành thấp; Practice Quality Score tách accuracy, focus và progress thay vì chỉ đếm số phiên.
+- Long-term Progress hiển thị cửa sổ 3 tháng, 6 tháng và 1 năm. Personal Benchmark chỉ so sánh user với chính giai đoạn trước của họ; không có peer ranking hay dữ liệu người khác.
+- Weekly, monthly và yearly report được tạo deterministically từ SRS, Practice History, Mastery, Learner Profile và lesson progress. Người dùng có thể lưu tối đa 30 báo cáo trong `klearn_analytics_reports`; CloudSync vẫn dùng namespace user-scoped hiện có.
+- Content contract nằm ở `content/advanced-learning-analytics.json`; migration `20260906_advanced_learning_analytics.sql` chuẩn bị bảng report cá nhân với RLS owner-only. Không lưu raw chat, journal, token, password hoặc audio.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.
