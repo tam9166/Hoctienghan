@@ -62,6 +62,7 @@
   };
   const request = async ({ task = 'tutor', input = '', messages = [], context = {}, language = 'vi' } = {}) => {
     const route = routeFor(task); const promptVersion = promptVersionFor(task); const safe = safeInput(input); const metrics = read(); const budgetExceeded = metrics.requestCount >= Number(config.limits?.dailyRequests || 80) || metrics.totalTokens >= Number(config.limits?.dailyEstimatedTokens || 30000);
+    if (clean(task, 40).toLowerCase() !== 'tutor') window.LearningMemoryService?.captureQuery?.(safe.input);
     const fallback = (reason) => { const usage = { inputTokens: estimateTokens(safe.input), outputTokens: 0, totalTokens: estimateTokens(safe.input) }; const quality = { status: 'review', score: .8, reasons: [reason], text: fallbackFor(task, language) }; write(record(metrics, task, route, promptVersion, usage, quality, true)); return { reply: quality.text, fallback: true, quality, usage, modelRoute: route, promptVersion }; };
     if (!safe.input || safe.blocked) return fallback(safe.blocked ? 'unsafe-input' : 'empty-input');
     if (budgetExceeded) return fallback('local-budget');
