@@ -1,0 +1,41 @@
+{
+  "id": "p43-ai-agent-learning-architecture",
+  "version": "1.0.0",
+  "architectureVersion": "p43-v1",
+  "createdDate": "2026-09-06",
+  "updatedDate": "2026-09-06",
+  "verified": true,
+  "reviewStatus": "approved",
+  "agents": [
+    { "id": "planner", "name": "Learning Planner", "task": "study_advisor", "intents": ["plan", "study_plan", "today"], "sourceRequired": false, "mutatesLearningData": false },
+    { "id": "grammar", "name": "Grammar", "task": "grammar", "intents": ["grammar", "explain_grammar"], "sourceRequired": true, "mutatesLearningData": false },
+    { "id": "vocabulary", "name": "Vocabulary", "task": "definition", "intents": ["vocabulary", "explain_vocabulary", "define"], "sourceRequired": true, "mutatesLearningData": false },
+    { "id": "speaking", "name": "Speaking", "task": "speaking", "intents": ["speaking", "pronunciation", "speaking_practice"], "sourceRequired": false, "mutatesLearningData": false },
+    { "id": "writing", "name": "Writing", "task": "writing_review", "intents": ["writing", "review_writing"], "sourceRequired": false, "mutatesLearningData": false },
+    { "id": "exam", "name": "TOPIK Exam", "task": "planning", "intents": ["exam", "topik", "topik_preparation"], "sourceRequired": false, "mutatesLearningData": false },
+    { "id": "career", "name": "Career", "task": "career_coach", "intents": ["career", "business_korean", "interview"], "sourceRequired": false, "mutatesLearningData": false },
+    { "id": "memory", "name": "Learning Memory", "task": "memory", "intents": ["memory", "remember", "review_priority"], "sourceRequired": false, "mutatesLearningData": "explicit-confirmation-only" }
+  ],
+  "routing": {
+    "maximumPrimaryAgents": 1,
+    "qualityControllerAlwaysRuns": true,
+    "maximumRetries": 0,
+    "ambiguousIntent": "request-clarification"
+  },
+  "context": {
+    "allowedFields": ["currentTopikLevel", "targetTopikLevel", "learningStyle", "learningMode", "explanationStyle", "weakGrammar", "weakVocabulary", "weakSkills", "frequentErrors", "recentMistakes", "relevantMemory", "knowledgeGraph", "recommendations", "dueSrsCount", "recentScores", "listeningScore", "speakingScore", "writingScore", "streak", "weeklyStudyMinutes", "masteryByTopic", "dailyPlan", "currentView", "scores"],
+    "forbiddenFields": ["password", "token", "secret", "authorization", "cookie", "email", "rawAudio", "rawChatHistory"]
+  },
+  "quality": {
+    "minimumScore": 0.7,
+    "blockedClaims": ["official TOPIK answer", "guaranteed TOPIK score", "guaranteed employment", "medical diagnosis"],
+    "approvedSourceRequiredFor": ["grammar", "vocabulary"],
+    "humanReviewRequiredForPublishing": true
+  },
+  "privacy": {
+    "storesRawInput": false,
+    "storesRawResponse": false,
+    "storesRawAudio": false,
+    "auditMetadataOnly": true
+  }
+}
