@@ -23,6 +23,7 @@ async function until(cdp, expression, attempts = 80) { for (let attempt = 0; att
     if (!version) throw new Error('Could not start Edge.');
     const target = await json(`http://127.0.0.1:${port}/json/new?${encodeURIComponent(baseUrl)}`, { method: 'PUT' });
     const cdp = await connect(target.webSocketDebuggerUrl); await cdp.send('Page.enable'); await cdp.send('Runtime.enable');
+    assert.equal(await until(cdp, `location.origin !== 'null' && document.readyState === 'complete'`), true, 'page did not load');
     const timestamp = new Date().toISOString();
     const user = { id: 'p24-qa', fullName: 'P24 QA', email: 'p24@local.test', level: 'Level 0', learningTrack: 'foundation', onboardingCompleted: true, studyMinutesPerDay: 20, targetTopikLevel: 2, createdAt: timestamp };
     const old = new Date(Date.now() - 8 * 86400000).toISOString();
