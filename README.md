@@ -148,6 +148,15 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Culture Warning kiểm tra sắc thái theo ngữ cảnh bằng rule minh bạch: câu đúng ngữ pháp vẫn có thể bị cảnh báo nếu thiếu lịch sự. Survival Checklist chỉ lưu các mục người dùng tự xác nhận trong domain user-scoped hiện có.
 - Nội dung P19 ở `content/real-world-assistant.json`, lazy-load qua quality gate `verified + approved` và được service worker cache cho offline. Vocabulary đã duyệt có thể đưa vào SRS mà không thay đổi TOPIK data.
 
+### Advanced Content Platform
+
+- Hub `Nền tảng nội dung` chuẩn hóa version, ngày tạo/cập nhật và workflow `Draft → Review → Approved`; người học chỉ tìm và mở nội dung Approved.
+- Quality score tách rõ Grammar accuracy, Example quality và Audio quality. Native Review queue giữ nội dung chưa đạt ngưỡng ngoài luồng học, đồng thời tiếp tục dùng role Supabase hiện có cho quyền review/admin.
+- Grammar Example Bank có câu Beginner, Intermediate và Advanced. Vocabulary Frequency Database cung cấp thứ hạng cùng frequency band để ưu tiên từ thông dụng.
+- Content Search tìm lesson, grammar, word và example. Gợi ý bài tiếp theo dùng tiến độ/kỹ năng yếu hiện có, không tạo chatbot hoặc AI page mới.
+- `My Korean Notebook` dùng chung Bookmark và Notes user-scoped. Feedback `khó hiểu / có lỗi / thiếu ví dụ` được lưu theo tài khoản trong `klearn_content_feedback` và đi qua CloudSync hiện có.
+- Nội dung nguồn nằm ở `content/advanced-content-platform.json`, lazy-load qua quality gate và được cache cho offline bởi service worker.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.
