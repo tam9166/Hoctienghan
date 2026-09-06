@@ -255,6 +255,14 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Premium Support mở luồng teacher feedback hiện có. Family Account mới là architecture foundation (`owner/learner`, tối đa 4 slot), chưa tự gửi invitation hoặc chia sẻ progress giữa người dùng.
 - Content contract nằm ở `content/premium-learning-experience.json`; migration `20260906_premium_learning_experience.sql` chuẩn bị family account/member với RLS owner/member và entitlement server-managed.
 
+### Global AI Language Companion
+
+- `AICompanionService` là lớp facade theo ngữ cảnh cho Study Advisor, content explanation, practice creator, conversation partner, writing review, career coach và culture advisor; không tạo thêm chatbot/menu mới và vẫn đi qua `AIOrchestrationService` hiện có.
+- `AILearningMemoryService` chỉ lưu memory có cấu trúc theo tài khoản (mục tiêu, trình độ, kỹ năng yếu, lỗi lặp, phong cách và cách giải thích ưa thích). Không lưu raw chat, bài viết, audio, password, token hoặc credential.
+- Hỗ trợ tham số ngôn ngữ `ko`, `ja`, `zh`; Japanese/Chinese là contract/AI routing foundation, không tự bịa curriculum mới. `AIPracticeCreatorService` chỉ nhận content `verified + approved` và luôn trả trạng thái `needs-review`.
+- Mọi response đều qua quality/safety gate và có fallback deterministic khi provider lỗi hoặc hết budget. Advisor cơ bản dùng SRS, Learner Profile và progress cục bộ để user vẫn biết việc cần làm hôm nay khi offline.
+- Contract nằm ở `content/global-ai-language-companion.json`; migration `20260906_global_ai_language_companion.sql` chuẩn bị memory có RLS owner-only và quality log aggregate, tuyệt đối không lưu prompt/response thô.
+
 ## Dữ liệu MVP
 
 Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.

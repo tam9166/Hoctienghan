@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "status": "approved",
+  "verified": true,
+  "reviewStatus": "approved",
+  "source": "global-ai-language-companion-contract",
+  "supportedLanguages": ["ko", "ja", "zh"],
+  "tasks": [
+    "study_advisor",
+    "content_explanation",
+    "practice_creator",
+    "conversation_partner",
+    "writing_review",
+    "career_coach",
+    "culture_advisor"
+  ],
+  "memoryFields": [
+    "goal",
+    "level",
+    "weakSkills",
+    "frequentErrors",
+    "learningStyle",
+    "preferredExplanation",
+    "targetLanguage"
+  ],
+  "privacy": {
+    "userScoped": true,
+    "noRawChat": true,
+    "noRawWriting": true,
+    "noRawAudio": true,
+    "maxInputChars": 4000,
+    "noSecrets": true
+  },
+  "quality": {
+    "requiresApprovedSourceForPractice": true,
+    "generatedExercisesStatus": "needs-review",
+    "fallback": "deterministic",
+    "evaluateEveryResponse": true
+  },
+  "updatedAt": "2026-09-06"
+}

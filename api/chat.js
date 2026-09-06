@@ -1,6 +1,6 @@
 const MAX_MESSAGES = 12;
 const ROUTES = new Set(['small', 'strong']);
-const TASKS = new Set(['tutor', 'coach', 'translation', 'definition', 'flashcard', 'short_feedback', 'grammar', 'speaking', 'writing', 'conversation', 'planning']);
+const TASKS = new Set(['tutor', 'coach', 'translation', 'definition', 'flashcard', 'short_feedback', 'grammar', 'speaking', 'writing', 'conversation', 'planning', 'study_advisor', 'content_explanation', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor']);
 const MAX_CONTEXT_CHARS = 9000;
 function cleanMessage(item) {
   if (!item || !['user', 'assistant'].includes(item.role)) return null;
@@ -25,14 +25,15 @@ module.exports = async function handler(req, res) {
   const body = req.body && typeof req.body === 'object' ? req.body : {};
   const messages = Array.isArray(body.messages) ? body.messages.map(cleanMessage).filter(Boolean).slice(-MAX_MESSAGES) : [];
   if (!messages.length || messages[messages.length - 1].role !== 'user') return res.status(400).json({ error: 'A user message is required' });
-  const language = ['vi', 'en', 'zh-CN'].includes(body.learningLanguage) ? body.learningLanguage : 'vi';
+  const language = ['vi', 'en', 'zh-CN', 'ko', 'ja', 'zh'].includes(body.learningLanguage) ? body.learningLanguage : 'vi';
   const task = TASKS.has(String(body.task || '').trim()) ? String(body.task).trim() : 'tutor';
-  const modelRoute = ROUTES.has(String(body.modelRoute || '').trim()) ? String(body.modelRoute).trim() : ['grammar', 'coach', 'speaking', 'writing', 'conversation', 'planning'].includes(task) ? 'strong' : 'small';
+  const modelRoute = ROUTES.has(String(body.modelRoute || '').trim()) ? String(body.modelRoute).trim() : ['grammar', 'coach', 'speaking', 'writing', 'conversation', 'planning', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor'].includes(task) ? 'strong' : 'small';
   const promptVersion = String(body.promptVersion || 'p26-v1').slice(0, 80).replace(/[^a-zA-Z0-9:._-]/g, '');
   const learnerContext = body.learnerContext && typeof body.learnerContext === 'object' ? compact(body.learnerContext) : {};
   const rawContext = JSON.stringify(learnerContext).slice(0, MAX_CONTEXT_CHARS);
   if (containsSensitive(messages[messages.length - 1].content) || containsSensitive(rawContext)) return res.status(400).json({ error: 'Unsafe AI request' });
-  const system = `Bạn là lớp AI hỗ trợ học tiếng Hàn của Tiếng Hàn - TamHoanq. Task: ${task}. Prompt version: ${promptVersion}. Trả lời bằng ${language === 'en' ? 'English' : language === 'zh-CN' ? 'Simplified Chinese' : 'Vietnamese'}; giữ nguyên Korean và romanization. Giải thích phù hợp trình độ người học, chỉ dùng dữ liệu trong context tối thiểu, nói rõ khi không chắc chắn, không bịa grammar/điểm TOPIK/nguồn chính thức. Không tuyên bố chấm phoneme hoặc handwriting AI nếu không có model. Context: ${rawContext}`;
+  const responseLanguage = { en: 'English', 'zh-CN': 'Simplified Chinese', zh: 'Simplified Chinese', ko: 'Korean', ja: 'Japanese' }[language] || 'Vietnamese';
+  const system = `Bạn là lớp AI hỗ trợ học ngôn ngữ của Tiếng Hàn - TamHoanq. Task: ${task}. Prompt version: ${promptVersion}. Trả lời bằng ${responseLanguage}; giữ nguyên ngôn ngữ đích, Korean và romanization khi có. Giải thích phù hợp trình độ người học, chỉ dùng dữ liệu trong context tối thiểu, nói rõ khi không chắc chắn, không bịa grammar/điểm TOPIK/nguồn chính thức. Không tuyên bố chấm phoneme hoặc handwriting AI nếu không có model. Context: ${rawContext}`;
   try {
     const model = modelRoute === 'strong' ? (process.env.OPENAI_STRONG_MODEL || process.env.OPENAI_MODEL || 'gpt-4o-mini') : (process.env.OPENAI_SMALL_MODEL || process.env.OPENAI_MODEL || 'gpt-4o-mini');
     const response = await fetch('https://api.openai.com/v1/responses', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify({ model, input: [{ role: 'system', content: system }, ...messages], max_output_tokens: 900 }) });

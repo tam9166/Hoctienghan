@@ -8,14 +8,21 @@
     "coach": "p26-coach-v1",
     "grammar": "p26-grammar-v1",
     "speaking": "p26-speaking-v1",
-    "writing": "p26-writing-v1"
+    "writing": "p26-writing-v1",
+    "study_advisor": "p32-advisor-v1",
+    "content_explanation": "p32-explain-v1",
+    "practice_creator": "p32-practice-v1",
+    "conversation_partner": "p32-conversation-v1",
+    "writing_review": "p32-writing-v1",
+    "career_coach": "p32-career-v1",
+    "culture_advisor": "p32-culture-v1"
   },
   "experiments": {
     "promptTone": { "enabled": true, "variants": ["clear", "supportive"], "allocation": [50, 50] }
   },
   "routing": {
-    "simple": ["translation", "definition", "flashcard", "short_feedback", "tutor"],
-    "strong": ["grammar", "coach", "speaking", "writing", "conversation", "planning"]
+    "simple": ["translation", "definition", "flashcard", "short_feedback", "tutor", "study_advisor", "content_explanation"],
+    "strong": ["grammar", "coach", "speaking", "writing", "conversation", "planning", "practice_creator", "conversation_partner", "writing_review", "career_coach", "culture_advisor"]
   },
   "limits": {
     "maxInputChars": 4000,
@@ -28,6 +35,7 @@
   "quality": {
     "minimumScore": 0.7,
     "blockedClaims": ["official TOPIK answer", "guaranteed score", "phoneme analysis"],
-    "requiredForLearningReply": ["uncertainty disclosure", "level-aware explanation"]
+    "requiredForLearningReply": ["uncertainty disclosure", "level-aware explanation"],
+    "supportedLanguages": ["vi", "en", "zh-CN", "ko", "ja", "zh"]
   }
 }

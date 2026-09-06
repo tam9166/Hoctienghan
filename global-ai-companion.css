@@ -1,0 +1,6 @@
+.ai-companion-panel { border-left: 3px solid var(--primary); }
+.ai-companion-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 14px 0; }
+.ai-companion-action { display: grid; gap: 4px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.ai-companion-action small { color: var(--muted); line-height: 1.45; }
+.ai-companion-output { min-height: 0; margin-top: 10px; color: var(--text); white-space: pre-wrap; }
+@media (max-width: 720px) { .ai-companion-actions { grid-template-columns: 1fr; } .ai-companion-panel .action-row { flex-wrap: wrap; } }
