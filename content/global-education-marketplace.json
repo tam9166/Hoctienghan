@@ -1,0 +1,69 @@
+{
+  "id": "p45-global-education-marketplace",
+  "version": "1.0.0",
+  "createdDate": "2026-09-06",
+  "updatedDate": "2026-09-06",
+  "verified": true,
+  "reviewStatus": "approved",
+  "supportedLanguages": [
+    { "id": "ko", "name": "Korean", "nativeName": "한국어", "status": "active" },
+    { "id": "ja", "name": "Japanese", "nativeName": "日本語", "status": "foundation" },
+    { "id": "zh", "name": "Chinese", "nativeName": "中文", "status": "foundation" },
+    { "id": "en", "name": "English", "nativeName": "English", "status": "foundation" }
+  ],
+  "teachers": [
+    { "id": "teacher-minji", "name": "Kim Min-ji", "initials": "KM", "experienceYears": 9, "specialties": ["TOPIK", "Ngữ pháp", "Viết"], "languages": ["ko", "vi"], "rating": 4.9, "reviewCount": 184, "verified": true, "bio": "Giảng viên tiếng Hàn tập trung vào lộ trình TOPIK và phản hồi bài viết." },
+    { "id": "teacher-junho", "name": "Park Jun-ho", "initials": "PJ", "experienceYears": 7, "specialties": ["Giao tiếp", "Phát âm", "Văn hóa"], "languages": ["ko", "en"], "rating": 4.8, "reviewCount": 126, "verified": true, "bio": "Huấn luyện giao tiếp theo tình huống đời sống và môi trường công việc." },
+    { "id": "teacher-lan", "name": "Nguyễn Thu Lan", "initials": "NL", "experienceYears": 6, "specialties": ["Người mới", "Hangul", "Từ vựng"], "languages": ["vi", "ko"], "rating": 4.9, "reviewCount": 203, "verified": true, "bio": "Hỗ trợ người Việt xây nền tảng Hangul và phản xạ đọc từ đầu." }
+  ],
+  "courses": [
+    { "id": "global-hangul-foundation", "teacherId": "teacher-lan", "language": "ko", "title": "Hangul Foundation", "subtitle": "Đọc và ghép chữ Hàn từ số 0", "difficulty": "Beginner", "category": "foundation", "price": 0, "currency": "VND", "modules": 8, "estimatedHours": 10, "rating": 4.9, "reviewCount": 112, "status": "approved", "verified": true, "certificate": true, "skills": ["reading", "vocabulary"], "goals": ["beginner", "study"], "contentTypes": ["lesson", "vocabulary", "practice"] },
+    { "id": "global-topik-one", "teacherId": "teacher-minji", "language": "ko", "title": "TOPIK I Complete", "subtitle": "Từ nền tảng đến đề thi TOPIK I", "difficulty": "TOPIK 1–2", "category": "exam", "price": 690000, "currency": "VND", "modules": 14, "estimatedHours": 32, "rating": 4.9, "reviewCount": 94, "status": "approved", "verified": true, "certificate": true, "skills": ["listening", "reading", "grammar"], "goals": ["topik", "study"], "contentTypes": ["lesson", "vocabulary", "practice"] },
+    { "id": "global-daily-conversation", "teacherId": "teacher-junho", "language": "ko", "title": "Korean Daily Conversation", "subtitle": "Phản xạ giao tiếp qua 24 tình huống", "difficulty": "Beginner–Intermediate", "category": "conversation", "price": 490000, "currency": "VND", "modules": 12, "estimatedHours": 20, "rating": 4.8, "reviewCount": 81, "status": "approved", "verified": true, "certificate": true, "skills": ["speaking", "listening"], "goals": ["conversation", "travel"], "contentTypes": ["lesson", "vocabulary", "practice"] },
+    { "id": "global-business-email", "teacherId": "teacher-minji", "language": "ko", "title": "Business Korean Writing", "subtitle": "Email, báo cáo và register công sở", "difficulty": "Intermediate", "category": "career", "price": 790000, "currency": "VND", "modules": 10, "estimatedHours": 18, "rating": 4.8, "reviewCount": 57, "status": "approved", "verified": true, "certificate": true, "skills": ["writing", "grammar"], "goals": ["work", "career"], "contentTypes": ["lesson", "practice"] },
+    { "id": "global-pronunciation", "teacherId": "teacher-junho", "language": "ko", "title": "Natural Korean Pronunciation", "subtitle": "Batchim, nối âm và shadowing", "difficulty": "Intermediate", "category": "speaking", "price": 390000, "currency": "VND", "modules": 9, "estimatedHours": 14, "rating": 4.7, "reviewCount": 43, "status": "approved", "verified": true, "certificate": false, "skills": ["speaking", "listening"], "goals": ["conversation"], "contentTypes": ["lesson", "practice"] }
+  ],
+  "creator": {
+    "courseListingAllowed": true,
+    "allowedTypes": ["lesson", "vocabulary", "practice"],
+    "draftStatuses": ["draft", "in_review", "changes_requested", "approved", "published"],
+    "humanApprovalRequired": true,
+    "creatorCanSelfPublish": false,
+    "minimumTitleLength": 4,
+    "maximumDescriptionLength": 1200
+  },
+  "reviews": {
+    "dimensions": ["quality", "difficulty"],
+    "minimum": 1,
+    "maximum": 5,
+    "verifiedPurchaseOnly": true,
+    "oneReviewPerCourse": true
+  },
+  "revenueSharing": {
+    "status": "architecture-only",
+    "creatorSharePercent": 70,
+    "platformSharePercent": 30,
+    "settlement": "server-ledger",
+    "minimumPayout": 500000,
+    "currency": "VND",
+    "clientCanMarkPaid": false
+  },
+  "checkout": {
+    "endpoint": "/api/marketplace/checkout",
+    "confirmationSource": "signed-webhook",
+    "clientCanGrantOwnership": false,
+    "storesCardData": false
+  },
+  "quality": {
+    "publishRequires": ["verified_creator", "content_review", "difficulty_review", "source_review"],
+    "moderatorRoles": ["content_editor", "admin"],
+    "sellerRoles": ["teacher", "content_editor", "admin"],
+    "approvedCatalogOnly": true
+  },
+  "privacy": {
+    "publicTeacherFields": ["name", "bio", "experienceYears", "specialties", "languages", "rating", "reviewCount", "verified"],
+    "privateFields": ["email", "paymentAccount", "legalName", "taxId"],
+    "storesPaymentCard": false,
+    "userDataIsScoped": true
+  }
+}

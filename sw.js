@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v67';
+const CACHE = 'klearn-v68';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=31',
@@ -14,6 +14,7 @@ const OFFLINE_ASSETS = [
   './career-learning.css?v=1',
   './ai-agent-architecture.css?v=1',
   './immersive-korean-world.css?v=1',
+  './global-education-marketplace.css?v=1',
   './language-mastery.css?v=1',
   './immersion-motivation.css?v=1',
   './education-platform.css?v=1',
@@ -75,7 +76,7 @@ const OFFLINE_ASSETS = [
   './locales/en.js?v=4',
   './locales/zh-CN.js?v=4',
   './data/content-locales.js?v=1',
-  './app.js?v=53',
+  './app.js?v=54',
   './content/retention-system.json',
   './content/content-quality-system.json',
   './data/resource-library.js?v=1',
@@ -92,6 +93,8 @@ const OFFLINE_ASSETS = [
   './content/ai-agent-architecture.json',
   './data/immersive-korean-world.js?v=1',
   './content/immersive-korean-world.json',
+  './data/global-education-marketplace.js?v=1',
+  './content/global-education-marketplace.json',
   './content/global-language-platform.json',
   './data/user-research.js?v=1',
   './content/user-research-experiments.json',

@@ -1,0 +1,133 @@
+/* P45 — trustworthy marketplace UI, aligned with the learning product. */
+.gem-heading { display: flex; align-items: flex-start; gap: 14px; }
+.gem-heading > div { min-width: 0; }
+.gem-heading small { color: #78951d; font-size: .72rem; font-weight: 850; letter-spacing: .08em; }
+.gem-heading h1 { margin: 5px 0; font-size: clamp(1.7rem, 3vw, 2.6rem); }
+.gem-heading p { max-width: 760px; margin: 0; color: var(--muted, #66705e); }
+.gem-entry,
+.gem-hero { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 21px; border: 1px solid var(--border, #d6e8a8); border-radius: 18px; background: #1c2416; color: #f7ffd1; }
+.gem-entry small,
+.gem-hero small { color: #c5ed4f; font-weight: 800; letter-spacing: .06em; }
+.gem-entry h2,
+.gem-entry p,
+.gem-hero h2,
+.gem-hero p { margin: 4px 0; }
+.gem-entry p,
+.gem-hero p { color: #d6e8a8; }
+.gem-filters { display: flex; gap: 8px; overflow-x: auto; padding: 3px 0 8px; scrollbar-width: thin; }
+.gem-filters button { flex: 0 0 auto; min-height: 44px; padding: 9px 13px; border: 1px solid var(--border, #d6e8a8); border-radius: 999px; background: var(--surface, #fff); color: var(--text, #1f2a1a); font-weight: 750; cursor: pointer; }
+.gem-filters button.active { border-color: #9fc72f; background: #c5ed4f; color: #17200f; }
+.gem-course-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.gem-course-card { display: grid; min-width: 0; padding: 18px; border: 1px solid var(--border, #d6e8a8); border-radius: 17px; background: var(--surface, #fff); }
+.gem-course-card > header { display: flex; justify-content: space-between; gap: 10px; color: #78951d; font-size: .72rem; font-weight: 800; text-transform: uppercase; }
+.gem-course-card > header em { font-style: normal; }
+.gem-course-card h2 { margin: 13px 0 4px; font-size: 1.12rem; }
+.gem-course-card > p { min-height: 42px; margin: 0 0 13px; color: var(--muted, #66705e); line-height: 1.45; }
+.gem-teacher-link,
+.gem-teacher-card { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: transparent; color: var(--text, #1f2a1a); text-align: left; cursor: pointer; }
+.gem-teacher-link { min-height: 44px; }
+.gem-teacher-link i,
+.gem-teacher-card i { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; border-radius: 12px; background: #c5ed4f; color: #17200f; font-size: .72rem; font-style: normal; font-weight: 900; }
+.gem-teacher-link span { display: grid; gap: 2px; font-weight: 750; }
+.gem-teacher-link small { color: var(--muted, #66705e); font-weight: 500; }
+.gem-course-card dl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0; }
+.gem-course-card dl > div { padding: 9px; border-radius: 10px; background: var(--surface-muted, #eef1e7); }
+.gem-course-card dt { color: var(--muted, #66705e); font-size: .68rem; }
+.gem-course-card dd { margin: 3px 0 0; font-size: .82rem; font-weight: 800; }
+.gem-reason { min-height: 35px; color: #78951d; line-height: 1.35; }
+.gem-course-card footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; }
+.gem-course-card footer strong { overflow-wrap: anywhere; }
+.gem-course-detail { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(250px, .65fr); gap: 15px; }
+.gem-course-detail > main,
+.gem-course-detail > aside,
+.gem-review,
+.gem-profile,
+.gem-creator-layout > form,
+.gem-draft-list,
+.gem-moderation,
+.gem-policy { padding: 21px; border: 1px solid var(--border, #d6e8a8); border-radius: 18px; background: var(--surface, #fff); }
+.gem-course-meta,
+.gem-content-types { display: flex; flex-wrap: wrap; gap: 7px; }
+.gem-course-meta span,
+.gem-content-types span { padding: 6px 9px; border: 1px solid var(--border, #d6e8a8); border-radius: 999px; color: var(--muted, #66705e); font-size: .76rem; }
+.gem-course-detail > main p { color: var(--muted, #66705e); line-height: 1.55; }
+.gem-course-detail > aside { display: grid; align-content: start; gap: 12px; }
+.gem-course-detail > aside > strong { font-size: 1.4rem; }
+.gem-course-detail > aside > small { color: var(--muted, #66705e); line-height: 1.45; }
+.gem-teacher-card { display: grid; grid-template-columns: 44px 1fr; padding-bottom: 14px; border-bottom: 1px solid var(--border, #d6e8a8); }
+.gem-teacher-card i { grid-row: 1 / 4; width: 44px; height: 44px; }
+.gem-teacher-card small,
+.gem-teacher-card span { color: var(--muted, #66705e); }
+.gem-progress { display: grid; gap: 7px; margin-top: 22px; }
+.gem-progress i { height: 8px; overflow: hidden; border-radius: 99px; background: var(--surface-muted, #eef1e7); }
+.gem-progress em { display: block; height: 100%; border-radius: inherit; background: #a8cf35; }
+.gem-review form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.gem-review label,
+.gem-creator-layout form label { display: grid; gap: 6px; color: var(--muted, #66705e); font-size: .78rem; font-weight: 700; }
+.gem-review label:nth-of-type(3),
+.gem-review button { grid-column: 1 / -1; }
+.gem-review input,
+.gem-review select,
+.gem-review textarea,
+.gem-creator-layout input,
+.gem-creator-layout select,
+.gem-creator-layout textarea { width: 100%; border: 1px solid var(--border, #d6e8a8); border-radius: 11px; background: var(--surface, #fff); color: var(--text, #1f2a1a); padding: 11px; }
+.gem-profile { display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: center; gap: 18px; }
+.gem-profile-avatar { display: grid; place-items: center; width: 112px; height: 112px; border-radius: 28px; background: #1c2416; color: #c5ed4f; font-size: 1.8rem; font-weight: 900; }
+.gem-profile h2 { margin: 0 0 10px; }
+.gem-profile p { display: flex; flex-wrap: wrap; gap: 7px; }
+.gem-profile p span { padding: 6px 9px; border-radius: 999px; background: var(--primary-soft, #f7ffd1); color: #607910; font-size: .76rem; }
+.gem-profile small { color: var(--muted, #66705e); }
+.gem-creator-layout { display: grid; grid-template-columns: minmax(280px, .7fr) minmax(0, 1.3fr); gap: 15px; }
+.gem-creator-layout form { display: grid; gap: 11px; }
+.gem-draft-list > header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.gem-draft-list article { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 0; border-top: 1px solid var(--border, #d6e8a8); }
+.gem-draft-list article > div { display: grid; min-width: 0; gap: 4px; }
+.gem-draft-list small,
+.gem-draft-list span { color: var(--muted, #66705e); font-size: .74rem; }
+.gem-moderation article { display: flex; justify-content: space-between; gap: 18px; padding: 14px 0; border-bottom: 1px solid var(--border, #d6e8a8); }
+.gem-moderation article > div:last-child { display: flex; align-items: center; gap: 8px; }
+.gem-moderation p { color: var(--muted, #66705e); }
+.gem-revenue { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.gem-revenue article { display: grid; gap: 6px; padding: 20px; border: 1px solid var(--border, #d6e8a8); border-radius: 16px; background: var(--surface, #fff); }
+.gem-revenue small { color: #78951d; font-weight: 850; }
+.gem-revenue b { font-size: 1.5rem; }
+.gem-revenue span,
+.gem-policy p { color: var(--muted, #66705e); }
+.gem-certificates { display: grid; gap: 10px; }
+.gem-certificates article { display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; align-items: center; gap: 15px; padding: 17px; border: 1px solid var(--border, #d6e8a8); border-radius: 16px; background: var(--surface, #fff); }
+.gem-certificates article > span { display: grid; place-items: center; width: 62px; height: 62px; border-radius: 18px; background: #c5ed4f; color: #17200f; font-weight: 900; }
+.gem-certificates h2,
+.gem-certificates p { margin: 3px 0; }
+.gem-certificates p { color: var(--muted, #66705e); }
+
+@media (max-width: 1050px) {
+  .gem-course-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gem-course-detail,
+  .gem-creator-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .gem-entry,
+  .gem-hero,
+  .gem-profile { display: grid; align-items: start; }
+  .gem-course-grid,
+  .gem-revenue { grid-template-columns: 1fr; }
+  .gem-course-card > p,
+  .gem-reason { min-height: 0; }
+  .gem-profile { grid-template-columns: 78px minmax(0, 1fr); }
+  .gem-profile-avatar { width: 78px; height: 78px; border-radius: 20px; }
+  .gem-profile > button { grid-column: 1 / -1; }
+  .gem-review form { grid-template-columns: 1fr; }
+  .gem-review label,
+  .gem-review label:nth-of-type(3),
+  .gem-review button { grid-column: auto; }
+  .gem-draft-list > header,
+  .gem-moderation article { display: grid; }
+  .gem-moderation article > div:last-child { flex-wrap: wrap; }
+  .gem-certificates article { grid-template-columns: 52px minmax(0, 1fr); }
+  .gem-certificates article > span { width: 52px; height: 52px; }
+  .gem-certificates article > button { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gem-filters { scroll-behavior: auto; }
+}
