@@ -4,7 +4,7 @@
   const app = global.KLEARN_APP;
   if (!app) return;
 
-  const { storage, state, STORAGE_KEYS, render, setView, toast, escapeHtml, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, CloudSyncService } = app;
+  const { storage, state, STORAGE_KEYS, render, setView, toast, escapeHtml, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, CloudSyncService, VocabularyService } = app;
   const uid = () => state.currentUser?.id || '';
   const now = () => new Date().toISOString();
   const safe = (value) => value && typeof value === 'object' && !Array.isArray(value) ? value : {};
@@ -168,12 +168,12 @@
     active() { return this.all().find((item) => ['active','paused'].includes(item.status)); },
     build(minutes) {
       const settings = global.StudySettingsService?.get?.() || { dailyVocabularyTarget: 10, practiceDifficulty: 'balanced' };
-      const priorities = global.AdaptiveLearningEngine?.priorities?.() || []; const due = (state.srsData || []).filter((item) => item.nextReview && new Date(item.nextReview) <= new Date()).length; const repairs = RepairPathService.all().filter((item) => item.repairStage !== 'resolved').length;
+      const priorities = global.AdaptiveLearningEngine?.priorities?.() || []; const due = VocabularyService?.dueCards?.().length || 0; const repairs = RepairPathService.all().filter((item) => item.repairStage !== 'resolved').length;
       const slotsByDuration = { 5:[2,2,1], 15:[5,5,5], 25:[5,8,5,5,2], 30:[8,8,7,7], 45:[8,14,8,9,6], 60:[15,15,10,10,10] };
       const slots = slotsByDuration[minutes] || slotsByDuration[25];
-      const reviewTarget = Math.max(5, Math.min(Number(settings.dailyVocabularyTarget) || 10, due || Number(settings.dailyVocabularyTarget) || 10));
+      const reviewTarget = due ? Math.min(Number(settings.dailyVocabularyTarget) || 10, due) : 0;
       const difficultyLabel = localize({vi:{easy:'nhẹ',balanced:'cân bằng',challenging:'thử thách'}[settings.practiceDifficulty]||'cân bằng',en:{easy:'easy',balanced:'balanced',challenging:'challenging'}[settings.practiceDifficulty]||'balanced','zh-CN':{easy:'简单',balanced:'均衡',challenging:'挑战'}[settings.practiceDifficulty]||'均衡'});
-      const candidates = [{ type:'srs', title: localize({vi:`Ôn ${reviewTarget} từ SRS`,en:`Review ${reviewTarget} SRS words`,'zh-CN':`复习 ${reviewTarget} 个 SRS 单词`}) }, { type:'lesson', title: localize({vi:'Tiếp tục bài đang học',en:'Continue the current lesson','zh-CN':'继续当前课程'}) }, ...priorities.slice(0,2).map((item) => ({ type:item.type, title: item.title })), { type:'repair', title: localize({vi:`Khắc phục ${Math.max(1,repairs)} lỗi ưu tiên`,en:`Repair ${Math.max(1,repairs)} priority error(s)`,'zh-CN':`修复 ${Math.max(1,repairs)} 个优先错误`}) }, { type:'review', title: localize({vi:`Tự kiểm tra mức ${difficultyLabel}`,en:`${difficultyLabel} self-check`,'zh-CN':`${difficultyLabel}自测`}) }];
+      const candidates = [...(due ? [{ type:'srs', title: localize({vi:`Ôn ${reviewTarget} từ SRS`,en:`Review ${reviewTarget} SRS words`,'zh-CN':`复习 ${reviewTarget} 个 SRS 单词`}) }] : []), { type:'lesson', title: localize({vi:'Tiếp tục bài đang học',en:'Continue the current lesson','zh-CN':'继续当前课程'}) }, ...priorities.slice(0,2).map((item) => ({ type:item.type, title: item.title })), { type:'repair', title: localize({vi:`Khắc phục ${Math.max(1,repairs)} lỗi ưu tiên`,en:`Repair ${Math.max(1,repairs)} priority error(s)`,'zh-CN':`修复 ${Math.max(1,repairs)} 个优先错误`}) }, { type:'review', title: localize({vi:`Tự kiểm tra mức ${difficultyLabel}`,en:`${difficultyLabel} self-check`,'zh-CN':`${difficultyLabel}自测`}) }];
       const tasks = slots.map((taskMinutes,index) => ({ id:`task-${index}`, type:candidates[index % candidates.length].type, title:candidates[index % candidates.length].title, minutes:taskMinutes, completed:false }));
       return { id:id('focus'), userId:uid(), targetMinutes:minutes, practiceDifficulty:settings.practiceDifficulty, vocabularyTarget:reviewTarget, tasks, currentTask:0, status:'active', startedAt:now(), pausedDurationMs:0, pausedAt:null, completedAt:null };
     },

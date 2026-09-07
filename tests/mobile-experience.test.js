@@ -15,12 +15,12 @@ const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 
 function boot() {
   const values = new Map(); const opened = []; const notifications = [];
-  const state = { currentUser: { id: 'mobile-user' }, currentView: 'home', srsData: [{ wordId: 'school', nextReview: '2026-01-01T00:00:00.000Z' }] };
+  const state = { currentUser: { id: 'mobile-user' }, currentView: 'home', srsData: [{ wordId: 'school', status: 'review', reviewCount: 1, nextReview: '2026-01-01T00:00:00.000Z' }] };
   const storage = { get(key, fallback) { return values.has(key) ? values.get(key) : fallback; }, set(key, value) { values.set(key, value); return true; } };
   function Notification(title, options) { notifications.push({ title, options }); }
   Notification.permission = 'granted'; Notification.requestPermission = async () => 'granted';
   const window = {
-    KLEARN_APP: { storage, state, STORAGE_KEYS: { mobileExperience: 'mobile' }, setView: (route) => { state.currentView = route; opened.push(route); }, render: () => {}, toast: () => {}, escapeHtml: String },
+    KLEARN_APP: { storage, state, STORAGE_KEYS: { mobileExperience: 'mobile' }, setView: (route) => { state.currentView = route; opened.push(route); }, render: () => {}, toast: () => {}, escapeHtml: String, VocabularyService: { dueCards: () => state.srsData } },
     OfflinePackService: { metadata: () => [{ id: 'beginner-pack' }], status: () => 'downloaded', download: async (id) => ({ id }), remove: async (id) => ({ id }) },
     NotificationService: { pending: () => [{ id: 'srs-due', text: '1 từ đến hạn.' }] },
     DailyKoreanFeedService: { today: () => ({ id: 'daily-1', phrase: ['안녕하세요', 'Xin chào'] }) },
@@ -73,11 +73,11 @@ function boot() {
 
   assert.deepEqual(manifest.shortcuts.map((item) => item.url), ['./#speaking-hub', './#review', './#topik']);
   assert.match(index, /mobile-experience\.css\?v=1/);
-  assert.match(index, /data\/mobile-experience\.js\?v=1/);
+  assert.match(index, /data\/mobile-experience\.js\?v=2/);
   assert.match(css, /min-height: 48px/);
   assert.match(css, /safe-area-inset-bottom/);
   assert.match(css, /prefers-reduced-motion/);
-  assert.match(worker, /klearn-v69/);
+  assert.match(worker, /klearn-v70/);
   assert.match(worker, /addEventListener\('push'/);
   assert.match(worker, /addEventListener\('notificationclick'/);
   assert.match(worker, /maximumPerDay: 2/);

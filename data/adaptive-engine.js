@@ -35,7 +35,7 @@
       if (type) acc[type] = (acc[type] || 0) + (Number(item.count) || 1);
       return acc;
     }, {});
-    const due = Number(profile.dueSrsCount || 0) || (state.srsData || []).filter((item) => item.nextReview && new Date(item.nextReview) <= new Date()).length;
+    const due = Number(profile.dueSrsCount || 0) || app.VocabularyService?.dueCards?.().length || 0;
     const scores = { vocabulary: profile.skillScores?.vocabulary ?? progress.skills?.vocabulary ?? 0, grammar: profile.skillScores?.grammar ?? progress.skills?.grammar ?? 0, listening: profile.skillScores?.listening ?? progress.skills?.listening ?? 0, reading: profile.skillScores?.reading ?? progress.skills?.reading ?? 0, writing: profile.skillScores?.writing ?? progress.skills?.writing ?? 0, speaking: profile.skillScores?.speaking ?? progress.skills?.speaking ?? 0 };
     const weakSkills = new Set([...(profile.weakSkills || []), ...(stats.weakTopics || []).map((item) => Array.isArray(item) ? item[0] : item)].map((item) => String(item).toLocaleLowerCase()));
     const activity = recentActivity();

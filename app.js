@@ -806,7 +806,7 @@ const PracticeService = {
     saveUserProgress(progress);
     state.practiceResult = { attempt, questions: session.questions, set: session.set };
     state.practiceSession = null;
-    window.dispatchEvent(new CustomEvent('klearn-sync-action', { detail: { type: 'finished_quiz', entityId: attempt.id, status: 'completed', score: percentage } }));
+    emitLearningMutation('practice_completed', attempt.id, { status: 'completed', score: percentage }, `practice_completed:${state.currentUser.id}:${attempt.id}`);
     setView('practice-result');
   },
   statistics() {
@@ -932,24 +932,53 @@ function saveUserProgress(progress) {
   CloudSyncService.schedule('progress');
 }
 
-function defaultSrsCards() {
-  const due = new Date(Date.now() - 60_000).toISOString();
-  return APP_DATA.vocabulary.map((word) => normalizeSrsCard({ ...word, nextReview: due }, word));
+const SRS_STATES = Object.freeze({ NOT_STARTED: 'not_started', LEARNING: 'learning', REVIEW: 'review', MASTERED: 'mastered', DUE: 'due' });
+
+const SRSStateService = {
+  hasLearningEvidence(record = {}) {
+    const attempts = Array.isArray(record.attempts) ? record.attempts.length : Number(record.attempts) || 0;
+    return Number(record.reviewCount || 0) > 0
+      || Number(record.correctCount || 0) > 0
+      || Number(record.wrongCount || 0) > 0
+      || Number(record.mastery || 0) > 0
+      || attempts > 0
+      || Boolean(record.lastReviewed || record.lastResult || record.pretestPassed || record.pretestPassedAt || record.activatedAt || record.learnedAt || record.sourceLessonId || record.foundationWord)
+      || ['learning', 'review', 'mastered', 'remembered'].includes(record.status);
+  },
+  storedStatus(record = {}) {
+    if (!this.hasLearningEvidence(record)) return SRS_STATES.NOT_STARTED;
+    if (record.status === 'mastered' || Number(record.mastery || 0) >= 90 && Number(record.reviewCount || 0) > 0) return SRS_STATES.MASTERED;
+    if (record.status === 'review' || record.status === 'remembered' || Number(record.reviewCount || 0) > 0) return SRS_STATES.REVIEW;
+    return SRS_STATES.LEARNING;
+  },
+  isActive(card = {}) { return this.storedStatus(card) !== SRS_STATES.NOT_STARTED; },
+  isDue(card = {}, at = Date.now()) {
+    const status = this.storedStatus(card);
+    const dueAt = card.nextReview ? new Date(card.nextReview).getTime() : Number.NaN;
+    return [SRS_STATES.LEARNING, SRS_STATES.REVIEW].includes(status) && Number.isFinite(dueAt) && dueAt <= Number(at);
+  },
+  effectiveStatus(card = {}, at = Date.now()) { return this.isDue(card, at) ? SRS_STATES.DUE : this.storedStatus(card); }
+};
+window.SRSStateService = SRSStateService;
+
+function defaultSrsCards(userId = state.currentUser?.id || null) {
+  return APP_DATA.vocabulary.map((word) => normalizeSrsCard({ ...word, userId, status: SRS_STATES.NOT_STARTED, nextReview: null }, word));
 }
 
-function normalizeSrsCard(record = {}, vocabularyItem = null) {
+function normalizeSrsCard(record = {}, vocabularyItem = null, options = {}) {
   const word = vocabularyItem || APP_DATA.vocabulary.find((item) => item.id === (record.wordId || record.id)) || {};
+  const wordId = record.wordId || record.id || word.id;
   const reviewCount = Number(record.reviewCount) || 0;
   const correctCount = Number(record.correctCount) || 0;
   const wrongCount = Number(record.wrongCount) || 0;
-  const status = ['new', 'learning', 'review', 'mastered'].includes(record.status)
-    ? record.status
-    : reviewCount === 0 ? 'new' : record.difficulty === 'easy' ? 'review' : 'learning';
+  const progressEvidenceAt = options.learningEvidence?.get?.(wordId) || null;
+  const activatedAt = record.activatedAt || record.learnedAt || progressEvidenceAt;
+  const status = SRSStateService.storedStatus({ ...record, reviewCount, correctCount, wrongCount, activatedAt });
   return {
     ...word,
     ...record,
-    id: record.id || word.id || uniqueId(),
-    wordId: record.wordId || record.id || word.id,
+    id: record.id || word.id || record.wordId || uniqueId(),
+    wordId,
     userId: state.currentUser?.id || record.userId || null,
     korean: record.korean || word.korean || '',
     meaningVi: record.meaningVi || record.vietnamese || word.meaningVi || '',
@@ -965,14 +994,32 @@ function normalizeSrsCard(record = {}, vocabularyItem = null) {
     wrongCount,
     streakCorrect: Number(record.streakCorrect) || 0,
     lastReviewed: record.lastReviewed || null,
-    nextReview: record.nextReview || new Date(Date.now() - 60_000).toISOString(),
+    nextReview: status === SRS_STATES.NOT_STARTED ? null : record.nextReview || new Date().toISOString(),
     difficulty: record.difficulty || 'new',
     mastery: Math.max(0, Math.min(100, Number(record.mastery) || Math.round((correctCount / Math.max(1, correctCount + wrongCount)) * 100))),
     pretestPassed: Boolean(record.pretestPassed || record.pretestPassedAt),
     pretestPassedAt: record.pretestPassedAt || null,
     skipCurrentSession: Boolean(record.skipCurrentSession),
-    lastResult: record.lastResult || null
+    lastResult: record.lastResult || null,
+    activatedAt,
+    activationSource: record.activationSource || (progressEvidenceAt ? 'migrated-learning-progress' : null),
+    srsSchemaVersion: 2
   };
+}
+
+function srsLearningEvidence() {
+  const evidence = new Map();
+  if (!state.currentUser) return evidence;
+  const progress = getUserProgress();
+  (progress.foundation?.firstWords || []).forEach((id) => evidence.set(id, progress.foundation?.updatedAt || progress.updatedAt || new Date().toISOString()));
+  Object.entries(progress.lessonProgress || {}).forEach(([lessonId, lessonProgress]) => {
+    if (!lessonProgress?.completed) return;
+    const lesson = (window.KLEARN_THEORY_LESSONS || []).find((item) => item.id === lessonId);
+    if (!lesson) return;
+    const learnedAt = lessonProgress.completedAt || lessonProgress.updatedAt || progress.updatedAt || new Date().toISOString();
+    lessonVocabulary(lesson).forEach((entry) => evidence.set(entry.id, learnedAt));
+  });
+  return evidence;
 }
 
 function getUserSrs() {
@@ -980,11 +1027,11 @@ function getUserSrs() {
   const allSrs = storage.get(STORAGE_KEYS.srs, {});
   const safeSrs = allSrs && typeof allSrs === 'object' && !Array.isArray(allSrs) ? allSrs : {};
   const existing = Array.isArray(safeSrs[state.currentUser.id]) ? safeSrs[state.currentUser.id] : [];
-  const migrated = existing.map((record) => normalizeSrsCard(record));
+  const learningEvidence = srsLearningEvidence();
+  const migrated = existing.map((record) => normalizeSrsCard(record, null, { learningEvidence }));
   const knownIds = new Set(migrated.map((record) => record.wordId));
-  const due = new Date(Date.now() - 60_000).toISOString();
   APP_DATA.vocabulary.forEach((word) => {
-    if (!knownIds.has(word.id)) migrated.push(normalizeSrsCard({ ...word, nextReview: due }, word));
+    if (!knownIds.has(word.id)) migrated.push(normalizeSrsCard({ ...word, status: SRS_STATES.NOT_STARTED, nextReview: null }, word, { learningEvidence }));
   });
   safeSrs[state.currentUser.id] = migrated;
   storage.set(STORAGE_KEYS.srs, safeSrs);
@@ -992,11 +1039,14 @@ function getUserSrs() {
 }
 
 function saveUserSrs(cards) {
+  if (!state.currentUser) return;
   const allSrs = storage.get(STORAGE_KEYS.srs, {});
   const safeSrs = allSrs && typeof allSrs === 'object' && !Array.isArray(allSrs) ? allSrs : {};
-  safeSrs[state.currentUser.id] = cards;
+  const learningEvidence = srsLearningEvidence();
+  const normalized = (Array.isArray(cards) ? cards : []).map((card) => normalizeSrsCard(card, null, { learningEvidence }));
+  safeSrs[state.currentUser.id] = normalized;
   storage.set(STORAGE_KEYS.srs, safeSrs);
-  state.srsData = cards;
+  state.srsData = normalized;
   LearnerProfileService.get();
   CloudSyncService.schedule('srs');
 }
@@ -1009,7 +1059,7 @@ function initializeUserData(userId) {
 
   const allSrs = storage.get(STORAGE_KEYS.srs, {});
   const safeSrs = allSrs && typeof allSrs === 'object' && !Array.isArray(allSrs) ? allSrs : {};
-  if (!safeSrs[userId]) safeSrs[userId] = defaultSrsCards();
+  if (!safeSrs[userId]) safeSrs[userId] = defaultSrsCards(userId);
   storage.set(STORAGE_KEYS.srs, safeSrs);
 }
 
@@ -1025,6 +1075,13 @@ function syncUserData() {
 function normalizeSearch(value = '') { return String(value).toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim(); }
 function userScoped(key) { const all = storage.get(key, {}); return state.currentUser?.id && Array.isArray(all?.[state.currentUser.id]) ? all[state.currentUser.id] : []; }
 function saveUserScoped(key, items, limit = 100) { if (!state.currentUser) return; const all = storage.get(key, {}); const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; safe[state.currentUser.id] = items.slice(0, limit); storage.set(key, safe); CloudSyncService.schedule(key); }
+
+function emitLearningMutation(type, entityId, details = {}, mutationId = '') {
+  if (!state.currentUser || !type || !entityId) return null;
+  const id = mutationId || `${type}:${state.currentUser.id}:${entityId}:${Date.now().toString(36)}`;
+  window.dispatchEvent(new CustomEvent('klearn-sync-action', { detail: { ...details, type, entityId, mutationId: id, id } }));
+  return id;
+}
 
 function contentResources() { return window.KLEARN_RESOURCE_LIBRARY?.resources || []; }
 function contentVideos() { return window.KLEARN_RESOURCE_LIBRARY?.videos || []; }
@@ -1134,9 +1191,43 @@ const CloudSyncService = {
     return remote ?? local;
   },
   mergeSrs(local = [], remote = []) {
-    const rank = { new: 0, learning: 1, review: 2, mastered: 3 }; const map = new Map();
-    [...local, ...remote].forEach((card) => { const id = card?.wordId || card?.id; if (!id) return; const previous = map.get(id); if (!previous) return map.set(id, card); const latest = new Date(card.updatedAt || card.lastReviewed || 0) >= new Date(previous.updatedAt || previous.lastReviewed || 0) ? card : previous; const stronger = (rank[card.status] || 0) >= (rank[previous.status] || 0) ? card : previous; map.set(id, { ...previous, ...latest, status: stronger.status, mastery: Math.max(previous.mastery || 0, card.mastery || 0), reviewCount: Math.max(previous.reviewCount || 0, card.reviewCount || 0), correctCount: Math.max(previous.correctCount || 0, card.correctCount || 0), wrongCount: Math.max(previous.wrongCount || 0, card.wrongCount || 0), nextReview: new Date(card.nextReview || 0) > new Date(previous.nextReview || 0) ? card.nextReview : previous.nextReview }); });
-    return [...map.values()];
+    const rank = { not_started: 0, new: 0, learning: 1, review: 2, remembered: 2, mastered: 3 }; const map = new Map();
+    const time = (value) => { const parsed = value ? new Date(value).getTime() : 0; return Number.isFinite(parsed) ? parsed : 0; };
+    const deterministicLatest = (a, b) => {
+      const aTime = Math.max(time(a.updatedAt), time(a.lastReviewed), time(a.activatedAt)); const bTime = Math.max(time(b.updatedAt), time(b.lastReviewed), time(b.activatedAt));
+      if (aTime !== bTime) return bTime > aTime ? b : a;
+      return JSON.stringify(b).localeCompare(JSON.stringify(a)) >= 0 ? b : a;
+    };
+    [...local, ...remote].forEach((rawCard) => {
+      const id = rawCard?.wordId || rawCard?.id; if (!id) return;
+      const card = normalizeSrsCard(rawCard); const previous = map.get(id); if (!previous) { map.set(id, card); return; }
+      const latest = deterministicLatest(previous, card); const other = latest === previous ? card : previous;
+      const latestReviewTime = time(latest.lastReviewed); const otherReviewTime = time(other.lastReviewed);
+      let nextReview = null;
+      if (latestReviewTime !== otherReviewTime) nextReview = latestReviewTime > otherReviewTime ? latest.nextReview : other.nextReview;
+      else {
+        const dates = [latest.nextReview, other.nextReview].filter((value) => time(value) > 0).sort((a, b) => time(a) - time(b));
+        nextReview = dates[0] || null;
+      }
+      const status = (rank[latest.status] || 0) >= (rank[other.status] || 0) ? latest.status : other.status;
+      map.set(id, normalizeSrsCard({
+        ...other,
+        ...latest,
+        status,
+        mastery: Math.max(Number(previous.mastery) || 0, Number(card.mastery) || 0),
+        reviewCount: Math.max(Number(previous.reviewCount) || 0, Number(card.reviewCount) || 0),
+        correctCount: Math.max(Number(previous.correctCount) || 0, Number(card.correctCount) || 0),
+        wrongCount: Math.max(Number(previous.wrongCount) || 0, Number(card.wrongCount) || 0),
+        streakCorrect: Math.max(Number(previous.streakCorrect) || 0, Number(card.streakCorrect) || 0),
+        lastReviewed: time(previous.lastReviewed) >= time(card.lastReviewed) ? previous.lastReviewed : card.lastReviewed,
+        nextReview,
+        ease: latestReviewTime >= otherReviewTime ? latest.ease ?? other.ease : other.ease ?? latest.ease,
+        interval: latestReviewTime >= otherReviewTime ? latest.interval ?? other.interval : other.interval ?? latest.interval,
+        intervalDays: latestReviewTime >= otherReviewTime ? latest.intervalDays ?? other.intervalDays : other.intervalDays ?? latest.intervalDays,
+        updatedAt: time(previous.updatedAt) >= time(card.updatedAt) ? previous.updatedAt : card.updatedAt
+      }));
+    });
+    return [...map.values()].sort((a, b) => String(a.wordId).localeCompare(String(b.wordId)));
   },
   mergeProgress(local = {}, remote = {}) {
     const merged = this.mergeValue(local, remote) || {}; const lessons = {};
@@ -1202,15 +1293,16 @@ const MasteryService = {
   status(score = 0) { const value = Number(score) || 0; return value >= 80 ? 'mastered' : value >= 50 ? 'understood' : value > 0 ? 'learning' : 'not_started'; },
   label(status) { return ({ not_started: 'Chưa học', learning: 'Đang học', understood: 'Đã hiểu', mastered: 'Thành thạo' })[status] || 'Chưa học'; },
   lesson(progress = {}) { const score = Number(progress.masteryScore ?? (progress.completed ? 70 : 0)); return { score, status: progress.masteryStatus || this.status(score) }; },
-  updateLesson(lessonId, score, extra = {}) { const progress = getUserProgress(); const current = progress.lessonProgress[lessonId] || {}; progress.lessonProgress[lessonId] = { ...current, ...extra, masteryScore: Math.max(Number(current.masteryScore) || 0, Math.min(100, Number(score) || 0)), masteryStatus: this.status(Math.max(Number(current.masteryScore) || 0, Number(score) || 0)), updatedAt: new Date().toISOString() }; saveUserProgress(progress); return progress.lessonProgress[lessonId]; }
+  updateLesson(lessonId, score, extra = {}) { const progress = getUserProgress(); const current = progress.lessonProgress[lessonId] || {}; progress.lessonProgress[lessonId] = { ...current, ...extra, masteryScore: Math.max(Number(current.masteryScore) || 0, Math.min(100, Number(score) || 0)), masteryStatus: this.status(Math.max(Number(current.masteryScore) || 0, Number(score) || 0)), updatedAt: new Date().toISOString() }; saveUserProgress(progress); emitLearningMutation('mastery_updated', lessonId, { mastery: progress.lessonProgress[lessonId].masteryScore }); return progress.lessonProgress[lessonId]; }
 };
 
 const LearnerProfileService = {
   build() {
-    const progress = getUserProgress(); const history = PracticeService.getHistory(); const profile = { currentTopikLevel: state.currentUser?.currentTopikLevel || 1, targetTopikLevel: state.currentUser?.targetTopikLevel || 2, goal: state.currentUser?.goals || [], learningStyle: state.currentUser?.learningStyle || 'visual', learningMode: state.currentUser?.learningMode || 'casual', explanationStyle: state.currentUser?.explanationStyle || 'step-by-step', studyMinutesPerDay: Number(state.currentUser?.studyMinutesPerDay || 20), strengths: [], weaknesses: [], weakGrammar: [], weakVocabulary: [], weakSkills: [], skillLevels: {}, frequentErrors: [], masteryByTopic: {}, skillScores: { ...progress.skills }, recentMistakes: [], recentLessons: [], dueSrsCount: state.srsData.filter((item) => new Date(item.nextReview) <= new Date()).length, streak: progress.stats.streak, weeklyStudyMinutes: 0, learningPace: 'steady', preferredStudyHour: null, updatedAt: new Date().toISOString() };
+    const progress = getUserProgress(); const history = PracticeService.getHistory(); const profile = { currentTopikLevel: state.currentUser?.currentTopikLevel || 1, targetTopikLevel: state.currentUser?.targetTopikLevel || 2, goal: state.currentUser?.goals || [], learningStyle: state.currentUser?.learningStyle || 'visual', learningMode: state.currentUser?.learningMode || 'casual', explanationStyle: state.currentUser?.explanationStyle || 'step-by-step', studyMinutesPerDay: Number(state.currentUser?.studyMinutesPerDay || 20), strengths: [], weaknesses: [], weakGrammar: [], weakVocabulary: [], weakSkills: [], skillLevels: {}, frequentErrors: [], masteryByTopic: {}, skillScores: { ...progress.skills }, recentMistakes: [], recentLessons: [], dueSrsCount: state.srsData.filter((item) => SRSStateService.isDue(item)).length, streak: progress.stats.streak, weeklyStudyMinutes: 0, learningPace: 'steady', preferredStudyHour: null, updatedAt: new Date().toISOString() };
     const scoredSkills = Object.entries(progress.skills).filter(([, score]) => Number(score) > 0); profile.weakSkills = scoredSkills.filter(([, score]) => score < 60).sort((a,b) => a[1]-b[1]).map(([key]) => key); profile.strengths = scoredSkills.filter(([, score]) => score >= 80).sort((a,b) => b[1]-a[1]).map(([key]) => key); profile.weaknesses = profile.weakSkills.slice();
-    profile.weakVocabulary = state.srsData.filter((item) => item.wrongCount > 0 || item.mastery < 50).sort((a,b) => (b.wrongCount-a.wrongCount) || (a.mastery-b.mastery)).slice(0, 8).map((item) => ({ id: item.wordId, korean: item.korean, mastery: item.mastery, wrongCount: item.wrongCount }));
-    profile.masteryByTopic = Object.fromEntries([...new Set(state.srsData.map((item) => item.topic).filter(Boolean))].map((topic) => { const cards = state.srsData.filter((item) => item.topic === topic); return [topic, Math.round(cards.reduce((sum,item) => sum + (item.mastery || 0), 0) / Math.max(1, cards.length))]; }));
+    const activeCards = state.srsData.filter((item) => SRSStateService.isActive(item));
+    profile.weakVocabulary = activeCards.filter((item) => item.wrongCount > 0 || item.mastery < 50).sort((a,b) => (b.wrongCount-a.wrongCount) || (a.mastery-b.mastery)).slice(0, 8).map((item) => ({ id: item.wordId, korean: item.korean, mastery: item.mastery, wrongCount: item.wrongCount }));
+    profile.masteryByTopic = Object.fromEntries([...new Set(activeCards.map((item) => item.topic).filter(Boolean))].map((topic) => { const cards = activeCards.filter((item) => item.topic === topic); return [topic, Math.round(cards.reduce((sum,item) => sum + (item.mastery || 0), 0) / Math.max(1, cards.length))]; }));
     profile.weakGrammar = Object.entries(PracticeService.getMeta().weakTopics || {}).filter(([, score]) => Number(score) < 60).sort((a,b) => a[1]-b[1]).slice(0, 8).map(([topic, score]) => ({ topic, score }));
     profile.frequentErrors = (window.ErrorNotebookService?.top?.(20) || []).filter((item) => !item.resolved).sort((a,b) => Number(b.count || 1) - Number(a.count || 1)).slice(0, 8).map((item) => ({ id: item.id, type: item.type, topic: item.question || item.type, count: Number(item.count || 1), correction: item.correction || '' }));
     profile.recentMistakes = history.slice(0, 5).flatMap((attempt) => (attempt.wrongQuestionIds || []).map((questionId) => ({ questionId, attemptId: attempt.id, date: attempt.completedAt }))).slice(0, 20);
@@ -1231,9 +1323,10 @@ window.LearnerProfileService = LearnerProfileService;
 const SmartReviewService = {
   forgettingPrediction(card) { const last = new Date(card.lastReviewed || card.createdAt || Date.now()).getTime(); const elapsedDays = Math.max(0, (Date.now() - last) / 86400000); const stabilityDays = Math.max(1, Number(card.intervalDays || card.interval || 3) * (.55 + Math.max(0, Number(card.mastery || 0)) / 100)); return Math.min(.99, Math.max(0, 1 - Math.exp(-elapsedDays / stabilityDays))); },
   priority(card) {
+    if (!SRSStateService.isActive(card) || card.status === SRS_STATES.MASTERED) return Number.NEGATIVE_INFINITY;
     const ageDays = Math.max(0, (Date.now() - new Date(card.lastReviewed || card.createdAt || 0).getTime()) / 86400000);
     const target = Number(state.currentUser?.targetTopikLevel || 2); let score = 0;
-    if (new Date(card.nextReview) <= new Date()) score += 3;
+    if (SRSStateService.isDue(card)) score += 3;
     if (Number(card.wrongCount || 0) >= 2) score += 3;
     if (Number(card.topikLevel || 1) <= target) score += 2;
     if (ageDays >= 14 || !card.lastReviewed) score += 2;
@@ -1241,7 +1334,7 @@ const SmartReviewService = {
     const forgettingRisk = this.forgettingPrediction(card); if (forgettingRisk >= .65) score += 4; if (ageDays >= 30) score += 3;
     return score + forgettingRisk + (100 - (Number(card.mastery) || 0)) / 100;
   },
-  plan(minutes = 20) { const count = Math.max(3, Math.round(Number(minutes) / 2)); const ranked = [...state.srsData].sort((a,b) => this.priority(b) - this.priority(a)); const cards = ranked.slice(0, count); const profile = LearnerProfileService.get() || {}; const graphTopics = window.KnowledgeGraphService?.weaknessAnalysis?.().slice(0, 3) || []; return { minutes: Number(minutes), cards, atRisk: ranked.filter((card) => this.forgettingPrediction(card) >= .65).slice(0, 10).map((card) => ({ wordId: card.wordId, korean: card.korean, mastery: Number(card.mastery || 0), risk: Math.round(this.forgettingPrediction(card) * 100), daysSinceReview: Math.floor((Date.now() - new Date(card.lastReviewed || card.createdAt || Date.now()).getTime()) / 86400000) })), grammar: (profile.weakGrammar || []).slice(0, Math.max(1, Math.round(Number(minutes) / 10))), skills: (profile.weakSkills || []).slice(0, 2), graphTopics, estimatedItems: cards.length + Math.max(1, Math.round(Number(minutes) / 5)) }; },
+  plan(minutes = 20) { const count = Math.max(3, Math.round(Number(minutes) / 2)); const ranked = state.srsData.filter((card) => SRSStateService.isActive(card) && card.status !== SRS_STATES.MASTERED).sort((a,b) => this.priority(b) - this.priority(a)); const cards = ranked.slice(0, count); const profile = LearnerProfileService.get() || {}; const graphTopics = window.KnowledgeGraphService?.weaknessAnalysis?.().slice(0, 3) || []; return { minutes: Number(minutes), cards, atRisk: ranked.filter((card) => this.forgettingPrediction(card) >= .65).slice(0, 10).map((card) => ({ wordId: card.wordId, korean: card.korean, mastery: Number(card.mastery || 0), risk: Math.round(this.forgettingPrediction(card) * 100), daysSinceReview: Math.floor((Date.now() - new Date(card.lastReviewed || card.createdAt || Date.now()).getTime()) / 86400000) })), grammar: (profile.weakGrammar || []).slice(0, Math.max(1, Math.round(Number(minutes) / 10))), skills: (profile.weakSkills || []).slice(0, 2), graphTopics, estimatedItems: cards.length + Math.max(1, Math.round(Number(minutes) / 5)) }; },
   start(minutes) { const plan = this.plan(minutes); if (!plan.cards.length) return toast('Chưa có dữ liệu để tạo phiên ôn thông minh.'); state.reviewSelectionCount = plan.cards.length; state.reviewSource = 'smart'; beginReviewSession(plan.cards.map((card) => card.wordId)); }
 };
 window.SmartReviewService = SmartReviewService;
@@ -1269,7 +1362,7 @@ const DictionaryService = {
   favorites() { return userScoped(STORAGE_KEYS.dictionaryFavorites); },
   isFavorite(id) { return this.favorites().includes(id); },
   toggleFavorite(id) { const next = this.isFavorite(id) ? this.favorites().filter((item) => item !== id) : [id, ...this.favorites()]; saveUserScoped(STORAGE_KEYS.dictionaryFavorites, next, 500); return next.includes(id); },
-  addToSrs(entry) { if (!entry) return; const card = state.srsData.find((item) => item.wordId === entry.id); if (card) VocabularyService.updateCard(entry.id, { status: 'learning', nextReview: new Date().toISOString() }); else saveUserSrs([...state.srsData, normalizeSrsCard({ ...entry, wordId: entry.id, nextReview: new Date().toISOString() }, entry)]); }
+  addToSrs(entry, metadata = {}) { if (!entry || !state.currentUser) return null; const card = state.srsData.find((item) => item.wordId === entry.id); const wasActive = card && SRSStateService.isActive(card); const activatedAt = card?.activatedAt || new Date().toISOString(); const changes = { status: wasActive ? card.status : SRS_STATES.LEARNING, nextReview: card?.nextReview || new Date().toISOString(), activatedAt, sourceLessonId: metadata.lessonId || card?.sourceLessonId || null, activationSource: metadata.source || card?.activationSource || 'explicit-review' }; const updated = card ? VocabularyService.updateCard(entry.id, changes) : (saveUserSrs([...state.srsData, normalizeSrsCard({ ...entry, wordId: entry.id, ...changes }, entry)]), state.srsData.find((item) => item.wordId === entry.id)); if (!wasActive) { const base = `${state.currentUser.id}:${entry.id}:${activatedAt}`; emitLearningMutation('vocabulary_updated', entry.id, { action: 'activated', source: changes.activationSource }, `vocabulary_updated:${base}`); emitLearningMutation('srs_updated', entry.id, { status: updated?.status }, `srs_updated:${base}`); } return updated; }
 };
 
 const SavedSentenceService = {
@@ -1330,20 +1423,20 @@ const AITutorService = {
 
 const VocabularyService = {
   all() { return state.srsData; },
-  dueCards() { return state.srsData.filter((card) => new Date(card.nextReview).getTime() <= Date.now()); },
+  dueCards() { return state.srsData.filter((card) => SRSStateService.isDue(card)); },
   bySource(source) {
     if (source === 'due') return this.dueCards();
-    if (/^topik-[1-6]$/.test(source)) return state.srsData.filter((card) => card.topikLevel === Number(source.slice(-1)));
+    if (/^topik-[1-6]$/.test(source)) return state.srsData.filter((card) => SRSStateService.isActive(card) && card.topikLevel === Number(source.slice(-1)));
     if (source === 'wrong') return state.srsData.filter((card) => card.wrongCount > 0).sort((a, b) => b.wrongCount - a.wrongCount);
     if (source === 'mastered') return state.srsData.filter((card) => card.status === 'mastered');
     if (source === 'review') return state.srsData.filter((card) => ['learning', 'review'].includes(card.status));
-    return state.srsData.filter((card) => card.reviewCount > 0 || card.status !== 'new');
+    return state.srsData.filter((card) => SRSStateService.isActive(card));
   },
   filtered(filters = state.vocabularyFilters) {
     return state.srsData.filter((card) => (filters.topikLevel === 'all' || card.topikLevel === Number(filters.topikLevel))
       && (filters.topic === 'all' || card.topic === filters.topic)
       && (filters.partOfSpeech === 'all' || card.partOfSpeech === filters.partOfSpeech)
-      && (filters.status === 'all' || (filters.status === 'wrong' ? card.wrongCount > 0 : filters.status === 'remembered' ? card.mastery >= 60 && card.status !== 'mastered' : card.status === filters.status))
+      && (filters.status === 'all' || (filters.status === 'wrong' ? card.wrongCount > 0 : filters.status === 'remembered' ? card.mastery >= 60 && card.status !== 'mastered' : filters.status === 'new' ? card.status === SRS_STATES.NOT_STARTED : card.status === filters.status))
       && (!filters.search || `${card.korean} ${card.romanization || getRomanization(card)} ${I18nService.localizedText(card, 'meaning')}`.toLowerCase().includes(filters.search.toLowerCase())));
   },
   optionsFor(card, direction = 'ko_vi') {
@@ -1368,7 +1461,8 @@ const VocabularyService = {
   pretestResult(card, correct, response) {
     const now = new Date().toISOString();
     return this.updateCard(card.wordId, {
-      status: correct ? (card.status === 'new' ? 'learning' : card.status) : 'review',
+      status: correct ? (card.status === SRS_STATES.NOT_STARTED ? 'learning' : card.status) : 'review',
+      activatedAt: card.activatedAt || now,
       correctCount: card.correctCount + (correct ? 1 : 0),
       wrongCount: card.wrongCount + (correct ? 0 : 1),
       streakCorrect: correct ? card.streakCorrect + 1 : 0,
@@ -1496,7 +1590,7 @@ const CloudAccountService = {
       const sameEmailLegacy = getUsers().find((item) => normalizeEmail(item.email) === normalizeEmail(cloudUser.email) && !item.cloudUserId);
       if (sameEmailLegacy) throw new Error('Thiết bị có dữ liệu local cùng email. Hãy đăng nhập local trước và chủ động kết nối cloud để tránh gộp nhầm.');
       const now = new Date().toISOString();
-      local = normalizeUser({ id: `cloud-${cloudUser.id}`, cloudUserId: cloudUser.id, cloudEmail: cloudUser.email, fullName: cloudUser.user_metadata?.full_name || cloudUser.email?.split('@')[0] || 'Người học', email: cloudUser.email || '', avatar: 'TH', goals: [], level: 'Beginner', currentTopikLevel: 1, targetTopikLevel: 2, onboardingCompleted: true, onboardingStep: 'completed', createdAt: now, updatedAt: now });
+      local = normalizeUser({ id: `cloud-${cloudUser.id}`, cloudUserId: cloudUser.id, cloudEmail: cloudUser.email, fullName: cloudUser.user_metadata?.full_name || cloudUser.email?.split('@')[0] || 'Người học', email: cloudUser.email || '', avatar: 'TH', goals: [], level: 'Beginner', currentTopikLevel: 1, targetTopikLevel: 2, onboardingCompleted: false, onboardingStep: 'goals', createdAt: now, updatedAt: now });
       saveUsers([...getUsers(), local]); initializeUserData(local.id);
     } else if (local.cloudUserId !== cloudUser.id) {
       const users = getUsers(); const index = users.findIndex((item) => item.id === local.id); users[index] = normalizeUser({ ...local, cloudUserId: cloudUser.id, cloudEmail: cloudUser.email, updatedAt: new Date().toISOString() }); saveUsers(users); local = users[index];
@@ -1688,8 +1782,8 @@ function roadmapFor(level) {
 }
 
 function homeView() {
-  if (window.DailyLearningExperienceService?.homeView) return window.DailyLearningExperienceService.homeView();
   if (state.currentUser?.learningTrack === 'foundation' && window.BeginnerFoundation?.homeView) return window.BeginnerFoundation.homeView();
+  if (window.DailyLearningExperienceService?.homeView) return window.DailyLearningExperienceService.homeView();
   const progress = getUserProgress();
   const pct = dailyCompletion(progress);
   const dueCount = VocabularyService.dueCards().length;
@@ -1725,7 +1819,7 @@ function dictionaryView() {
 function dictionaryEntryView(entry) {
   const favorite = DictionaryService.isFavorite(entry.id); const meaning = I18nService.localizedText(entry, 'meaning') || (I18nService.getPreference() === 'vi' ? entry.meanings?.vi || '' : '');
   const examples = Array.isArray(entry.examples) && entry.examples.length ? `<h3>Ví dụ</h3>${entry.examples.map((example) => { const translation = I18nService.getLocalizedValue(example.translations, I18nService.getPreference(), example.translations?.vi || ''); return `<div class="example"><div class="korean contextual-line" lang="ko">${contextualizeKorean(example.korean)}</div><div class="dictionary-romanization">${escapeHtml(example.romanization || getRomanization({ korean: example.korean }))}</div><div>${escapeHtml(translation)}</div><button class="audio-btn" data-speak="${escapeHtml(example.korean)}">🔊</button></div>`; }).join('')}` : '<p class="subtle">Chưa có ví dụ cho mục này.</p>';
-  return `<section class="section page-heading"><button class="back-link" data-view="dictionary">← Quay lại</button><p class="eyebrow">📖 Từ điển</p><h1 class="headline" lang="ko">${escapeHtml(entry.korean)}</h1><p class="dictionary-romanization">${escapeHtml(entry.romanization || getRomanization(entry))}</p><p class="subtle">${escapeHtml(entry.partOfSpeech || 'Từ vựng')} · TOPIK ${entry.topikLevel || 1}</p></section><section class="card dictionary-entry section"><h2>${escapeHtml(meaning)}</h2><div class="entry-actions"><button class="btn primary" data-speak="${escapeHtml(entry.audioText || entry.korean)}">🔊 Nghe</button><button class="btn secondary" data-toggle-favorite="${entry.id}">${favorite ? '★ Đã lưu' : '☆ Lưu từ'}</button><button class="btn secondary" data-add-srs="${entry.id}">🧠 Thêm vào ôn tập</button></div>${examples}</section><button class="btn primary full" data-view="translation-hub" data-translate-seed="${escapeHtml(entry.korean)}">🌐 Dịch & đặt câu</button>`;
+  return `<section class="section page-heading"><button class="back-link" data-view="dictionary">← Quay lại</button><p class="eyebrow">📖 Từ điển</p><h1 class="headline" lang="ko">${escapeHtml(entry.korean)}</h1><p class="dictionary-romanization">${escapeHtml(entry.romanization || getRomanization(entry))}</p><p class="subtle">${escapeHtml(entry.partOfSpeech || 'Từ vựng')} · TOPIK ${entry.topikLevel || 1}</p></section><section class="card dictionary-entry section"><h2>${escapeHtml(meaning)}</h2><div class="entry-actions"><button class="btn primary" data-speak="${escapeHtml(entry.audioText || entry.korean)}">🔊 Giọng đọc thiết bị</button><button class="btn secondary" data-toggle-favorite="${entry.id}">${favorite ? '★ Đã lưu' : '☆ Lưu từ'}</button><button class="btn secondary" data-add-srs="${entry.id}">🧠 Thêm vào ôn tập</button></div><p class="subtle">Âm thanh được tạo bằng giọng tiếng Hàn có sẵn trên thiết bị, không phải bản thu người bản xứ.</p>${examples}</section><button class="btn primary full" data-view="translation-hub" data-translate-seed="${escapeHtml(entry.korean)}">🌐 Dịch & đặt câu</button>`;
 }
 
 function renderContextDictionary() {
@@ -1830,10 +1924,23 @@ function renderAiWidget() {
   const form = document.getElementById('aiForm'); if (form) form.addEventListener('submit', (event) => { event.preventDefault(); const input = document.getElementById('aiInput'); const value = input?.value.trim(); if (value) { input.value = ''; AITutorService.send(value); } });
 }
 
+function currentLessonContent() {
+  return window.CurriculumService?.lesson?.(state.selectedLessonPreview) || (window.KLEARN_THEORY_LESSONS || []).find((item) => item.id === state.selectedLessonPreview) || (window.KLEARN_THEORY_LESSONS || [])[0] || { id: 'topic-particle', title: 'Bài học tiếng Hàn', topic: 'Ngữ pháp', estimatedMinutes: 10, theory: { vi: 'Học một cấu trúc tiếng Hàn theo ngữ cảnh.' }, grammar: { vi: 'Luyện mẫu câu và kiểm tra ngay trong bài.' } };
+}
+
+function lessonVocabulary(lesson = currentLessonContent()) {
+  const ids = [...(Array.isArray(lesson.vocabularyIds) ? lesson.vocabularyIds : []), ...(Array.isArray(lesson.vocabulary) ? lesson.vocabulary.map((item) => typeof item === 'string' ? item : item?.id) : []), ...(Array.isArray(lesson.links?.vocabulary) ? lesson.links.vocabulary : [])].filter(Boolean);
+  const explicit = ids.map((id) => DictionaryService.byId(id) || DictionaryService.search(id).find((entry) => entry.id === id || entry.korean === id)).filter(Boolean);
+  if (explicit.length) return [...new Map(explicit.map((entry) => [entry.id, entry])).values()].slice(0, 3);
+  const topical = DictionaryService.search(lesson.topic || '').filter((entry) => entry?.id).slice(0, 3);
+  if (topical.length) return topical;
+  return ['학교', '공부하다'].map((term) => DictionaryService.search(term).find((entry) => entry.korean === term)).filter(Boolean);
+}
+
 function lessonView() {
-  const lesson = window.CurriculumService?.lesson?.(state.selectedLessonPreview) || (window.KLEARN_THEORY_LESSONS || []).find((item) => item.id === state.selectedLessonPreview) || (window.KLEARN_THEORY_LESSONS || [])[0] || { id: 'topic-particle', title: 'Bài học tiếng Hàn', topic: 'Ngữ pháp', estimatedMinutes: 10, theory: { vi: 'Học một cấu trúc tiếng Hàn theo ngữ cảnh.' }, grammar: { vi: 'Luyện mẫu câu và kiểm tra ngay trong bài.' } };
+  const lesson = currentLessonContent();
   const completed = Boolean(state.lessonProgress[lesson.id]?.completed); const step = Math.max(0, Math.min(6, Number(state.lessonStep) || 0)); const romanization = showRomanizationEnabled();
-  const words = DictionaryService.search(lesson.topic || '').slice(0, 3); const fallbackWords = [DictionaryService.byId('word-학교'), DictionaryService.byId('word-공부')].filter(Boolean); const lessonWords = words.length ? words : fallbackWords;
+  const lessonWords = lessonVocabulary(lesson);
   const wordButton = (word) => word ? `<button class="context-word" data-context-word="${escapeHtml(word.korean)}" lang="ko">${escapeHtml(word.korean)}</button>` : '';
   const examples = lesson.id === 'topic-particle' ? [['저는 학생입니다.', 'Tôi là học sinh.'], ['선생님은 한국 사람입니다.', 'Giáo viên là người Hàn Quốc.']] : [['한국어를 꾸준히 연습해요.', 'Tôi luyện tiếng Hàn đều đặn.'], [`${lesson.topic || '오늘'}에 대해 이야기해요.`, `Cùng nói về chủ đề ${lesson.topic || 'hôm nay'}.`]];
   const stepTitles = ['Mục tiêu', 'Từ vựng', 'Giải thích', 'Ví dụ', 'Quick Check', 'Practice', 'Tổng kết'];
@@ -2021,7 +2128,7 @@ function reviewEligibleCards() {
 function reviewView() {
   const cards = reviewEligibleCards();
   if (!cards.length) {
-    const next = [...state.srsData].sort((a, b) => new Date(a.nextReview) - new Date(b.nextReview))[0];
+    const next = state.srsData.filter((card) => SRSStateService.isActive(card) && card.status !== SRS_STATES.MASTERED && card.nextReview).sort((a, b) => new Date(a.nextReview) - new Date(b.nextReview))[0];
     return `<section class="empty-state"><div class="celebration">🎉</div><h1 class="headline">Không có từ phù hợp</h1><p class="subtle">${next ? `Thẻ đến hạn tiếp theo dự kiến vào ${formatDate(next.nextReview)}.` : 'Hãy chọn nguồn từ khác.'}</p><button class="btn secondary" id="resetReviewSource">Xem từ đến hạn</button><button class="btn primary" data-view="vocabulary-hub">Mở kho từ vựng</button></section>`;
   }
   const max = cards.length;
@@ -2451,7 +2558,7 @@ function bindEvents() {
   document.querySelectorAll('[data-lesson-prev]').forEach((button) => { button.onclick = () => { state.lessonStep = Math.max(0, (Number(state.lessonStep) || 0) - 1); render(); }; });
   document.querySelectorAll('[data-lesson-choice]').forEach((button) => { button.onclick = () => { const key = button.dataset.lessonChoice; const answer = button.dataset.answer; const correct = (key === 'location' && answer === '에') || (key === 'past' && answer === '만났어요'); state.lessonCheck = { key, answer, correct }; render(); }; });
   document.querySelectorAll('[data-speak]').forEach((button) => { button.onclick = (event) => { event.stopPropagation(); speakKorean(button.dataset.speak); }; });
-  document.querySelectorAll('[data-context-word]').forEach((button) => { button.onclick = (event) => { event.stopPropagation(); state.contextDictionaryTerm = button.dataset.contextWord; renderContextDictionary(); }; });
+  document.querySelectorAll('[data-context-word]').forEach((button) => { button.onclick = (event) => { event.stopPropagation(); state.contextDictionaryTerm = button.dataset.contextWord; const entry = DictionaryService.search(state.contextDictionaryTerm).find((item) => item.korean === state.contextDictionaryTerm) || DictionaryService.search(state.contextDictionaryTerm)[0]; if (entry) DictionaryService.addToSrs(entry, { source: 'word-open' }); renderContextDictionary(); }; });
   const contextRoot = document.getElementById('contextDictionaryRoot'); if (contextRoot) contextRoot.onclick = (event) => { const close = event.target.closest('[data-context-close]'); if (close) return closeContextDictionary(); const speak = event.target.closest('[data-context-speak]'); if (speak) return speakKorean(speak.dataset.contextSpeak); const favorite = event.target.closest('[data-context-favorite]'); if (favorite) { DictionaryService.toggleFavorite(favorite.dataset.contextFavorite); return renderContextDictionary(); } const srs = event.target.closest('[data-context-srs]'); if (srs) { DictionaryService.addToSrs(DictionaryService.byId(srs.dataset.contextSrs)); toast('Đã thêm vào bộ ôn tập.'); return; } const open = event.target.closest('[data-context-open-dictionary]'); if (open) { state.dictionarySelectedId = open.dataset.contextOpenDictionary; closeContextDictionary(); return setView('dictionary'); } const ask = event.target.closest('[data-context-ask-ai]'); if (ask) { closeContextDictionary(); state.aiOpen = true; renderAiWidget(); return; } };
   document.querySelectorAll('[data-romanization-toggle]').forEach((button) => { button.onclick = () => { setShowRomanization(!showRomanizationEnabled()); render(); }; });
   document.querySelectorAll('[data-theme-choice]').forEach((input) => { input.onchange = () => { ThemeService.setPreference(input.value); render(); }; });
@@ -2542,7 +2649,7 @@ function bindEvents() {
   document.querySelectorAll('[data-smart-minutes]').forEach((button) => { button.onclick = () => { state.smartReviewMinutes = Number(button.dataset.smartMinutes); render(); }; });
   document.querySelectorAll('[data-start-smart-review]').forEach((button) => { button.onclick = () => SmartReviewService.start(Number(button.dataset.startSmartReview)); });
   document.querySelectorAll('[data-open-ai]').forEach((button) => button.addEventListener('click', () => { state.aiOpen = true; const conversation = AITutorService.ensure(); state.aiConversationId = conversation.id; renderAiWidget(); const input = document.getElementById('aiInput'); if (input) { input.value = button.dataset.openAi || ''; input.focus(); } }));
-  document.querySelectorAll('[data-dictionary-id]').forEach((button) => { button.onclick = () => { state.dictionarySelectedId = button.dataset.dictionaryId; const entry = DictionaryService.byId(state.dictionarySelectedId); DictionaryService.addRecent(entry); render(); }; });
+  document.querySelectorAll('[data-dictionary-id]').forEach((button) => { button.onclick = () => { state.dictionarySelectedId = button.dataset.dictionaryId; const entry = DictionaryService.byId(state.dictionarySelectedId); DictionaryService.addRecent(entry); DictionaryService.addToSrs(entry, { source: 'dictionary-open' }); render(); }; });
   document.querySelectorAll('[data-translate-seed]').forEach((button) => { button.onclick = () => { state.translationDraft = button.dataset.translateSeed || ''; state.translationDirection = 'ko-vi'; setView('translation-hub'); }; });
   const dictionarySearchForm = document.getElementById('dictionarySearchForm'); if (dictionarySearchForm) dictionarySearchForm.onsubmit = (event) => { event.preventDefault(); state.dictionaryQuery = String(new FormData(dictionarySearchForm).get('query') || '').trim(); state.dictionarySelectedId = ''; render(); };
   const dictionaryPos = document.getElementById('dictionaryPos'); if (dictionaryPos) dictionaryPos.onchange = () => { state.dictionaryFilter = dictionaryPos.value; render(); };
@@ -2864,7 +2971,7 @@ function startVocabularyTest(event) {
   const requestedCount = Number(form.get('count')) || 10;
   const source = String(form.get('source') || 'review');
   let pool = VocabularyService.bySource(source);
-  if (!pool.length) pool = dueCards().length ? dueCards() : state.srsData;
+  if (!pool.length) pool = dueCards().length ? dueCards() : state.srsData.filter((card) => SRSStateService.isActive(card));
   const cardIds = sampleItems(pool, Math.min(requestedCount, pool.length)).map((card) => card.wordId);
   state.vocabularyTest = { source, cardIds, index: 0, results: [], currentQuestion: null, startedAt: new Date().toISOString() };
   setView(cardIds.length ? 'vocab-test' : 'vocab-test-result');
@@ -3064,11 +3171,17 @@ function completeLesson() {
   const lessonId = state.selectedLessonPreview || 'topic-particle';
   if (!state.lessonCheck?.correct && !state.sentenceCorrect && !state.lessonProgress[lessonId]?.completed) return;
   const progress = getUserProgress();
-  if (!progress.lessonProgress[lessonId]?.completed) {
+  const firstCompletion = !progress.lessonProgress[lessonId]?.completed;
+  if (firstCompletion) {
     const existing = progress.lessonProgress[lessonId] || {};
-    progress.lessonProgress[lessonId] = { ...existing, completed: true, completedAt: new Date().toISOString(), score: state.lessonCheck?.correct ? 100 : 80, masteryScore: Math.max(Number(existing.masteryScore) || 0, state.lessonCheck?.correct ? 80 : 70), masteryStatus: MasteryService.status(Math.max(Number(existing.masteryScore) || 0, state.lessonCheck?.correct ? 80 : 70)), recallCount: Number(existing.recallCount || 0) + 1, contentVersion: 1, updatedAt: new Date().toISOString() };
+    const completedAt = new Date().toISOString();
+    progress.lessonProgress[lessonId] = { ...existing, completed: true, completedAt, score: state.lessonCheck?.correct ? 100 : 80, masteryScore: Math.max(Number(existing.masteryScore) || 0, state.lessonCheck?.correct ? 80 : 70), masteryStatus: MasteryService.status(Math.max(Number(existing.masteryScore) || 0, state.lessonCheck?.correct ? 80 : 70)), recallCount: Number(existing.recallCount || 0) + 1, contentVersion: 1, updatedAt: completedAt };
     progress.stats.lessonsCompleted += 1;
     progress.skills.reading = Math.min(100, progress.skills.reading + 5);
+    lessonVocabulary(currentLessonContent()).forEach((entry) => DictionaryService.addToSrs(entry, { source: 'lesson-completed', lessonId }));
+    const mutationBase = `${state.currentUser.id}:${lessonId}:${completedAt}`;
+    emitLearningMutation('completed_lesson', lessonId, { status: 'completed', score: progress.lessonProgress[lessonId].score }, `completed_lesson:${mutationBase}`);
+    emitLearningMutation('mastery_updated', lessonId, { mastery: progress.lessonProgress[lessonId].masteryScore }, `mastery_updated:${mutationBase}`);
     window.UserResearchService?.track?.('lesson_completed', { contentId: lessonId, feature: 'lesson', score: progress.lessonProgress[lessonId].score });
   }
   progress.daily.tasks.lesson = true;
@@ -3101,6 +3214,9 @@ function rateSrs(rating) {
     skipCurrentSession: false,
     lastResult: { wordId: card.wordId, result: remembered ? 'correct' : 'wrong', rating, testedAt: new Date(now).toISOString(), response: rating, correct: remembered }
   });
+  const mutationBase = `${state.currentUser.id}:${card.wordId}:${new Date(now).toISOString()}`;
+  emitLearningMutation('srs_updated', card.wordId, { status: updated.status, rating, nextReview: updated.nextReview }, `srs_updated:${mutationBase}`);
+  emitLearningMutation('vocabulary_updated', card.wordId, { mastery: updated.mastery, reviewCount: updated.reviewCount }, `vocabulary_updated:${mutationBase}`);
   const progress = getUserProgress();
   progress.daily.tasks.vocabulary = true;
   progress.stats.wordsLearned = Math.max(progress.stats.wordsLearned, state.srsData.filter((item) => item.reviewCount > 0).length);
@@ -3255,7 +3371,7 @@ window.addEventListener('klearn-cloud-auth', (event) => {
 });
 window.SupabaseService?.init?.().then(() => CloudAccountService.restore()).then(() => { if (state.currentUser && state.currentView === 'profile') render(); });
 
-window.KLEARN_APP = { storage, state, STORAGE_KEYS, render, setView, toast, escapeHtml, normalizeSearch, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, updateCurrentUser, LearnerProfileService, MasteryService, VocabularyService, DictionaryService, PracticeService, startTopikExam, CloudSyncService, AITutorService, PrivacyPreferenceService, LocalAuthCredentialService, auth, createSessionRecord, sessionExpired, PronunciationProvider, getDisplayPronunciation, speakKorean, AccessControlService, ContentReviewService: window.ContentReviewService, NotesService, BookmarkService, SupportService, QuestionBankService };
+window.KLEARN_APP = { storage, state, STORAGE_KEYS, SRS_STATES, SRSStateService, render, setView, toast, escapeHtml, normalizeSearch, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, updateCurrentUser, emitLearningMutation, LearnerProfileService, MasteryService, VocabularyService, DictionaryService, PracticeService, startTopikExam, lessonVocabulary, completeLesson, CloudSyncService, CloudAccountService, AITutorService, PrivacyPreferenceService, LocalAuthCredentialService, auth, createSessionRecord, sessionExpired, PronunciationProvider, getDisplayPronunciation, speakKorean, AccessControlService, ContentReviewService: window.ContentReviewService, NotesService, BookmarkService, SupportService, QuestionBankService };
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('[Tiếng Hàn - TamHoanq] Service worker không đăng ký được.', error)));

@@ -4,7 +4,7 @@
   const app = global.KLEARN_APP;
   if (!app) return;
 
-  const { state, render, setView, toast, escapeHtml, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, updateCurrentUser, MasteryService } = app;
+  const { state, render, setView, toast, escapeHtml, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, updateCurrentUser, MasteryService, DictionaryService, emitLearningMutation } = app;
   const now = () => new Date().toISOString();
   const uniq = (items) => [...new Set(items)];
   const firstName = (name = '') => name.trim().split(/\s+/).filter(Boolean).pop() || 'bạn';
@@ -313,9 +313,14 @@
     const current = foundationProgress();
     const selected = uniq([...current.firstWords, wordId]);
     saveFoundation({ firstWords: selected });
-    const cards = getUserSrs();
-    const stamp = new Date(Date.now() - 60000).toISOString();
-    saveUserSrs(cards.map((card) => (card.wordId === wordId || card.id === wordId) ? { ...card, status: card.status === 'mastered' ? 'mastered' : 'learning', nextReview: stamp, foundationWord: true } : card));
+    const entry = DictionaryService?.byId?.(wordId);
+    if (entry) DictionaryService.addToSrs(entry, { source: 'foundation-first-word' });
+    else {
+      const cards = getUserSrs(); const stamp = new Date().toISOString();
+      saveUserSrs(cards.map((card) => (card.wordId === wordId || card.id === wordId) ? { ...card, status: card.status === 'mastered' ? 'mastered' : 'learning', nextReview: stamp, activatedAt: card.activatedAt || stamp, foundationWord: true } : card));
+      emitLearningMutation?.('vocabulary_updated', wordId, { action: 'activated', source: 'foundation-first-word' }, `vocabulary_updated:${state.currentUser.id}:${wordId}:${stamp}`);
+      emitLearningMutation?.('srs_updated', wordId, { status: 'learning' }, `srs_updated:${state.currentUser.id}:${wordId}:${stamp}`);
+    }
     toast('Đã thêm từ vào SRS.');
   }
 

@@ -37,7 +37,8 @@ function boot({ userId = 'learner-a', returning = false, history = [], errors = 
         getHistory: () => history,
         startQuestions: (items, title, type) => { window.startedQuick = { items, title, type }; return true; }
       },
-      LearnerProfileService: { get: () => ({ skillScores: originalProgress.skills }) }
+      LearnerProfileService: { get: () => ({ skillScores: originalProgress.skills }) },
+      VocabularyService: { dueCards: () => learningTrack === 'foundation' ? [] : [{ wordId: 'learned-due' }] }
     },
     FocusSessionService: focus,
     ErrorNotebookService: { top: () => errors },
@@ -58,7 +59,8 @@ function boot({ userId = 'learner-a', returning = false, history = [], errors = 
 const newcomer = boot({ userId: 'new-user', learningTrack: 'foundation' });
 assert.match(newcomer.window.DailyLearningExperienceService.homeView(), /Bắt đầu học hôm nay/);
 assert.match(newcomer.window.DailyLearningExperienceService.homeView(), /Chưa có lỗi cần sửa/);
-assert.equal(newcomer.window.DailyLearningExperienceService.plan.build(15).tasks[1].route, 'foundation');
+assert.equal(newcomer.window.DailyLearningExperienceService.plan.build(15).tasks[0].route, 'foundation');
+assert.equal(newcomer.window.DailyLearningExperienceService.plan.build(15).tasks.some((task) => task.type === 'srs'), false);
 assert.deepEqual(newcomer.progress, { stats: { streak: 4, lessonsCompleted: 3 }, skills: { vocabulary: 62, grammar: 45, listening: 40 } }, 'rendering does not mutate progress');
 
 const existing = boot({ userId: 'existing-user', errors: [{ id: 'e-1', type: 'grammar', mistake: '저가 학생', correction: '제가 학생', explanation: 'Dùng 제가.', count: 2 }] });
@@ -98,7 +100,7 @@ assert.equal(existing.window.startedQuick.items.length, 9);
 const returning = boot({ userId: 'returning-user', returning: true, errors: [{ id: 'e-2', mistake: '은', correction: '는' }] });
 const recovery = returning.window.DailyLearningExperienceService.plan.build(15);
 assert.equal(recovery.recovery, true);
-assert.deepEqual([...recovery.tasks.map((item) => item.title)], ['Ôn 10 từ quan trọng', 'Sửa 1 lỗi cần nhớ', 'Học 1 bài ngắn']);
+assert.deepEqual([...recovery.tasks.map((item) => item.title)], ['Ôn 1 từ đến hạn', 'Sửa 1 lỗi cần nhớ', 'Học 1 bài ngắn']);
 assert.equal(recovery.tasks.reduce((sum, item) => sum + item.minutes, 0), 15);
 assert.match(returning.window.DailyLearningExperienceService.homeView(), /Recovery Plan · Ngày 1/);
 

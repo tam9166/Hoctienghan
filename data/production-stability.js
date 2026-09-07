@@ -76,10 +76,11 @@
     all() { return array(object(storage.get(backupKey, {}))[uid()]); }
   };
 
-  const allowedQueueActions = new Set(['completed_lesson', 'updated_vocabulary', 'finished_quiz']);
+  const queueAliases = Object.freeze({ updated_vocabulary: 'vocabulary_updated', finished_quiz: 'practice_completed' });
+  const allowedQueueActions = new Set(['completed_lesson', 'vocabulary_updated', 'srs_updated', 'mastery_updated', 'practice_completed']);
   const BackgroundSyncQueueService = {
     all() { return array(userScoped?.(queueKey)); },
-    enqueue(input = {}) { const type = clean(input.type, 40); if (!allowedQueueActions.has(type) || !uid() || uid() === 'anonymous') return null; const item = { id: clean(input.id || `${type}-${Date.now()}`, 100), type, entityId: clean(input.entityId || input.lessonId || input.wordId || input.quizId, 100), status: clean(input.status || 'pending', 30), score: Number.isFinite(Number(input.score)) ? Number(input.score) : null, queuedAt: now() }; saveUserScoped?.(queueKey, [item, ...this.all().filter((entry) => entry.id !== item.id)].slice(0, 100), 100); return item; },
+    enqueue(input = {}) { const requestedType = clean(input.type, 40); const type = queueAliases[requestedType] || requestedType; if (!allowedQueueActions.has(type) || !uid() || uid() === 'anonymous') return null; const entityId = clean(input.entityId || input.lessonId || input.wordId || input.quizId, 100); if (!entityId) return null; const mutationId = clean(input.mutationId || input.id || `${type}:${uid()}:${entityId}:${Date.now().toString(36)}`, 180); const existing = this.all().find((entry) => entry.mutationId === mutationId || entry.id === mutationId); if (existing) return existing; const item = { id: mutationId, mutationId, type, entityId, status: clean(input.status || 'pending', 30), score: Number.isFinite(Number(input.score)) ? Number(input.score) : null, queuedAt: now() }; saveUserScoped?.(queueKey, [item, ...this.all()].slice(0, 100), 100); return item; },
     async flush() { const items = this.all(); if (!items.length || global.navigator?.onLine === false) return { flushed: 0, pending: items.length, status: 'offline' }; if (!CloudSyncService?.isConfigured?.()) return { flushed: 0, pending: items.length, status: 'local' }; try { const synced = await CloudSyncService.flush?.('background-queue'); if (synced !== true) return { flushed: 0, pending: items.length, status: 'error' }; saveUserScoped?.(queueKey, [], 100); return { flushed: items.length, pending: 0, status: 'synced' }; } catch (error) { ProductionMonitoringService.captureError({ type: 'sync', module: 'background-queue', error }); return { flushed: 0, pending: items.length, status: 'error' }; } },
     pending() { return this.all().length; }
   };

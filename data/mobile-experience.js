@@ -114,7 +114,7 @@
   const MobileWidgetService = {
     snapshot() {
       const feed = global.DailyKoreanFeedService?.today?.();
-      const due = (state.srsData || []).filter((item) => !item.nextReview || new Date(item.nextReview).getTime() <= Date.now()).length;
+      const due = app.VocabularyService?.dueCards?.().length || 0;
       return { generatedAt: new Date().toISOString(), today: feed ? { id: feed.id || dayKey(), korean: Array.isArray(feed.phrase) ? feed.phrase[0] : feed.ko || '오늘의 한국어', meaning: Array.isArray(feed.phrase) ? feed.phrase[1] : feed.meaning || '' } : { id: dayKey(), korean: '오늘도 한 걸음', meaning: 'Hôm nay thêm một bước' }, review: { dueCount: due, route: 'review' }, containsPrivateContent: false };
     },
     contract() { return { ...MobileContentService.contract().widget, refreshPolicy: 'timeline-or-app-event', snapshot: this.snapshot() }; }

@@ -53,7 +53,7 @@
       const dictionaryEntry = DictionaryService?.all?.().find((entry) => entry.korean === term);
       if (dictionaryEntry) { DictionaryService.addToSrs(dictionaryEntry); return true; }
       const wordId = `real-world-${safeId(item.reading || item.term)}`; if ((state.srsData || []).some((card) => card.wordId === wordId || card.korean === item.term)) return true;
-      saveUserSrs([...(state.srsData || []), { id: wordId, wordId, userId: state.currentUser?.id, korean: item.term, romanization: item.reading || '', meaningVi: item.meaning?.vi || localize(item.meaning), meaningEn: item.meaning?.en || '', meaningZh: item.meaning?.['zh-CN'] || '', status: 'new', reviewCount: 0, correctCount: 0, wrongCount: 0, mastery: 0, nextReview: now(), difficulty: 'new', source: 'real-world-assistant' }]);
+      const activatedAt = now(); saveUserSrs([...(state.srsData || []), { id: wordId, wordId, userId: state.currentUser?.id, korean: item.term, romanization: item.reading || '', meaningVi: item.meaning?.vi || localize(item.meaning), meaningEn: item.meaning?.en || '', meaningZh: item.meaning?.['zh-CN'] || '', status: 'learning', reviewCount: 0, correctCount: 0, wrongCount: 0, mastery: 0, nextReview: activatedAt, activatedAt, difficulty: 'new', source: 'real-world-assistant' }]);
       return true;
     },
     privacy() { return { uploads: false, imageStored: false, textStored: false, processing: global.TextDetector ? 'on-device-ocr' : 'manual-text-fallback' }; }
