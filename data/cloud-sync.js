@@ -46,10 +46,23 @@
       return state.initPromise;
     },
     createProvider() {
+      const ensureSyncAllowed = () => { if (window.PrivacyPreferenceService?.allows?.('cloudSync') === false) { const error = new Error('Bạn đã tắt CloudSync.'); error.code = 'CLOUD_SYNC_DISABLED_BY_USER'; throw error; } };
       return {
         getUserId: () => state.session?.user?.id || null,
-        async pull() { const userId = state.session?.user?.id; if (!userId) throw new Error('Cloud authentication required'); const { data, error } = await state.client.from('learning_sync').select('payload,schema_version,updated_at').eq('user_id', userId).maybeSingle(); if (error) throw error; return data?.payload || null; },
-        async push(snapshot) { const userId = state.session?.user?.id; if (!userId) throw new Error('Cloud authentication required'); const { error } = await state.client.from('learning_sync').upsert({ user_id: userId, payload: snapshot, schema_version: snapshot.schemaVersion || 1, updated_at: snapshot.updatedAt }, { onConflict: 'user_id' }); if (error) throw error; }
+        async pull() {
+          ensureSyncAllowed(); const userId = state.session?.user?.id; if (!userId) throw new Error('Cloud authentication required');
+          let result = await state.client.from('learning_sync').select('payload,schema_version,updated_at,revision').eq('user_id', userId).maybeSingle();
+          if (result.error && ['42703', 'PGRST204'].includes(result.error.code)) result = await state.client.from('learning_sync').select('payload,schema_version,updated_at').eq('user_id', userId).maybeSingle();
+          if (result.error) throw result.error; return { snapshot: result.data?.payload || null, revision: Math.max(0, Number(result.data?.revision) || 0) };
+        },
+        async push(snapshot, options = {}) {
+          ensureSyncAllowed(); const userId = state.session?.user?.id; if (!userId) throw new Error('Cloud authentication required');
+          if (!state.client?.rpc) { const error = new Error('CloudSync CAS migration is required.'); error.code = 'CLOUD_SYNC_CAS_UNAVAILABLE'; throw error; }
+          const { data, error } = await state.client.rpc('compare_and_swap_learning_sync', { p_expected_revision: Math.max(0, Number(options.expectedRevision) || 0), p_payload: snapshot, p_schema_version: snapshot.schemaVersion || 1, p_mutation_id: String(options.mutationId || '') });
+          if (error) { const safeError = new Error(error.message || 'CloudSync CAS failed'); safeError.code = error.code || 'CLOUD_SYNC_CAS_FAILED'; throw safeError; }
+          const row = Array.isArray(data) ? data[0] : data;
+          return { conflict: row?.sync_status === 'conflict', applied: row?.was_applied === true, duplicate: row?.was_duplicate === true, revision: Math.max(0, Number(row?.current_revision) || 0), snapshot: row?.current_payload || null };
+        }
       };
     }
   };

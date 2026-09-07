@@ -23,9 +23,11 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const limit = rateLimit(req, { bucket: 'ai', max: 40, windowMs: 60000 });
   if (!limit.allowed) { res.setHeader('Retry-After', String(limit.retryAfterSeconds)); return res.status(429).json({ error: 'Too many AI requests', retryAfterSeconds: limit.retryAfterSeconds }); }
+  const body = req.body && typeof req.body === 'object' ? req.body : {};
+  const consentHeader = String(req?.headers?.['x-klearn-ai-consent'] || '').toLowerCase();
+  if (consentHeader !== 'granted' || body.privacy?.aiEnabled !== true) return res.status(403).json({ code: 'AI_DISABLED_BY_USER', error: 'Bạn đã tắt tính năng AI.', action: { label: 'Mở cài đặt', route: 'profile' } });
   const key = process.env.OPENAI_API_KEY;
   if (!key) return res.status(503).json({ configured: false });
-  const body = req.body && typeof req.body === 'object' ? req.body : {};
   const messages = Array.isArray(body.messages) ? body.messages.map(cleanMessage).filter(Boolean).slice(-MAX_MESSAGES) : [];
   if (!messages.length || messages[messages.length - 1].role !== 'user') return res.status(400).json({ error: 'A user message is required' });
   const language = ['vi', 'en', 'zh-CN', 'ko', 'ja', 'zh'].includes(body.learningLanguage) ? body.learningLanguage : 'vi';

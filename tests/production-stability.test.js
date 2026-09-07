@@ -62,8 +62,8 @@ function boot() {
   assert.equal(w.ProductionCacheService.policy().privateDataCached, false);
   assert.match(appSource, /productionTelemetry: 'klearn_production_telemetry'/);
   assert.match(index, /production-stability\.css\?v=1/);
-  assert.match(index, /data\/production-stability\.js\?v=1/);
-  assert.match(sw, /klearn-v68/);
+  assert.match(index, /data\/production-stability\.js\?v=2/);
+  assert.match(sw, /klearn-v69/);
   assert.match(sw, /authorization/);
   assert.match(migration, /production_error_events/);
   assert.match(migration, /production_performance_metrics/);

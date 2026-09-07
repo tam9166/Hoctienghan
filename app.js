@@ -188,6 +188,33 @@ const state = {
   ,globalQuery: '', smartReviewMinutes: 20, cloudUser: null, cloudAuthBusy: false, cloudAuthMessage: ''
 };
 
+const PRIVACY_DEFAULTS = Object.freeze({ cloudSync: true, aiUsage: true, telemetry: false, preciseLocation: false, updatedAt: null });
+const PrivacyPreferenceService = {
+  get(userId = state.currentUser?.id) {
+    if (!userId) return { ...PRIVACY_DEFAULTS };
+    const all = storage.get(STORAGE_KEYS.privacyPreferences, {});
+    const stored = all && typeof all === 'object' && !Array.isArray(all) ? all[userId] : null;
+    return { ...PRIVACY_DEFAULTS, ...(stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {}) };
+  },
+  update(changes = {}, userId = state.currentUser?.id) {
+    if (!userId) return this.get();
+    const allowedFields = ['cloudSync', 'aiUsage', 'telemetry', 'preciseLocation'];
+    const all = storage.get(STORAGE_KEYS.privacyPreferences, {});
+    const safe = all && typeof all === 'object' && !Array.isArray(all) ? { ...all } : {};
+    safe[userId] = { ...this.get(userId), ...Object.fromEntries(allowedFields.filter((field) => changes[field] !== undefined).map((field) => [field, Boolean(changes[field])])), updatedAt: new Date().toISOString() };
+    storage.set(STORAGE_KEYS.privacyPreferences, safe);
+    return safe[userId];
+  },
+  allows(capability, userId = state.currentUser?.id) {
+    if (!['cloudSync', 'aiUsage', 'telemetry'].includes(capability)) return false;
+    return this.get(userId)[capability] === true;
+  },
+  disabled(code) {
+    return { ok: false, disabled: true, code, message: code === 'AI_DISABLED_BY_USER' ? 'Bạn đã tắt tính năng AI.' : code === 'CLOUD_SYNC_DISABLED_BY_USER' ? 'Bạn đã tắt CloudSync.' : 'Bạn đã tắt thu thập dữ liệu.', action: { label: 'Mở cài đặt', route: 'profile' } };
+  }
+};
+window.PrivacyPreferenceService = PrivacyPreferenceService;
+
 const FOUNDATION_VIEWS = ['foundation', 'hangul-academy', 'syllable-builder', 'reading-first', 'batchim-academy', 'minimal-pairs', 'first-words', 'first-sentence', 'beginner-checkpoint'];
 const MAIN_VIEWS = ['home', 'lessons', 'courses', 'course-detail', 'theory', 'roadmap', 'topik', 'strategy-lab', 'strategy-detail', 'listening-studio', 'sentence-writing', 'writing-room', 'speaking-room', 'topik-exam', 'topik-exam-result', 'resources', 'resource-view', 'notes', 'bookmarks', 'videos', 'video-view', 'support', 'review-dashboard', 'ai-coach', 'adaptive-plan', 'error-notebook', 'grammar-compare', 'grammar-notebook', 'typing-trainer', 'repair-path', 'focus-study', 'chapter-checkpoint', 'offline-packs', 'shadowing-recorder', 'study-calendar', 'progress-timeline', 'achievements', 'admin-content', 'vocabulary-collections', 'sentence-builder', 'real-life-missions', 'study-settings', ...FOUNDATION_VIEWS, 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'progress-reports', 'practical-korean', 'vocabulary-notebook', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
 MAIN_VIEWS.push('conversation-simulator');
@@ -513,13 +540,59 @@ function setFormError(message = '') {
   error.classList.toggle('hidden', !message);
 }
 
-async function hashPassword(password) {
-  if (window.crypto?.subtle) {
-    const bytes = new TextEncoder().encode(password);
-    const digest = await window.crypto.subtle.digest('SHA-256', bytes);
+const LOCAL_PASSWORD_HASH_VERSION = 'pbkdf2-sha256-v1';
+const LOCAL_PASSWORD_ITERATIONS = 210000;
+const LOCAL_SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+const LocalAuthCredentialService = {
+  available() { return Boolean(window.crypto?.subtle && window.crypto?.getRandomValues && window.TextEncoder); },
+  bytesToBase64(bytes) { let binary = ''; new Uint8Array(bytes).forEach((byte) => { binary += String.fromCharCode(byte); }); return window.btoa(binary); },
+  base64ToBytes(value) { const binary = window.atob(String(value || '')); return Uint8Array.from(binary, (char) => char.charCodeAt(0)); },
+  equal(left, right) { const a = String(left || ''); const b = String(right || ''); let mismatch = a.length ^ b.length; const length = Math.max(a.length, b.length); for (let index = 0; index < length; index += 1) mismatch |= (a.charCodeAt(index) || 0) ^ (b.charCodeAt(index) || 0); return mismatch === 0; },
+  async derive(password, salt, iterations = LOCAL_PASSWORD_ITERATIONS) {
+    if (!this.available()) { const error = new Error('Trình duyệt không hỗ trợ cơ chế bảo vệ mật khẩu local. Hãy dùng Supabase Auth.'); error.code = 'LOCAL_SECURE_KDF_UNAVAILABLE'; throw error; }
+    const encoder = new window.TextEncoder();
+    const key = await window.crypto.subtle.importKey('raw', encoder.encode(String(password)), 'PBKDF2', false, ['deriveBits']);
+    const bits = await window.crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: this.base64ToBytes(salt), iterations: Math.max(100000, Number(iterations) || LOCAL_PASSWORD_ITERATIONS) }, key, 256);
+    return this.bytesToBase64(bits);
+  },
+  async create(password) {
+    if (!this.available()) { const error = new Error('Không thể tạo tài khoản local an toàn trên trình duyệt này. Hãy dùng Supabase Auth.'); error.code = 'LOCAL_SECURE_KDF_UNAVAILABLE'; throw error; }
+    const salt = new Uint8Array(16); window.crypto.getRandomValues(salt);
+    const passwordSalt = this.bytesToBase64(salt);
+    return { passwordHash: await this.derive(password, passwordSalt), passwordSalt, passwordIterations: LOCAL_PASSWORD_ITERATIONS, passwordHashVersion: LOCAL_PASSWORD_HASH_VERSION };
+  },
+  async legacySha256(password) {
+    if (!window.crypto?.subtle || !window.TextEncoder) return '';
+    const digest = await window.crypto.subtle.digest('SHA-256', new window.TextEncoder().encode(String(password)));
     return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  },
+  legacyBase64(password) {
+    try { return window.btoa(unescape(encodeURIComponent(String(password)))); } catch (_) { return ''; }
+  },
+  async verify(user, password) {
+    if (!user?.passwordHash) return { valid: false, needsUpgrade: false, version: 'missing' };
+    if (user.passwordHashVersion === LOCAL_PASSWORD_HASH_VERSION) {
+      if (!user.passwordSalt) return { valid: false, needsUpgrade: false, version: 'invalid-secure-record' };
+      try { const candidate = await this.derive(password, user.passwordSalt, user.passwordIterations); return { valid: this.equal(candidate, user.passwordHash), needsUpgrade: false, version: LOCAL_PASSWORD_HASH_VERSION }; } catch (_) { return { valid: false, needsUpgrade: false, version: 'secure-kdf-unavailable' }; }
+    }
+    const legacySha = await this.legacySha256(password);
+    const legacyBase64 = this.legacyBase64(password);
+    const valid = Boolean(legacySha && this.equal(legacySha, user.passwordHash)) || Boolean(legacyBase64 && this.equal(legacyBase64, user.passwordHash));
+    return { valid, needsUpgrade: valid, version: legacySha && this.equal(legacySha, user.passwordHash) ? 'legacy-sha256' : 'legacy-base64' };
   }
-  return btoa(unescape(encodeURIComponent(password)));
+};
+
+function createSessionRecord(userId, extra = {}, reference = new Date()) {
+  const sessionCreatedAt = reference.toISOString();
+  return { userId, ...extra, createdAt: sessionCreatedAt, sessionCreatedAt, sessionExpiresAt: new Date(reference.getTime() + LOCAL_SESSION_TTL_MS).toISOString() };
+}
+
+function sessionExpired(session, reference = new Date()) {
+  if (!session?.userId) return true;
+  const createdAt = new Date(session.sessionCreatedAt || session.createdAt || 0).getTime();
+  const expiresAt = new Date(session.sessionExpiresAt || (createdAt ? createdAt + LOCAL_SESSION_TTL_MS : 0)).getTime();
+  return !Number.isFinite(expiresAt) || expiresAt <= reference.getTime();
 }
 
 function uniqueId() {
@@ -1021,6 +1094,7 @@ const CloudSyncService = {
   timer: null,
   status: 'local',
   provider: null,
+  revision: 0,
   getProvider() {
     if (this.provider) return this.provider;
     const configured = window.KLEARN_CLOUD_PROVIDER;
@@ -1029,6 +1103,7 @@ const CloudSyncService = {
   },
   isConfigured() { return Boolean(this.getProvider()); },
   cloudUserId() { return this.getProvider()?.getUserId?.() || null; },
+  allowed() { return PrivacyPreferenceService.allows('cloudSync'); },
   setStatus(status, detail = '') {
     this.status = status;
     if (state.currentUser) storage.set(STORAGE_KEYS.syncMeta, { ...(storage.get(STORAGE_KEYS.syncMeta, {}) || {}), [state.currentUser.id]: { status, detail, updatedAt: new Date().toISOString() } });
@@ -1042,8 +1117,12 @@ const CloudSyncService = {
     if (!state.currentUser) return null;
     const localUserId = state.currentUser.id; const userId = this.cloudUserId(); if (!userId) return null;
     const data = Object.fromEntries(USER_SYNC_KEYS.map((key) => { const value = storage.get(key, {}); return [key, key === STORAGE_KEYS.settings ? (value?.users?.[localUserId] || null) : (value?.[localUserId] ?? null)]; }));
-    const user = normalizeUser(state.currentUser); if (user) { delete user.passwordHash; delete user.id; }
-    return { userId, user, data, updatedAt: new Date().toISOString(), schemaVersion: 3 };
+    const user = normalizeUser(state.currentUser); if (user) { delete user.passwordHash; delete user.passwordSalt; delete user.passwordIterations; delete user.passwordHashVersion; delete user.credentialUpgradeRequired; delete user.id; }
+    return { userId, user, data, revision: Math.max(0, Number(this.revision) || 0), updatedAt: new Date().toISOString(), schemaVersion: 4 };
+  },
+  normalizePull(value) {
+    if (value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, 'snapshot')) return { snapshot: value.snapshot || null, revision: Math.max(0, Number(value.revision) || 0) };
+    return { snapshot: value || null, revision: Math.max(0, Number(value?.revision) || 0) };
   },
   mergeValue(local, remote) {
     if (Array.isArray(local) || Array.isArray(remote)) {
@@ -1072,25 +1151,47 @@ const CloudSyncService = {
   mergeSnapshot(remote) {
     if (!remote?.data || !state.currentUser) return;
     const allKeys = new Set(USER_SYNC_KEYS); allKeys.forEach((key) => { const all = storage.get(key, {}); if (key === STORAGE_KEYS.settings) { const safeSettings = all && typeof all === 'object' && !Array.isArray(all) ? { ...all, users: { ...(all.users || {}) } } : { users: {} }; safeSettings.users[state.currentUser.id] = this.mergeDomain(key, safeSettings.users[state.currentUser.id], remote.data[key]); storage.set(key, safeSettings); return; } const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; safe[state.currentUser.id] = this.mergeDomain(key, safe[state.currentUser.id], remote.data[key]); storage.set(key, safe); });
-    if (remote.user) { const local = getUsers().find((item) => item.id === state.currentUser.id); if (local) { const localId = local.id; const passwordHash = local.passwordHash; const merged = normalizeUser({ ...local, ...remote.user, id: localId, passwordHash, cloudUserId: this.cloudUserId() }); const users = getUsers(); users[users.findIndex((item) => item.id === localId)] = merged; saveUsers(users); state.currentUser = merged; } }
+    if (remote.user) { const local = getUsers().find((item) => item.id === state.currentUser.id); if (local) { const localId = local.id; const credential = { passwordHash: local.passwordHash, passwordSalt: local.passwordSalt, passwordIterations: local.passwordIterations, passwordHashVersion: local.passwordHashVersion, credentialUpgradeRequired: local.credentialUpgradeRequired }; const merged = normalizeUser({ ...local, ...remote.user, id: localId, ...credential, cloudUserId: this.cloudUserId() }); const users = getUsers(); users[users.findIndex((item) => item.id === localId)] = merged; saveUsers(users); state.currentUser = merged; } }
     syncUserData();
   },
-  async hydrate() {
+  async synchronize(reason = 'local-change') {
+    if (!this.allowed()) { this.setStatus('privacy-disabled', 'CLOUD_SYNC_DISABLED_BY_USER'); return false; }
     const provider = this.getProvider(); if (!provider || !this.cloudUserId() || !state.currentUser?.cloudUserId || state.currentUser.cloudUserId !== this.cloudUserId()) { this.setStatus(navigator.onLine === false ? 'offline' : 'local'); return false; }
     if (navigator.onLine === false) { this.setStatus('offline'); return false; }
     this.setStatus('syncing');
-    try { const remote = await provider.pull(this.snapshot()); if (remote) this.mergeSnapshot(remote); await provider.push(this.snapshot(), { reason: 'migration-or-login' }); this.setStatus('synced'); return true; } catch (error) { this.setStatus(navigator.onLine === false ? 'offline' : 'error', error?.message || 'Cloud unavailable'); return false; }
+    const mutationId = `sync-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    try {
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        if (!this.allowed()) { this.setStatus('privacy-disabled', 'CLOUD_SYNC_DISABLED_BY_USER'); return false; }
+        const pulled = this.normalizePull(await provider.pull());
+        this.revision = pulled.revision;
+        if (pulled.snapshot) this.mergeSnapshot(pulled.snapshot);
+        const result = await provider.push(this.snapshot(), { reason, expectedRevision: this.revision, mutationId });
+        if (result?.conflict) {
+          this.revision = Math.max(0, Number(result.revision) || 0);
+          if (result.snapshot) this.mergeSnapshot(result.snapshot);
+          this.setStatus('conflict', 'CLOUD_SYNC_CONFLICT_RETRY');
+          continue;
+        }
+        this.revision = result?.duplicate ? Math.max(0, Number(result.revision) || this.revision) : Math.max(this.revision + 1, Number(result?.revision) || 0);
+        this.setStatus('synced'); return true;
+      }
+      this.setStatus('error', 'CLOUD_SYNC_CONFLICT_RETRY_EXHAUSTED'); return false;
+    } catch (error) { this.setStatus(navigator.onLine === false ? 'offline' : 'error', error?.code || error?.message || 'Cloud unavailable'); return false; }
+  },
+  async hydrate() {
+    return this.synchronize('migration-or-login');
   },
   schedule(reason = 'local-change') {
     if (!state.currentUser) return;
+    if (!this.allowed()) { clearTimeout(this.timer); this.setStatus('privacy-disabled', 'CLOUD_SYNC_DISABLED_BY_USER'); return false; }
     if (!this.isConfigured() || !this.cloudUserId() || state.currentUser.cloudUserId !== this.cloudUserId()) { this.setStatus(navigator.onLine === false ? 'offline' : 'local'); return; }
     clearTimeout(this.timer); this.timer = setTimeout(() => this.flush(reason), 1200);
+    return true;
   },
   async flush(reason = 'local-change') {
-    const provider = this.getProvider(); if (!provider || !state.currentUser || !this.cloudUserId() || state.currentUser.cloudUserId !== this.cloudUserId()) return false;
-    if (navigator.onLine === false) { this.setStatus('offline'); return false; }
-    this.setStatus('syncing');
-    try { const remote = await provider.pull(this.snapshot()); if (remote) this.mergeSnapshot(remote); await provider.push(this.snapshot(), { reason }); this.setStatus('synced'); return true; } catch (error) { this.setStatus(navigator.onLine === false ? 'offline' : 'error', error?.message || 'Cloud unavailable'); return false; }
+    if (!state.currentUser) return false;
+    return this.synchronize(reason);
   }
 };
 window.CloudSyncService = CloudSyncService;
@@ -1212,7 +1313,19 @@ const AITutorService = {
   ensure() { return this.current() || this.start(); },
   context(query = '') { const profile = LearnerProfileService.get() || {}; const currentLesson = (window.KLEARN_THEORY_LESSONS || []).find((lesson) => lesson.id === state.selectedLessonPreview); const extra = window.ErrorNotebookService?.context?.() || {}; const handwriting = userScoped(STORAGE_KEYS.handwriting).slice(0, 8).map((item) => ({ character: item.character, stage: item.stage, masteryScore: item.masteryScore })); const memoryQuery = `${query} ${currentLesson?.title || ''} ${currentLesson?.topic || ''}`.trim(); return { userLanguage: I18nService.getPreference(), currentTopikLevel: profile.currentTopikLevel || state.currentUser?.currentTopikLevel || null, targetTopikLevel: profile.targetTopikLevel || state.currentUser?.targetTopikLevel || null, learningStyle: profile.learningStyle, learningMode: profile.learningMode, explanationStyle: profile.explanationStyle, learningPace: profile.learningPace, currentLesson: currentLesson ? { id: currentLesson.id, title: currentLesson.title, topic: currentLesson.topic } : null, weakGrammar: (profile.weakGrammar || []).slice(0, 5), weakVocabulary: (profile.weakVocabulary || []).slice(0, 8), weakSkills: (profile.weakSkills || []).slice(0, 3), frequentErrors: (profile.frequentErrors || []).slice(0, 5), recentMistakes: (profile.recentMistakes || []).slice(0, 8), errorNotebook: extra.top || [], relevantMemory: window.MemoryRetrievalService?.retrieve?.(memoryQuery, { limit: 6 }) || [], knowledgeGraph: window.KnowledgeGraphService?.context?.(memoryQuery, 6) || [], recommendations: window.PersonalRecommendationService?.all?.().slice(0, 3) || [], dueSrsCount: profile.dueSrsCount || 0, recentScores: PracticeService.getHistory().slice(0, 5).map((item) => ({ percentage: item.percentage, skillBreakdown: item.skillBreakdown })), listeningScore: profile.skillScores?.listening || 0, speakingScore: profile.skillScores?.speaking || 0, writingScore: profile.skillScores?.writing || 0, handwritingProgress: handwriting, streak: profile.streak || 0, weeklyStudyMinutes: profile.weeklyStudyMinutes || 0, masteryByTopic: profile.masteryByTopic || {}, dailyPlan: getUserProgress().daily, conversationSummary: this.current()?.summary || '', currentView: state.currentView }; },
   addMessage(role, content) { const conversation = this.ensure(); conversation.messages.push({ role, content: String(content).slice(0, 4000), createdAt: new Date().toISOString() }); conversation.messages = conversation.messages.slice(-30); conversation.updatedAt = new Date().toISOString(); conversation.title = conversation.messages.find((m) => m.role === 'user')?.content.slice(0, 42) || conversation.title; this.saveAll([conversation, ...this.all().filter((item) => item.id !== conversation.id)]); return conversation; },
-  async send(content) { const text = String(content || '').trim(); if (!text || state.aiBusy) return; window.LearningMemoryService?.captureQuery?.(text); this.addMessage('user', text); state.aiBusy = true; renderAiWidget(); const conversation = this.current(); const recentMessages = (conversation?.messages || []).slice(-12); try { if (window.AIOrchestrationService?.request) { const result = await window.AIOrchestrationService.request({ task: 'tutor', input: text, messages: recentMessages, context: this.context(text), language: I18nService.getPreference() }); this.addMessage('assistant', result.reply); return; } const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: recentMessages, learnerContext: this.context(text), learningLanguage: I18nService.getPreference() }) }); const payload = await response.json().catch(() => ({})); const reply = response.ok && payload.reply ? payload.reply : payload.configured === false ? I18nService.t('ai.notConfigured') : I18nService.t('ai.error'); this.addMessage('assistant', reply); } catch (_) { this.addMessage('assistant', I18nService.t('ai.offline')); } finally { state.aiBusy = false; renderAiWidget(); } }
+  async send(content) {
+    const text = String(content || '').trim(); if (!text || state.aiBusy) return null;
+    if (!PrivacyPreferenceService.allows('aiUsage')) { renderAiWidget(); return PrivacyPreferenceService.disabled('AI_DISABLED_BY_USER'); }
+    window.LearningMemoryService?.captureQuery?.(text); this.addMessage('user', text); state.aiBusy = true; renderAiWidget();
+    const conversation = this.current(); const recentMessages = (conversation?.messages || []).slice(-12);
+    try {
+      if (window.AIOrchestrationService?.request) { const result = await window.AIOrchestrationService.request({ task: 'tutor', input: text, messages: recentMessages, context: this.context(text), language: I18nService.getPreference() }); if (result?.reply) this.addMessage('assistant', result.reply); return result; }
+      if (!PrivacyPreferenceService.allows('aiUsage')) return PrivacyPreferenceService.disabled('AI_DISABLED_BY_USER');
+      const learnerContext = this.context(text);
+      const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-KLearn-AI-Consent': 'granted' }, body: JSON.stringify({ messages: recentMessages, learnerContext, learningLanguage: I18nService.getPreference(), privacy: { aiEnabled: true } }) });
+      const payload = await response.json().catch(() => ({})); const reply = response.ok && payload.reply ? payload.reply : payload.code === 'AI_DISABLED_BY_USER' ? 'Bạn đã tắt tính năng AI.' : payload.configured === false ? I18nService.t('ai.notConfigured') : I18nService.t('ai.error'); this.addMessage('assistant', reply); return payload;
+    } catch (_) { this.addMessage('assistant', I18nService.t('ai.offline')); return null; } finally { state.aiBusy = false; renderAiWidget(); }
+  }
 };
 
 const VocabularyService = {
@@ -1291,24 +1404,33 @@ const auth = {
     const users = getUsers();
     if (users.some((user) => user?.email === email)) throw new Error('Email này đã được đăng ký.');
     const now = new Date().toISOString();
+    const credential = await LocalAuthCredentialService.create(password);
     const user = {
-      id: uniqueId(), fullName, email, passwordHash: await hashPassword(password), avatar: initials(fullName), goals: [], level: '', currentTopikLevel: 1, targetTopikLevel: 2,
+      id: uniqueId(), fullName, email, ...credential, avatar: initials(fullName), goals: [], level: '', currentTopikLevel: 1, targetTopikLevel: 2,
       onboardingCompleted: false, onboardingStep: 'goals', placement: { index: 0, answers: [], score: 0 }, createdAt: now, updatedAt: now
     };
     users.push(user);
     saveUsers(users);
     initializeUserData(user.id);
-    storage.set(STORAGE_KEYS.session, { userId: user.id, createdAt: now });
+    storage.set(STORAGE_KEYS.session, createSessionRecord(user.id, {}, new Date(now)));
     state.currentUser = user;
     syncUserData();
     await CloudSyncService.hydrate();
     return user;
   },
   async login(email, password) {
-    const storedUser = getUsers().find((item) => item?.email === email);
-    if (!storedUser || storedUser.passwordHash !== await hashPassword(password)) throw new Error('Email hoặc mật khẩu không đúng.');
-    const user = normalizeUser(storedUser);
-    storage.set(STORAGE_KEYS.session, { userId: user.id, createdAt: new Date().toISOString() });
+    const users = getUsers(); const storedUser = users.find((item) => item?.email === email);
+    const verification = storedUser ? await LocalAuthCredentialService.verify(storedUser, password) : { valid: false };
+    if (!storedUser || !verification.valid) throw new Error('Email hoặc mật khẩu không đúng.');
+    let user = normalizeUser(storedUser);
+    if (verification.needsUpgrade) {
+      try {
+        const credential = await LocalAuthCredentialService.create(password); user = normalizeUser({ ...storedUser, ...credential, credentialUpgradeRequired: false, updatedAt: new Date().toISOString() }); users[users.findIndex((item) => item.id === storedUser.id)] = user; saveUsers(users);
+      } catch (_) {
+        user = normalizeUser({ ...storedUser, passwordHashVersion: verification.version, credentialUpgradeRequired: true }); users[users.findIndex((item) => item.id === storedUser.id)] = user; saveUsers(users);
+      }
+    }
+    storage.set(STORAGE_KEYS.session, createSessionRecord(user.id));
     state.currentUser = user;
     initializeUserData(user.id);
     syncUserData();
@@ -1338,6 +1460,7 @@ const auth = {
   restoreSession() {
     const session = storage.get(STORAGE_KEYS.session, null);
     if (!session?.userId) return null;
+    if (sessionExpired(session)) { storage.remove(STORAGE_KEYS.session); state.currentUser = null; return null; }
     const storedUser = getUsers().find((item) => item?.id === session.userId);
     const user = normalizeUser(storedUser);
     if (!user) {
@@ -1345,6 +1468,7 @@ const auth = {
       return null;
     }
     state.currentUser = user;
+    storage.set(STORAGE_KEYS.session, createSessionRecord(user.id, { cloud: session.cloud === true }));
     initializeUserData(user.id);
     syncUserData();
     const savedListening = storage.get(STORAGE_KEYS.listeningSessions, {})?.[user.id];
@@ -1353,6 +1477,11 @@ const auth = {
     if (savedExam?.questions?.length && new Date(savedExam.deadlineAt || 0).getTime() > Date.now()) state.examSession = savedExam;
     CloudSyncService.hydrate().then(() => { if (state.currentUser?.id === user.id) render(); });
     return user;
+  },
+  refreshSession() {
+    const session = storage.get(STORAGE_KEYS.session, null);
+    if (!session?.userId || sessionExpired(session) || state.currentUser?.id !== session.userId) { storage.remove(STORAGE_KEYS.session); return false; }
+    storage.set(STORAGE_KEYS.session, createSessionRecord(session.userId, { cloud: session.cloud === true })); return true;
   }
 };
 
@@ -1372,7 +1501,7 @@ const CloudAccountService = {
     } else if (local.cloudUserId !== cloudUser.id) {
       const users = getUsers(); const index = users.findIndex((item) => item.id === local.id); users[index] = normalizeUser({ ...local, cloudUserId: cloudUser.id, cloudEmail: cloudUser.email, updatedAt: new Date().toISOString() }); saveUsers(users); local = users[index];
     }
-    state.currentUser = local; state.cloudUser = { id: cloudUser.id, email: cloudUser.email || '' }; storage.set(STORAGE_KEYS.session, { userId: local.id, createdAt: new Date().toISOString(), cloud: true }); syncUserData();
+    state.currentUser = local; state.cloudUser = { id: cloudUser.id, email: cloudUser.email || '' }; storage.set(STORAGE_KEYS.session, createSessionRecord(local.id, { cloud: true })); syncUserData();
     const syncSucceeded = await CloudSyncService.hydrate(); return { local, syncSucceeded };
   },
   async signIn(email, password, explicitLink = false) { state.cloudAuthBusy = true; state.cloudAuthMessage = ''; try { const data = await window.AuthService.signIn(email, password); try { const link = await this.attachCloudUser(data.user, { explicitLink }); state.cloudAuthMessage = link.syncSucceeded ? 'Đã kết nối cloud và đồng bộ dữ liệu.' : 'Đã kết nối cloud. Đồng bộ chưa hoàn tất; dữ liệu local vẫn an toàn.'; return { ...data, syncSucceeded: link.syncSucceeded }; } catch (error) { await window.AuthService.signOut().catch(() => {}); state.cloudUser = null; throw error; } } finally { state.cloudAuthBusy = false; } },
@@ -1689,9 +1818,13 @@ function renderAiWidget() {
   if (!state.currentUser?.onboardingCompleted) { root.innerHTML = ''; return; }
   const conversation = AITutorService.current(); const messages = conversation?.messages || [];
   const t = (key) => I18nService.t(key);
-  root.innerHTML = `<button class="ai-fab" id="aiFab" aria-label="${escapeHtml(t('ai.fab'))}">✨ AI</button>${state.aiOpen ? `<aside class="ai-panel" role="dialog" aria-label="${escapeHtml(t('ai.title'))}"><header><div><strong>✨ ${escapeHtml(t('ai.title'))}</strong><small>${escapeHtml(t('ai.subtitle'))}</small></div><div class="ai-panel-actions"><button id="aiNewChat" aria-label="${escapeHtml(t('ai.newChat'))}">＋</button><button id="aiClose" aria-label="${escapeHtml(t('ai.close'))}">×</button></div></header><div class="ai-quick-actions"><button data-ai-quick="Giải thích bài học hiện tại cho tôi.">📚 ${escapeHtml(t('ai.lesson'))}</button><button data-ai-quick="Sửa câu tiếng Hàn của tôi và giải thích lỗi.">🇰🇷 ${escapeHtml(t('ai.correct'))}</button><button data-ai-quick="Dịch ý này sang tiếng Hàn lịch sự.">🌐 ${escapeHtml(t('ai.translate'))}</button><button data-ai-quick="Tạo cho tôi 5 câu luyện phù hợp trình độ.">📝 ${escapeHtml(t('ai.exercise'))}</button></div><div class="ai-messages">${messages.length ? messages.map((item) => `<div class="ai-message ${item.role}"><span>${item.role === 'assistant' ? '✨' : escapeHtml(t('ai.you'))}</span><p>${escapeHtml(item.content).replace(/\n/g, '<br>')}</p></div>`).join('') : `<div class="ai-empty">${escapeHtml(t('ai.empty'))}</div>`}${state.aiBusy ? `<div class="ai-typing">${escapeHtml(t('ai.thinking'))}</div>` : ''}</div><form id="aiForm"><textarea id="aiInput" rows="2" maxlength="4000" placeholder="${escapeHtml(t('ai.placeholder'))}"></textarea><button class="btn primary" type="submit" aria-label="${escapeHtml(t('ai.send'))}">${escapeHtml(t('ai.send'))}</button></form><small class="ai-privacy">${escapeHtml(t('ai.privacy'))}</small></aside>` : ''}`;
+  const aiAllowed = PrivacyPreferenceService.allows('aiUsage');
+  const enabledPanel = `<div class="ai-quick-actions"><button data-ai-quick="Giải thích bài học hiện tại cho tôi.">📚 ${escapeHtml(t('ai.lesson'))}</button><button data-ai-quick="Sửa câu tiếng Hàn của tôi và giải thích lỗi.">🇰🇷 ${escapeHtml(t('ai.correct'))}</button><button data-ai-quick="Dịch ý này sang tiếng Hàn lịch sự.">🌐 ${escapeHtml(t('ai.translate'))}</button><button data-ai-quick="Tạo cho tôi 5 câu luyện phù hợp trình độ.">📝 ${escapeHtml(t('ai.exercise'))}</button></div><div class="ai-messages">${messages.length ? messages.map((item) => `<div class="ai-message ${item.role}"><span>${item.role === 'assistant' ? '✨' : escapeHtml(t('ai.you'))}</span><p>${escapeHtml(item.content).replace(/\n/g, '<br>')}</p></div>`).join('') : `<div class="ai-empty">${escapeHtml(t('ai.empty'))}</div>`}${state.aiBusy ? `<div class="ai-typing">${escapeHtml(t('ai.thinking'))}</div>` : ''}</div><form id="aiForm"><textarea id="aiInput" rows="2" maxlength="4000" placeholder="${escapeHtml(t('ai.placeholder'))}"></textarea><button class="btn primary" type="submit" aria-label="${escapeHtml(t('ai.send'))}">${escapeHtml(t('ai.send'))}</button></form><small class="ai-privacy">${escapeHtml(t('ai.privacy'))}</small>`;
+  const disabledPanel = '<div class="support-message" role="status"><strong>AI_DISABLED_BY_USER</strong><p>Bạn đã tắt tính năng AI.</p><button class="btn secondary" id="aiPrivacySettings">Mở cài đặt</button></div>';
+  root.innerHTML = `<button class="ai-fab" id="aiFab" aria-label="${escapeHtml(t('ai.fab'))}">✨ AI</button>${state.aiOpen ? `<aside class="ai-panel" role="dialog" aria-label="${escapeHtml(t('ai.title'))}"><header><div><strong>✨ ${escapeHtml(t('ai.title'))}</strong><small>${escapeHtml(t('ai.subtitle'))}</small></div><div class="ai-panel-actions">${aiAllowed ? `<button id="aiNewChat" aria-label="${escapeHtml(t('ai.newChat'))}">＋</button>` : ''}<button id="aiClose" aria-label="${escapeHtml(t('ai.close'))}">×</button></div></header>${aiAllowed ? enabledPanel : disabledPanel}</aside>` : ''}`;
   document.getElementById('aiFab')?.addEventListener('click', () => { state.aiOpen = true; AITutorService.ensure(); renderAiWidget(); });
   document.getElementById('aiClose')?.addEventListener('click', () => { state.aiOpen = false; renderAiWidget(); });
+  document.getElementById('aiPrivacySettings')?.addEventListener('click', () => { state.aiOpen = false; setView('profile'); });
   document.getElementById('aiNewChat')?.addEventListener('click', () => { AITutorService.start('Cuộc trò chuyện mới'); renderAiWidget(); });
   document.querySelectorAll('[data-ai-quick]').forEach((button) => button.addEventListener('click', () => { const input = document.getElementById('aiInput'); if (input) { input.value = button.dataset.aiQuick; input.focus(); } }));
   const form = document.getElementById('aiForm'); if (form) form.addEventListener('submit', (event) => { event.preventDefault(); const input = document.getElementById('aiInput'); const value = input?.value.trim(); if (value) { input.value = ''; AITutorService.send(value); } });
@@ -3122,7 +3255,7 @@ window.addEventListener('klearn-cloud-auth', (event) => {
 });
 window.SupabaseService?.init?.().then(() => CloudAccountService.restore()).then(() => { if (state.currentUser && state.currentView === 'profile') render(); });
 
-window.KLEARN_APP = { storage, state, STORAGE_KEYS, render, setView, toast, escapeHtml, normalizeSearch, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, updateCurrentUser, LearnerProfileService, MasteryService, VocabularyService, DictionaryService, PracticeService, startTopikExam, CloudSyncService, AITutorService, PronunciationProvider, getDisplayPronunciation, speakKorean, AccessControlService, ContentReviewService: window.ContentReviewService, NotesService, BookmarkService, SupportService, QuestionBankService };
+window.KLEARN_APP = { storage, state, STORAGE_KEYS, render, setView, toast, escapeHtml, normalizeSearch, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, updateCurrentUser, LearnerProfileService, MasteryService, VocabularyService, DictionaryService, PracticeService, startTopikExam, CloudSyncService, AITutorService, PrivacyPreferenceService, LocalAuthCredentialService, auth, createSessionRecord, sessionExpired, PronunciationProvider, getDisplayPronunciation, speakKorean, AccessControlService, ContentReviewService: window.ContentReviewService, NotesService, BookmarkService, SupportService, QuestionBankService };
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('[Tiếng Hàn - TamHoanq] Service worker không đăng ký được.', error)));

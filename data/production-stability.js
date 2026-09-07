@@ -15,6 +15,7 @@
   const queueKey = key('backgroundSyncQueue', 'klearn_background_sync_queue');
   const backupKey = key('learningBackups', 'klearn_learning_backups');
   const checkpointKey = key('recoveryCheckpoint', 'klearn_recovery_checkpoint');
+  const telemetryAllowed = () => app.PrivacyPreferenceService?.allows?.('telemetry') !== false;
   const hash = (value) => { let h = 2166136261; for (const char of String(value)) { h ^= char.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); };
   const readUser = (storeKey, fallback) => object(storage?.get?.(storeKey, {}))[uid()] ?? fallback;
   const writeUser = (storeKey, value) => { if (!storage?.get || !storage?.set || uid() === 'anonymous') return value; const all = object(storage.get(storeKey, {})); all[uid()] = value; storage.set(storeKey, all); return value; };
@@ -33,12 +34,14 @@
 
   const ProductionMonitoringService = {
     captureError(input = {}) {
+      if (!telemetryAllowed()) return null;
       const event = safeError(input); const telemetry = readTelemetry(); const existing = telemetry.errors.find((item) => item.fingerprint === event.fingerprint);
       if (existing) { existing.frequency = Math.max(1, Number(existing.frequency || 1) + 1); existing.timestamp = event.timestamp; existing.message = event.message; }
       else telemetry.errors.unshift({ ...event, frequency: 1 });
       saveTelemetry(telemetry); return existing || telemetry.errors[0];
     },
     recordPerformance(input = {}) {
+      if (!telemetryAllowed()) return null;
       const duration = Math.max(0, Math.round(Number(input.durationMs ?? input.duration ?? 0))); const module = clean(input.module || input.type || 'page', 80); const type = ['page_load', 'api', 'database', 'ai', 'cache', 'sync'].includes(input.type) ? input.type : 'page_load'; const status = clean(input.status || 'ok', 30);
       const telemetry = readTelemetry(); const keyValue = `${type}|${module}`; const existing = telemetry.performance.find((item) => item.key === keyValue);
       if (existing) { existing.count += 1; existing.totalMs += duration; existing.lastMs = duration; existing.maxMs = Math.max(existing.maxMs, duration); existing.statuses[status] = Number(existing.statuses[status] || 0) + 1; }
@@ -100,7 +103,7 @@
     global.addEventListener('klearn-sync-action', (event) => BackgroundSyncQueueService.enqueue(event?.detail || {}));
     global.addEventListener('pagehide', () => { RecoveryService.capture(); BackupService.run(); });
   }
-  if (global.performance?.getEntriesByType) { const navigation = global.performance.getEntriesByType('navigation')[0]; if (navigation?.duration) ProductionMonitoringService.recordPerformance({ type: 'page_load', module: 'navigation', durationMs: navigation.duration }); }
+  if (telemetryAllowed() && global.performance?.getEntriesByType) { const navigation = global.performance.getEntriesByType('navigation')[0]; if (navigation?.duration) ProductionMonitoringService.recordPerformance({ type: 'page_load', module: 'navigation', durationMs: navigation.duration }); }
   if (typeof global.fetch === 'function' && !global.fetch.__klearnProductionWrapped) {
     const originalFetch = global.fetch.bind(global);
     const wrappedFetch = async (...args) => { const started = Date.now(); const request = args[0]; const endpoint = typeof request === 'string' ? request : request?.url || ''; try { const response = await originalFetch(...args); ProductionMonitoringService.recordApi({ endpoint, status: response.status, durationMs: Date.now() - started }); return response; } catch (error) { ProductionMonitoringService.captureError({ type: /\/api\/chat/i.test(endpoint) ? 'ai' : 'api', module: endpoint || 'fetch', error }); ProductionMonitoringService.recordPerformance({ type: 'api', module: endpoint || 'fetch', durationMs: Date.now() - started, status: 'error' }); throw error; } };

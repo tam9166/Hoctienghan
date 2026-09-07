@@ -4,7 +4,7 @@
   const global = window;
   const app = global.KLEARN_APP;
   if (!app) return;
-  const { storage, state, STORAGE_KEYS, CloudSyncService, userScoped, saveUserScoped, getUserProgress, getUserSrs, NotesService, VocabularyService, escapeHtml, render, toast } = app;
+  const { storage, state, STORAGE_KEYS, CloudSyncService, PrivacyPreferenceService: CorePrivacyPreferenceService, userScoped, saveUserScoped, getUserProgress, getUserSrs, NotesService, VocabularyService, escapeHtml, render, toast } = app;
   const now = () => new Date().toISOString();
   const uid = () => state.currentUser?.id || '';
   const clean = (value, limit = 400) => String(value == null ? '' : value).replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, limit);
@@ -34,8 +34,8 @@
 
   const PrivacyCenterService = {
     defaults() { return { cloudSync: true, aiUsage: true, telemetry: false, preciseLocation: false, updatedAt: null }; },
-    get() { return { ...this.defaults(), ...object(localUser(privacyKey)) }; },
-    update(changes = {}) { const previous = this.get(); const next = { ...previous, ...Object.fromEntries(['cloudSync', 'aiUsage', 'telemetry', 'preciseLocation'].filter((field) => changes[field] !== undefined).map((field) => [field, Boolean(changes[field])])), updatedAt: now() }; putLocalUser(privacyKey, next); const client = authClient(); const table = client?.from?.('user_privacy_preferences'); if (table?.upsert && cloudSession()) table.upsert({ user_id: cloudSession().id, cloud_sync_enabled: next.cloudSync, ai_usage_enabled: next.aiUsage, telemetry_enabled: next.telemetry, precise_location_enabled: next.preciseLocation, updated_at: next.updatedAt }).then(() => {}, () => {}); CloudSyncService?.schedule?.('privacy-preferences'); return next; },
+    get() { return CorePrivacyPreferenceService?.get?.() || { ...this.defaults(), ...object(localUser(privacyKey)) }; },
+    update(changes = {}) { const previous = this.get(); const next = CorePrivacyPreferenceService?.update?.(changes) || { ...previous, ...Object.fromEntries(['cloudSync', 'aiUsage', 'telemetry', 'preciseLocation'].filter((field) => changes[field] !== undefined).map((field) => [field, Boolean(changes[field])])), updatedAt: now() }; if (!CorePrivacyPreferenceService) putLocalUser(privacyKey, next); const client = authClient(); const table = client?.from?.('user_privacy_preferences'); if (table?.upsert && cloudSession()) table.upsert({ user_id: cloudSession().id, cloud_sync_enabled: next.cloudSync, ai_usage_enabled: next.aiUsage, telemetry_enabled: next.telemetry, precise_location_enabled: next.preciseLocation, updated_at: next.updatedAt }).then(() => {}, () => {}); if (next.cloudSync && changes.cloudSync !== false) CloudSyncService?.schedule?.('privacy-preferences'); return next; },
     summary() { const value = this.get(); return { ...value, storedLocally: true, cloudLinked: Boolean(cloudSession()), aiContext: value.aiUsage ? 'enabled-by-choice' : 'disabled', telemetry: value.telemetry ? 'enabled-by-choice' : 'off' }; }
   };
 
