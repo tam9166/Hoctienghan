@@ -1,0 +1,33 @@
+name: Production monitor
+
+on:
+  schedule:
+    - cron: '17,47 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-monitor
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+      REQUIRE_FULL_SERVICES: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Production smoke check
+        run: |
+          if [ -z "$PRODUCTION_URL" ]; then
+            echo "::warning::Set the PRODUCTION_URL repository variable to enable uptime checks."
+            exit 0
+          fi
+          node scripts/smoke-production.js "$PRODUCTION_URL"

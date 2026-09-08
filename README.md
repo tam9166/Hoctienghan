@@ -46,7 +46,7 @@ Sau đó mở `http://localhost:8080`.
 - Listening/Reading Hub theo TOPIK level, Korean TTS, recommended practice và daily practice plan.
 - Ghi âm qua MediaRecorder và chấm tương đồng văn bản bằng Speech Recognition khi trình duyệt hỗ trợ.
 - Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
-- PWA manifest + service worker network-first (`klearn-v46`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
+- PWA manifest + service worker network-first (`klearn-v75`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
 
 Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **Tiếng Hàn - TamHoanq** mới.
 
@@ -279,6 +279,14 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - `DataExportService` xuất learning history, vocabulary, progress và notes dạng JSON/CSV hoặc print-to-PDF. `AccountDeletionService` yêu cầu xác nhận rõ ràng, tạo deletion request RLS và không tự xoá cloud bằng client.
 - `RolePermissionService` chuẩn hoá student/teacher/admin/content_editor từ Supabase metadata; localStorage không thể tự cấp role. Audit log chỉ allowlist metadata, không lưu credential/raw learning content.
 - `SecurityScannerService` kiểm tra public config phía client; dependency vulnerability và secret scan đầy đủ vẫn chạy ở CI/server. Contract nằm ở `content/security-privacy.json`, migration `20260906_security_privacy.sql` có RLS owner/admin. PWA cache nâng lên `klearn-v57`.
+
+### Production Launch Readiness
+
+- Mục tiêu triển khai production là Vercel để phục vụ cả static PWA và serverless `/api/*`; Supabase tiếp tục cung cấp Auth/Postgres. Domain, project ID và secret thật không nằm trong repository.
+- CI chạy kiểm tra cú pháp, production build, readiness audit và toàn bộ test trên pull request/push `main`. Deployment chỉ chạy bằng tag SemVer hoặc thao tác thủ công, đi qua GitHub Environment `production` và smoke test trước/sau khi gắn domain chính.
+- `/api/version` công bố release/commit an toàn; `/api/health` trả `503 degraded` ở production khi database chưa cấu hình hoặc không truy cập được. Workflow giám sát gọi full smoke test mỗi 30 phút.
+- `version.json` là release manifest duy nhất, hiện ở `1.0.0-rc.1`. Runbook domain, monitoring, backup/restore, incident, support, release và version nằm trong `docs/production/`.
+- Kiểm tra cục bộ bằng `node scripts/verify-production-build.js`, `node scripts/release-readiness.js`; sau khi có HTTPS URL, chạy `node scripts/smoke-production.js https://your-domain.example`.
 
 ## Dữ liệu MVP
 

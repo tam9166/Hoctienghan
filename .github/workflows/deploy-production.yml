@@ -1,0 +1,72 @@
+name: Deploy production
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Require release tag to match version
+        if: github.ref_type == 'tag'
+        run: |
+          expected="v$(node -p "require('./version.json').version")"
+          test "$GITHUB_REF_NAME" = "$expected" || { echo "Expected tag $expected, received $GITHUB_REF_NAME"; exit 1; }
+      - run: node scripts/verify-production-build.js
+      - run: node scripts/release-readiness.js
+      - name: Unit and static regression tests
+        run: for file in tests/*.test.js; do node "$file"; done
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_URL }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate deployment credentials
+        run: test -n "$VERCEL_ORG_ID" && test -n "$VERCEL_PROJECT_ID" && test -n "$VERCEL_TOKEN"
+      - name: Pull production configuration
+        run: npx --yes vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - name: Build production artifact
+        run: npx --yes vercel@latest build --prod --token="$VERCEL_TOKEN"
+      - name: Deploy immutable artifact
+        id: deploy
+        run: |
+          url="$(npx --yes vercel@latest deploy --prebuilt --prod --archive=tgz --token="$VERCEL_TOKEN")"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Deployed $url"
+      - name: Smoke test deployment URL
+        env:
+          REQUIRE_FULL_SERVICES: '1'
+        run: node scripts/smoke-production.js "${{ steps.deploy.outputs.url }}"
+      - name: Smoke test canonical domain
+        if: env.PRODUCTION_URL != ''
+        env:
+          REQUIRE_FULL_SERVICES: '1'
+        run: node scripts/smoke-production.js "$PRODUCTION_URL"
