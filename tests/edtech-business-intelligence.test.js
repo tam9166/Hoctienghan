@@ -7,7 +7,7 @@ const root = path.join(__dirname, '..');
 const source = fs.readFileSync(path.join(root, 'data', 'edtech-business-intelligence.js'), 'utf8');
 const content = JSON.parse(fs.readFileSync(path.join(root, 'content', 'edtech-business-intelligence.json'), 'utf8'));
 const stylesheet = fs.readFileSync(path.join(root, 'edtech-business-intelligence.css'), 'utf8');
-const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const workerSource = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_edtech_business_intelligence.sql'), 'utf8');
 
@@ -70,7 +70,7 @@ assert.equal(student.window.BusinessIntelligenceService.available(), false);
 assert.equal(student.window.BusinessIntelligenceService.hydrate({ daily: [{ active_users: 999 }] }).lifecycle.activeUsers, 999, 'service can be tested with aggregate fixture but route access remains role-gated');
 assert.match(indexSource, /edtech-business-intelligence\.css\?v=1/);
 assert.match(indexSource, /data\/edtech-business-intelligence\.js\?v=1/);
-assert.match(workerSource, /klearn-v70/);
+assert.match(workerSource, /klearn-v71/);
 assert.match(workerSource, /edtech-business-intelligence\.json/);
 assert.match(workerSource, /edtech-business-intelligence\.js/);
 assert.match(migration, /edtech_bi_daily_metrics/);

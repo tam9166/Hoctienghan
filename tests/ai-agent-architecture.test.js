@@ -7,7 +7,7 @@ const root = path.join(__dirname, '..');
 const source = fs.readFileSync(path.join(root, 'data', 'ai-agent-architecture.js'), 'utf8');
 const content = JSON.parse(fs.readFileSync(path.join(root, 'content', 'ai-agent-architecture.json'), 'utf8'));
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_p43_ai_agent_architecture.sql'), 'utf8');
-const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 
@@ -86,7 +86,7 @@ assert.equal(content.privacy.storesRawAudio, false);
   const audit = w.AIAgentAuditService.all(); assert.ok(audit.length >= 7); assert.equal(audit[0].rawInputStored, false); assert.equal(audit[0].rawResponseStored, false); assert.equal(audit[0].rawAudioStored, false); assert.equal(audit.some((item) => 'reply' in item || 'text' in item || 'prompt' in item), false); assert.ok(app.syncEvents.includes('ai-agent-audit'));
 
   assert.match(migration, /ai_agent_preferences/); assert.match(migration, /ai_agent_audit_logs/); assert.match(migration, /row level security/i); assert.match(migration, /auth\.uid\(\)/); assert.doesNotMatch(migration, /raw_prompt\s+text|raw_response\s+text|raw_audio\s+/i);
-  assert.match(index, /ai-agent-architecture\.css\?v=1/); assert.match(index, /data\/ai-agent-architecture\.js\?v=1/); assert.match(index, /app\.js\?v=56/);
-  assert.match(worker, /klearn-v70/); assert.match(worker, /content\/ai-agent-architecture\.json/); assert.match(appSource, /aiAgents: 'klearn_ai_agents'/); assert.match(appSource, /STORAGE_KEYS\.aiAgents/);
+  assert.match(index, /ai-agent-architecture\.css\?v=1/); assert.match(index, /data\/ai-agent-architecture\.js\?v=1/); assert.match(index, /app\.js\?v=57/);
+  assert.match(worker, /klearn-v71/); assert.match(worker, /content\/ai-agent-architecture\.json/); assert.match(appSource, /aiAgents: 'klearn_ai_agents'/); assert.match(appSource, /STORAGE_KEYS\.aiAgents/);
   console.log('AI agent architecture: eight bounded specialists, deterministic routing, one primary agent, mandatory quality control, approved-source gates, confirmed memory, metadata-only audit and RLS passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

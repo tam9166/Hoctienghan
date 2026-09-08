@@ -7,7 +7,7 @@ const root = path.join(__dirname, '..');
 const source = fs.readFileSync(path.join(root, 'data', 'premium-learning-experience.js'), 'utf8');
 const content = JSON.parse(fs.readFileSync(path.join(root, 'content', 'premium-learning-experience.json'), 'utf8'));
 const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
-const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const workerSource = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_premium_learning_experience.sql'), 'utf8');
 
@@ -72,7 +72,7 @@ assert.match(appSource, /STORAGE_KEYS\.premiumLearning/);
 assert.match(appSource, /startTopikExam/);
 assert.match(indexSource, /premium-learning\.css\?v=1/);
 assert.match(indexSource, /data\/premium-learning-experience\.js\?v=1/);
-assert.match(workerSource, /klearn-v70/);
+assert.match(workerSource, /klearn-v71/);
 assert.match(workerSource, /premium-learning-experience\.json/);
 assert.match(migration, /premium_family_accounts/);
 assert.match(migration, /premium_family_members/);

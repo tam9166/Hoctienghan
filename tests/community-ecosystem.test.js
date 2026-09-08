@@ -9,7 +9,7 @@ const ecosystemSource = fs.readFileSync(path.join(root, 'data', 'community-ecosy
 const foundationContent = JSON.parse(fs.readFileSync(path.join(root, 'content', 'community-learning.json'), 'utf8'));
 const ecosystemContent = JSON.parse(fs.readFileSync(path.join(root, 'content', 'community-ecosystem.json'), 'utf8'));
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_p38_community_learning_ecosystem.sql'), 'utf8');
-const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'community-ecosystem.css'), 'utf8');
@@ -86,8 +86,8 @@ function boot(userId = 'learner-a', shared = new Map()) {
   assert.doesNotMatch(migration, /\n\s+(?:email|phone|precise_location)\s+text/i);
   assert.match(index, /community-ecosystem\.css\?v=1/);
   assert.match(index, /data\/community-ecosystem\.js\?v=1/);
-  assert.match(index, /app\.js\?v=56/);
-  assert.match(worker, /klearn-v70/);
+  assert.match(index, /app\.js\?v=57/);
+  assert.match(worker, /klearn-v71/);
   assert.match(worker, /community-ecosystem\.json/);
   assert.match(appSource, /'language-exchange', 'community-moderation'/);
   assert.match(css, /@media\(max-width:600px\)/);

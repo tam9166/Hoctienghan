@@ -9,7 +9,7 @@ const legacyModule = fs.readFileSync(path.join(root, 'data', 'immersive-world.js
 const source = fs.readFileSync(path.join(root, 'data', 'immersive-korean-world.js'), 'utf8');
 const content = JSON.parse(fs.readFileSync(path.join(root, 'content', 'immersive-korean-world.json'), 'utf8'));
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_p44_immersive_korean_world.sql'), 'utf8');
-const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 
@@ -55,5 +55,5 @@ assert.ok(app.syncEvents.includes('immersive-korean-world')); assert.equal(JSON.
 for (const route of ['immersive-daily-life', 'immersive-story', 'immersive-culture-game', 'immersive-readiness']) assert.equal(typeof w.KLEARN_EXTRA_VIEWS[route], 'function', `${route} missing`);
 const other = boot('p44-other'); other.window.ImmersiveKoreanWorldContentService.hydrate(content); assert.equal(other.window.ImmersiveKoreanWorldProgressService.snapshot().dailyRuns.length, 0, 'P44 data must be user scoped');
 assert.match(migration, /immersive_korean_world_profiles/); assert.match(migration, /immersive_korean_world_events/); assert.match(migration, /row level security/i); assert.match(migration, /auth\.uid\(\)/); assert.match(migration, /raw_text_stored boolean not null default false check \(raw_text_stored = false\)/); assert.match(migration, /raw_audio_stored boolean not null default false check \(raw_audio_stored = false\)/);
-assert.match(index, /immersive-korean-world\.css\?v=1/); assert.match(index, /data\/immersive-korean-world\.js\?v=1/); assert.match(index, /app\.js\?v=56/); assert.match(worker, /klearn-v70/); assert.match(worker, /content\/immersive-korean-world\.json/); assert.match(appSource, /immersiveKoreanWorld: 'klearn_immersive_korean_world'/); assert.match(appSource, /STORAGE_KEYS\.immersiveKoreanWorld/);
+assert.match(index, /immersive-korean-world\.css\?v=1/); assert.match(index, /data\/immersive-korean-world\.js\?v=1/); assert.match(index, /app\.js\?v=57/); assert.match(worker, /klearn-v71/); assert.match(worker, /content\/immersive-korean-world\.json/); assert.match(appSource, /immersiveKoreanWorld: 'klearn_immersive_korean_world'/); assert.match(appSource, /STORAGE_KEYS\.immersiveKoreanWorld/);
 console.log('immersive Korean world: four-place city, levels, mission day, branching story, culture decisions, Korean-only mode, user progress, readiness evidence and RLS passed');

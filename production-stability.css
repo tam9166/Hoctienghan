@@ -1,2 +1,11 @@
 .p33-status-panel { border-top: 3px solid var(--primary); }
 .p33-status-panel .stats { margin-top: 14px; }
+.connectivity-banner { position: fixed; z-index: 1200; top: max(8px, env(safe-area-inset-top)); left: 50%; width: min(calc(100% - 24px), 620px); padding: 10px 14px; display: flex; align-items: center; justify-content: center; gap: 8px 14px; border: 1px solid var(--subtle-border, var(--outline)); border-radius: 12px; background: var(--surface); color: var(--heading); box-shadow: 0 8px 24px rgba(28, 36, 22, .12); transform: translateX(-50%); font-size: 12px; }
+.connectivity-banner.hidden { display: none; }
+.connectivity-banner span { color: var(--muted); }
+.route-loading, .route-load-error { min-height: min(60vh, 520px); display: grid; place-content: center; justify-items: center; gap: 10px; text-align: center; }
+.route-loading h1, .route-loading p, .route-load-error h1, .route-load-error p { margin: 0; }
+.route-loading-spinner { width: 34px; height: 34px; border: 3px solid var(--outline); border-top-color: var(--primary-hover); border-radius: 50%; animation: route-loading-spin .75s linear infinite; }
+@keyframes route-loading-spin { to { transform: rotate(360deg); } }
+@media (max-width: 560px) { .connectivity-banner { align-items: flex-start; flex-direction: column; gap: 2px; } }
+@media (prefers-reduced-motion: reduce) { .route-loading-spinner { animation: none; } }

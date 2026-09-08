@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const root = path.join(__dirname, '..');
 const source = fs.readFileSync(path.join(root, 'data', 'advanced-voice.js'), 'utf8');
 const content = JSON.parse(fs.readFileSync(path.join(root, 'content', 'advanced-voice.json'), 'utf8'));
-const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'advanced-voice.css'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
@@ -80,7 +80,7 @@ function boot() {
   assert.match(index, /data\/advanced-voice\.js\?v=1/);
   assert.match(css, /voice-phoneme-grid/);
   assert.match(css, /@media \(max-width: 600px\)/);
-  assert.match(worker, /klearn-v70/);
+  assert.match(worker, /klearn-v71/);
   assert.match(worker, /advanced-voice\.json/);
   assert.match(appSource, /voiceLearning: 'klearn_voice_learning'/);
   assert.match(appSource, /STORAGE_KEYS\.voiceLearning/);

@@ -7,7 +7,7 @@ const root = path.join(__dirname, '..');
 const source = fs.readFileSync(path.join(root, 'data', 'global-education-marketplace.js'), 'utf8');
 const content = JSON.parse(fs.readFileSync(path.join(root, 'content', 'global-education-marketplace.json'), 'utf8'));
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_p45_global_education_marketplace.sql'), 'utf8');
-const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 
@@ -79,7 +79,7 @@ function boot(userId = 'p45-student', initialRole = 'student') {
 
   for (const table of ['global_marketplace_teacher_profiles','global_marketplace_courses','global_marketplace_creator_content','global_marketplace_orders','global_marketplace_ownerships','global_marketplace_reviews','global_marketplace_revenue_ledger','global_marketplace_certificates','global_marketplace_moderation_log']) assert.match(migration, new RegExp(table));
   assert.match(migration, /enable row level security/gi); assert.match(migration, /auth\.uid\(\)/); assert.match(migration, /No browser insert\/update policy/); assert.match(migration, /signed by the backend/i); assert.doesNotMatch(migration, /create policy[^;]+global_marketplace_orders for insert/is); assert.doesNotMatch(migration, /create policy[^;]+global_marketplace_revenue_ledger for (insert|update)/is);
-  assert.match(index, /global-education-marketplace\.css\?v=1/); assert.match(index, /data\/global-education-marketplace\.js\?v=1/); assert.match(index, /app\.js\?v=56/);
-  assert.match(worker, /klearn-v70/); assert.match(worker, /content\/global-education-marketplace\.json/); assert.match(appSource, /globalEducationMarketplace: 'klearn_global_education_marketplace'/); assert.match(appSource, /STORAGE_KEYS\.globalEducationMarketplace/);
+  assert.match(index, /global-education-marketplace\.css\?v=1/); assert.match(index, /data\/global-education-marketplace\.js\?v=1/); assert.match(index, /app\.js\?v=57/);
+  assert.match(worker, /klearn-v71/); assert.match(worker, /content\/global-education-marketplace\.json/); assert.match(appSource, /globalEducationMarketplace: 'klearn_global_education_marketplace'/); assert.match(appSource, /STORAGE_KEYS\.globalEducationMarketplace/);
   console.log('global education marketplace: catalog, verified teachers, purchase boundary, creator review, revenue split, certificates, recommendations, community, globalization and RLS passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

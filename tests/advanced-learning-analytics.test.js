@@ -7,7 +7,7 @@ const root = path.join(__dirname, '..');
 const source = fs.readFileSync(path.join(root, 'data', 'advanced-learning-analytics.js'), 'utf8');
 const content = JSON.parse(fs.readFileSync(path.join(root, 'content', 'advanced-learning-analytics.json'), 'utf8'));
 const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
-const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const workerSource = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_advanced_learning_analytics.sql'), 'utf8');
 
@@ -76,7 +76,7 @@ assert.equal(analytics.reports.save('monthly').type, 'monthly');
 assert.equal(analytics.reports.all().length, 1);
 assert.match(appSource, /analyticsReports: 'klearn_analytics_reports'/);
 assert.match(indexSource, /data\/advanced-learning-analytics\.js\?v=1/);
-assert.match(workerSource, /klearn-v70/);
+assert.match(workerSource, /klearn-v71/);
 assert.match(workerSource, /advanced-learning-analytics\.json/);
 assert.match(migration, /learning_analytics_reports/);
 assert.match(migration, /auth\.uid\(\)/);

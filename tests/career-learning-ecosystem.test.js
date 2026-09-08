@@ -7,7 +7,7 @@ const root = path.join(__dirname, '..');
 const source = fs.readFileSync(path.join(root, 'data', 'career-learning-ecosystem.js'), 'utf8');
 const content = JSON.parse(fs.readFileSync(path.join(root, 'content', 'career-learning-ecosystem.json'), 'utf8'));
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_p42_korean_career_ecosystem.sql'), 'utf8');
-const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'career-learning.css'), 'utf8');
@@ -58,6 +58,6 @@ function boot(userId = 'learner-a', shared = new Map()) {
   for (const route of ['career-center','career-vocabulary','workplace-scenarios','workplace-scenario','job-interview-trainer','korean-resume-builder','business-email-writing','presentation-coach','workplace-culture','career-report']) assert.equal(typeof app.KLEARN_EXTRA_VIEWS[route], 'function', `${route} registered`);
   for (const table of ['career_learning_profiles','career_activity_summaries','career_resume_drafts','career_email_drafts','career_presentation_drafts']) assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`), `${table} RLS`);
   assert.match(migration, /raw_draft_stored boolean not null default false check \(raw_draft_stored = false\)/); assert.match(migration, /CV, email and presentation draft text is excluded from analytics/);
-  assert.match(index, /career-learning\.css\?v=1/); assert.match(index, /data\/career-learning-ecosystem\.js\?v=2/); assert.match(index, /app\.js\?v=56/); assert.match(worker, /klearn-v70/); assert.match(worker, /content\/career-learning-ecosystem\.json/); assert.match(appSource, /careerLearning: 'klearn_career_learning'/); assert.match(appSource, /STORAGE_KEYS\.careerLearning/); assert.match(css, /@media\(max-width:600px\)/);
+  assert.match(index, /career-learning\.css\?v=1/); assert.match(index, /data\/career-learning-ecosystem\.js\?v=2/); assert.match(index, /app\.js\?v=57/); assert.match(worker, /klearn-v71/); assert.match(worker, /content\/career-learning-ecosystem\.json/); assert.match(appSource, /careerLearning: 'klearn_career_learning'/); assert.match(appSource, /STORAGE_KEYS\.careerLearning/); assert.match(css, /@media\(max-width:600px\)/);
   console.log('career learning ecosystem: six paths, professional SRS packs, workplace scenarios, interview, resume, email, presentation, culture, readiness report, private sync and RLS passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

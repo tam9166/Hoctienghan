@@ -7,7 +7,7 @@ const root = path.join(__dirname, '..');
 const content = JSON.parse(fs.readFileSync(path.join(root, 'content', 'retention-system.json'), 'utf8'));
 const source = fs.readFileSync(path.join(root, 'data', 'retention-system.js'), 'utf8');
 const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
-const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const workerSource = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_advanced_retention_system.sql'), 'utf8');
 
@@ -100,7 +100,7 @@ setTimeout(() => {
   assert.match(appSource, /retention-center/);
   assert.match(indexSource, /retention-system\.css\?v=1/);
   assert.match(indexSource, /data\/retention-system\.js\?v=1/);
-assert.match(workerSource, /klearn-v70/);
+assert.match(workerSource, /klearn-v71/);
   assert.match(workerSource, /retention-system\.json/);
   assert.match(migration, /enable row level security/i);
   assert.match(migration, /app_metadata/);

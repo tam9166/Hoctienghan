@@ -104,6 +104,7 @@ async function openIsolatedClient(rootCdp, appUrl, browserPort) {
     })()`);
     assert.deepEqual(authResult, { version: 'pbkdf2-sha256-v1', salt: true, hashIsRaw: false, sessionCreated: true, sessionExpires: true, logoutCleared: true, wrongRejected: true, migratedVersion: 'pbkdf2-sha256-v1', legacyChanged: true, expired: true });
 
+    await evaluate(cdp, `window.KLEARN_ROUTE_LOADER.loadGroup('aiInfra')`);
     const privacyResult = await evaluate(cdp, `(async () => {
       const app=window.KLEARN_APP; let fetches=0; const originalFetch=window.fetch;
       app.PrivacyPreferenceService.update({ aiUsage:false, cloudSync:false, telemetry:false });

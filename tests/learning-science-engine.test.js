@@ -7,7 +7,7 @@ const root = path.join(__dirname, '..');
 const source = fs.readFileSync(path.join(root, 'data', 'learning-science-engine.js'), 'utf8');
 const content = JSON.parse(fs.readFileSync(path.join(root, 'content', 'learning-science-engine.json'), 'utf8'));
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_p41_learning_science_engine.sql'), 'utf8');
-const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'learning-science.css'), 'utf8');
@@ -72,6 +72,6 @@ function boot() {
 
   for (const table of ['learning_science_profiles','learning_science_recall_events','learning_science_session_summaries','learning_science_misconceptions']) assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`));
   assert.match(migration, /raw_answer_stored boolean not null default false check \(raw_answer_stored = false\)/); assert.match(migration, /not medical or diagnostic data/);
-  assert.match(index, /learning-science\.css\?v=1/); assert.match(index, /data\/learning-science-engine\.js\?v=1/); assert.match(index, /app\.js\?v=56/); assert.match(worker, /klearn-v70/); assert.match(worker, /content\/learning-science-engine\.json/); assert.match(appSource, /'learning-science', 'active-recall', 'interleaved-practice', 'concept-mastery'/); assert.match(css, /@media\(max-width:600px\)/);
+  assert.match(index, /learning-science\.css\?v=1/); assert.match(index, /data\/learning-science-engine\.js\?v=1/); assert.match(index, /app\.js\?v=57/); assert.match(worker, /klearn-v71/); assert.match(worker, /content\/learning-science-engine\.json/); assert.match(appSource, /'learning-science', 'active-recall', 'interleaved-practice', 'concept-mastery'/); assert.match(css, /@media\(max-width:600px\)/);
   console.log('learning science engine: optimized SRS, active recall, interleaving, adaptation, load, retention, fatigue, mastery tree, misconception detection, optimal plan and private RLS passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

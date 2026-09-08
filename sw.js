@@ -1,9 +1,9 @@
-const CACHE = 'klearn-v70';
+const CACHE = 'klearn-v71';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=31',
   './global-ai-companion.css?v=1',
-  './production-stability.css?v=1',
+  './production-stability.css?v=2',
   './security-privacy.css?v=1',
   './mobile-experience.css?v=1',
   './advanced-voice.css?v=1',
@@ -76,7 +76,8 @@ const OFFLINE_ASSETS = [
   './locales/en.js?v=4',
   './locales/zh-CN.js?v=4',
   './data/content-locales.js?v=1',
-  './app.js?v=56',
+  './data/route-loader.js?v=1',
+  './app.js?v=57',
   './content/retention-system.json',
   './content/content-quality-system.json',
   './data/resource-library.js?v=1',
@@ -109,7 +110,7 @@ const OFFLINE_ASSETS = [
   './content/premium-learning-experience.json',
   './data/global-ai-language-companion.js?v=1',
   './content/global-ai-language-companion.json',
-  './data/production-stability.js?v=3',
+  './data/production-stability.js?v=4',
   './content/production-stability.json',
   './data/security-privacy.js?v=2',
   './content/security-privacy.json',
@@ -140,8 +141,22 @@ const OFFLINE_ASSETS = [
   './icons/icon-512.png'
 ];
 
+// Install only the app shell and core offline-learning assets. Optional routes are
+// cached on first use, so installation no longer downloads the complete platform.
+const INSTALL_ASSETS = new Set([
+  './index.html', './styles.css?v=31', './product-ux.css?v=1', './production-stability.css?v=2', './security-privacy.css?v=1', './mobile-experience.css?v=1',
+  './locales/vi.js?v=2', './locales/en.js?v=4', './locales/zh-CN.js?v=4', './data/content-locales.js?v=1',
+  './data/romanization.js?v=8', './data/vocabulary-bank.js?v=8', './data/dictionary.js?v=1', './data/theory-lessons.js?v=1', './data/handwriting.js?v=1',
+  './data/cloud-sync.js?v=3', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=1', './app.js?v=57',
+  './data/curriculum.js?v=1', './data/adaptive-engine.js?v=8', './data/beginner-foundation.js?v=2', './data/daily-learning-experience.js?v=6',
+  './data/product-ux.js?v=1', './content/product-ux.json', './data/user-research.js?v=2', './content/user-research-experiments.json',
+  './data/production-stability.js?v=4', './data/security-privacy.js?v=2', './data/mobile-experience.js?v=2',
+  './manifest.json', './icons/logo-source.svg', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png'
+]);
+const CORE_OFFLINE_ASSETS = OFFLINE_ASSETS.filter((asset) => INSTALL_ASSETS.has(asset));
+
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(OFFLINE_ASSETS)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE).then((cache) => Promise.all(CORE_OFFLINE_ASSETS.map((asset) => cache.add(asset).catch(() => null)))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {
@@ -155,28 +170,22 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
-  if (url.pathname.startsWith('/api/') || request.headers.has('authorization') || /no-store/i.test(request.headers.get('cache-control') || '')) return;
+  if (url.pathname.startsWith('/api/') || request.headers.has('authorization') || request.headers.has('x-klearn-ai-consent') || /no-store/i.test(request.headers.get('cache-control') || '')) return;
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
-  if (!/\.(?:html?|css|js|json|svg|png|webp|woff2?|mp3|wav)$/i.test(url.pathname) && url.pathname !== '/') return;
-
-  event.respondWith(
-    fetch(request)
-      .then(async (response) => {
-        if (response.ok) {
-          const copy = response.clone();
-          const cache = await caches.open(CACHE);
-          await cache.put(request, copy);
-        }
-        return response;
-      })
-      .catch(async () => {
-        const cached = await caches.match(request);
-        if (cached) return cached;
-        if (request.mode === 'navigate') return caches.match('./index.html');
-        return Response.error();
-      })
-  );
+  const cacheResponse = async (response) => { if (response?.ok) await (await caches.open(CACHE)).put(request, response.clone()); return response; };
+  if (request.mode === 'navigate') {
+    event.respondWith(fetch(request).then(cacheResponse).catch(() => caches.match(request).then((cached) => cached || caches.match('./index.html'))));
+    return;
+  }
+  if (!/\.(?:html?|css|js|json|svg|png|webp|woff2?|mp3|wav)$/i.test(url.pathname)) return;
+  if (url.pathname.startsWith('/content/')) {
+    event.respondWith(caches.match(request).then((cached) => { const update = fetch(request).then(cacheResponse).catch(() => null); return cached || update.then((response) => response || Response.error()); }));
+    return;
+  }
+  event.respondWith(caches.match(request).then((cached) => cached || fetch(request).then(cacheResponse).catch(() => Response.error())));
 });
+
+self.addEventListener('message', (event) => { if (event.data?.type === 'SKIP_WAITING') self.skipWaiting(); });
 
 const MOBILE_NOTIFICATION_POLICY = Object.freeze({ quietStart: 22, quietEnd: 7, minimumIntervalMs: 6 * 60 * 60 * 1000, maximumPerDay: 2 });
 function openNotificationHistoryDb() {

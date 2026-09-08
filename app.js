@@ -28,7 +28,9 @@ const storage = {
   },
   set(key, value) {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      const serialized = JSON.stringify(value);
+      if (localStorage.getItem(key) === serialized) return true;
+      localStorage.setItem(key, serialized);
       return true;
     } catch (error) {
       console.warn(`[Tiếng Hàn - TamHoanq] Không thể lưu ${key}.`, error);
@@ -163,6 +165,7 @@ const state = {
   pretestSession: null,
   vocabularyTest: null,
   practiceSearch: '',
+  practiceHistoryPage: 1,
   vocabularyFilters: { topikLevel: 'all', topic: 'all', partOfSpeech: 'all', status: 'all', search: '', page: 1 },
   reviewSource: 'due',
   reviewTopic: 'all',
@@ -1147,6 +1150,25 @@ const USER_SYNC_KEYS = Object.freeze([
   STORAGE_KEYS.dailyPlan, STORAGE_KEYS.dailyExperience, STORAGE_KEYS.languageMastery, STORAGE_KEYS.immersionMotivation, STORAGE_KEYS.immersiveKoreanWorld, STORAGE_KEYS.notifications, STORAGE_KEYS.errors, STORAGE_KEYS.weeklyReports, STORAGE_KEYS.dailyMissions, STORAGE_KEYS.learningGoals, STORAGE_KEYS.learningIntelligence, STORAGE_KEYS.adaptiveRoadmaps, STORAGE_KEYS.aiMemory, STORAGE_KEYS.aiInfrastructure, STORAGE_KEYS.aiAgents, STORAGE_KEYS.knowledgeProgress, STORAGE_KEYS.listeningSessions, STORAGE_KEYS.writingAttempts, STORAGE_KEYS.speakingSessions, STORAGE_KEYS.examAttempts, STORAGE_KEYS.notes, STORAGE_KEYS.bookmarks, STORAGE_KEYS.contentFeedback, STORAGE_KEYS.resourceProgress, STORAGE_KEYS.highlights, STORAGE_KEYS.grammarNotebook, STORAGE_KEYS.typingProgress, STORAGE_KEYS.repairPaths, STORAGE_KEYS.focusSessions, STORAGE_KEYS.checkpoints, STORAGE_KEYS.shadowingProgress, STORAGE_KEYS.milestones, STORAGE_KEYS.achievements, STORAGE_KEYS.vocabularyCollections, STORAGE_KEYS.sentenceBuilderProgress, STORAGE_KEYS.realLifeProgress, 'klearn_ai_conversations'
 ]);
 
+const CLOUD_SYNC_ARRAY_LIMITS = Object.freeze({
+  [STORAGE_KEYS.practiceHistory]: 1000,
+  [STORAGE_KEYS.examAttempts]: 500,
+  [STORAGE_KEYS.listeningSessions]: 500,
+  [STORAGE_KEYS.speakingSessions]: 500,
+  [STORAGE_KEYS.writingAttempts]: 500,
+  [STORAGE_KEYS.conversationHistory]: 250,
+  [STORAGE_KEYS.productionTelemetry]: 200,
+  klearn_ai_conversations: 20
+});
+
+function boundedCloudValue(key, value) {
+  const limit = CLOUD_SYNC_ARRAY_LIMITS[key];
+  if (!limit || !Array.isArray(value) || value.length <= limit) return { value, archivedLocally: 0 };
+  const time = (item) => new Date(item?.updatedAt || item?.completedAt || item?.createdAt || item?.timestamp || 0).getTime() || 0;
+  const selected = value.map((item, index) => ({ item, index, time: time(item) })).sort((a, b) => (b.time - a.time) || (a.index - b.index)).slice(0, limit).sort((a, b) => a.index - b.index).map((entry) => entry.item);
+  return { value: selected, archivedLocally: value.length - selected.length };
+}
+
 const CloudSyncService = {
   timer: null,
   status: 'local',
@@ -1163,7 +1185,7 @@ const CloudSyncService = {
   allowed() { return PrivacyPreferenceService.allows('cloudSync'); },
   setStatus(status, detail = '') {
     this.status = status;
-    if (state.currentUser) storage.set(STORAGE_KEYS.syncMeta, { ...(storage.get(STORAGE_KEYS.syncMeta, {}) || {}), [state.currentUser.id]: { status, detail, updatedAt: new Date().toISOString() } });
+    if (state.currentUser) { const all = storage.get(STORAGE_KEYS.syncMeta, {}) || {}; const current = all[state.currentUser.id]; if (current?.status !== status || current?.detail !== detail) storage.set(STORAGE_KEYS.syncMeta, { ...all, [state.currentUser.id]: { status, detail, updatedAt: new Date().toISOString() } }); }
     document.dispatchEvent(new CustomEvent('klearn-sync-status', { detail: { status, detail } }));
   },
   getStatus() {
@@ -1173,9 +1195,9 @@ const CloudSyncService = {
   snapshot() {
     if (!state.currentUser) return null;
     const localUserId = state.currentUser.id; const userId = this.cloudUserId(); if (!userId) return null;
-    const data = Object.fromEntries(USER_SYNC_KEYS.map((key) => { const value = storage.get(key, {}); return [key, key === STORAGE_KEYS.settings ? (value?.users?.[localUserId] || null) : (value?.[localUserId] ?? null)]; }));
+    const truncatedDomains = {}; const data = Object.fromEntries(USER_SYNC_KEYS.map((key) => { const value = storage.get(key, {}); const localValue = key === STORAGE_KEYS.settings ? (value?.users?.[localUserId] || null) : (value?.[localUserId] ?? null); const bounded = boundedCloudValue(key, localValue); if (bounded.archivedLocally) truncatedDomains[key] = bounded.archivedLocally; return [key, bounded.value]; }));
     const user = normalizeUser(state.currentUser); if (user) { delete user.passwordHash; delete user.passwordSalt; delete user.passwordIterations; delete user.passwordHashVersion; delete user.credentialUpgradeRequired; delete user.id; }
-    return { userId, user, data, revision: Math.max(0, Number(this.revision) || 0), updatedAt: new Date().toISOString(), schemaVersion: 4 };
+    return { userId, user, data, revision: Math.max(0, Number(this.revision) || 0), updatedAt: new Date().toISOString(), schemaVersion: 4, syncPolicy: { version: 1, truncatedDomains } };
   },
   normalizePull(value) {
     if (value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, 'snapshot')) return { snapshot: value.snapshot || null, revision: Math.max(0, Number(value.revision) || 0) };
@@ -1351,9 +1373,9 @@ const DictionaryService = {
   all() { return Array.isArray(window.KLEARN_DICTIONARY) ? window.KLEARN_DICTIONARY : []; },
   search(query = '', filters = {}) {
     const q = normalizeSearch(query); const list = this.all();
-    return list.filter((entry) => {
-      const fields = [entry.korean, entry.romanization, entry.meaningVi, entry.meaningEn, entry.meaningZh, entry.meanings?.vi, entry.meanings?.en, entry.meanings?.['zh-CN'], ...(entry.tags || [])].map(normalizeSearch).join(' ');
-      return (!q || fields.includes(q)) && (!filters.topik || filters.topik === 'all' || Number(entry.topikLevel) === Number(filters.topik)) && (!filters.partOfSpeech || filters.partOfSpeech === 'all' || entry.partOfSpeech === filters.partOfSpeech);
+    const candidates = q ? SearchIndexService.find('dictionary-service', list, (entry) => [entry.korean, entry.romanization, entry.meaningVi, entry.meaningEn, entry.meaningZh, entry.meanings?.vi, entry.meanings?.en, entry.meanings?.['zh-CN'], ...(entry.tags || [])].join(' '), q, list.length) : list;
+    return candidates.filter((entry) => {
+      return (!filters.topik || filters.topik === 'all' || Number(entry.topikLevel) === Number(filters.topik)) && (!filters.partOfSpeech || filters.partOfSpeech === 'all' || entry.partOfSpeech === filters.partOfSpeech);
     }).slice(0, 20);
   },
   byId(id) { return this.all().find((entry) => entry.id === id) || null; },
@@ -1410,7 +1432,7 @@ const AITutorService = {
     const text = String(content || '').trim(); if (!text || state.aiBusy) return null;
     if (!PrivacyPreferenceService.allows('aiUsage')) { renderAiWidget(); return PrivacyPreferenceService.disabled('AI_DISABLED_BY_USER'); }
     window.LearningMemoryService?.captureQuery?.(text); this.addMessage('user', text); state.aiBusy = true; renderAiWidget();
-    const conversation = this.current(); const recentMessages = (conversation?.messages || []).slice(-12);
+    const conversation = this.current(); const recentMessages = (conversation?.messages || []).slice(-8).map((message) => ({ ...message, content: String(message.content || '').slice(0, 1800) }));
     try {
       if (window.AIOrchestrationService?.request) { const result = await window.AIOrchestrationService.request({ task: 'tutor', input: text, messages: recentMessages, context: this.context(text), language: I18nService.getPreference() }); if (result?.reply) this.addMessage('assistant', result.reply); return result; }
       if (!PrivacyPreferenceService.allows('aiUsage')) return PrivacyPreferenceService.disabled('AI_DISABLED_BY_USER');
@@ -1634,6 +1656,24 @@ function setView(view, options = {}) {
   state.currentView = target;
   window.UserResearchService?.track?.('feature_used', { feature: target });
   if (!options.fromHash && location.hash !== `#${target}`) history.replaceState(null, '', `#${target}`);
+  const routeLoader = window.KLEARN_ROUTE_LOADER;
+  const pendingAssets = routeLoader?.load?.(target);
+  if (pendingAssets) {
+    pendingAssets.then(() => {
+      if (state.currentView === target) render();
+    }).catch((error) => {
+      if (state.currentView !== target) return;
+      const offline = navigator.onLine === false;
+      appElement().innerHTML = `<section class="empty-state route-load-error section" role="alert"><h1>${offline ? 'Bạn đang ngoại tuyến' : 'Không thể tải chức năng'}</h1><p>${offline ? 'Chức năng này chưa được lưu trên thiết bị. Các bài học cốt lõi, từ vựng và tiến độ ngoại tuyến vẫn dùng được.' : escapeHtml(error?.message || 'Vui lòng thử lại.')}</p><p class="subtle">${window.BackgroundSyncQueueService?.pending?.() || 0} thay đổi đang chờ đồng bộ.</p><button class="btn primary" data-route-retry="${escapeHtml(target)}">Thử lại</button><button class="btn secondary" data-view="home">Về trang chủ</button></section>`;
+      document.querySelector('[data-route-retry]')?.addEventListener('click', () => setView(target));
+      document.querySelector('[data-view="home"]')?.addEventListener('click', () => setView('home'));
+    });
+    if (routeLoader.blocking?.(target) !== false) {
+      syncShell();
+      appElement().innerHTML = `<section class="route-loading section" role="status" aria-live="polite"><span class="route-loading-spinner" aria-hidden="true"></span><h1>Đang mở chức năng…</h1><p>Chỉ tải tài nguyên cần cho màn hình này.</p></section>`;
+      return;
+    }
+  }
   render();
 }
 
@@ -2011,8 +2051,8 @@ function savedExamsView() {
 }
 
 function practiceHistoryView() {
-  const history = PracticeService.getHistory();
-  return `<section class="section page-heading"><button class="back-link" data-view="practice-hub" aria-label="Quay lại">←</button><p class="eyebrow">${history.length} lượt</p><h1 class="headline">Lịch sử luyện tập</h1></section><section class="history-list">${history.length ? history.map((attempt) => `<article class="card history-card"><div><span class="set-level">${escapeHtml(attempt.level || 'Practice')}</span><h2>${escapeHtml(attempt.setTitle)}</h2><p>${formatDate(attempt.completedAt)} · ${Math.max(1,Math.round((attempt.durationSeconds || 0)/60))} phút · ${attempt.total-attempt.score} câu sai</p></div><strong>${attempt.score}/${attempt.total}</strong><div class="history-actions"><button class="btn secondary" data-view-attempt="${attempt.id}">Xem kết quả</button><button class="btn primary" data-retry-history="${attempt.id}">Làm lại</button></div></article>`).join('') : '<div class="empty-filter card">Chưa có lịch sử. Hãy hoàn thành một đề đầu tiên.</div>'}</section>`;
+  const history = PracticeService.getHistory(); const pageSize = 30; const totalPages = Math.max(1, Math.ceil(history.length / pageSize)); const page = Math.min(totalPages, Math.max(1, Number(state.practiceHistoryPage) || 1)); const visible = history.slice((page - 1) * pageSize, page * pageSize);
+  return `<section class="section page-heading"><button class="back-link" data-view="practice-hub" aria-label="Quay lại">←</button><p class="eyebrow">${history.length} lượt</p><h1 class="headline">Lịch sử luyện tập</h1></section><section class="history-list">${visible.length ? visible.map((attempt) => `<article class="card history-card"><div><span class="set-level">${escapeHtml(attempt.level || 'Practice')}</span><h2>${escapeHtml(attempt.setTitle)}</h2><p>${formatDate(attempt.completedAt)} · ${Math.max(1,Math.round((attempt.durationSeconds || 0)/60))} phút · ${attempt.total-attempt.score} câu sai</p></div><strong>${attempt.score}/${attempt.total}</strong><div class="history-actions"><button class="btn secondary" data-view-attempt="${attempt.id}">Xem kết quả</button><button class="btn primary" data-retry-history="${attempt.id}">Làm lại</button></div></article>`).join('') : '<div class="empty-filter card">Chưa có lịch sử. Hãy hoàn thành một đề đầu tiên.</div>'}</section>${history.length > pageSize ? `<nav class="pagination section" aria-label="Trang lịch sử"><button data-history-page="${page - 1}" ${page <= 1 ? 'disabled' : ''}>←</button><span>${page}/${totalPages}</span><button data-history-page="${page + 1}" ${page >= totalPages ? 'disabled' : ''}>→</button></nav>` : ''}`;
 }
 
 function skillHubView() {
@@ -2401,14 +2441,30 @@ function editProfileView() {
   return `<section class="section page-heading"><button class="back-link" data-view="profile" aria-label="Quay lại">←</button><p class="eyebrow">Tài khoản học viên</p><h1 class="headline">Chỉnh sửa hồ sơ</h1></section><form id="editProfileForm" class="card auth-form" novalidate><label>Họ tên<input name="fullName" type="text" maxlength="80" value="${escapeHtml(state.currentUser.fullName)}" /></label><label>Trình độ<select name="level">${['Beginner', 'Beginner+', 'TOPIK I', 'TOPIK I nâng cao', 'TOPIK II khởi đầu'].map((level) => `<option ${state.currentUser.level === level ? 'selected' : ''}>${level}</option>`).join('')}</select></label><label>TOPIK hiện tại<select name="currentTopikLevel">${[1,2,3,4,5,6].map((level)=>`<option value="${level}" ${state.currentUser.currentTopikLevel===level?'selected':''}>TOPIK ${level}</option>`).join('')}</select></label><label>TOPIK mục tiêu<select name="targetTopikLevel">${[1,2,3,4,5,6].map((level)=>`<option value="${level}" ${state.currentUser.targetTopikLevel===level?'selected':''}>TOPIK ${level}</option>`).join('')}</select></label><p class="subtle">Email: ${escapeHtml(state.currentUser.email)}</p><p id="formError" class="form-error hidden" role="alert"></p><button class="btn primary full" type="submit">Lưu thay đổi</button></form>`;
 }
 
+const SearchIndexService = {
+  caches: new Map(),
+  find(name, items, textBuilder, query, limit = 20) {
+    const source = Array.isArray(items) ? items : []; let cache = this.caches.get(name);
+    if (!cache || cache.source !== source || cache.length !== source.length) {
+      cache = { source, length: source.length, rows: source.map((item) => ({ item, text: normalizeSearch(textBuilder(item)) })) };
+      this.caches.set(name, cache);
+    }
+    const output = [];
+    for (const row of cache.rows) { if (row.text.includes(query)) output.push(row.item); if (output.length >= limit) break; }
+    return output;
+  },
+  clear(name) { name ? this.caches.delete(name) : this.caches.clear(); }
+};
+window.SearchIndexService = SearchIndexService;
+
 const GlobalSearchService = {
   search(query = '') {
     const q = normalizeSearch(query); if (!q) return { lessons: [], vocabulary: [], practice: [], phrasebook: [], saved: [], resources: [], videos: [], notes: [], bookmarks: [], studyTools: [], context: [] };
     const match = (value) => normalizeSearch(value).includes(q);
-    const lessons = (window.KLEARN_THEORY_LESSONS || []).filter((item) => [item.id, item.title, item.topic, item.theory, item.grammar, item.summary].some(match)).slice(0, 20);
-    const vocabulary = (window.KLEARN_DICTIONARY || []).filter((item) => [item.id, item.korean, item.romanization, item.meaningVi, item.meaningEn, item.meaningZh, item.meanings?.vi, item.meanings?.en, item.meanings?.['zh-CN']].some(match)).slice(0, 20);
-    const practice = (PracticeService.bank?.sets || []).filter((item) => [item.id, item.title, item.topic, item.practiceTypeLabel, item.levelLabel].some(match)).slice(0, 20);
-    const phrasebook = (window.KLEARN_PHRASEBOOK || []).filter((item) => [item.id, item.korean, item.romanization, item.meanings?.vi, item.meanings?.en, item.meanings?.['zh-CN']].some(match)).slice(0, 20);
+    const lessons = SearchIndexService.find('lessons', window.KLEARN_THEORY_LESSONS || [], (item) => [item.id, item.title, item.topic, item.theory, item.grammar, item.summary].join(' '), q);
+    const vocabulary = SearchIndexService.find('vocabulary', window.KLEARN_DICTIONARY || [], (item) => [item.id, item.korean, item.romanization, item.meaningVi, item.meaningEn, item.meaningZh, item.meanings?.vi, item.meanings?.en, item.meanings?.['zh-CN']].join(' '), q);
+    const practice = SearchIndexService.find('practice', PracticeService.bank?.sets || [], (item) => [item.id, item.title, item.topic, item.practiceTypeLabel, item.levelLabel].join(' '), q);
+    const phrasebook = SearchIndexService.find('phrasebook', window.KLEARN_PHRASEBOOK || [], (item) => [item.id, item.korean, item.romanization, item.meanings?.vi, item.meanings?.en, item.meanings?.['zh-CN']].join(' '), q);
     const saved = userScoped(STORAGE_KEYS.savedSentences).filter((item) => [item.korean, item.translation, item.meaning, item.sourceText].some(match)).slice(0, 20);
     const resources = contentResources().filter((item) => [item.id, item.title, item.description, item.type, item.level, item.source, ...(item.tags || [])].some(match)).slice(0, 20);
     const videos = contentVideos().filter((item) => [item.id, item.title, item.instructor, item.courseId, ...(item.chapters || []).map((chapter) => chapter.title)].some(match)).slice(0, 20);
@@ -2613,6 +2669,7 @@ function bindEvents() {
   document.querySelectorAll('[data-vocab-filter]').forEach((select) => { select.onchange = () => { state.vocabularyFilters[select.dataset.vocabFilter] = select.value; state.vocabularyFilters.page = 1; render(); }; });
   const vocabularySearch = document.getElementById('vocabularySearch'); if (vocabularySearch) vocabularySearch.oninput = () => { state.vocabularyFilters.search = vocabularySearch.value; state.vocabularyFilters.page = 1; clearTimeout(vocabularySearch._timer); vocabularySearch._timer = setTimeout(render, 180); };
   document.querySelectorAll('[data-vocab-page]').forEach((button) => { button.onclick = () => { state.vocabularyFilters.page = Number(button.dataset.vocabPage); render(); }; });
+  document.querySelectorAll('[data-history-page]').forEach((button) => { button.onclick = () => { state.practiceHistoryPage = Number(button.dataset.historyPage); render(); }; });
   document.querySelectorAll('[data-practice-answer]').forEach((button) => { button.onclick = () => selectPracticeAnswer(button.dataset.practiceAnswer); });
   const checkPracticeAnswer = document.getElementById('checkPracticeAnswer'); if (checkPracticeAnswer) checkPracticeAnswer.onclick = checkPractice;
   const nextPracticeQuestion = document.getElementById('nextPracticeQuestion'); if (nextPracticeQuestion) nextPracticeQuestion.onclick = nextPractice;

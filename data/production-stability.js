@@ -85,9 +85,16 @@
     pending() { return this.all().length; }
   };
 
+  function updateConnectivityBanner() {
+    const banner = global.document?.getElementById?.('connectivityBanner'); if (!banner) return;
+    const offline = global.navigator?.onLine === false; const pending = BackgroundSyncQueueService.pending();
+    banner.classList.toggle('hidden', !offline);
+    banner.innerHTML = offline ? `<strong>Đang học ngoại tuyến</strong><span>Bài học cốt lõi, luyện tập và SRS vẫn dùng được · ${pending} thay đổi chờ đồng bộ</span>` : '';
+  }
+
   const ProductionCacheService = {
     isPublicRequest(request, url = '') { const target = String(url || request?.url || ''); const headers = request?.headers; if (headers?.has?.('authorization') || /\/api\/|supabase|private|user-data/i.test(target)) return false; return request?.method === 'GET' || !request?.method; },
-    policy() { return { strategy: 'network-first', publicAssetsOnly: true, privateDataCached: false, audio: 'cacheable-public-only', lesson: 'cacheable-public-only', vocabulary: 'cacheable-public-only' }; }
+    policy() { return { strategy: 'app-shell-cache-first-content-stale-while-revalidate-navigation-network-first', publicAssetsOnly: true, privateDataCached: false, audio: 'cacheable-public-only', lesson: 'cacheable-public-only', vocabulary: 'cacheable-public-only' }; }
   };
 
   const HealthCheckService = {
@@ -100,8 +107,9 @@
   if (typeof global.addEventListener === 'function') {
     global.addEventListener('error', (event) => ProductionMonitoringService.captureError({ type: 'frontend', module: event?.filename || 'window', message: event?.message || 'Unhandled error' }));
     global.addEventListener('unhandledrejection', (event) => ProductionMonitoringService.captureError({ type: 'frontend', module: 'promise', error: event?.reason }));
-    global.addEventListener('online', () => BackgroundSyncQueueService.flush());
-    global.addEventListener('klearn-sync-action', (event) => BackgroundSyncQueueService.enqueue(event?.detail || {}));
+    global.addEventListener('online', () => { BackgroundSyncQueueService.flush().finally(updateConnectivityBanner); updateConnectivityBanner(); });
+    global.addEventListener('offline', updateConnectivityBanner);
+    global.addEventListener('klearn-sync-action', (event) => { BackgroundSyncQueueService.enqueue(event?.detail || {}); updateConnectivityBanner(); });
     global.addEventListener('pagehide', () => { RecoveryService.capture(); BackupService.run(); });
   }
   if (telemetryAllowed() && global.performance?.getEntriesByType) { const navigation = global.performance.getEntriesByType('navigation')[0]; if (navigation?.duration) ProductionMonitoringService.recordPerformance({ type: 'page_load', module: 'navigation', durationMs: navigation.duration }); }
@@ -113,5 +121,6 @@
   const previousAfterRender = global.KLEARN_AFTER_RENDER;
   global.KLEARN_AFTER_RENDER = () => { previousAfterRender?.(); if (!global.document || !state.currentUser || state.currentView !== 'admin-analytics' || AccessControlService?.role?.() !== 'admin' || global.document.querySelector('[data-p33-status]')) return; global.document.getElementById('app')?.insertAdjacentHTML('beforeend', monitoringPanel()); };
   if (state.currentUser) { RecoveryService.capture(); BackupService.run(); }
+  updateConnectivityBanner();
   if (typeof global.setInterval === 'function') global.setInterval(() => { if (state.currentUser) { RecoveryService.capture(); BackupService.run(); } }, 60 * 60 * 1000);
 })();

@@ -27,7 +27,9 @@ async function until(cdp, expression, attempts = 100) { for (let attempt = 0; at
     assert.equal(await until(cdp, `location.origin !== 'null' && document.readyState === 'complete'`), true, 'page did not load');
     const timestamp = new Date().toISOString(); const user = { id: 'p37-qa', fullName: 'P37 Editor', email: 'p37@local.test', level: 'TOPIK I', onboardingCompleted: true, createdAt: timestamp };
     await evaluate(cdp, `(() => { localStorage.setItem('klearn_users', ${JSON.stringify(JSON.stringify([user]))}); localStorage.setItem('klearn_session', ${JSON.stringify(JSON.stringify({ userId: user.id, createdAt: timestamp }))}); localStorage.setItem('klearn_settings', ${JSON.stringify(JSON.stringify({ users: { [user.id]: { theme: 'dark', language: 'vi' } } }))}); location.hash='home'; location.reload(); })()`);
-    assert.equal(await until(cdp, `Boolean(window.AIContentCreationPlatform && window.KLEARN_APP?.state?.currentUser)`), true, 'P37 platform did not load');
+    assert.equal(await until(cdp, `document.readyState==='complete' && Boolean(window.KLEARN_ROUTE_LOADER && window.KLEARN_APP?.state?.currentUser && window.RolePermissionService)`), true, 'app session did not load');
+    await evaluate(cdp, `window.KLEARN_ROUTE_LOADER.loadGroup('aiContent')`);
+    assert.equal(await until(cdp, `Boolean(window.AIContentCreationPlatform)`), true, 'P37 platform did not load');
 
     await evaluate(cdp, `(() => { window.RolePermissionService.role=()=> 'student'; window.AccessControlService.role=()=> 'student'; window.KLEARN_APP.setView('ai-content-studio'); })()`); await wait(100);
     assert.equal(await evaluate(cdp, `Boolean(document.querySelector('.ai-content-denied'))`), true, 'student access was not denied');

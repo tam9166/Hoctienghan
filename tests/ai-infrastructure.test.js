@@ -8,7 +8,7 @@ const source = fs.readFileSync(path.join(root, 'data', 'ai-infrastructure.js'), 
 const config = JSON.parse(fs.readFileSync(path.join(root, 'content', 'ai-infrastructure.json'), 'utf8'));
 const api = fs.readFileSync(path.join(root, 'api', 'chat.js'), 'utf8');
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_korean_ai_infrastructure.sql'), 'utf8');
-const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 
 function boot(fetchImpl) {
@@ -53,8 +53,8 @@ assert.equal(typeof pending.then, 'function');
   assert.match(migration, /row level security/i);
   assert.match(migration, /auth\.uid\(\)/);
   assert.match(index, /data\/ai-infrastructure\.js\?v=2/);
-  assert.match(index, /app\.js\?v=56/);
-  assert.match(worker, /klearn-v70/);
+  assert.match(index, /app\.js\?v=57/);
+  assert.match(worker, /klearn-v71/);
   assert.match(worker, /ai-infrastructure\.json/);
   console.log('AI infrastructure: orchestration, minimal context, routing, safety, quality, fallback, cost telemetry, experiments and RLS passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

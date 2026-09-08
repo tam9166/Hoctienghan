@@ -7,7 +7,7 @@ const root = path.join(__dirname, '..');
 const content = JSON.parse(fs.readFileSync(path.join(root, 'content', 'content-quality-system.json'), 'utf8'));
 const source = fs.readFileSync(path.join(root, 'data', 'content-quality-system.js'), 'utf8');
 const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
-const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const workerSource = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_content_quality_system.sql'), 'utf8');
 
@@ -58,7 +58,7 @@ assert.equal(student.window.ContentQualityService.all().length, 3);
 assert.match(appSource, /content-quality-dashboard/);
 assert.match(indexSource, /content-quality\.css\?v=1/);
 assert.match(indexSource, /data\/content-quality-system\.js\?v=1/);
-assert.match(workerSource, /klearn-v70/);
+assert.match(workerSource, /klearn-v71/);
 assert.match(workerSource, /content-quality-system\.json/);
 assert.match(migration, /content_quality_reviews/);
 assert.match(migration, /content_quality_reports/);

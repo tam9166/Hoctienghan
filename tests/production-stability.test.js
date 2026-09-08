@@ -61,9 +61,9 @@ function boot() {
   assert.equal(w.ProductionCacheService.isPublicRequest({ method: 'GET', headers: { has: (name) => name === 'authorization' } }, '/content/lesson.json'), false);
   assert.equal(w.ProductionCacheService.policy().privateDataCached, false);
   assert.match(appSource, /productionTelemetry: 'klearn_production_telemetry'/);
-  assert.match(index, /production-stability\.css\?v=1/);
-  assert.match(index, /data\/production-stability\.js\?v=3/);
-  assert.match(sw, /klearn-v70/);
+  assert.match(index, /production-stability\.css\?v=2/);
+  assert.match(index, /data\/production-stability\.js\?v=4/);
+  assert.match(sw, /klearn-v71/);
   assert.match(sw, /authorization/);
   assert.match(migration, /production_error_events/);
   assert.match(migration, /production_performance_metrics/);

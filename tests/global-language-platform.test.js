@@ -7,7 +7,7 @@ const root = path.join(__dirname, '..');
 const source = fs.readFileSync(path.join(root, 'data', 'global-language-platform.js'), 'utf8');
 const content = JSON.parse(fs.readFileSync(path.join(root, 'content', 'global-language-platform.json'), 'utf8'));
 const appSource = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
-const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const workerSource = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_global_language_platform.sql'), 'utf8');
 
@@ -56,7 +56,7 @@ assert.deepEqual(content.levelSystems, { ko: 'TOPIK', ja: 'JLPT', zh: 'HSK', en:
   assert.match(appSource, /languageProfiles: 'klearn_language_profiles'/);
   assert.match(appSource, /STORAGE_KEYS\.languageProfiles/);
   assert.match(indexSource, /data\/global-language-platform\.js\?v=1/);
-assert.match(workerSource, /klearn-v70/);
+assert.match(workerSource, /klearn-v71/);
   assert.match(workerSource, /global-language-platform\.json/);
   assert.match(migration, /language_profiles/);
   assert.match(migration, /auth\.uid\(\)/);

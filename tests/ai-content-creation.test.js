@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const root = path.join(__dirname, '..');
 const source = fs.readFileSync(path.join(root, 'data', 'ai-content-creation.js'), 'utf8');
 const config = JSON.parse(fs.readFileSync(path.join(root, 'content', 'ai-content-creation.json'), 'utf8'));
-const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.readFileSync(path.join(root, 'data', 'route-loader.js'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'ai-content-creation.css'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_ai_content_creation.sql'), 'utf8');
@@ -107,9 +107,9 @@ function boot(initialRole = 'content_editor') {
 
   assert.match(index, /ai-content-creation\.css\?v=1/);
   assert.match(index, /data\/ai-content-creation\.js\?v=1/);
-  assert.match(index, /app\.js\?v=56/);
+  assert.match(index, /app\.js\?v=57/);
   assert.match(css, /@media\(max-width:600px\)/);
-  assert.match(worker, /klearn-v70/);
+  assert.match(worker, /klearn-v71/);
   assert.match(worker, /ai-content-creation\.json/);
   assert.match(migration, /human_approved = true and reviewed_by is not null/);
   assert.match(migration, /Only admins can publish human-approved content/);
