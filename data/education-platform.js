@@ -82,7 +82,7 @@
     const skills = Object.fromEntries(Object.entries(summary.skills || {}).slice(0, 8).map(([key, value]) => [text(key, 40), clamp(value)]));
     const mistakes = Array.isArray(summary.mistakes) ? summary.mistakes.slice(0, 8).map((item) => ({ title: text(item?.title || item?.question || item?.mistake || item?.content || item, 160), type: text(item?.type || 'learning', 40), count: Math.max(1, Number(item?.count) || 1) })) : [];
     const sourceOutcomes = summary.outcomes && typeof summary.outcomes === 'object' ? summary.outcomes : {};
-    const skillGrowth = Object.fromEntries(Object.entries(sourceOutcomes.skillGrowth || {}).slice(0, 4).map(([key, value]) => [text(key, 40), Number.isFinite(Number(value)) ? Math.max(-100, Math.min(100, Math.round(Number(value)))) : null]));
+    const skillGrowth = Object.fromEntries(Object.entries(sourceOutcomes.skillGrowth || {}).slice(0, 4).map(([key, value]) => [text(key, 40), value != null && Number.isFinite(Number(value)) ? Math.max(-100, Math.min(100, Math.round(Number(value)))) : null]));
     const outcomes = {
       status: ['measured', 'collecting'].includes(sourceOutcomes.status) ? sourceOutcomes.status : 'collecting',
       overallGrowth: sourceOutcomes.overallGrowth != null && Number.isFinite(Number(sourceOutcomes.overallGrowth)) ? Math.max(-100, Math.min(100, Math.round(Number(sourceOutcomes.overallGrowth)))) : null,
