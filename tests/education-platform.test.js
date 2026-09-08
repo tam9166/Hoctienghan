@@ -49,6 +49,7 @@ teacher.OrganizationService.cacheSummary('student-a', {
   progress: 68, studyMinutes: 145, lessonCount: 12,
   skills: { listening: 38, vocabulary: 82, grammar: 61 },
   mistakes: [{ title: '은/는', type: 'grammar' }, { content: 'ㅓ / ㅗ', type: 'listening' }],
+  outcomes: { status: 'measured', overallGrowth: 14, goalProgress: 72, retention7: 84, retention30: 69, evidenceCount: 4, skillGrowth: { listening: 18, vocabulary: 9 } },
   journal: 'This must never be copied', chatHistory: ['private']
 });
 const row = teacher.TeacherDashboardService.rows()[0];
@@ -56,6 +57,8 @@ assert.equal(row.progress, 68);
 assert.equal(row.studyMinutes, 145);
 assert.equal(row.weakSkill, 'listening');
 assert.equal(row.mistakeCount, 2);
+assert.equal(row.outcomes.overallGrowth, 14);
+assert.equal(row.outcomes.retention30, 69);
 assert.equal(row.summary.journal, undefined, 'teacher snapshot never includes journal');
 assert.equal(row.summary.chatHistory, undefined, 'teacher snapshot never includes chat history');
 const analytics = teacher.TeacherDashboardService.analytics(classroom.id);

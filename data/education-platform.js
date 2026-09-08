@@ -81,12 +81,25 @@
   function sanitizeSummary(summary = {}) {
     const skills = Object.fromEntries(Object.entries(summary.skills || {}).slice(0, 8).map(([key, value]) => [text(key, 40), clamp(value)]));
     const mistakes = Array.isArray(summary.mistakes) ? summary.mistakes.slice(0, 8).map((item) => ({ title: text(item?.title || item?.question || item?.mistake || item?.content || item, 160), type: text(item?.type || 'learning', 40), count: Math.max(1, Number(item?.count) || 1) })) : [];
+    const sourceOutcomes = summary.outcomes && typeof summary.outcomes === 'object' ? summary.outcomes : {};
+    const skillGrowth = Object.fromEntries(Object.entries(sourceOutcomes.skillGrowth || {}).slice(0, 4).map(([key, value]) => [text(key, 40), Number.isFinite(Number(value)) ? Math.max(-100, Math.min(100, Math.round(Number(value)))) : null]));
+    const outcomes = {
+      status: ['measured', 'collecting'].includes(sourceOutcomes.status) ? sourceOutcomes.status : 'collecting',
+      overallGrowth: sourceOutcomes.overallGrowth != null && Number.isFinite(Number(sourceOutcomes.overallGrowth)) ? Math.max(-100, Math.min(100, Math.round(Number(sourceOutcomes.overallGrowth)))) : null,
+      goalProgress: sourceOutcomes.goalProgress != null && Number.isFinite(Number(sourceOutcomes.goalProgress)) ? clamp(sourceOutcomes.goalProgress) : null,
+      retention7: sourceOutcomes.retention7 != null && Number.isFinite(Number(sourceOutcomes.retention7)) ? clamp(sourceOutcomes.retention7) : null,
+      retention30: sourceOutcomes.retention30 != null && Number.isFinite(Number(sourceOutcomes.retention30)) ? clamp(sourceOutcomes.retention30) : null,
+      evidenceCount: Math.max(0, Math.round(Number(sourceOutcomes.evidenceCount) || 0)),
+      skillGrowth,
+      updatedAt: text(sourceOutcomes.updatedAt, 40)
+    };
     return {
       progress: clamp(summary.progress ?? summary.mastery),
       studyMinutes: Math.max(0, Math.round(Number(summary.studyMinutes ?? summary.stats?.totalMinutes ?? summary.stats?.weeklyStudyMinutes) || 0)),
       lessonsCompleted: Math.max(0, Math.round(Number(summary.lessonCount ?? summary.stats?.lessonsCompleted) || 0)),
       skills,
-      mistakes
+      mistakes,
+      outcomes
     };
   }
 
