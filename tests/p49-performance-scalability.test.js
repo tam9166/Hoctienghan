@@ -31,7 +31,7 @@ assert.match(app, /const SearchIndexService =/);
 assert.match(app, /const pageSize = 30/);
 assert.match(app, /messages \|\| \[\]\)\.slice\(-8\)/);
 
-assert.match(worker, /const CACHE = 'klearn-v74'/);
+assert.match(worker, /const CACHE = 'klearn-v75'/);
 assert.match(worker, /const INSTALL_ASSETS = new Set/);
 assert.match(worker, /url\.pathname\.startsWith\('\/api\/'\)/);
 assert.match(worker, /request\.headers\.has\('authorization'\)/);

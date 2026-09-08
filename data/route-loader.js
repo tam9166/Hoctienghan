@@ -40,7 +40,8 @@
     immersiveKorean: { dependencies: ['immersive'], styles: ['immersive-korean-world.css?v=1'], scripts: ['data/immersive-korean-world.js?v=1'] },
     marketplace: { styles: ['global-education-marketplace.css?v=1'], scripts: ['data/global-education-marketplace.js?v=1'] },
     outcomes: { styles: ['learning-outcomes.css?v=1'], scripts: ['data/learning-outcomes.js?v=1'] },
-    growth: { styles: ['product-growth.css?v=1'], scripts: ['data/product-growth.js?v=1'] }
+    growth: { styles: ['product-growth.css?v=1'], scripts: ['data/product-growth.js?v=1'] },
+    demo: { styles: ['product-demo.css?v=1'], scripts: ['data/product-demo.js?v=1'] }
   });
 
   const routeGroups = new Map();
@@ -64,6 +65,7 @@
   routes('invite-friends', ['monetization', 'community', 'growth']);
   routes('growth-analytics', ['retention', 'growth']);
   routes('product-experiments', ['growth']);
+  routes('demo demo-center', ['demo']);
   routes('real-world-assistant korean-document-assistant korean-menu-reader korean-sign-reader real-world-guide survival-checklist', ['realWorld']);
   routes('content-platform content-explorer content-detail korean-notebook content-feedback', ['content']);
   routes('learning-community study-groups community-challenge peer-practice community-questions community-profile community-safety', ['communityLearning']);

@@ -60,7 +60,7 @@ assert.equal(research.events().length, countBefore);
 assert.match(appSource, /research: 'klearn_user_research'/);
 assert.match(appSource, /UserResearchService\?\.track/);
 assert.match(indexSource, /data\/user-research\.js\?v=2/);
-assert.match(workerSource, /klearn-v74/);
+assert.match(workerSource, /klearn-v75/);
 assert.match(workerSource, /user-research-experiments\.json/);
 assert.match(migration, /research_consents/);
 assert.match(migration, /learning_research_events/);

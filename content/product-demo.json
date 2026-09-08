@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "account": {
+    "id": "demo-p54",
+    "fullName": "Minh Anh · Demo",
+    "email": "demo@tamhoanq.local",
+    "level": "TOPIK I",
+    "goal": "topik"
+  },
+  "flow": [
+    { "id": "home", "label": "Home", "view": "home", "message": "Kế hoạch hôm nay và hành động tiếp theo" },
+    { "id": "learning", "label": "Learning", "view": "lessons", "message": "Lộ trình bài học và dữ liệu tiến độ" },
+    { "id": "ai", "label": "Trợ lý học tập", "view": "ai-coach", "message": "Gợi ý dựa trên hồ sơ, không thay thế nội dung chuẩn" },
+    { "id": "analytics", "label": "Analytics", "view": "analytics", "message": "Kết quả và bằng chứng tiến bộ" }
+  ],
+  "showcase": [
+    { "id": "foundation", "title": "Nhập môn Hangul", "purpose": "Đưa người mới từ ký tự đến câu đầu tiên.", "value": "Giảm quá tải và tạo nền tảng trước TOPIK.", "view": "lessons" },
+    { "id": "daily", "title": "Học hôm nay", "purpose": "Tạo phiên học theo thời gian người dùng có.", "value": "Một hành động rõ ràng giúp duy trì thói quen.", "view": "home" },
+    { "id": "review", "title": "SRS & Mastery", "purpose": "Ưu tiên kiến thức có nguy cơ quên.", "value": "Ôn đúng lúc và theo dõi độ vững kiến thức.", "view": "review" },
+    { "id": "ai", "title": "Trợ lý học tập", "purpose": "Giải thích và đề xuất trong đúng ngữ cảnh học.", "value": "AI là lớp hỗ trợ, không biến sản phẩm thành chatbot.", "view": "ai-coach" },
+    { "id": "topik", "title": "TOPIK", "purpose": "Luyện đề, chiến thuật và kỹ năng theo cấp độ.", "value": "Kết nối hoạt động hằng ngày với mục tiêu thi thật.", "view": "topik" },
+    { "id": "outcomes", "title": "Kết quả học tập", "purpose": "Đo tiến bộ thay vì chỉ đếm lượt sử dụng.", "value": "Cung cấp bằng chứng trước–sau và mức độ duy trì.", "view": "learning-outcomes" }
+  ],
+  "sample": {
+    "lessonsCompleted": 18,
+    "learningDays": 24,
+    "streak": 7,
+    "wordsLearned": 126,
+    "skills": { "vocabulary": 78, "grammar": 69, "listening": 61, "speaking": 66, "reading": 74, "writing": 58 }
+  },
+  "privacy": {
+    "isolatedUserId": "demo-p54",
+    "cloudSync": false,
+    "changesRealUsers": false,
+    "storesCredentials": false
+  }
+}
