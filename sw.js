@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v73';
+const CACHE = 'klearn-v74';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=32',
@@ -22,6 +22,7 @@ const OFFLINE_ASSETS = [
   './ecosystem-expansion.css?v=1',
   './learning-analytics.css?v=1',
   './learning-outcomes.css?v=1',
+  './product-growth.css?v=1',
   './real-world-assistant.css?v=1',
   './advanced-content-platform.css?v=1',
   './community-learning.css?v=1',
@@ -73,12 +74,12 @@ const OFFLINE_ASSETS = [
   './data/content-quality-system.js?v=1',
   './data/learning-modules.js?v=9',
   './data/practice-bank.js?v=8',
-  './locales/vi.js?v=3',
-  './locales/en.js?v=5',
-  './locales/zh-CN.js?v=5',
+  './locales/vi.js?v=4',
+  './locales/en.js?v=6',
+  './locales/zh-CN.js?v=6',
   './data/content-locales.js?v=1',
   './data/route-loader.js?v=1',
-  './app.js?v=59',
+  './app.js?v=60',
   './content/retention-system.json',
   './content/content-quality-system.json',
   './data/resource-library.js?v=1',
@@ -103,6 +104,8 @@ const OFFLINE_ASSETS = [
   './content/user-research-experiments.json',
   './data/advanced-learning-analytics.js?v=1',
   './data/learning-outcomes.js?v=1',
+  './data/product-growth.js?v=1',
+  './content/product-growth.json',
   './content/advanced-learning-analytics.json',
   './edtech-business-intelligence.css?v=1',
   './data/edtech-business-intelligence.js?v=1',
@@ -147,9 +150,9 @@ const OFFLINE_ASSETS = [
 // cached on first use, so installation no longer downloads the complete platform.
 const INSTALL_ASSETS = new Set([
   './index.html', './styles.css?v=32', './product-ux.css?v=1', './production-stability.css?v=2', './security-privacy.css?v=1', './mobile-experience.css?v=1',
-  './locales/vi.js?v=3', './locales/en.js?v=5', './locales/zh-CN.js?v=5', './data/content-locales.js?v=1',
+  './locales/vi.js?v=4', './locales/en.js?v=6', './locales/zh-CN.js?v=6', './data/content-locales.js?v=1',
   './data/romanization.js?v=8', './data/vocabulary-bank.js?v=8', './data/dictionary.js?v=1', './data/theory-lessons.js?v=1', './data/handwriting.js?v=1',
-  './data/cloud-sync.js?v=3', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=1', './app.js?v=59',
+  './data/cloud-sync.js?v=3', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=1', './app.js?v=60',
   './data/curriculum.js?v=1', './data/adaptive-engine.js?v=8', './data/beginner-foundation.js?v=2', './data/daily-learning-experience.js?v=6',
   './data/product-ux.js?v=1', './content/product-ux.json', './data/user-research.js?v=2', './content/user-research-experiments.json',
   './data/production-stability.js?v=4', './data/security-privacy.js?v=2', './data/mobile-experience.js?v=2',

@@ -10,7 +10,7 @@ window.KLEARN_LOCALES['zh-CN'] = {
     'common.back': '返回', 'common.result': '结果', 'common.start': '开始', 'common.save': '保存', 'common.cancel': '取消', 'common.retry': '再试一次',
     'home.greeting': '你好，{name} 👋', 'home.prompt': '今天想学习什么？', 'home.todayGoal': '今日目标',
     'home.path': '个性化学习路径', 'home.today': '今日', 'home.srsReview': 'SRS 复习', 'home.practiceTest': '模拟练习', 'home.notRequired': '无需完成全部任务。', 'home.continueLearning': '继续学习', 'home.todayReview': '今日复习', 'home.reviewTip': '及时复习，记忆更牢固。', 'home.reviewNow': '立即复习', 'home.todayPractice': '今日练习', 'home.koreanPractice': '韩语练习', 'home.notCompleted': '你还没有完成任何练习题。', 'home.reviewDue': '复习 {count} 个到期单词', 'home.reviewDueReason': '优先复习到期单词，保持 SRS 学习节奏。', 'home.recommended': '为你推荐', 'home.learningPath': '学习路径', 'home.pathSubtitle': '从基础学习到考试准备', 'home.locked': '未解锁',
-    'welcome.title': '为越南学习者量身定制的韩语学习。', 'welcome.point.level': '按水平学习。', 'welcome.point.goal': '按目标学习。', 'welcome.point.progress': '每天进步。',
+    'welcome.title': '为越南学习者量身定制的韩语学习。', 'welcome.value': '从适合的水平开始，明确今天学什么，并通过真实结果看到进步。', 'welcome.point.level': '韩文字母 → TOPIK', 'welcome.point.goal': '每日学习计划', 'welcome.point.progress': '有证据的进步',
     'auth.registerSubtitle': '只需几分钟，TH-Tiếng Hàn 就能了解你的学习目标。', 'auth.loginSubtitle': '继续你的个性化韩语学习计划。',
     'onboarding.goalsTitle': '你为什么学习韩语？', 'onboarding.goalsSubtitle': '可以选择多个目标。', 'onboarding.levelTitle': '你目前的韩语水平？', 'onboarding.levelSubtitle': '选择最接近的选项，也可以参加入门测试。', 'onboarding.placementTitle': '入门水平测试', 'onboarding.placementSubtitle': '请选择一个答案，结果仅用于推荐学习路径。',
     'speaking.title': '口语练习', 'writing.title': '写作练习', 'profile.settings': '设置', 'profile.language': '语言', 'profile.appearance': '显示模式'

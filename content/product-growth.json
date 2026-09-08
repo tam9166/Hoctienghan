@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "updatedAt": "2026-09-09",
+  "activation": {
+    "id": "first-successful-learning-moment",
+    "title": "Khoảnh khắc học thành công đầu tiên",
+    "definition": "Hoàn thành bài học, hoàn thành bài luyện từ 60%, hoặc ôn đúng một mục SRS.",
+    "minimumPracticeScore": 60
+  },
+  "inviteTypes": [
+    { "id": "friend", "title": "Mời một người bạn", "description": "Cùng bắt đầu và duy trì nhịp học." },
+    { "id": "study_partner", "title": "Mời bạn học cùng", "description": "Kết nối để luyện tập và đặt mục tiêu chung." }
+  ],
+  "retentionCheckpoints": [1, 7, 30],
+  "reengagement": [
+    { "id": "return-7", "minimumAwayDays": 7, "maximumAwayDays": 29, "title": "Quay lại bằng một phiên 5 phút", "route": "quick-practice" },
+    { "id": "return-30", "minimumAwayDays": 30, "title": "Khởi động lại nhẹ nhàng", "route": "command-center" }
+  ],
+  "experiments": [
+    { "id": "growth_home_cta", "area": "ui", "goal": "Tăng tỷ lệ bắt đầu bài học", "variants": ["control", "focused"], "allocation": [50, 50], "status": "ready" },
+    { "id": "growth_onboarding_value", "area": "onboarding", "goal": "Tăng tỷ lệ hoàn thành onboarding", "variants": ["path", "outcome"], "allocation": [50, 50], "status": "ready" },
+    { "id": "growth_content_next_step", "area": "content", "goal": "Tăng tỷ lệ học bài tiếp theo", "variants": ["standard", "evidence"], "allocation": [50, 50], "status": "ready" }
+  ],
+  "privacy": {
+    "scope": "in-app-only",
+    "storesRecipientContact": false,
+    "storesRawReferralUserId": false,
+    "analyticsRequireConsent": true,
+    "adminMetricsAreAggregateOnly": true
+  }
+}

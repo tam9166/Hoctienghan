@@ -63,7 +63,7 @@ function boot() {
   assert.match(appSource, /productionTelemetry: 'klearn_production_telemetry'/);
   assert.match(index, /production-stability\.css\?v=2/);
   assert.match(index, /data\/production-stability\.js\?v=4/);
-  assert.match(sw, /klearn-v73/);
+  assert.match(sw, /klearn-v74/);
   assert.match(sw, /authorization/);
   assert.match(migration, /production_error_events/);
   assert.match(migration, /production_performance_metrics/);

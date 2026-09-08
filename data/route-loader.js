@@ -39,7 +39,8 @@
     agents: { styles: ['ai-agent-architecture.css?v=1'], scripts: ['data/ai-agent-architecture.js?v=1'] },
     immersiveKorean: { dependencies: ['immersive'], styles: ['immersive-korean-world.css?v=1'], scripts: ['data/immersive-korean-world.js?v=1'] },
     marketplace: { styles: ['global-education-marketplace.css?v=1'], scripts: ['data/global-education-marketplace.js?v=1'] },
-    outcomes: { styles: ['learning-outcomes.css?v=1'], scripts: ['data/learning-outcomes.js?v=1'] }
+    outcomes: { styles: ['learning-outcomes.css?v=1'], scripts: ['data/learning-outcomes.js?v=1'] },
+    growth: { styles: ['product-growth.css?v=1'], scripts: ['data/product-growth.js?v=1'] }
   });
 
   const routeGroups = new Map();
@@ -59,10 +60,14 @@
   routes('ecosystem-expansion real-korean-life life-simulator document-reader address-number-trainer language-science korean-thinking skill-world career-purpose career-practice learning-architecture', ['ecosystem']);
   routes('analytics progress-reports learning-outcomes student-progress-report', ['analytics', 'advancedAnalytics', 'outcomes']);
   routes('teacher-outcomes', ['education', 'outcomes']);
+  routes('growth-center', ['retention', 'monetization', 'community', 'outcomes', 'growth']);
+  routes('invite-friends', ['monetization', 'community', 'growth']);
+  routes('growth-analytics', ['retention', 'growth']);
+  routes('product-experiments', ['growth']);
   routes('real-world-assistant korean-document-assistant korean-menu-reader korean-sign-reader real-world-guide survival-checklist', ['realWorld']);
   routes('content-platform content-explorer content-detail korean-notebook content-feedback', ['content']);
   routes('learning-community study-groups community-challenge peer-practice community-questions community-profile community-safety', ['communityLearning']);
-  routes('enterprise-platform subscription-center premium-features school-management center-dashboard course-marketplace certification-center partner-api admin-analytics language-platform', ['enterprise', 'edtech', 'premium']);
+  routes('enterprise-platform subscription-center premium-features school-management center-dashboard course-marketplace certification-center partner-api admin-analytics language-platform', ['enterprise', 'edtech', 'premium', 'growth']);
   routes('retention-center weekly-review monthly-reflection goal-milestones retention-analytics', ['retention']);
   routes('content-quality-dashboard', ['content', 'contentQuality']);
   routes('language-exchange community-moderation', ['community']);
@@ -84,7 +89,8 @@
   routes('review', ['practical', 'scale', 'science']);
   routes('topik', ['topik', 'analytics', 'advancedAnalytics', 'science', 'outcomes']);
   routes('practice speaking-hub', ['voice']);
-  routes('profile', ['longTerm', 'education', 'communityLearning', 'enterprise', 'retention', 'contentQuality', 'globalLanguage', 'edtech', 'premium', 'aiContent', 'community', 'monetization', 'futureLanguage', 'outcomes']);
+  routes('home', ['growth']);
+  routes('profile', ['longTerm', 'education', 'communityLearning', 'enterprise', 'retention', 'contentQuality', 'globalLanguage', 'edtech', 'premium', 'aiContent', 'community', 'monetization', 'futureLanguage', 'outcomes', 'growth']);
   routes('search', ['resources', 'practical', 'context', 'content']);
   const discoveryRoutes = new Set(['lessons', 'review', 'topik', 'practice', 'speaking-hub', 'profile', 'search']);
 
