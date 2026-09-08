@@ -86,7 +86,7 @@ assert.equal(content.privacy.storesRawAudio, false);
   const audit = w.AIAgentAuditService.all(); assert.ok(audit.length >= 7); assert.equal(audit[0].rawInputStored, false); assert.equal(audit[0].rawResponseStored, false); assert.equal(audit[0].rawAudioStored, false); assert.equal(audit.some((item) => 'reply' in item || 'text' in item || 'prompt' in item), false); assert.ok(app.syncEvents.includes('ai-agent-audit'));
 
   assert.match(migration, /ai_agent_preferences/); assert.match(migration, /ai_agent_audit_logs/); assert.match(migration, /row level security/i); assert.match(migration, /auth\.uid\(\)/); assert.doesNotMatch(migration, /raw_prompt\s+text|raw_response\s+text|raw_audio\s+/i);
-  assert.match(index, /ai-agent-architecture\.css\?v=1/); assert.match(index, /data\/ai-agent-architecture\.js\?v=1/); assert.match(index, /app\.js\?v=57/);
-  assert.match(worker, /klearn-v71/); assert.match(worker, /content\/ai-agent-architecture\.json/); assert.match(appSource, /aiAgents: 'klearn_ai_agents'/); assert.match(appSource, /STORAGE_KEYS\.aiAgents/);
+  assert.match(index, /ai-agent-architecture\.css\?v=1/); assert.match(index, /data\/ai-agent-architecture\.js\?v=1/); assert.match(index, /app\.js\?v=58/);
+  assert.match(worker, /klearn-v72/); assert.match(worker, /content\/ai-agent-architecture\.json/); assert.match(appSource, /aiAgents: 'klearn_ai_agents'/); assert.match(appSource, /STORAGE_KEYS\.aiAgents/);
   console.log('AI agent architecture: eight bounded specialists, deterministic routing, one primary agent, mandatory quality control, approved-source gates, confirmed memory, metadata-only audit and RLS passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

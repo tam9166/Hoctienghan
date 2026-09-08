@@ -25,3 +25,17 @@ Object.assign(window.KLEARN_LOCALES.vi.keys, {
   'home.listening': 'Nghe', 'home.speaking': 'Nói', 'home.shortWriting': 'Viết ngắn', 'home.latestScore': 'Điểm gần nhất', 'home.reviewNowAction': 'Luyện ngay', 'home.quickPractice': 'Luyện nhanh', 'home.start': 'Bắt đầu', 'ai.title': 'AI Gia sư TamHoanq', 'ai.subtitle': 'Hỗ trợ học tiếng Hàn', 'ai.placeholder': 'Hỏi AI về tiếng Hàn...', 'ai.thinking': 'AI đang suy nghĩ...', 'ai.privacy': 'AI có thể sử dụng cuộc trò chuyện và tiến độ học để gợi ý phù hợp hơn. Không gửi mật khẩu hoặc token.', 'ai.empty': 'Hỏi AI về ngữ pháp, từ vựng, phát âm hoặc bài học hiện tại.', 'ai.notConfigured': 'Tính năng AI chưa được cấu hình.', 'ai.offline': 'AI cần kết nối Internet. Bạn vẫn có thể dùng từ điển và mẫu câu offline.',
   'lesson.courseEyebrow': 'Bài học MVP', 'lesson.objective': 'Mục tiêu: nhận biết cấu trúc, xem ví dụ và chuyển ngay sang bài luyện phù hợp.', 'lesson.studyGuide': 'Cách học gợi ý', 'lesson.listenSample': 'Đọc hoặc nghe mẫu tiếng Hàn.', 'lesson.compareMeaning': 'Đối chiếu nghĩa và cách dùng bằng tiếng Việt.', 'lesson.practiceSkill': 'Làm bài luyện theo kỹ năng để kiểm tra.', 'lesson.compareTitle': '🧠 So sánh với Tiếng Việt', 'lesson.compareBody': 'Trong tiếng Hàn, 은/는 được gắn sau danh từ để đánh dấu chủ đề của câu. Có thể hiểu gần với “thì” hoặc “là” trong tiếng Việt.', 'lesson.rule': 'Quy tắc', 'lesson.withBatchim': 'Có patchim (phụ âm cuối) + 은', 'lesson.withoutBatchim': 'Không có patchim + 는', 'lesson.examples': 'Ví dụ', 'lesson.arrange': '🧩 Sắp xếp câu', 'lesson.createSentence': 'Tạo câu: “Tôi là người Việt Nam.”', 'lesson.reset': 'Làm lại', 'lesson.check': 'Kiểm tra', 'lesson.close': 'Đóng bài học', 'lesson.back': 'Quay lại', 'lesson.complete': 'Hoàn thành bài', 'lesson.completed': 'Đã hoàn thành ✓', 'lesson.startPractice': 'Bắt đầu luyện {lesson}', 'lesson.audio': 'Nghe phát âm tiếng Hàn', 'ai.fab': 'Mở AI Gia sư TamHoanq', 'ai.newChat': 'Cuộc trò chuyện mới', 'ai.close': 'Đóng AI', 'ai.lesson': 'Bài này', 'ai.correct': 'Sửa câu', 'ai.translate': 'Dịch', 'ai.exercise': 'Tạo bài tập', 'ai.you': 'Bạn', 'ai.send': 'Gửi', 'ai.error': 'Không thể kết nối AI lúc này. Vui lòng thử lại.'
 });
+
+// P50 product copy: capability stays transparent without making AI the product identity.
+Object.assign(window.KLEARN_LOCALES.vi.keys, {
+  'lesson.courseEyebrow': 'Bài học thực hành',
+  'ai.title': 'Trợ giúp học tập', 'ai.subtitle': 'Hỗ trợ khi bạn cần giải thích thêm',
+  'ai.placeholder': 'Hỏi về bài học tiếng Hàn...', 'ai.thinking': 'Đang chuẩn bị câu trả lời...',
+  'ai.privacy': 'Khi được bật, tính năng này có thể dùng nội dung trao đổi và tiến độ học để đưa ra gợi ý. Mật khẩu và mã đăng nhập không được gửi.',
+  'ai.empty': 'Bạn có thể hỏi về ngữ pháp, từ vựng, phát âm hoặc bài đang học.',
+  'ai.notConfigured': 'Trợ giúp trực tuyến chưa được cấu hình.',
+  'ai.offline': 'Trợ giúp trực tuyến cần Internet. Bạn vẫn có thể dùng từ điển và mẫu câu ngoại tuyến.',
+  'ai.fab': 'Mở trợ giúp học tập', 'ai.fabLabel': 'Hỏi bài', 'ai.newChat': 'Nội dung trao đổi mới',
+  'ai.close': 'Đóng trợ giúp', 'ai.disabledTitle': 'Trợ giúp đang tắt',
+  'ai.disabledBody': 'Tính năng hỗ trợ thông minh đang tắt theo lựa chọn của bạn.', 'ai.settings': 'Mở cài đặt', 'nav.assistant': 'Luyện cá nhân'
+});

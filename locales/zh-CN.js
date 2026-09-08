@@ -24,6 +24,19 @@ Object.assign(window.KLEARN_LOCALES['zh-CN'].phrases, {
   'Từ vựng TOPIK 1–6':'TOPIK 1–6 词汇', 'Ôn tập từ vựng':'词汇复习', 'Flashcard SRS':'SRS 单词卡', 'Quên':'忘记', 'Khó':'困难', 'Nhớ':'记得', 'Rất dễ':'很简单',
   'Đúng rồi!':'回答正确！', 'Chưa đúng':'还不正确', 'Chính xác':'正确', 'Chưa chính xác.':'还不正确。', 'Đáp án đúng:':'正确答案：', 'Giải thích':'解析', 'Mẹo phát âm':'发音提示', 'Gợi ý trả lời':'回答提示', 'Yêu cầu:':'要求：', 'Từ gợi ý':'提示词', 'Nộp bài':'提交', 'Bài viết đã lưu':'写作已保存', 'Bài mẫu':'示例答案', 'Lịch sử luyện tập':'练习历史', 'Không có bộ đề phù hợp. Hãy thử thay đổi bộ lọc.':'没有匹配的练习题，请尝试更改筛选条件。', 'Không có từ phù hợp':'没有匹配的词汇', 'Mở kho từ vựng':'打开词汇库', 'Kiểm tra vốn từ đã học':'测试已学词汇', 'Luyện nhanh':'快速练习', 'Bắt đầu luyện nhanh':'开始快速练习', 'Chọn đề':'选择练习', 'Làm đề':'开始练习', 'Làm lại':'再试一次', 'Nghe':'听力', 'Nói':'口语', 'Đọc':'阅读', 'Viết':'写作', 'Ngữ pháp':'语法', 'Từ vựng':'词汇', 'Mục tiêu':'目标', 'Cấp độ':'水平', 'Trạng thái':'状态', 'Tất cả':'全部', 'Dễ':'简单', 'Trung bình':'中等', 'Khó':'困难', 'Bỏ qua':'跳过', 'Hoàn thành':'完成', 'Tiếp tục':'继续', 'Tiếp theo':'下一题', 'Xem kết quả':'查看结果', 'Đăng xuất':'退出登录'
 });
+
+Object.assign(window.KLEARN_LOCALES['zh-CN'].keys, {
+  'lesson.courseEyebrow': '练习课程',
+  'ai.title': '学习帮助', 'ai.subtitle': '需要时提供额外讲解',
+  'ai.placeholder': '询问当前韩语课程...', 'ai.thinking': '正在准备回答……',
+  'ai.privacy': '启用后，本功能可使用交流内容和学习进度提供更合适的建议。不会发送密码或登录码。',
+  'ai.empty': '可以询问语法、词汇、发音或当前课程。',
+  'ai.notConfigured': '在线学习帮助尚未配置。',
+  'ai.offline': '在线学习帮助需要互联网连接。你仍可使用离线词典和短语手册。',
+  'ai.fab': '打开学习帮助', 'ai.fabLabel': '提问', 'ai.newChat': '新交流',
+  'ai.close': '关闭学习帮助', 'ai.disabledTitle': '学习帮助已关闭',
+  'ai.disabledBody': '智能辅助已根据你的设置关闭。', 'ai.settings': '打开设置'
+});
 Object.assign(window.KLEARN_LOCALES['zh-CN'].phrases, { 'Học liệu':'学习资料','Ghi chú của tôi':'我的笔记','Đã lưu':'已收藏','Bài giảng Video':'视频课程','Kho đề TOPIK':'TOPIK 题库','Xem học liệu':'打开资料','Mở lại':'再次打开','Đánh dấu đã xem':'标记为已查看','Đã xem':'已查看','Đánh dấu đoạn':'标记段落','Bỏ đánh dấu':'取消标记','Lưu học liệu':'收藏资料','Lưu ghi chú':'保存笔记','Cập nhật ghi chú':'更新笔记','Hủy sửa':'取消编辑','Chưa có ghi chú':'暂无笔记','Chưa có mục đã lưu':'暂无收藏','Draft · chưa phát hành':'草稿 · 尚未发布','Xem thông tin':'查看详情','Chưa có video được cấp quyền cho bài này.':'此课程暂无获得授权的视频。','Video chưa được phát hành':'视频尚未发布','Mở bài giảng':'打开课程','Chapters':'章节','Quick Check':'快速检查','Biên soạn bởi':'编写者','Nguồn':'来源','License':'许可' });
 Object.assign(window.KLEARN_LOCALES['zh-CN'].phrases, {
   'Khóa học':'课程','Khóa học theo lộ trình':'结构化课程','Chọn đúng chặng học; tiến độ được lấy trực tiếp từ các bài đã hoàn thành.':'选择合适阶段；进度直接来自已完成的课程。','Nền tảng tiếng Hàn':'韩语基础','Tiếng Hàn sơ cấp':'初级韩语','Tiếng Hàn trung cấp':'中级韩语','Tiếng Hàn nâng cao':'高级韩语','Chuẩn bị thi TOPIK':'TOPIK备考','Đã hoàn thành':'已完成','Đang học':'学习中','Chưa bắt đầu':'未开始','Chiến thuật và mock exam':'策略与模拟考试','Tiếp tục khóa học':'继续课程','Xem khóa học':'查看课程','Mở chiến thuật TOPIK':'打开TOPIK策略','Bài học':'课程','Bài tiếp theo':'下一课','Mở Chiến thuật TOPIK':'打开TOPIK策略实验室','TOPIK Strategy Lab':'TOPIK策略实验室','Chiến thuật TOPIK':'TOPIK策略','Học cách nhận diện và xử lý từng dạng câu trước khi bấm giờ làm đề.':'在计时练习前学习识别并解决各类题型。','Đã luyện':'已练习','Chưa luyện':'未练习','Nhận biết dạng câu':'识别题型','Mục tiêu câu hỏi':'题目目标','4 bước xử lý':'四步方法','Lỗi thường gặp':'常见错误','Luyện 5 câu':'练习5题','Luyện 10 câu':'练习10题','Nói không phải là phần thi TOPIK chuẩn hóa.':'口语不是标准化TOPIK考试部分。','Bấm vào từ tiếng Hàn để xem nhanh nghĩa.':'点击韩语单词快速查看释义。','Chưa có dữ liệu từ này.':'暂无该词条。','Hỏi trợ lý':'询问助教','Thêm vào SRS':'加入SRS','Mở từ điển đầy đủ':'打开完整词典','Từ liên quan':'相关词','Tóm tắt':'总结','Giải thích ngắn':'简要说明','Câu ví dụ':'例句','Bước':'步骤','Quick Check':'快速检查','Practice':'练习','Tổng kết':'总结','Kiểm tra đáp án':'检查答案','Đáp án của bạn':'你的答案','Chọn đáp án để tiếp tục.':'选择答案继续。','Chính xác — tiếp tục nhé!':'正确，继续吧！','Hãy xem lại gợi ý rồi thử lại.':'查看提示后重试。','Lưu tiến độ bài học':'保存课程进度','Bài học đã hoàn thành.':'课程已完成。','Tiến độ khóa học':'课程进度','Không có bài học trong khóa này.':'此课程暂无课程。'
@@ -53,4 +66,13 @@ Object.assign(window.KLEARN_LOCALES['zh-CN'].phrases, {
 });
 Object.assign(window.KLEARN_LOCALES['zh-CN'].phrases, {
   'Phòng luyện Nghe':'听力训练室','Nghe bình thường':'听力','Nghe và nhập Hangul':'听写','Nghe rồi nói lại':'跟读','Nghe và trả lời câu hỏi':'听力测验','Phòng luyện Nói':'口语练习室','Phòng luyện Viết':'写作考试室','Thi thử TOPIK':'TOPIK 模拟考试','Thi thử full đề':'完整模拟考试','Exam mode · timer · không gợi ý':'考试模式 · 计时 · 无提示','Repeat':'跟读重复','Situation':'情境','Role Play':'角色扮演','Free Speaking':'自由表达','Shadowing':'影子跟读','Dictation':'听写','Quiz':'测验','Text comparison':'文本对比','Transcript nhận được':'识别文本','Đánh giá luyện tập':'练习评估','Không phải điểm TOPIK chính thức':'不是官方 TOPIK 成绩','Đặt lại':'重置','Lưu lỗi':'保存错误','Ôn ngữ pháp liên quan':'复习相关语法','Câu tiếp theo':'下一题','Bắt đầu lại':'重新开始','Xóa A-B':'清除 A-B','Nghe từ':'从此处播放','Hết giờ. Hãy nộp bài viết.':'时间到，请提交写作。','Exam mode: không hiển thị transcript, translation, romanization, hint, explanation hoặc dictionary.':'考试模式：隐藏听写文本、翻译、罗马音、提示、解析和词典。','Kết quả thi thử':'模拟考试结果','Thời gian':'用时','Hoàn thành yêu cầu':'完成要求','Độ khớp câu':'句子匹配度','Grammar feedback':'语法反馈','Vocabulary feedback':'词汇反馈','Suggested expression':'推荐表达','Bật transcript':'显示文本','Bật bản dịch':'显示翻译','Bật romanization':'显示罗马音'
+});
+Object.assign(window.KLEARN_LOCALES['zh-CN'].keys, {
+  'lesson.courseEyebrow': '练习课程', 'ai.title': '学习帮助', 'ai.subtitle': '需要时提供额外讲解',
+  'ai.placeholder': '询问当前韩语课程...', 'ai.thinking': '正在准备回答……',
+  'ai.privacy': '启用后，本功能可使用交流内容和学习进度提供更合适的建议。不会发送密码或登录码。',
+  'ai.empty': '可以询问语法、词汇、发音或当前课程。', 'ai.notConfigured': '在线学习帮助尚未配置。',
+  'ai.offline': '在线学习帮助需要互联网连接。你仍可使用离线词典和短语手册。',
+  'ai.fab': '打开学习帮助', 'ai.fabLabel': '提问', 'ai.newChat': '新交流', 'ai.close': '关闭学习帮助',
+  'ai.disabledTitle': '学习帮助已关闭', 'ai.disabledBody': '智能辅助已根据你的设置关闭。', 'ai.settings': '打开设置', 'nav.assistant': '个性练习'
 });

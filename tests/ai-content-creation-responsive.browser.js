@@ -38,7 +38,7 @@ async function until(cdp, expression, attempts = 100) { for (let attempt = 0; at
     assert.equal(await until(cdp, `Boolean(document.querySelector('[data-ai-studio-entry] [data-view="ai-content-studio"]'))`), true, 'staff studio entry did not render');
     await evaluate(cdp, `document.querySelector('[data-ai-studio-entry] [data-view="ai-content-studio"]').click()`);
     assert.equal(await until(cdp, `Boolean(document.querySelector('#aiContentForm'))`), true, 'admin studio did not render');
-    assert.equal(await evaluate(cdp, `document.body.textContent.includes('Không tự quyết định curriculum') && document.body.textContent.includes('Human approval required')`), true, 'human guard disclosure missing');
+    assert.equal(await evaluate(cdp, `document.body.textContent.includes('Không tự quyết định curriculum') && document.body.textContent.includes('Cần người phụ trách duyệt')`), true, 'human guard disclosure missing');
 
     const results = [];
     for (const width of [360, 768, 1024, 1440, 1920]) {
@@ -55,7 +55,7 @@ async function until(cdp, expression, attempts = 100) { for (let attempt = 0; at
     assert.equal(await until(cdp, `window.AIContentDraftRepository.all().length > 0 && !document.querySelector('[data-ai-generate="lesson"]').disabled`, 160), true, 'draft generation did not finish');
     const draft = await evaluate(cdp, `(() => { const d=window.AIContentDraftRepository.all()[0]; return {status:d.status,humanApproved:d.humanApproved,published:d.published,sourceCount:d.sourceIds.length,history:d.history.length}; })()`);
     assert.deepEqual(draft, { status: 'ai_draft', humanApproved: false, published: false, sourceCount: 1, history: 1 });
-    assert.equal(await evaluate(cdp, `document.body.textContent.includes('Auto publish') && document.body.textContent.includes('Không')`), true, 'auto-publish guard missing');
+    assert.equal(await evaluate(cdp, `document.body.textContent.includes('Tự động xuất bản') && document.body.textContent.includes('Không')`), true, 'auto-publish guard missing');
     console.log(JSON.stringify(results)); console.log('AI content creation responsive: RBAC, 360/768/1024/1440/1920, dark mode, no overflow, safe draft and human approval disclosure passed'); cdp.close();
   } finally { browser.kill(); await wait(200); if (path.resolve(profile).startsWith(path.resolve(os.tmpdir()))) fs.rmSync(profile, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 }); }
 })().catch((error) => { console.error(error); process.exitCode = 1; });

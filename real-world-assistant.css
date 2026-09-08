@@ -5,15 +5,15 @@
 .rw-p19-entry small { color: var(--muted); overflow-wrap: anywhere; }
 .rw-p19-entry > i { color: #78951d; font-style: normal; font-weight: 900; }
 .rw-loader { min-height: 220px; display: grid; place-items: center; }
-.rw-loader i { width: 34px; height: 34px; border: 3px solid var(--outline); border-top-color: #a8cf35; border-radius: 50%; animation: rw-spin .8s linear infinite; }
+.rw-loader i { width: 34px; height: 34px; border: 3px solid var(--outline); border-top-color: #CBEF4D; border-radius: 50%; animation: rw-spin .8s linear infinite; }
 @keyframes rw-spin { to { transform: rotate(360deg); } }
 .rw-overview { padding: 22px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border: 1px solid var(--outline); border-radius: 20px; background: #1c2416; color: #f7ffd1; }
 .rw-overview > div { flex: 1; display: grid; gap: 4px; }
-.rw-overview small { color: #c5ed4f; font-weight: 850; letter-spacing: .08em; }
+.rw-overview small { color: #DDFF66; font-weight: 850; letter-spacing: .08em; }
 .rw-overview h2 { margin: 0; font-size: 2.4rem; }
 .rw-overview p { margin: 0; color: #d6e8a8; }
 .rw-progress { height: 7px; margin-top: 8px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.16); }
-.rw-progress i { display: block; height: 100%; border-radius: inherit; background: #c5ed4f; }
+.rw-progress i { display: block; height: 100%; border-radius: inherit; background: #DDFF66; }
 .rw-reader-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 11px; }
 .rw-reader-grid > button { min-width: 0; min-height: 150px; padding: 18px; display: grid; align-content: start; justify-items: start; gap: 7px; border: 1px solid var(--outline); border-radius: 17px; background: var(--surface); color: var(--text); text-align: left; cursor: pointer; }
 .rw-reader-grid > button > span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; background: var(--primary-soft); color: var(--heading); font-size: 20px; font-weight: 900; }
@@ -24,7 +24,7 @@
 .rw-guide-grid > button > div { min-width: 0; display: grid; gap: 3px; }
 .rw-guide-grid small { color: var(--muted); overflow-wrap: anywhere; }
 .rw-guide-grid i { color: #78951d; font-style: normal; font-weight: 900; }
-.rw-culture { padding: 20px; display: grid; grid-template-columns: minmax(0, 1fr) 145px minmax(220px, 1fr) auto; align-items: end; gap: 11px; border: 1px solid var(--outline); border-left: 4px solid #a8cf35; border-radius: 16px; background: var(--surface); }
+.rw-culture { padding: 20px; display: grid; grid-template-columns: minmax(0, 1fr) 145px minmax(220px, 1fr) auto; align-items: end; gap: 11px; border: 1px solid var(--outline); border-left: 4px solid #CBEF4D; border-radius: 16px; background: var(--surface); }
 .rw-culture > div { display: grid; gap: 3px; }
 .rw-culture small { color: #78951d; font-weight: 850; letter-spacing: .08em; }
 .rw-culture h2 { margin: 0; font-size: 1.05rem; }
@@ -88,14 +88,14 @@
 .rw-size-grid strong { font-size: 1.5rem; }
 .rw-size-grid p { color: var(--muted); }
 .rw-checklist-progress { padding: 20px; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 17px; border-radius: 17px; background: #1c2416; color: #f7ffd1; }
-.rw-checklist-progress > strong { color: #c5ed4f; font-size: 2.4rem; }
+.rw-checklist-progress > strong { color: #DDFF66; font-size: 2.4rem; }
 .rw-checklist-progress > div { display: grid; gap: 4px; }
 .rw-checklist-progress span { color: #d6e8a8; font-size: 11px; }
 .rw-checklist-progress i { height: 7px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.16); }
-.rw-checklist-progress em { display: block; height: 100%; border-radius: inherit; background: #c5ed4f; }
+.rw-checklist-progress em { display: block; height: 100%; border-radius: inherit; background: #DDFF66; }
 .rw-checklist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
 .rw-checklist label { min-width: 0; min-height: 64px; padding: 12px; display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: center; gap: 11px; border: 1px solid var(--outline); border-radius: 13px; background: var(--surface); cursor: pointer; }
-.rw-checklist label.checked { border-color: #a8cf35; background: var(--primary-soft); }
+.rw-checklist label.checked { border-color: #CBEF4D; background: var(--primary-soft); }
 .rw-checklist input { position: absolute; opacity: 0; pointer-events: none; }
 .rw-checklist label > span { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--outline); border-radius: 9px; background: var(--surface-low); color: var(--accent-ink); font-weight: 900; }
 .rw-checklist label.checked > span { background: var(--primary); }

@@ -109,8 +109,8 @@ function boot({ userId = 'learner-a', role = 'student', tier = 'free', subscript
   assert.match(migration, /support_requests_type_check/);
   assert.match(index, /monetization-foundation\.css\?v=1/);
   assert.match(index, /data\/monetization-foundation\.js\?v=1/);
-  assert.match(index, /app\.js\?v=57/);
-  assert.match(worker, /klearn-v71/);
+  assert.match(index, /app\.js\?v=58/);
+  assert.match(worker, /klearn-v72/);
   assert.match(worker, /content\/monetization-foundation\.json/);
   assert.match(appSource, /'business-center', 'billing-center', 'organization-plans', 'revenue-center', 'crm-center'/);
   assert.match(css, /@media\(max-width:600px\)/);

@@ -49,8 +49,8 @@
 
 .ai-agent-card:hover,
 .ai-agent-card:focus-visible {
-  border-color: #a8cf35;
-  background: color-mix(in srgb, var(--surface, #fff) 88%, #c5ed4f);
+  border-color: #CBEF4D;
+  background: color-mix(in srgb, var(--surface, #fff) 88%, #DDFF66);
   transform: translateY(-1px);
   outline: none;
 }
@@ -62,7 +62,7 @@
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: #c5ed4f;
+  background: #DDFF66;
   color: #1c2416;
   font-size: .72rem;
   font-weight: 900;

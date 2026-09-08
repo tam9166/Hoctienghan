@@ -112,7 +112,7 @@ async function openIsolatedClient(rootCdp, appUrl, browserPort) {
       const aiDisabled=await window.AIOrchestrationService.request({task:'tutor',input:'test',messages:[{role:'user',content:'test'}],context:{currentTopikLevel:1}});
       let pulls=0,pushes=0; app.state.currentUser.cloudUserId='cloud-user'; app.CloudSyncService.provider={getUserId:()=> 'cloud-user',pull:async()=>{pulls+=1;return {snapshot:null,revision:0};},push:async()=>{pushes+=1;return {revision:1};}};
       const scheduled=app.CloudSyncService.schedule('privacy-test'); const flushed=await app.CloudSyncService.flush('privacy-test');
-      app.state.aiOpen=true; app.render(); const ui=Boolean(document.getElementById('aiPrivacySettings')) && document.body.textContent.includes('AI_DISABLED_BY_USER') && document.body.textContent.includes('Bạn đã tắt tính năng AI.');
+      app.state.aiOpen=true; app.render(); const ui=Boolean(document.getElementById('aiPrivacySettings')) && document.body.textContent.includes('Trợ giúp đang tắt') && document.body.textContent.includes('Tính năng hỗ trợ thông minh đang tắt theo lựa chọn của bạn.');
       window.fetch=originalFetch;
       return {code:aiDisabled.code,fetches,pulls,pushes,scheduled,flushed,ui};
     })()`);

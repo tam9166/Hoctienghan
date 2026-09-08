@@ -4,7 +4,7 @@
 
 MVP mobile-first học tiếng Hàn dành cho người Việt, triển khai dạng static SPA/PWA.
 
-Nhận diện chính dùng xanh chanh `#C5ED4F` kết hợp màu chữ tối `#1C2416`; cùng một nguồn logo TH được dùng cho giao diện, favicon và bộ icon PWA.
+Nhận diện chính dùng xanh chanh `#DDFF66` kết hợp màu chữ tối `#1C2416`; cùng một nguồn logo TH được dùng cho giao diện, favicon và bộ icon PWA.
 
 ## Chạy trên máy tính
 Dùng một web server cục bộ (không mở trực tiếp file bằng `file://` nếu muốn Service Worker/Microphone hoạt động đúng):

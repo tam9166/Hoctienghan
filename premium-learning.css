@@ -20,7 +20,7 @@
 .p31-score-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 18px 0 10px; }
 .p31-score-row span { display: flex; flex-direction: column; gap: 5px; padding: 10px; border-radius: 10px; background: var(--soft, #f7ffd1); font-size: .8rem; }
 .p31-score-row b { font-size: 1.15rem; color: var(--ink, #1f2a1a); }
-.p31-report, .p31-curriculum { margin-top: 14px; padding: 12px; border-left: 3px solid var(--accent, #c5ed4f); background: var(--soft, #f7ffd1); }
+.p31-report, .p31-curriculum { margin-top: 14px; padding: 12px; border-left: 3px solid var(--accent, #DDFF66); background: var(--soft, #f7ffd1); }
 .p31-curriculum p { margin: 7px 0 0; font-size: .88rem; }
 @media (max-width: 860px) { .p31-status, .p31-grid { grid-template-columns: 1fr; } .p31-pack-grid { grid-template-columns: 1fr; } }
 @media (max-width: 420px) { .p31-option { align-items: flex-start; flex-direction: column; } .p31-score-row { grid-template-columns: 1fr; } .p31-card header { flex-direction: column; } }

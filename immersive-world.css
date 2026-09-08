@@ -32,8 +32,8 @@
   font-weight: 850;
   cursor: pointer;
 }
-.world-immersion-toggle.enabled { border-color: #a8cf35; background: var(--primary-soft, #f7ffd1); }
-.world-immersion-toggle.enabled button { background: #c5ed4f; color: #17200f; border-color: #a8cf35; }
+.world-immersion-toggle.enabled { border-color: #CBEF4D; background: var(--primary-soft, #f7ffd1); }
+.world-immersion-toggle.enabled button { background: #DDFF66; color: #17200f; border-color: #CBEF4D; }
 .world-hero { background: #1c2416; color: #f7ffd1; }
 .world-hero h2,
 .world-hero p { margin: 0; }
@@ -53,7 +53,7 @@
   text-align: left;
   cursor: pointer;
 }
-.world-directory > button:hover { border-color: #a8cf35; }
+.world-directory > button:hover { border-color: #CBEF4D; }
 .world-directory > button > span,
 .future-world-entry > div > span {
   display: grid;
@@ -61,7 +61,7 @@
   width: 50px;
   height: 50px;
   border-radius: 14px;
-  background: #c5ed4f;
+  background: #DDFF66;
   color: #17200f;
   font-size: 1.35rem;
   font-weight: 850;
@@ -79,7 +79,7 @@
 }
 .world-directory em,
 .world-progress em,
-.session-status em { display: block; height: 100%; border-radius: inherit; background: #a8cf35; }
+.session-status em { display: block; height: 100%; border-radius: inherit; background: #CBEF4D; }
 .world-directory strong { color: var(--muted, #66705e); font-size: .8rem; }
 .future-world-entry > div { display: flex; align-items: center; gap: 14px; }
 .future-world-entry > div > div { display: grid; gap: 4px; }
@@ -118,7 +118,7 @@
   color: #f7ffd1;
 }
 .world-place-visual span { font-size: 2.1rem; }
-.world-place-visual small { color: #c5ed4f; font-weight: 750; }
+.world-place-visual small { color: #DDFF66; font-weight: 750; }
 .scenario-world-grid article > div:last-child { display: grid; align-content: center; gap: 5px; min-width: 0; padding: 20px; }
 .scenario-world-grid p,
 .scenario-world-grid h2,
@@ -144,16 +144,16 @@
   border-radius: 18px;
   background: var(--surface, #fff);
 }
-.session-location { display: grid; place-content: center; justify-items: center; gap: 8px; min-height: 150px; margin-bottom: 18px; border-radius: 15px; background: #1c2416; color: #c5ed4f; }
+.session-location { display: grid; place-content: center; justify-items: center; gap: 8px; min-height: 150px; margin-bottom: 18px; border-radius: 15px; background: #1c2416; color: #DDFF66; }
 .session-location span { font-size: 2rem; }
 .world-session-stage > aside p { color: var(--muted, #66705e); line-height: 1.5; }
 .world-dialogue { display: grid; gap: 10px; }
 .world-dialogue article { position: relative; display: grid; gap: 3px; max-width: 82%; padding: 12px 46px 12px 14px; border-radius: 14px; background: var(--surface-muted, #eef1e7); }
-.world-dialogue article.learner { justify-self: end; padding: 12px 14px; background: #c5ed4f; color: #17200f; }
+.world-dialogue article.learner { justify-self: end; padding: 12px 14px; background: #DDFF66; color: #17200f; }
 .world-dialogue article small { opacity: .7; font-size: .7rem; font-weight: 750; }
 .world-dialogue article p { margin: 0; line-height: 1.55; }
 .world-dialogue article button { position: absolute; top: 8px; right: 8px; border: 0; background: transparent; cursor: pointer; }
-.npc-prompt { display: grid; gap: 5px; margin: 16px 0; padding: 15px; border-left: 4px solid #a8cf35; background: var(--primary-soft, #f7ffd1); }
+.npc-prompt { display: grid; gap: 5px; margin: 16px 0; padding: 15px; border-left: 4px solid #CBEF4D; background: var(--primary-soft, #f7ffd1); }
 .npc-prompt p { margin: 0; color: var(--muted, #66705e); }
 #worldResponseForm { display: grid; gap: 12px; }
 #worldResponseForm label { display: grid; gap: 8px; font-size: .8rem; font-weight: 750; color: var(--muted, #66705e); }
@@ -163,7 +163,7 @@
 #worldResponseForm > small { color: var(--muted, #66705e); }
 .world-feedback { display: grid; gap: 15px; margin-top: 16px; }
 .world-feedback > header { display: flex; align-items: center; gap: 13px; }
-.world-feedback > header > strong { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 16px; background: #c5ed4f; color: #17200f; font-size: 1.5rem; }
+.world-feedback > header > strong { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 16px; background: #DDFF66; color: #17200f; font-size: 1.5rem; }
 .world-feedback > header > div { display: grid; gap: 4px; }
 .world-feedback > header span { color: var(--muted, #66705e); font-size: .8rem; }
 .speaking-signal-grid,
@@ -180,7 +180,7 @@
 .is-korean-only .world-translation { display: none; }
 .debate-topics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .debate-topics button { display: grid; gap: 5px; padding: 15px; border: 1px solid var(--border, #d6e8a8); border-radius: 13px; background: var(--surface, #fff); color: var(--text, #1f2a1a); text-align: left; cursor: pointer; }
-.debate-topics button.active { border-color: #a8cf35; background: var(--primary-soft, #f7ffd1); }
+.debate-topics button.active { border-color: #CBEF4D; background: var(--primary-soft, #f7ffd1); }
 .debate-topics small { color: var(--muted, #66705e); }
 .debate-stage { display: grid; grid-template-columns: minmax(250px, .8fr) minmax(0, 1.2fr); gap: 15px; }
 .debate-stage > aside,
@@ -202,8 +202,8 @@
 .journey-trend h2,
 .journey-trend p { margin: 5px 0; }
 .avatar-research-card { display: grid; grid-template-columns: 180px repeat(2, minmax(0, 1fr)); gap: 16px; padding: 22px; border: 1px solid var(--border, #d6e8a8); border-radius: 18px; background: var(--surface, #fff); }
-.avatar-placeholder { display: grid; place-content: center; justify-items: center; gap: 8px; min-height: 190px; border-radius: 16px; background: #1c2416; color: #c5ed4f; }
-.avatar-placeholder span { display: grid; place-items: center; width: 74px; height: 74px; border: 2px solid #c5ed4f; border-radius: 24px; font-size: 1.6rem; font-weight: 900; }
+.avatar-placeholder { display: grid; place-content: center; justify-items: center; gap: 8px; min-height: 190px; border-radius: 16px; background: #1c2416; color: #DDFF66; }
+.avatar-placeholder span { display: grid; place-items: center; width: 74px; height: 74px; border: 2px solid #DDFF66; border-radius: 24px; font-size: 1.6rem; font-weight: 900; }
 .avatar-placeholder small { font-size: .62rem; letter-spacing: .08em; }
 .avatar-research-card article > span { color: #78951d; font-size: .72rem; font-weight: 850; }
 .avatar-research-card article p { padding-bottom: 7px; border-bottom: 1px solid var(--border, #d6e8a8); }

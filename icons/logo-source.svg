@@ -2,6 +2,6 @@
   <title id="title">Logo TH</title>
   <desc id="description">Biểu trưng TH màu tối trên huy hiệu xanh chanh của Tiếng Hàn - TamHoanq.</desc>
   <rect width="512" height="512" fill="#1C2416"/>
-  <rect x="92" y="92" width="328" height="328" rx="76" fill="#C5ED4F"/>
+  <rect x="92" y="92" width="328" height="328" rx="76" fill="#DDFF66"/>
   <path fill="#1C2416" d="M132 197h115v28h-42v99h-31v-99h-42zm134 0h32v51h50v-51h31v127h-31v-48h-50v48h-32z"/>
 </svg>

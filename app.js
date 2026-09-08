@@ -213,7 +213,7 @@ const PrivacyPreferenceService = {
     return this.get(userId)[capability] === true;
   },
   disabled(code) {
-    return { ok: false, disabled: true, code, message: code === 'AI_DISABLED_BY_USER' ? 'Bạn đã tắt tính năng AI.' : code === 'CLOUD_SYNC_DISABLED_BY_USER' ? 'Bạn đã tắt CloudSync.' : 'Bạn đã tắt thu thập dữ liệu.', action: { label: 'Mở cài đặt', route: 'profile' } };
+    return { ok: false, disabled: true, code, message: code === 'AI_DISABLED_BY_USER' ? 'Hỗ trợ thông minh đang tắt theo lựa chọn của bạn.' : code === 'CLOUD_SYNC_DISABLED_BY_USER' ? 'Đồng bộ dữ liệu đang tắt theo lựa chọn của bạn.' : 'Thu thập dữ liệu chẩn đoán đang tắt.', action: { label: 'Mở cài đặt', route: 'profile' } };
   }
 };
 window.PrivacyPreferenceService = PrivacyPreferenceService;
@@ -260,7 +260,7 @@ function appElement() { return document.getElementById('app'); }
 function formatDate(value) { return new Intl.DateTimeFormat(I18nService?.locale?.()?.htmlLang || 'vi', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(value)); }
 
 const THEME_VALUES = Object.freeze(['system', 'light', 'dark']);
-const THEME_COLORS = Object.freeze({ light: '#C5ED4F', dark: '#1C2416' });
+const THEME_COLORS = Object.freeze({ light: '#DDFF66', dark: '#1C2416' });
 
 const ThemeService = {
   isValid(value) { return THEME_VALUES.includes(value); },
@@ -456,6 +456,68 @@ const I18nService = {
   }
 };
 window.auditTranslations = () => I18nService.auditTranslations();
+
+// Keeps learner-facing copy calm and human while preserving service/API names in code.
+// This runs after every module has mounted, so older feature modules inherit the same
+// product language without changing their storage, learning, auth or sync behavior.
+const ProductLanguageService = {
+  replacements(locale = I18nService.getPreference()) {
+    const common = [
+      [/\bP\d{1,2}\s*[·:—-]\s*/g, ''],
+      [/AI Learning Recommendation/gi, locale === 'en' ? "Today's suggestion" : locale === 'zh-CN' ? '今日建议' : 'Đề xuất hôm nay'],
+      [/AI Recommendation/gi, locale === 'en' ? 'Review suggestion' : locale === 'zh-CN' ? '复习建议' : 'Gợi ý ôn tập'],
+      [/AI Daily Mission/gi, locale === 'en' ? "Today's mission" : locale === 'zh-CN' ? '今日任务' : 'Nhiệm vụ hôm nay'],
+      [/AI Learning DNA/gi, locale === 'en' ? 'Learning profile' : locale === 'zh-CN' ? '学习档案' : 'Hồ sơ học tập'],
+      [/AI Error Notebook/gi, locale === 'en' ? 'My error notebook' : locale === 'zh-CN' ? '我的错题本' : 'Sổ lỗi của tôi'],
+      [/AI Summary/gi, locale === 'en' ? 'Progress summary' : locale === 'zh-CN' ? '进度摘要' : 'Tóm tắt tiến độ'],
+      [/AI Feedback/gi, locale === 'en' ? 'Feedback' : locale === 'zh-CN' ? '学习反馈' : 'Nhận xét'],
+      [/AI Coach/gi, locale === 'en' ? 'Personal practice' : locale === 'zh-CN' ? '个性化练习' : 'Luyện tập cá nhân'],
+      [/AI Korean Tutor|AI Tutor/gi, locale === 'en' ? 'Learning help' : locale === 'zh-CN' ? '学习帮助' : 'Trợ giúp học tập'],
+      [/AI Companion/gi, locale === 'en' ? 'Learning companion' : locale === 'zh-CN' ? '学习伙伴' : 'Đồng hành học tập'],
+      [/AI Study Advisor/gi, locale === 'en' ? 'Study advisor' : locale === 'zh-CN' ? '学习顾问' : 'Cố vấn học tập'],
+      [/AI Analytics/gi, locale === 'en' ? 'Learning insights' : locale === 'zh-CN' ? '学习分析' : 'Phân tích học tập'],
+      [/TOPIK Analytics/gi, locale === 'en' ? 'TOPIK progress' : locale === 'zh-CN' ? 'TOPIK 进度' : 'Tiến độ TOPIK'],
+      [/AI Content Studio/gi, locale === 'en' ? 'Content workspace' : locale === 'zh-CN' ? '内容工作区' : 'Không gian biên soạn'],
+      [/AI draft/gi, locale === 'en' ? 'assisted draft' : locale === 'zh-CN' ? '辅助草稿' : 'bản nháp hỗ trợ'],
+      [/CloudSync|Cloud Sync/gi, locale === 'en' ? 'data sync' : locale === 'zh-CN' ? '数据同步' : 'đồng bộ dữ liệu'],
+      [/\bbackend\b/gi, locale === 'en' ? 'service' : locale === 'zh-CN' ? '服务' : 'hệ thống'],
+      [/\bdatabase\b/gi, locale === 'en' ? 'content library' : locale === 'zh-CN' ? '内容库' : 'kho dữ liệu'],
+      [/\bdebug\b/gi, locale === 'en' ? 'diagnostics' : locale === 'zh-CN' ? '诊断' : 'chẩn đoán'],
+      [/System Status/gi, locale === 'en' ? 'Service status' : locale === 'zh-CN' ? '服务状态' : 'Tình trạng dịch vụ'],
+      [/Unknown error/gi, locale === 'en' ? 'Something went wrong. Please try again.' : locale === 'zh-CN' ? '操作未完成，请重试。' : 'Chưa thể hoàn tất. Vui lòng thử lại.'],
+      [/Human approval required/gi, locale === 'en' ? 'Editor review required' : locale === 'zh-CN' ? '需要编辑审核' : 'Cần người phụ trách duyệt'],
+      [/Auto publish/gi, locale === 'en' ? 'Automatic publishing' : locale === 'zh-CN' ? '自动发布' : 'Tự động xuất bản'],
+      [/COMMAND CENTER/gi, locale === 'en' ? 'CHOOSE AN ACTIVITY' : locale === 'zh-CN' ? '选择学习活动' : 'CHỌN HOẠT ĐỘNG'],
+      [/SMART SEARCH/gi, locale === 'en' ? 'QUICK SEARCH' : locale === 'zh-CN' ? '快速查找' : 'TÌM NHANH'],
+      [/ACCESSIBILITY/gi, locale === 'en' ? 'READING & ACCESS' : locale === 'zh-CN' ? '阅读与辅助功能' : 'ĐỌC & TRỢ NĂNG'],
+      [/CONTENT OPERATIONS/gi, locale === 'en' ? 'CONTENT WORKSPACE' : locale === 'zh-CN' ? '内容工作区' : 'KHÔNG GIAN NỘI DUNG'],
+      [/AGGREGATE ONLY/gi, locale === 'en' ? 'SUMMARY DATA' : locale === 'zh-CN' ? '汇总数据' : 'DỮ LIỆU TỔNG HỢP'],
+      [/\bMVP\b/gi, locale === 'en' ? 'practice' : locale === 'zh-CN' ? '练习' : 'thực hành']
+    ];
+    return common;
+  },
+  clean(value, locale) {
+    return this.replacements(locale).reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), String(value || '')).replace(/^\s*[·:—-]\s*/, '').trim();
+  },
+  apply(root = document) {
+    if (!root?.createTreeWalker) return;
+    const locale = I18nService.getPreference();
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const parent = node.parentElement;
+        if (!parent || parent.closest('script,style,pre,code,textarea,.ai-messages,[data-user-content]')) return NodeFilter.FILTER_REJECT;
+        return node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach((node) => { const leading = node.nodeValue.match(/^\s*/)?.[0] || ''; const trailing = node.nodeValue.match(/\s*$/)?.[0] || ''; const cleaned = this.clean(node.nodeValue, locale); node.nodeValue = `${leading}${cleaned}${trailing}`; });
+    const recommendationLabel = locale === 'en' ? "Today's suggestion" : locale === 'zh-CN' ? '今日建议' : 'Đề xuất hôm nay';
+    const recommendation = root.querySelector?.('.ux-primary-action small'); if (recommendation) recommendation.textContent = recommendationLabel;
+    root.querySelector?.('.ux-recommended > header > span')?.remove();
+    root.querySelectorAll?.('.empty-state').forEach((item) => item.setAttribute('role', 'status'));
+  }
+};
+window.ProductLanguageService = ProductLanguageService;
 
 function getUserSettings() {
   const settings = storage.get(STORAGE_KEYS.settings, {});
@@ -1438,7 +1500,7 @@ const AITutorService = {
       if (!PrivacyPreferenceService.allows('aiUsage')) return PrivacyPreferenceService.disabled('AI_DISABLED_BY_USER');
       const learnerContext = this.context(text);
       const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-KLearn-AI-Consent': 'granted' }, body: JSON.stringify({ messages: recentMessages, learnerContext, learningLanguage: I18nService.getPreference(), privacy: { aiEnabled: true } }) });
-      const payload = await response.json().catch(() => ({})); const reply = response.ok && payload.reply ? payload.reply : payload.code === 'AI_DISABLED_BY_USER' ? 'Bạn đã tắt tính năng AI.' : payload.configured === false ? I18nService.t('ai.notConfigured') : I18nService.t('ai.error'); this.addMessage('assistant', reply); return payload;
+      const payload = await response.json().catch(() => ({})); const reply = response.ok && payload.reply ? payload.reply : payload.code === 'AI_DISABLED_BY_USER' ? I18nService.t('ai.disabledBody') : payload.configured === false ? I18nService.t('ai.notConfigured') : I18nService.t('ai.error'); this.addMessage('assistant', reply); return payload;
     } catch (_) { this.addMessage('assistant', I18nService.t('ai.offline')); return null; } finally { state.aiBusy = false; renderAiWidget(); }
   }
 };
@@ -1953,9 +2015,9 @@ function renderAiWidget() {
   const conversation = AITutorService.current(); const messages = conversation?.messages || [];
   const t = (key) => I18nService.t(key);
   const aiAllowed = PrivacyPreferenceService.allows('aiUsage');
-  const enabledPanel = `<div class="ai-quick-actions"><button data-ai-quick="Giải thích bài học hiện tại cho tôi.">📚 ${escapeHtml(t('ai.lesson'))}</button><button data-ai-quick="Sửa câu tiếng Hàn của tôi và giải thích lỗi.">🇰🇷 ${escapeHtml(t('ai.correct'))}</button><button data-ai-quick="Dịch ý này sang tiếng Hàn lịch sự.">🌐 ${escapeHtml(t('ai.translate'))}</button><button data-ai-quick="Tạo cho tôi 5 câu luyện phù hợp trình độ.">📝 ${escapeHtml(t('ai.exercise'))}</button></div><div class="ai-messages">${messages.length ? messages.map((item) => `<div class="ai-message ${item.role}"><span>${item.role === 'assistant' ? '✨' : escapeHtml(t('ai.you'))}</span><p>${escapeHtml(item.content).replace(/\n/g, '<br>')}</p></div>`).join('') : `<div class="ai-empty">${escapeHtml(t('ai.empty'))}</div>`}${state.aiBusy ? `<div class="ai-typing">${escapeHtml(t('ai.thinking'))}</div>` : ''}</div><form id="aiForm"><textarea id="aiInput" rows="2" maxlength="4000" placeholder="${escapeHtml(t('ai.placeholder'))}"></textarea><button class="btn primary" type="submit" aria-label="${escapeHtml(t('ai.send'))}">${escapeHtml(t('ai.send'))}</button></form><small class="ai-privacy">${escapeHtml(t('ai.privacy'))}</small>`;
-  const disabledPanel = '<div class="support-message" role="status"><strong>AI_DISABLED_BY_USER</strong><p>Bạn đã tắt tính năng AI.</p><button class="btn secondary" id="aiPrivacySettings">Mở cài đặt</button></div>';
-  root.innerHTML = `<button class="ai-fab" id="aiFab" aria-label="${escapeHtml(t('ai.fab'))}">✨ AI</button>${state.aiOpen ? `<aside class="ai-panel" role="dialog" aria-label="${escapeHtml(t('ai.title'))}"><header><div><strong>✨ ${escapeHtml(t('ai.title'))}</strong><small>${escapeHtml(t('ai.subtitle'))}</small></div><div class="ai-panel-actions">${aiAllowed ? `<button id="aiNewChat" aria-label="${escapeHtml(t('ai.newChat'))}">＋</button>` : ''}<button id="aiClose" aria-label="${escapeHtml(t('ai.close'))}">×</button></div></header>${aiAllowed ? enabledPanel : disabledPanel}</aside>` : ''}`;
+  const enabledPanel = `<div class="ai-quick-actions"><button data-ai-quick="Giải thích bài học hiện tại cho tôi.">📚 ${escapeHtml(t('ai.lesson'))}</button><button data-ai-quick="Sửa câu tiếng Hàn của tôi và giải thích lỗi.">🇰🇷 ${escapeHtml(t('ai.correct'))}</button><button data-ai-quick="Dịch ý này sang tiếng Hàn lịch sự.">🌐 ${escapeHtml(t('ai.translate'))}</button><button data-ai-quick="Tạo cho tôi 5 câu luyện phù hợp trình độ.">📝 ${escapeHtml(t('ai.exercise'))}</button></div><div class="ai-messages">${messages.length ? messages.map((item) => `<div class="ai-message ${item.role}"><span>${item.role === 'assistant' ? '한' : escapeHtml(t('ai.you'))}</span><p>${escapeHtml(item.content).replace(/\n/g, '<br>')}</p></div>`).join('') : `<div class="ai-empty">${escapeHtml(t('ai.empty'))}</div>`}${state.aiBusy ? `<div class="ai-typing">${escapeHtml(t('ai.thinking'))}</div>` : ''}</div><form id="aiForm"><textarea id="aiInput" rows="2" maxlength="4000" placeholder="${escapeHtml(t('ai.placeholder'))}"></textarea><button class="btn primary" type="submit" aria-label="${escapeHtml(t('ai.send'))}">${escapeHtml(t('ai.send'))}</button></form><small class="ai-privacy">${escapeHtml(t('ai.privacy'))}</small>`;
+  const disabledPanel = `<div class="support-message" role="status"><strong>${escapeHtml(t('ai.disabledTitle'))}</strong><p>${escapeHtml(t('ai.disabledBody'))}</p><button class="btn secondary" id="aiPrivacySettings">${escapeHtml(t('ai.settings'))}</button></div>`;
+  root.innerHTML = `<button class="ai-fab" id="aiFab" aria-label="${escapeHtml(t('ai.fab'))}"><span aria-hidden="true">?</span> ${escapeHtml(t('ai.fabLabel'))}</button>${state.aiOpen ? `<aside class="ai-panel" role="dialog" aria-label="${escapeHtml(t('ai.title'))}"><header><div><strong>${escapeHtml(t('ai.title'))}</strong><small>${escapeHtml(t('ai.subtitle'))}</small></div><div class="ai-panel-actions">${aiAllowed ? `<button id="aiNewChat" aria-label="${escapeHtml(t('ai.newChat'))}">＋</button>` : ''}<button id="aiClose" aria-label="${escapeHtml(t('ai.close'))}">×</button></div></header>${aiAllowed ? enabledPanel : disabledPanel}</aside>` : ''}`;
   document.getElementById('aiFab')?.addEventListener('click', () => { state.aiOpen = true; AITutorService.ensure(); renderAiWidget(); });
   document.getElementById('aiClose')?.addEventListener('click', () => { state.aiOpen = false; renderAiWidget(); });
   document.getElementById('aiPrivacySettings')?.addEventListener('click', () => { state.aiOpen = false; setView('profile'); });
@@ -2560,6 +2622,7 @@ function render() {
   renderAiWidget();
   renderContextDictionary();
   window.KLEARN_AFTER_RENDER?.();
+  ProductLanguageService.apply(document);
   window.scrollTo(0, 0);
 }
 
