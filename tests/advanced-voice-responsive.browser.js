@@ -24,7 +24,7 @@ async function until(cdp, expression, attempts = 100) { for (let attempt = 0; at
     assert.equal(await until(cdp, `Boolean(window.AdvancedVoiceLearningService)`), true, 'voice module did not load');
     const timestamp = new Date().toISOString(); const user = { id: 'p36-qa', fullName: 'Voice QA', email: 'p36@local.test', level: 'TOPIK I', goals: ['conversation'], currentTopikLevel: 2, targetTopikLevel: 3, onboardingCompleted: true, createdAt: timestamp };
     await evaluate(cdp, `(() => { localStorage.setItem('klearn_users', ${JSON.stringify(JSON.stringify([user]))}); localStorage.setItem('klearn_session', ${JSON.stringify(JSON.stringify({ userId: user.id, createdAt: timestamp }))}); localStorage.setItem('klearn_progress', ${JSON.stringify(JSON.stringify({ [user.id]: { skills: { speaking: 20 }, stats: { streak: 1, lessonsCompleted: 0, learningDays: 1, wordsLearned: 0 }, lessonProgress: {}, daily: { date: timestamp.slice(0,10), tasks: {} }, pronunciationAttempts: [], writingSubmissions: [], mockTests: [] } }))}); localStorage.setItem('klearn_settings', ${JSON.stringify(JSON.stringify({ users: { [user.id]: { theme: 'dark', language: 'vi' } } }))}); location.hash='advanced-voice'; location.reload(); })()`);
-    assert.equal(await until(cdp, `document.querySelectorAll('.voice-scenario-grid article').length===3`), true, 'voice scenarios did not render');
+    assert.equal(await until(cdp, `document.querySelectorAll('.voice-scenario-grid article').length===6`), true, 'voice scenarios did not render');
 
     for (const width of [360, 768, 1024, 1440, 1920]) {
       await cdp.send('Emulation.setDeviceMetricsOverride', { width, height: 1100, deviceScaleFactor: 1, mobile: width < 768 }); await wait(90);

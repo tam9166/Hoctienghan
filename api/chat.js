@@ -2,7 +2,7 @@ const rateLimit = require('./_rate-limit');
 const applyCors = require('./_cors');
 const MAX_MESSAGES = 12;
 const ROUTES = new Set(['small', 'strong']);
-const TASKS = new Set(['tutor', 'coach', 'translation', 'definition', 'flashcard', 'short_feedback', 'grammar', 'speaking', 'writing', 'conversation', 'planning', 'study_advisor', 'content_explanation', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor']);
+const TASKS = new Set(['tutor', 'coach', 'translation', 'definition', 'flashcard', 'short_feedback', 'grammar', 'speaking', 'realtime_voice_feedback', 'writing', 'conversation', 'planning', 'study_advisor', 'content_explanation', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor']);
 const MAX_CONTEXT_CHARS = 9000;
 function cleanMessage(item) {
   if (!item || !['user', 'assistant'].includes(item.role)) return null;
@@ -34,16 +34,19 @@ module.exports = async function handler(req, res) {
   if (!messages.length || messages[messages.length - 1].role !== 'user') return res.status(400).json({ error: 'A user message is required' });
   const language = ['vi', 'en', 'zh-CN', 'ko', 'ja', 'zh'].includes(body.learningLanguage) ? body.learningLanguage : 'vi';
   const task = TASKS.has(String(body.task || '').trim()) ? String(body.task).trim() : 'tutor';
-  const modelRoute = ROUTES.has(String(body.modelRoute || '').trim()) ? String(body.modelRoute).trim() : ['grammar', 'coach', 'speaking', 'writing', 'conversation', 'planning', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor'].includes(task) ? 'strong' : 'small';
+  const modelRoute = ROUTES.has(String(body.modelRoute || '').trim()) ? String(body.modelRoute).trim() : ['grammar', 'coach', 'speaking', 'realtime_voice_feedback', 'writing', 'conversation', 'planning', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor'].includes(task) ? 'strong' : 'small';
   const promptVersion = String(body.promptVersion || 'p26-v1').slice(0, 80).replace(/[^a-zA-Z0-9:._-]/g, '');
   const learnerContext = body.learnerContext && typeof body.learnerContext === 'object' ? compact(body.learnerContext) : {};
   const rawContext = JSON.stringify(learnerContext).slice(0, MAX_CONTEXT_CHARS);
   if (containsSensitive(messages[messages.length - 1].content) || containsSensitive(rawContext)) return res.status(400).json({ error: 'Unsafe AI request' });
   const responseLanguage = { en: 'English', 'zh-CN': 'Simplified Chinese', zh: 'Simplified Chinese', ko: 'Korean', ja: 'Japanese' }[language] || 'Vietnamese';
-  const system = `Bạn là lớp AI hỗ trợ học ngôn ngữ của Tiếng Hàn - TamHoanq. Task: ${task}. Prompt version: ${promptVersion}. Trả lời bằng ${responseLanguage}; giữ nguyên ngôn ngữ đích, Korean và romanization khi có. Giải thích phù hợp trình độ người học, chỉ dùng dữ liệu trong context tối thiểu, nói rõ khi không chắc chắn, không bịa grammar/điểm TOPIK/nguồn chính thức. Không tuyên bố chấm phoneme hoặc handwriting AI nếu không có model. Context: ${rawContext}`;
+  const voiceContract = task === 'realtime_voice_feedback' ? ' Chỉ trả về một JSON object hợp lệ, không markdown, gồm replyKo, feedbackVi, correctionKo, naturalness (0-100), reason và confidence (0-1). replyKo phải ngắn, tự nhiên và đúng vai. Không tự chấm phoneme, batchim hoặc acoustic; các điểm đó thuộc bộ phân tích cục bộ.' : '';
+  const system = `Bạn là lớp AI hỗ trợ học ngôn ngữ của Tiếng Hàn - TamHoanq. Task: ${task}. Prompt version: ${promptVersion}. Trả lời bằng ${responseLanguage}; giữ nguyên ngôn ngữ đích, Korean và romanization khi có. Giải thích phù hợp trình độ người học, chỉ dùng dữ liệu trong context tối thiểu, nói rõ khi không chắc chắn, không bịa grammar/điểm TOPIK/nguồn chính thức. Không tuyên bố chấm phoneme hoặc handwriting AI nếu không có model.${voiceContract} Context: ${rawContext}`;
   try {
     const model = modelRoute === 'strong' ? (process.env.OPENAI_STRONG_MODEL || process.env.OPENAI_MODEL || 'gpt-4o-mini') : (process.env.OPENAI_SMALL_MODEL || process.env.OPENAI_MODEL || 'gpt-4o-mini');
-    const response = await fetch('https://api.openai.com/v1/responses', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify({ model, input: [{ role: 'system', content: system }, ...messages], max_output_tokens: 900 }) });
+    const requestBody = { model, input: [{ role: 'system', content: system }, ...messages], max_output_tokens: task === 'realtime_voice_feedback' ? 320 : 900, store: false };
+    if (task === 'realtime_voice_feedback') requestBody.text = { format: { type: 'json_schema', name: 'voice_feedback', strict: true, schema: { type: 'object', properties: { replyKo: { type: 'string' }, feedbackVi: { type: 'string' }, correctionKo: { type: 'string' }, naturalness: { type: 'number', minimum: 0, maximum: 100 }, reason: { type: 'string' }, confidence: { type: 'number', minimum: 0, maximum: 1 } }, required: ['replyKo', 'feedbackVi', 'correctionKo', 'naturalness', 'reason', 'confidence'], additionalProperties: false } } };
+    const response = await fetch('https://api.openai.com/v1/responses', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify(requestBody) });
     const payload = await response.json();
     if (!response.ok) return res.status(502).json({ error: 'AI provider error' });
     const reply = payload.output_text || payload.output?.flatMap((item) => item.content || []).map((part) => part.text || '').join('') || '';

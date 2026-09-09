@@ -29,7 +29,7 @@
     edtech: { styles: ['edtech-business-intelligence.css?v=1'], scripts: ['data/edtech-business-intelligence.js?v=1'] },
     premium: { styles: ['premium-learning.css?v=1'], scripts: ['data/premium-learning-experience.js?v=1'] },
     globalAi: { styles: ['global-ai-companion.css?v=1'], scripts: ['data/global-ai-language-companion.js?v=1'] },
-    voice: { styles: ['advanced-voice.css?v=1'], scripts: ['data/advanced-voice.js?v=1'] },
+    voice: { dependencies: ['aiInfra'], styles: ['advanced-voice.css?v=2', 'realtime-voice-coach.css?v=1'], scripts: ['data/advanced-voice.js?v=2', 'data/realtime-voice-coach.js?v=1'] },
     aiContent: { dependencies: ['aiInfra'], styles: ['ai-content-creation.css?v=1'], scripts: ['data/ai-content-creation.js?v=1'] },
     community: { dependencies: ['communityLearning'], styles: ['community-ecosystem.css?v=1'], scripts: ['data/community-ecosystem.js?v=1'] },
     monetization: { styles: ['monetization-foundation.css?v=1'], scripts: ['data/monetization-foundation.js?v=1'] },
@@ -77,7 +77,7 @@
   routes('future-language-platform cross-language-lab language-brain future-integrations global-course-marketplace', ['globalLanguage', 'futureLanguage']);
   routes('learning-science active-recall interleaved-practice concept-mastery', ['science']);
   routes('career-center career-vocabulary workplace-scenarios workplace-scenario job-interview-trainer korean-resume-builder business-email-writing presentation-coach workplace-culture career-report', ['career']);
-  routes('advanced-voice voice-session voice-history voice-goals voice-report', ['voice']);
+  routes('advanced-voice voice-session voice-history voice-goals voice-report realtime-voice-coach voice-coach-session voice-coach-journey', ['voice']);
   routes('ai-content-studio', ['aiContent']);
   routes('immersive-daily-life immersive-story immersive-culture-game immersive-readiness', ['immersiveKorean']);
   routes('global-education-marketplace marketplace-course marketplace-teacher creator-studio marketplace-moderation creator-revenue marketplace-certificates', ['enterprise', 'marketplace']);

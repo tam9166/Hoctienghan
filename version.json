@@ -1,7 +1,7 @@
 {
-  "version": "1.1.0-rc.1",
+  "version": "1.2.0-rc.1",
   "channel": "release-candidate",
-  "releaseId": "p56-mobile-native-ecosystem",
+  "releaseId": "p57-realtime-voice-ai-coach",
   "releasedAt": "2026-09-09",
   "schemaVersion": 13,
   "minimumSupportedVersion": "1.0.0-rc.1"

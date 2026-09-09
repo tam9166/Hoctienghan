@@ -6,9 +6,9 @@
   window.KLEARN_AI_INFRASTRUCTURE = window.KLEARN_AI_INFRASTRUCTURE || {
     version: 1,
     status: 'approved',
-    promptVersions: { default: 'p26-v1', tutor: 'p26-tutor-v1', coach: 'p26-coach-v1', grammar: 'p26-grammar-v1', speaking: 'p26-speaking-v1', writing: 'p26-writing-v1', study_advisor: 'p32-advisor-v1', content_explanation: 'p32-explain-v1', practice_creator: 'p32-practice-v1', conversation_partner: 'p32-conversation-v1', writing_review: 'p32-writing-v1', career_coach: 'p32-career-v1', culture_advisor: 'p32-culture-v1' },
+    promptVersions: { default: 'p26-v1', tutor: 'p26-tutor-v1', coach: 'p26-coach-v1', grammar: 'p26-grammar-v1', speaking: 'p26-speaking-v1', realtime_voice_feedback: 'p57-voice-feedback-v1', writing: 'p26-writing-v1', study_advisor: 'p32-advisor-v1', content_explanation: 'p32-explain-v1', practice_creator: 'p32-practice-v1', conversation_partner: 'p32-conversation-v1', writing_review: 'p32-writing-v1', career_coach: 'p32-career-v1', culture_advisor: 'p32-culture-v1' },
     experiments: { promptTone: { enabled: true, variants: ['clear', 'supportive'], allocation: [50, 50] } },
-    routing: { simple: ['translation', 'definition', 'flashcard', 'short_feedback', 'tutor', 'study_advisor', 'content_explanation'], strong: ['grammar', 'coach', 'speaking', 'writing', 'conversation', 'planning', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor'] },
+    routing: { simple: ['translation', 'definition', 'flashcard', 'short_feedback', 'tutor', 'study_advisor', 'content_explanation'], strong: ['grammar', 'coach', 'speaking', 'realtime_voice_feedback', 'writing', 'conversation', 'planning', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor'] },
     limits: { maxInputChars: 4000, maxContextChars: 9000, maxResponseChars: 8000, dailyRequests: 80, dailyEstimatedTokens: 30000, maxOutputTokens: 900 },
     quality: { minimumScore: .7, blockedClaims: ['official TOPIK answer', 'guaranteed score', 'phoneme analysis'] }
   };
@@ -16,7 +16,7 @@
   const uid = () => state.currentUser?.id || 'anonymous';
   const now = () => new Date().toISOString();
   const config = window.KLEARN_AI_INFRASTRUCTURE || {
-    version: 1, promptVersions: { default: 'p26-v1' }, experiments: {}, routing: { simple: ['translation', 'definition', 'flashcard', 'short_feedback', 'tutor', 'study_advisor', 'content_explanation'], strong: ['grammar', 'coach', 'speaking', 'writing', 'conversation', 'planning', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor'] },
+    version: 1, promptVersions: { default: 'p26-v1' }, experiments: {}, routing: { simple: ['translation', 'definition', 'flashcard', 'short_feedback', 'tutor', 'study_advisor', 'content_explanation'], strong: ['grammar', 'coach', 'speaking', 'realtime_voice_feedback', 'writing', 'conversation', 'planning', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor'] },
     limits: { maxInputChars: 4000, maxContextChars: 9000, maxResponseChars: 8000, dailyRequests: 80, dailyEstimatedTokens: 30000, maxOutputTokens: 900 }, quality: { minimumScore: .7, blockedClaims: [] }
   };
   const key = STORAGE_KEYS.aiInfrastructure || 'klearn_ai_infrastructure';

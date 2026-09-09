@@ -236,7 +236,7 @@ MAIN_VIEWS.push('enterprise-platform', 'subscription-center', 'premium-features'
 MAIN_VIEWS.push('command-center', 'ux-settings');
 MAIN_VIEWS.push('retention-center', 'weekly-review', 'monthly-reflection', 'goal-milestones', 'retention-analytics');
 MAIN_VIEWS.push('content-quality-dashboard');
-MAIN_VIEWS.push('advanced-voice', 'voice-session', 'voice-history', 'voice-goals', 'voice-report');
+MAIN_VIEWS.push('advanced-voice', 'voice-session', 'voice-history', 'voice-goals', 'voice-report', 'realtime-voice-coach', 'voice-coach-session', 'voice-coach-journey');
 MAIN_VIEWS.push('ai-content-studio');
 MAIN_VIEWS.push('language-exchange', 'community-moderation');
 MAIN_VIEWS.push('business-center', 'billing-center', 'organization-plans', 'revenue-center', 'crm-center');
@@ -1753,7 +1753,7 @@ function syncShell() {
   document.querySelectorAll('.nav-item').forEach((button) => {
     const reviewViews = ['review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub'];
     const practiceViews = ['practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'skill-hub', 'writing-hub', 'writing-editor', 'writing-result', 'listening-studio', 'writing-room', 'speaking-room', 'topik-exam', 'topik-exam-result', 'practice-session', 'practice-result', 'practice-review', 'quick-practice'];
-    const speakingViews = ['practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'advanced-voice', 'voice-session', 'voice-history', 'voice-goals', 'voice-report'];
+    const speakingViews = ['practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'advanced-voice', 'voice-session', 'voice-history', 'voice-goals', 'voice-report', 'realtime-voice-coach', 'voice-coach-session', 'voice-coach-journey'];
     const activeView = ['daily-session', 'command-center'].includes(state.currentView) ? 'home'
       : ['conversation-simulator','natural-korean','reading-lab','reading-session','word-network','collocation-trainer','dictation-master','language-mastery','subtitle-learning','vocabulary-image-memory','grammar-mastery','immersion-journey','survival-kit','media-learning','slang-dictionary','daily-korean-feed','monthly-challenge','achievement-room','personal-portfolio','immersive-world','virtual-korean-city','immersive-session','roleplay-game','debate-studio','career-korean','university-life','travel-simulator','voice-world','speaking-journey','learning-avatar-research','immersive-daily-life','immersive-story','immersive-culture-game','immersive-readiness','ecosystem-expansion','journey-intelligence','real-korean-life','life-simulator','document-reader','address-number-trainer','language-science','korean-thinking','skill-world','career-purpose','career-practice','learning-architecture','real-world-assistant','korean-document-assistant','korean-menu-reader','korean-sign-reader','real-world-guide','survival-checklist','content-platform','content-explorer','content-detail','korean-notebook','content-feedback','career-center','career-vocabulary','workplace-scenarios','workplace-scenario','job-interview-trainer','korean-resume-builder','business-email-writing','presentation-coach','workplace-culture','career-report'].includes(state.currentView) ? 'lessons'
       : state.currentView === 'lesson' ? 'lessons'

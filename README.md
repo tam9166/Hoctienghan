@@ -46,7 +46,7 @@ Sau đó mở `http://localhost:8080`.
 - Listening/Reading Hub theo TOPIK level, Korean TTS, recommended practice và daily practice plan.
 - Ghi âm qua MediaRecorder và chấm tương đồng văn bản bằng Speech Recognition khi trình duyệt hỗ trợ.
 - Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
-- PWA manifest + service worker network-first (`klearn-v76`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
+- PWA manifest + service worker network-first (`klearn-v77`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
 
 Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **Tiếng Hàn - TamHoanq** mới.
 
@@ -295,6 +295,14 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Native bridge xử lý lifecycle/reconnect, đăng ký push tách khỏi learning data, camera tạm thời, widget snapshot không chứa thông tin riêng tư và background audio bằng asset thật. Service Worker chỉ chạy trên web/PWA, không chạy trong native shell.
 - `mobile/` có dependency lock, build/doctor scripts và cấu hình sinh project Android/iOS. Workflow `mobile-native.yml` kiểm tra source và tạo unsigned validation artifact theo kênh internal/beta/production; signing/store upload cần owner approval cùng credential bên ngoài Git.
 - Migration `20260909_mobile_native_ecosystem.sql` tạo push device/preference RLS và delivery metadata server-only. Tài liệu kiến trúc, test matrix, security và deployment nằm trong `docs/mobile-native-ecosystem.md`.
+
+### Real-time Voice Coach
+
+- P57 mở rộng trực tiếp Voice Lab P36: SpeechRecognition/MediaRecorder thu transcript và tín hiệu tạm thời, sau đó bộ phân tích cục bộ chấm âm tiết, phụ âm đầu, nguyên âm, batchim, tốc độ, khoảng dừng và confidence.
+- AI orchestration chỉ tạo phản hồi ngắn theo vai và naturalness sau local analysis. JSON response phải qua schema/quality gate; điểm phoneme không do AI tạo hoặc ghi đè.
+- Bốn role-play gồm nhà hàng, phỏng vấn, trường học và văn phòng. Memory lưu chủ đề, âm/cụm từ yếu nhưng không lưu audio; hành trình tổng hợp tiến bộ 30/90 ngày.
+- Budget riêng giới hạn 12 AI feedback/ngày, 8.000 estimated tokens/ngày, 6 lượt/phiên và tối đa hai lượt context. Nếu offline, AI bị tắt, hết budget hoặc response lỗi, deterministic fallback vẫn lưu phiên Speaking bình thường.
+- Chi tiết kỹ thuật và QA: `docs/realtime-voice-ai-coach.md`.
 
 ## Dữ liệu MVP
 

@@ -1,9 +1,9 @@
 {
   "id": "p36-advanced-voice",
-  "version": 1,
+  "version": 2,
   "verified": true,
   "reviewStatus": "approved",
-  "updatedAt": "2026-09-06",
+  "updatedAt": "2026-09-09",
   "analysis": {
     "preferredProvider": "KLEARN_NATIVE_PHONEME_PROVIDER",
     "fallbackMethod": "speech-transcript-alignment-and-local-audio-signals",
@@ -40,6 +40,7 @@
     {
       "id": "job-interview",
       "type": "interview",
+      "coachEnabled": true,
       "levelMin": 2,
       "levelMax": 6,
       "title": "Phỏng vấn xin việc",
@@ -87,6 +88,46 @@
           "expectedKeywords": ["핵심", "결과", "만족도"],
           "targetSeconds": 10
         }
+      ]
+    },
+    {
+      "id": "role-restaurant",
+      "type": "restaurant",
+      "coachEnabled": true,
+      "levelMin": 0,
+      "levelMax": 3,
+      "title": "Gọi món tại nhà hàng",
+      "description": "Gọi món, hỏi món và cảm ơn bằng 해요체.",
+      "turns": [
+        { "id": "restaurant-order", "partner": "어서 오세요. 주문하시겠어요?", "translation": "Xin chào. Bạn muốn gọi món chưa?", "practiceLine": "비빔밥 하나 주세요.", "expectedKeywords": ["비빔밥", "하나", "주세요"], "targetSeconds": 4 },
+        { "id": "restaurant-drink", "partner": "음료는 무엇으로 드릴까요?", "translation": "Bạn muốn dùng đồ uống gì?", "practiceLine": "물도 같이 주세요.", "expectedKeywords": ["물", "같이", "주세요"], "targetSeconds": 4 },
+        { "id": "restaurant-thanks", "partner": "주문하신 음식 나왔습니다.", "translation": "Món bạn gọi đã có rồi ạ.", "practiceLine": "네, 감사합니다.", "expectedKeywords": ["네", "감사합니다"], "targetSeconds": 3 }
+      ]
+    },
+    {
+      "id": "role-school",
+      "type": "school",
+      "coachEnabled": true,
+      "levelMin": 1,
+      "levelMax": 4,
+      "title": "Ngày đầu ở trường",
+      "description": "Hỏi lớp học và giới thiệu bản thân với bạn mới.",
+      "turns": [
+        { "id": "school-class", "partner": "한국어 수업을 찾고 있어요?", "translation": "Bạn đang tìm lớp tiếng Hàn phải không?", "practiceLine": "네, 한국어 교실이 어디예요?", "expectedKeywords": ["한국어", "교실", "어디예요"], "targetSeconds": 5 },
+        { "id": "school-major", "partner": "어느 나라에서 왔어요?", "translation": "Bạn đến từ nước nào?", "practiceLine": "저는 베트남에서 왔어요.", "expectedKeywords": ["저는", "베트남", "왔어요"], "targetSeconds": 5 }
+      ]
+    },
+    {
+      "id": "role-office",
+      "type": "office",
+      "coachEnabled": true,
+      "levelMin": 2,
+      "levelMax": 6,
+      "title": "Trao đổi tại văn phòng",
+      "description": "Báo cáo tiến độ và xin xác nhận lịch họp một cách lịch sự.",
+      "turns": [
+        { "id": "office-progress", "partner": "프로젝트 진행 상황을 알려 주세요.", "translation": "Hãy cho tôi biết tình hình dự án.", "practiceLine": "현재 자료를 정리하고 있습니다.", "expectedKeywords": ["현재", "자료", "있습니다"], "targetSeconds": 7 },
+        { "id": "office-meeting", "partner": "내일 회의에 참석할 수 있어요?", "translation": "Bạn có thể tham dự cuộc họp ngày mai không?", "practiceLine": "네, 오전 열 시에 참석하겠습니다.", "expectedKeywords": ["오전", "열 시", "참석하겠습니다"], "targetSeconds": 7 }
       ]
     }
   ],

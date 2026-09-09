@@ -26,7 +26,7 @@ function boot() {
 (async () => {
   assert.equal(content.verified, true);
   assert.equal(content.reviewStatus, 'approved');
-  assert.deepEqual(content.scenarios.map((item) => item.type), ['conversation', 'interview', 'presentation']);
+  assert.deepEqual(content.scenarios.map((item) => item.type), ['conversation', 'interview', 'presentation', 'restaurant', 'school', 'office']);
   assert.equal(content.analysis.audioStored, false);
   assert.match(content.analysis.disclaimer, /ước tính/);
 
@@ -76,11 +76,11 @@ function boot() {
   assert.equal(nativeResult.method, 'native-acoustic-provider');
   assert.equal(nativeResult.score, 91);
 
-  assert.match(index, /advanced-voice\.css\?v=1/);
-  assert.match(index, /data\/advanced-voice\.js\?v=1/);
+  assert.match(index, /advanced-voice\.css\?v=2/);
+  assert.match(index, /data\/advanced-voice\.js\?v=2/);
   assert.match(css, /voice-phoneme-grid/);
   assert.match(css, /@media \(max-width: 600px\)/);
-  assert.match(worker, /klearn-v76/);
+  assert.match(worker, /klearn-v77/);
   assert.match(worker, /advanced-voice\.json/);
   assert.match(appSource, /voiceLearning: 'klearn_voice_learning'/);
   assert.match(appSource, /STORAGE_KEYS\.voiceLearning/);

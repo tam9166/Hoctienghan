@@ -19,7 +19,7 @@ function responseRecorder() {
 
 function bootPlatform() {
   const window = {
-    __KLEARN_RUNTIME_CONFIG__: { platform: 'native', apiBaseUrl: 'https://learn.example.test/', authRedirectUrl: 'com.tamhoanq.korean://auth/callback', version: '1.1.0-rc.1', channel: 'beta' },
+    __KLEARN_RUNTIME_CONFIG__: { platform: 'native', apiBaseUrl: 'https://learn.example.test/', authRedirectUrl: 'com.tamhoanq.korean://auth/callback', version: '1.2.0-rc.1', channel: 'beta' },
     Capacitor: { isNativePlatform: () => true, getPlatform: () => 'android' },
     location: { origin: 'capacitor://localhost', pathname: '/' }
   };
@@ -98,7 +98,7 @@ function bootNative(platform) {
   assert.equal(nativeContract.identity.sharedWithWeb, true);
   assert.equal(experience.authSync.separateMobileProgressStore, false);
   assert.ok(experience.offline.contentTypes.includes('practice'));
-  assert.equal(version.version, '1.1.0-rc.1');
+  assert.equal(version.version, '1.2.0-rc.1');
   const nativeBundle = path.join(root, 'mobile', 'www', 'mobile-native-plugins.js');
   if (fs.existsSync(nativeBundle)) assert.ok(fs.statSync(nativeBundle).size < 350 * 1024, 'native plugin bundle exceeds 350 KB budget');
   assert.match(read('data/cloud-sync.js'), /flowType: 'pkce'/);
