@@ -1,26 +1,27 @@
 {
   "id": "p35-mobile-experience",
-  "version": 1,
+  "version": 2,
   "verified": true,
   "reviewStatus": "approved",
   "updatedAt": "2026-09-06",
   "native": {
-    "strategy": "web-first-native-bridge",
+    "strategy": "capacitor-native-shell",
+    "runtime": "Capacitor 8",
     "appId": "com.tamhoanq.korean",
     "platforms": [
-      { "id": "android", "status": "foundation-ready", "minimumVersion": "Android 8" },
-      { "id": "ios", "status": "foundation-ready", "minimumVersion": "iOS 15" }
+      { "id": "android", "status": "reproducible-shell", "minimumVersion": "Android 7 / API 24" },
+      { "id": "ios", "status": "reproducible-shell", "minimumVersion": "iOS 15" }
     ],
     "dataOwnership": "existing-local-and-cloud-services"
   },
   "offline": {
     "service": "OfflinePackService",
-    "contentTypes": ["lesson", "audio", "vocabulary"],
+    "contentTypes": ["lesson", "audio", "vocabulary", "practice"],
     "largeDataInLocalStorage": false,
     "privateDataInPublicCache": false
   },
   "notifications": {
-    "types": ["study-reminder", "review-reminder"],
+    "types": ["review-due", "daily-mission", "goal-reminder"],
     "permission": "user-initiated",
     "quietHours": { "start": 22, "end": 7 },
     "minimumIntervalHours": 6,
@@ -42,9 +43,21 @@
     "fallback": "text-input"
   },
   "widget": {
-    "status": "native-bridge-contract",
+    "status": "privacy-safe-native-snapshot",
     "items": ["todays-korean", "review-words"],
     "containsPrivateContent": false
+  },
+  "authSync": {
+    "provider": "Supabase",
+    "flow": "PKCE",
+    "redirect": "com.tamhoanq.korean://auth/callback",
+    "sharedIdentity": true,
+    "separateMobileProgressStore": false
+  },
+  "release": {
+    "channels": ["internal", "beta", "production"],
+    "signedArtifactsRequiredForStore": true,
+    "storeCredentialsInRepository": false
   },
   "shortcuts": [
     { "id": "speaking", "name": "Luyện nói", "route": "speaking-hub" },

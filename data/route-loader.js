@@ -4,7 +4,7 @@
   const groups = Object.freeze({
     resources: { scripts: ['data/resource-library.js?v=1', 'data/content-review.js?v=2'] },
     topik: { scripts: ['data/topik-strategy.js?v=1'] },
-    ai: { scripts: ['data/ai-coach.js?v=5', 'data/learning-memory.js?v=3', 'data/personal-intelligence.js?v=3', 'data/learning-intelligence-data.js?v=1', 'data/learning-intelligence.js?v=2'] },
+    ai: { scripts: ['data/ai-coach.js?v=6', 'data/learning-memory.js?v=3', 'data/personal-intelligence.js?v=3', 'data/learning-intelligence-data.js?v=1', 'data/learning-intelligence.js?v=2'] },
     practical: { scripts: ['data/practical-study.js?v=4'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
@@ -23,7 +23,7 @@
     enterprise: { styles: ['enterprise-platform.css?v=1'], scripts: ['data/enterprise-platform.js?v=1'] },
     retention: { dependencies: ['practical'], styles: ['retention-system.css?v=1'], scripts: ['data/retention-system.js?v=1'] },
     contentQuality: { dependencies: ['content'], styles: ['content-quality.css?v=1'], scripts: ['data/content-quality-system.js?v=1'] },
-    aiInfra: { scripts: ['data/ai-infrastructure.js?v=2'] },
+    aiInfra: { scripts: ['data/ai-infrastructure.js?v=3'] },
     globalLanguage: { scripts: ['data/global-language-platform.js?v=1'] },
     advancedAnalytics: { scripts: ['data/advanced-learning-analytics.js?v=1'] },
     edtech: { styles: ['edtech-business-intelligence.css?v=1'], scripts: ['data/edtech-business-intelligence.js?v=1'] },

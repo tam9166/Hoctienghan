@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0-rc.1",
+  "version": "1.1.0-rc.1",
   "channel": "release-candidate",
-  "releaseId": "p55-production-readiness",
+  "releaseId": "p56-mobile-native-ecosystem",
   "releasedAt": "2026-09-09",
   "schemaVersion": 13,
   "minimumSupportedVersion": "1.0.0-rc.1"

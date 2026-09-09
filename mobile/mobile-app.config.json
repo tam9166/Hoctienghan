@@ -1,12 +1,13 @@
 {
   "$schema": "./mobile-app.schema.json",
+  "contractVersion": 2,
   "appId": "com.tamhoanq.korean",
   "appName": "Tiếng Hàn - TamHoanq",
-  "webDir": ".",
-  "nativeWrapper": "capacitor-compatible",
+  "webDir": "www",
+  "nativeWrapper": "capacitor-8.5.1",
   "platforms": {
-    "android": { "enabled": true, "status": "wrapper-not-generated" },
-    "ios": { "enabled": true, "status": "wrapper-not-generated" }
+    "android": { "enabled": true, "status": "generated-in-ci", "minimumApi": 24 },
+    "ios": { "enabled": true, "status": "generated-in-ci", "minimumVersion": "15" }
   },
   "bridge": {
     "notifications": "MobileNotificationService",
@@ -14,8 +15,27 @@
     "backgroundAudio": "BackgroundAudioService",
     "camera": "MobileCameraService",
     "widget": "MobileWidgetService",
-    "shortcuts": "AppShortcutService"
+    "shortcuts": "AppShortcutService",
+    "auth": "NativeAuthBridge",
+    "sync": "NativeSyncBridge"
   },
+  "api": {
+    "resolver": "KLearnPlatform.apiUrl",
+    "releaseEnvironment": "MOBILE_API_BASE_URL",
+    "cleartextAllowed": false
+  },
+  "identity": {
+    "provider": "Supabase",
+    "flow": "PKCE",
+    "deepLink": "com.tamhoanq.korean://auth/callback",
+    "sharedWithWeb": true
+  },
+  "offline": {
+    "content": ["lesson", "vocabulary", "audio", "practice"],
+    "progressQueue": "BackgroundSyncQueueService",
+    "reconnect": "CloudSyncService"
+  },
+  "releaseChannels": ["internal", "beta", "production"],
   "security": {
     "allowCleartext": false,
     "cameraProcessing": "on-device",

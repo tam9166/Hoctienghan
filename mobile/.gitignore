@@ -1,0 +1,12 @@
+/node_modules/
+/www/
+/android/
+/ios/
+*.jks
+*.keystore
+*.mobileprovision
+*.p12
+*.cer
+*.key
+google-services.json
+GoogleService-Info.plist

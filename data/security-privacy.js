@@ -20,11 +20,11 @@
   const supportedProviders = new Set(['google', 'apple']);
   const authClient = () => global.SupabaseService?.client;
   const cloudSession = () => global.SupabaseService?.session?.user || null;
-  const redirectUrl = () => `${global.location?.origin || ''}${global.location?.pathname || '/'}`;
+  const redirectUrl = () => global.KLearnPlatform?.authRedirectUrl?.() || `${global.location?.origin || ''}${global.location?.pathname || '/'}`;
 
   const SecurityAuthService = {
     providers() { return ['google', 'apple', 'passwordless']; },
-    async signInWithProvider(provider) { const value = clean(provider, 20).toLowerCase(); if (!supportedProviders.has(value)) throw new Error('Provider đăng nhập chưa được hỗ trợ.'); const client = authClient(); if (!client?.auth?.signInWithOAuth) throw new Error('Cloud Auth chưa được cấu hình.'); return client.auth.signInWithOAuth({ provider: value, options: { redirectTo: redirectUrl() } }); },
+    async signInWithProvider(provider) { const value = clean(provider, 20).toLowerCase(); if (!supportedProviders.has(value)) throw new Error('Provider đăng nhập chưa được hỗ trợ.'); const client = authClient(); if (!client?.auth?.signInWithOAuth) throw new Error('Cloud Auth chưa được cấu hình.'); const native = Boolean(global.KLearnPlatform?.isNative?.()); const result = await client.auth.signInWithOAuth({ provider: value, options: { redirectTo: redirectUrl(), skipBrowserRedirect: native } }); if (native && result.data?.url) await global.NativeMobileBridge?.openAuth?.(result.data.url); return result; },
     async requestPasswordless(email) { const address = clean(email, 160).toLowerCase(); if (!/^\S+@\S+\.\S+$/.test(address)) throw new Error('Email passwordless chưa hợp lệ.'); const client = authClient(); if (!client?.auth?.signInWithOtp) throw new Error('Cloud Auth chưa được cấu hình.'); return client.auth.signInWithOtp({ email: address, options: { emailRedirectTo: redirectUrl() } }); },
     async factors() { const client = authClient(); if (!client?.auth?.mfa?.listFactors) return { all: [], verified: [], status: 'unavailable' }; const result = await client.auth.mfa.listFactors(); if (result.error) throw result.error; return { ...result.data, status: 'ready' }; },
     async enroll({ friendlyName = 'TamHoanq device' } = {}) { const client = authClient(); if (!client?.auth?.mfa?.enroll) throw new Error('MFA chưa được bật trong Supabase Auth.'); const result = await client.auth.mfa.enroll({ factorType: 'totp', friendlyName: clean(friendlyName, 80) }); if (result.error) throw result.error; return result.data; },

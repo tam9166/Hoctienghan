@@ -1,5 +1,7 @@
 const rateLimit = require('./_rate-limit');
+const applyCors = require('./_cors');
 module.exports = function handler(req, res) {
+  if (applyCors(req, res, ['GET'])) return;
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   const limit = rateLimit(req, { bucket: 'config', max: 30, windowMs: 60000 });
   if (!limit.allowed) { res.setHeader('Retry-After', String(limit.retryAfterSeconds)); return res.status(429).json({ error: 'Too many config requests', retryAfterSeconds: limit.retryAfterSeconds }); }

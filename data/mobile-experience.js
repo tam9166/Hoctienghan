@@ -9,9 +9,9 @@
   const HOUR = 60 * 60 * 1000;
   const DAY = 24 * HOUR;
   const DEFAULT_CONTRACT = Object.freeze({
-    id: 'p35-mobile-experience', version: 1, verified: true, reviewStatus: 'approved',
-    native: { strategy: 'web-first-native-bridge', appId: 'com.tamhoanq.korean', platforms: [{ id: 'android', status: 'foundation-ready' }, { id: 'ios', status: 'foundation-ready' }] },
-    offline: { service: 'OfflinePackService', contentTypes: ['lesson', 'audio', 'vocabulary'], largeDataInLocalStorage: false, privateDataInPublicCache: false },
+    id: 'p35-mobile-experience', version: 2, verified: true, reviewStatus: 'approved',
+    native: { strategy: 'capacitor-native-shell', appId: 'com.tamhoanq.korean', platforms: [{ id: 'android', status: 'reproducible-shell' }, { id: 'ios', status: 'reproducible-shell' }] },
+    offline: { service: 'OfflinePackService', contentTypes: ['lesson', 'audio', 'vocabulary', 'practice'], largeDataInLocalStorage: false, privateDataInPublicCache: false },
     notifications: { quietHours: { start: 22, end: 7 }, minimumIntervalHours: 6, maximumPerDay: 2, permission: 'user-initiated' },
     backgroundAudio: { api: 'MediaSession', requiresAudioAsset: true, speechSynthesisFallbackIsBackgroundCapable: false },
     camera: { modes: ['text', 'menu', 'sign'], processing: 'on-device', uploads: false, imageStored: false, textStored: false, fallback: 'text-input' },
@@ -49,14 +49,14 @@
     capabilities() { return { ...MobileContentService.contract().offline, available: Boolean(global.OfflinePackService && 'caches' in global) }; },
     metadata() { return global.OfflinePackService?.metadata?.() || []; },
     status(pack) { return global.OfflinePackService?.status?.(pack) || 'unavailable'; },
-    download(packId) { if (!global.OfflinePackService?.download) return Promise.reject(new Error('Offline packs are unavailable on this device.')); return global.OfflinePackService.download(packId); },
-    remove(packId) { if (!global.OfflinePackService?.remove) return Promise.reject(new Error('Offline packs are unavailable on this device.')); return global.OfflinePackService.remove(packId); }
+    download(packId) { if (global.NativeMobileBridge?.available?.() && global.NativeOfflineBridge?.download) return global.NativeOfflineBridge.download(packId); if (!global.OfflinePackService?.download) return Promise.reject(new Error('Offline packs are unavailable on this device.')); return global.OfflinePackService.download(packId); },
+    remove(packId) { if (!global.OfflinePackService?.remove) return Promise.reject(new Error('Offline packs are unavailable on this device.')); return global.OfflinePackService.remove(packId).then(async (value) => { await global.NativeOfflineBridge?.refreshIndex?.(); return value; }); }
   };
 
   const MobileNotificationService = {
     policy() { return MobileContentService.contract().notifications; },
-    permission() { return global.Notification?.permission || 'unsupported'; },
-    async requestPermission() { if (!global.Notification?.requestPermission) return 'unsupported'; return global.Notification.requestPermission(); },
+    permission() { if (global.NativeMobileBridge?.available?.()) return readDevice().nativePushEnabled ? 'granted' : 'default'; return global.Notification?.permission || 'unsupported'; },
+    async requestPermission() { if (global.NativeMobileBridge?.available?.() && global.NativePushService?.register) { const result = await global.NativePushService.register(); const granted = ['registering', 'registered'].includes(result.status); saveDevice({ nativePushEnabled: granted }); return granted ? 'granted' : result.status === 'denied' ? 'denied' : 'unsupported'; } if (!global.Notification?.requestPermission) return 'unsupported'; return global.Notification.requestPermission(); },
     history() { return Array.isArray(readDevice().notificationHistory) ? readDevice().notificationHistory : []; },
     pending() { return (global.NotificationService?.pending?.() || []).map((notice) => ({ ...notice, route: notice.id === 'srs-due' ? 'review' : 'home' })); },
     eligibility(date = new Date()) {

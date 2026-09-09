@@ -21,6 +21,8 @@ Tiếng Hàn - TamHoanq giúp người Việt học theo lộ trình rõ ràng: 
 - iOS AppIcon set: cần xuất từ logo nguồn khi tạo Xcode project.
 - Screenshots: cần chụp từ build release trên thiết bị/emulator; không dùng mockup để thay thế ảnh sản phẩm thật.
 
+Nguồn nhận diện duy nhất tiếp tục là logo TH lime/dark hiện có. Khi generate native project, dùng công cụ asset đã audit để xuất Android adaptive icon và iOS AppIcon từ asset chất lượng cao; không dùng CSS filter hoặc ảnh screenshot làm icon.
+
 Các màn hình bắt buộc khi chụp: Home cá nhân hóa, bài Hangul, ôn SRS, luyện nói, TOPIK và offline pack. Kiểm tra bản 360×800, tablet và dark mode trước khi chụp store.
 
 ## Release checklist
@@ -30,3 +32,6 @@ Các màn hình bắt buộc khi chụp: Home cá nhân hóa, bài Hangul, ôn S
 - Xác minh account deletion/data export, restore purchase (nếu có subscription) và deep link shortcut.
 - Test background audio bằng asset có quyền sử dụng trên thiết bị khóa màn hình.
 - Dùng secret manager cho signing key, push key và store credential; không commit secret.
+- Public privacy URL phải chứa nội dung đã được duyệt từ `docs/privacy-policy-draft.md`; file draft chưa đủ điều kiện submit store.
+- Android Data Safety và Apple App Privacy phải khai báo Auth identifier/email, learning progress, opt-in usage telemetry, support content và push token đúng với bản build thực tế.
+- Chụp store screenshot từ bản native release candidate sau khi kiểm tra safe area, status bar, font scaling và dark mode.

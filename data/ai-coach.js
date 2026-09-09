@@ -49,7 +49,7 @@
       if (result?.reply) return result.reply;
     }
     if (app.PrivacyPreferenceService?.allows?.('aiUsage') === false) return 'Bạn đã tắt tính năng AI. Mở cài đặt để bật lại.';
-    const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-KLearn-AI-Consent': 'granted' }, body: JSON.stringify({ messages: [{ role: 'user', content: String(instruction).slice(0, 4000) }], learnerContext: safeContext(instruction), learningLanguage: 'vi', task, privacy: { aiEnabled: true } }) });
+    const response = await fetch(window.KLearnPlatform?.apiUrl?.('/api/chat') || '/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-KLearn-AI-Consent': 'granted' }, body: JSON.stringify({ messages: [{ role: 'user', content: String(instruction).slice(0, 4000) }], learnerContext: safeContext(instruction), learningLanguage: 'vi', task, privacy: { aiEnabled: true } }) });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok || !payload.reply) throw new Error(payload.configured === false ? 'AI chưa được cấu hình. Dữ liệu học vẫn được giữ trên thiết bị.' : 'AI tạm thời không phản hồi.');
     return String(payload.reply).slice(0, 8000);

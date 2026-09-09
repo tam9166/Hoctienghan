@@ -46,7 +46,7 @@ Sau đó mở `http://localhost:8080`.
 - Listening/Reading Hub theo TOPIK level, Korean TTS, recommended practice và daily practice plan.
 - Ghi âm qua MediaRecorder và chấm tương đồng văn bản bằng Speech Recognition khi trình duyệt hỗ trợ.
 - Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
-- PWA manifest + service worker network-first (`klearn-v75`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
+- PWA manifest + service worker network-first (`klearn-v76`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
 
 Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **Tiếng Hàn - TamHoanq** mới.
 
@@ -287,6 +287,14 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - `/api/version` công bố release/commit an toàn; `/api/health` trả `503 degraded` ở production khi database chưa cấu hình hoặc không truy cập được. Workflow giám sát gọi full smoke test mỗi 30 phút.
 - `version.json` là release manifest duy nhất, hiện ở `1.0.0-rc.1`. Runbook domain, monitoring, backup/restore, incident, support, release và version nằm trong `docs/production/`.
 - Kiểm tra cục bộ bằng `node scripts/verify-production-build.js`, `node scripts/release-readiness.js`; sau khi có HTTPS URL, chạy `node scripts/smoke-production.js https://your-domain.example`.
+
+### Mobile Native Ecosystem
+
+- Capacitor 8 đóng gói chính web app hiện tại thành Android/iOS shell; không viết lại Learning System và không tạo kho user/progress riêng cho mobile.
+- `KLearnPlatform` định tuyến `/api/*` về `MOBILE_API_BASE_URL` HTTPS trong binary. Supabase dùng cùng user với web qua PKCE/deep link; SRS, Mastery, History và Progress tiếp tục đồng bộ qua `learning_sync` cùng CAS/queue hiện có.
+- Native bridge xử lý lifecycle/reconnect, đăng ký push tách khỏi learning data, camera tạm thời, widget snapshot không chứa thông tin riêng tư và background audio bằng asset thật. Service Worker chỉ chạy trên web/PWA, không chạy trong native shell.
+- `mobile/` có dependency lock, build/doctor scripts và cấu hình sinh project Android/iOS. Workflow `mobile-native.yml` kiểm tra source và tạo unsigned validation artifact theo kênh internal/beta/production; signing/store upload cần owner approval cùng credential bên ngoài Git.
+- Migration `20260909_mobile_native_ecosystem.sql` tạo push device/preference RLS và delivery metadata server-only. Tài liệu kiến trúc, test matrix, security và deployment nằm trong `docs/mobile-native-ecosystem.md`.
 
 ## Dữ liệu MVP
 

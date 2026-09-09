@@ -9,6 +9,7 @@
   };
   const loadOfficialClient = () => new Promise((resolve, reject) => {
     if (window.supabase?.createClient) return resolve();
+    if (window.KLearnNativePlugins?.createSupabaseClient) { window.supabase = { createClient: window.KLearnNativePlugins.createSupabaseClient }; return resolve(); }
     const script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'; script.async = true;
     script.onload = () => window.supabase?.createClient ? resolve() : reject(new Error('Supabase client unavailable'));
     script.onerror = () => reject(new Error('Supabase client load failed')); document.head.appendChild(script);
@@ -31,11 +32,11 @@
       if (state.initPromise) return state.initPromise;
       state.initPromise = (async () => {
         try {
-          const response = await Promise.race([fetch('/api/config', { cache: 'no-store', headers: { Accept: 'application/json' } }), timeout(6000)]);
+          const response = await Promise.race([fetch(window.KLearnPlatform?.apiUrl?.('/api/config') || '/api/config', { cache: 'no-store', headers: { Accept: 'application/json' } }), timeout(6000)]);
           if (!response.ok) throw new Error('config request failed'); const config = await response.json();
           if (!config.configured || !validConfig(config)) { state.configStatus = 'unconfigured'; emit('klearn-cloud-ready', { configured: false }); return null; }
           await Promise.race([loadOfficialClient(), timeout(8000)]);
-          state.client = window.supabase.createClient(config.supabaseUrl, config.supabasePublishableKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: 'klearn_supabase_auth' } });
+          state.client = window.supabase.createClient(config.supabaseUrl, config.supabasePublishableKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: !window.KLearnPlatform?.isNative?.(), flowType: 'pkce', storageKey: 'klearn_supabase_auth' } });
           state.client.auth.onAuthStateChange((event, session) => { state.session = session || null; emit('klearn-cloud-auth', { event, user: session?.user || null }); });
           const { data, error } = await state.client.auth.getSession(); if (error) throw error; state.session = data.session || null; state.configStatus = 'ready';
           window.KLEARN_CLOUD_PROVIDER = this.createProvider(); emit('klearn-cloud-ready', { configured: true, user: state.session?.user || null });
@@ -67,7 +68,7 @@
     }
   };
   const AuthService = {
-    async signUp(email, password) { await SupabaseService.init(); if (!state.client) throw new Error(state.error || 'Cloud chưa được cấu hình.'); const { data, error } = await state.client.auth.signUp({ email, password, options: { emailRedirectTo: `${location.origin}${location.pathname}` } }); if (error) throw new Error(friendlyError(error)); return { user: data.user, session: data.session, confirmationRequired: Boolean(data.user && !data.session) }; },
+    async signUp(email, password) { await SupabaseService.init(); if (!state.client) throw new Error(state.error || 'Cloud chưa được cấu hình.'); const { data, error } = await state.client.auth.signUp({ email, password, options: { emailRedirectTo: window.KLearnPlatform?.authRedirectUrl?.() || `${location.origin}${location.pathname}` } }); if (error) throw new Error(friendlyError(error)); return { user: data.user, session: data.session, confirmationRequired: Boolean(data.user && !data.session) }; },
     async signIn(email, password) { await SupabaseService.init(); if (!state.client) throw new Error(state.error || 'Cloud chưa được cấu hình.'); const { data, error } = await state.client.auth.signInWithPassword({ email, password }); if (error) throw new Error(friendlyError(error)); state.session = data.session; return data; },
     async getSession() { await SupabaseService.init(); return state.client ? (await state.client.auth.getSession()).data.session : null; },
     async getUser() { await SupabaseService.init(); return state.client ? (await state.client.auth.getUser()).data.user : null; },

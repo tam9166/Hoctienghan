@@ -28,6 +28,7 @@ Vercel production environment variables:
 - `SUPABASE_ANON_KEY` (publishable/anon, không phải service-role)
 - `OPENAI_API_KEY`
 - `OPENAI_SMALL_MODEL`, `OPENAI_STRONG_MODEL` hoặc `OPENAI_MODEL`
+- `MOBILE_ALLOWED_ORIGINS` chỉ khi cần thêm native origin ngoài hai origin Capacitor mặc định.
 
 Version được đóng gói trực tiếp từ `version.json`; không tạo environment variable khác có thể làm lệch release manifest.
 

@@ -1,5 +1,6 @@
 const rateLimit = require('./_rate-limit');
 const releaseInfo = require('./_release');
+const applyCors = require('./_cors');
 
 const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));
 const configuredSupabase = () => {
@@ -9,6 +10,7 @@ const configuredSupabase = () => {
 };
 
 module.exports = async function handler(req, res) {
+  if (applyCors(req, res, ['GET'])) return;
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   const limit = rateLimit(req, { bucket: 'health', max: 30, windowMs: 60000 });
   if (!limit.allowed) { res.setHeader('Retry-After', String(limit.retryAfterSeconds)); return res.status(429).json({ status: 'rate_limited', retryAfterSeconds: limit.retryAfterSeconds }); }

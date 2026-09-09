@@ -37,13 +37,13 @@ function boot() {
   assert.equal(content.verified, true);
   assert.equal(content.reviewStatus, 'approved');
   assert.deepEqual(content.native.platforms.map((item) => item.id), ['android', 'ios']);
-  assert.deepEqual(content.offline.contentTypes, ['lesson', 'audio', 'vocabulary']);
+  assert.deepEqual(content.offline.contentTypes, ['lesson', 'audio', 'vocabulary', 'practice']);
   assert.equal(content.camera.uploads, false);
   assert.equal(content.backgroundAudio.speechSynthesisFallbackIsBackgroundCapable, false);
   assert.equal(content.notifications.maximumPerDay, 2);
   assert.equal(nativeConfig.platforms.android.enabled, true);
   assert.equal(nativeConfig.platforms.ios.enabled, true);
-  assert.equal(nativeConfig.platforms.android.status, 'wrapper-not-generated');
+  assert.equal(nativeConfig.platforms.android.status, 'generated-in-ci');
 
   const app = boot(); const w = app.window;
   assert.equal(w.MobilePlatformService.detect().platform, 'android');
@@ -73,11 +73,11 @@ function boot() {
 
   assert.deepEqual(manifest.shortcuts.map((item) => item.url), ['./#speaking-hub', './#review', './#topik']);
   assert.match(index, /mobile-experience\.css\?v=1/);
-  assert.match(index, /data\/mobile-experience\.js\?v=2/);
+  assert.match(index, /data\/mobile-experience\.js\?v=3/);
   assert.match(css, /min-height: 48px/);
   assert.match(css, /safe-area-inset-bottom/);
   assert.match(css, /prefers-reduced-motion/);
-  assert.match(worker, /klearn-v75/);
+  assert.match(worker, /klearn-v76/);
   assert.match(worker, /addEventListener\('push'/);
   assert.match(worker, /addEventListener\('notificationclick'/);
   assert.match(worker, /maximumPerDay: 2/);

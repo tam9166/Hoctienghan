@@ -1,0 +1,113 @@
+name: Mobile native
+
+on:
+  push:
+    branches: [main]
+    paths: ['mobile/**', 'api/**', 'data/**', 'content/mobile-experience.json', 'supabase/migrations/**', 'index.html', 'app.js', 'sw.js', 'version.json', '.github/workflows/mobile-native.yml']
+  pull_request:
+    branches: [main]
+    paths: ['mobile/**', 'api/**', 'data/**', 'content/mobile-experience.json', 'supabase/migrations/**', 'index.html', 'app.js', 'sw.js', 'version.json', '.github/workflows/mobile-native.yml']
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Release channel
+        required: true
+        type: choice
+        default: internal
+        options: [internal, beta, production]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-${{ github.ref }}-${{ inputs.channel || 'validate' }}
+  cancel-in-progress: ${{ inputs.channel != 'production' }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci --prefix mobile
+      - run: npm audit --prefix mobile --audit-level=high
+      - run: npm run build --prefix mobile
+      - run: npm run doctor --prefix mobile
+      - run: node tests/mobile-native-ecosystem.test.js
+
+  android:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: mobile-${{ inputs.channel }}
+    env:
+      MOBILE_API_BASE_URL: ${{ vars.MOBILE_API_BASE_URL }}
+      MOBILE_RELEASE_CHANNEL: ${{ inputs.channel }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci --prefix mobile
+      - run: npm run build:release --prefix mobile
+      - name: Generate and sync Android project
+        working-directory: mobile
+        run: npx cap add android && npm run configure:android && npx cap sync android
+      - name: Build unsigned validation artifacts
+        working-directory: mobile/android
+        run: ./gradlew assembleDebug bundleRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tamhoanq-android-${{ inputs.channel }}-${{ github.run_number }}
+          path: |
+            mobile/android/app/build/outputs/apk/debug/*.apk
+            mobile/android/app/build/outputs/bundle/release/*.aab
+          retention-days: 14
+
+  ios:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: macos-latest
+    timeout-minutes: 30
+    environment: mobile-${{ inputs.channel }}
+    env:
+      MOBILE_API_BASE_URL: ${{ vars.MOBILE_API_BASE_URL }}
+      MOBILE_RELEASE_CHANNEL: ${{ inputs.channel }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci --prefix mobile
+      - run: npm run build:release --prefix mobile
+      - name: Generate and sync iOS project
+        working-directory: mobile
+        run: npx cap add ios && npm run configure:ios && npx cap sync ios
+      - name: Build unsigned iOS simulator validation
+        working-directory: mobile
+        run: xcodebuild -project ios/App/App.xcodeproj -scheme App -sdk iphonesimulator -configuration Release CODE_SIGNING_ALLOWED=NO build
+
+  release-gate:
+    if: github.event_name == 'workflow_dispatch'
+    needs: [android, ios]
+    runs-on: ubuntu-latest
+    environment: mobile-${{ inputs.channel }}
+    steps:
+      - name: Promotion boundary
+        run: |
+          echo "Unsigned Android and iOS validation builds passed for ${{ inputs.channel }}."
+          echo "Store signing and upload require owner-managed Apple/Google credentials and manual approval."

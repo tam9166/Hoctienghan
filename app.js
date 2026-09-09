@@ -1502,7 +1502,7 @@ const AITutorService = {
       if (window.AIOrchestrationService?.request) { const result = await window.AIOrchestrationService.request({ task: 'tutor', input: text, messages: recentMessages, context: this.context(text), language: I18nService.getPreference() }); if (result?.reply) this.addMessage('assistant', result.reply); return result; }
       if (!PrivacyPreferenceService.allows('aiUsage')) return PrivacyPreferenceService.disabled('AI_DISABLED_BY_USER');
       const learnerContext = this.context(text);
-      const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-KLearn-AI-Consent': 'granted' }, body: JSON.stringify({ messages: recentMessages, learnerContext, learningLanguage: I18nService.getPreference(), privacy: { aiEnabled: true } }) });
+      const response = await fetch(window.KLearnPlatform?.apiUrl?.('/api/chat') || '/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-KLearn-AI-Consent': 'granted' }, body: JSON.stringify({ messages: recentMessages, learnerContext, learningLanguage: I18nService.getPreference(), privacy: { aiEnabled: true } }) });
       const payload = await response.json().catch(() => ({})); const reply = response.ok && payload.reply ? payload.reply : payload.code === 'AI_DISABLED_BY_USER' ? I18nService.t('ai.disabledBody') : payload.configured === false ? I18nService.t('ai.notConfigured') : I18nService.t('ai.error'); this.addMessage('assistant', reply); return payload;
     } catch (_) { this.addMessage('assistant', I18nService.t('ai.offline')); return null; } finally { state.aiBusy = false; renderAiWidget(); }
   }
@@ -3498,6 +3498,6 @@ window.SupabaseService?.init?.().then(() => CloudAccountService.restore()).then(
 
 window.KLEARN_APP = { storage, state, STORAGE_KEYS, SRS_STATES, SRSStateService, render, setView, toast, escapeHtml, normalizeSearch, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, updateCurrentUser, emitLearningMutation, LearnerProfileService, MasteryService, VocabularyService, DictionaryService, PracticeService, startTopikExam, lessonVocabulary, completeLesson, CloudSyncService, CloudAccountService, AITutorService, PrivacyPreferenceService, LocalAuthCredentialService, auth, createSessionRecord, sessionExpired, PronunciationProvider, getDisplayPronunciation, speakKorean, AccessControlService, ContentReviewService: window.ContentReviewService, NotesService, BookmarkService, SupportService, QuestionBankService };
 
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && !window.KLearnPlatform?.isNative?.()) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('[Tiếng Hàn - TamHoanq] Service worker không đăng ký được.', error)));
 }

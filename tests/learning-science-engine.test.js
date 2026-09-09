@@ -72,6 +72,6 @@ function boot() {
 
   for (const table of ['learning_science_profiles','learning_science_recall_events','learning_science_session_summaries','learning_science_misconceptions']) assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`));
   assert.match(migration, /raw_answer_stored boolean not null default false check \(raw_answer_stored = false\)/); assert.match(migration, /not medical or diagnostic data/);
-  assert.match(index, /learning-science\.css\?v=1/); assert.match(index, /data\/learning-science-engine\.js\?v=1/); assert.match(index, /app\.js\?v=61/); assert.match(worker, /klearn-v75/); assert.match(worker, /content\/learning-science-engine\.json/); assert.match(appSource, /'learning-science', 'active-recall', 'interleaved-practice', 'concept-mastery'/); assert.match(css, /@media\(max-width:600px\)/);
+  assert.match(index, /learning-science\.css\?v=1/); assert.match(index, /data\/learning-science-engine\.js\?v=1/); assert.match(index, /app\.js\?v=62/); assert.match(worker, /klearn-v76/); assert.match(worker, /content\/learning-science-engine\.json/); assert.match(appSource, /'learning-science', 'active-recall', 'interleaved-practice', 'concept-mastery'/); assert.match(css, /@media\(max-width:600px\)/);
   console.log('learning science engine: optimized SRS, active recall, interleaving, adaptation, load, retention, fatigue, mastery tree, misconception detection, optimal plan and private RLS passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

@@ -1,4 +1,5 @@
 const rateLimit = require('./_rate-limit');
+const applyCors = require('./_cors');
 const MAX_MESSAGES = 12;
 const ROUTES = new Set(['small', 'strong']);
 const TASKS = new Set(['tutor', 'coach', 'translation', 'definition', 'flashcard', 'short_feedback', 'grammar', 'speaking', 'writing', 'conversation', 'planning', 'study_advisor', 'content_explanation', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor']);
@@ -20,6 +21,7 @@ function compact(value, depth = 0) {
 }
 
 module.exports = async function handler(req, res) {
+  if (applyCors(req, res, ['POST'])) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const limit = rateLimit(req, { bucket: 'ai', max: 40, windowMs: 60000 });
   if (!limit.allowed) { res.setHeader('Retry-After', String(limit.retryAfterSeconds)); return res.status(429).json({ error: 'Too many AI requests', retryAfterSeconds: limit.retryAfterSeconds }); }
