@@ -1,0 +1,67 @@
+{
+  "id": "p60-ai-language-operating-system",
+  "version": "1.0.0",
+  "architectureVersion": "p60-v1",
+  "createdDate": "2026-09-10",
+  "updatedDate": "2026-09-10",
+  "verified": true,
+  "reviewStatus": "approved",
+  "implementationMode": "human-guided-ai-orchestration",
+  "supportedLanguages": [
+    { "id": "ko", "label": "한국어", "contentStatus": "active" },
+    { "id": "ja", "label": "日本語", "contentStatus": "foundation" },
+    { "id": "zh", "label": "中文", "contentStatus": "foundation" },
+    { "id": "en", "label": "English", "contentStatus": "foundation" }
+  ],
+  "capabilities": [
+    { "id": "memory", "title": "Personal Language Memory", "mode": "existing-service" },
+    { "id": "planner", "title": "AI Study Planner", "mode": "evidence-first" },
+    { "id": "advisor", "title": "AI Learning Advisor", "mode": "on-demand" },
+    { "id": "curator", "title": "AI Content Curator", "mode": "approved-content-only" },
+    { "id": "prediction", "title": "AI Progress Prediction", "mode": "bounded-forecast" },
+    { "id": "multilingual", "title": "AI Multi-language Support", "mode": "shared-language-core" },
+    { "id": "hybrid", "title": "Human + AI Hybrid Model", "mode": "human-final-authority" },
+    { "id": "privacy", "title": "Privacy-first AI", "mode": "explicit-consent" },
+    { "id": "improvement", "title": "Continuous Improvement", "mode": "metadata-only" },
+    { "id": "assistant", "title": "Global Language Assistant", "mode": "intent-routing" }
+  ],
+  "memory": {
+    "allowedFields": ["level", "goal", "weakSkills", "frequentErrors", "learningStyle", "preferredExplanation", "targetLanguage"],
+    "explicitConfirmationRequired": true,
+    "maximumErrors": 8,
+    "maximumWeakSkills": 6
+  },
+  "curation": {
+    "approvedOnly": true,
+    "maximumItems": 5,
+    "generatedPracticeRequiresReview": true,
+    "fabricatedCurriculumAllowed": false
+  },
+  "prediction": {
+    "maximumProbability": 95,
+    "minimumEvidenceSessions": 3,
+    "guaranteesOutcome": false,
+    "disclaimer": "Dự đoán chỉ là ước tính từ dữ liệu học hiện có, không bảo đảm kết quả thi hoặc nghề nghiệp."
+  },
+  "hybrid": {
+    "teacherCanOverride": true,
+    "humanApprovalRequiredForPublishing": true,
+    "aiReplacesTeacher": false,
+    "learnerControlsGoal": true
+  },
+  "privacy": {
+    "requiresAiUsageConsent": true,
+    "storesRawPrompt": false,
+    "storesRawResponse": false,
+    "storesRawAudio": false,
+    "storesPassword": false,
+    "storesToken": false,
+    "continuousImprovementData": "aggregate-metadata-only"
+  },
+  "orchestration": {
+    "maximumPrimaryAgents": 1,
+    "maximumRetries": 0,
+    "qualityControllerAlwaysRuns": true,
+    "deterministicFallback": true
+  }
+}

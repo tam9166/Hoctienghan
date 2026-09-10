@@ -1,7 +1,7 @@
 {
   "version": "1.2.0-rc.1",
   "channel": "release-candidate",
-  "releaseId": "p59-global-language-platform",
+  "releaseId": "p60-ai-language-operating-system",
   "releasedAt": "2026-09-10",
   "schemaVersion": 13,
   "minimumSupportedVersion": "1.0.0-rc.1"

@@ -46,7 +46,7 @@ Sau đó mở `http://localhost:8080`.
 - Listening/Reading Hub theo TOPIK level, Korean TTS, recommended practice và daily practice plan.
 - Ghi âm qua MediaRecorder và chấm tương đồng văn bản bằng Speech Recognition khi trình duyệt hỗ trợ.
 - Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
-- PWA manifest + service worker network-first (`klearn-v79`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
+- PWA manifest + service worker network-first (`klearn-v80`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
 
 Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **Tiếng Hàn - TamHoanq** mới.
 
@@ -312,6 +312,15 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Bốn role-play gồm nhà hàng, phỏng vấn, trường học và văn phòng. Memory lưu chủ đề, âm/cụm từ yếu nhưng không lưu audio; hành trình tổng hợp tiến bộ 30/90 ngày.
 - Budget riêng giới hạn 12 AI feedback/ngày, 8.000 estimated tokens/ngày, 6 lượt/phiên và tối đa hai lượt context. Nếu offline, AI bị tắt, hết budget hoặc response lỗi, deterministic fallback vẫn lưu phiên Speaking bình thường.
 - Chi tiết kỹ thuật và QA: `docs/realtime-voice-ai-coach.md`.
+
+### AI Language Operating System
+
+- `AILanguageOperatingSystem` hợp nhất learner memory, study planner, learning advisor, content curator, progress prediction và multi-language support thành một lớp điều phối phía sau; giao diện chỉ có hành động học, không có ô chat mới.
+- Memory tổng hợp từ Learner Profile, Language Profile và Error Notebook. Chỉ các field đã allowlist mới được cập nhật, và mọi thay đổi chủ động đều yêu cầu xác nhận; raw chat/audio, password và token không được lưu.
+- Planner và Advisor ưu tiên kế hoạch deterministic từ SRS, kỹ năng yếu và Daily Plan. AI chỉ giải thích khi người dùng bấm yêu cầu; nếu AI tắt, offline hoặc provider lỗi, kế hoạch học vẫn hoạt động.
+- Content Curator chỉ chọn nội dung `approved`; bài luyện sinh bởi AI vẫn cần review và không được tự xuất bản. Progress Prediction là forecast có giới hạn, hiển thị evidence và không cam kết điểm thi/nghề nghiệp.
+- Korean, Japanese, Chinese và English dùng chung operating contract. Chỉ Korean có content active; ba ngôn ngữ còn lại không tự sinh curriculum. Giáo viên có thể điều chỉnh đề xuất và luôn giữ quyền duyệt nội dung.
+- Continuous Improvement chỉ lưu metadata tổng hợp về quality/fallback/usefulness trong `klearn_ai_language_os`; Privacy Center tiếp tục là nguồn quyết định AI consent. Chi tiết tại `docs/ai-language-operating-system.md`.
 
 ## Dữ liệu MVP
 

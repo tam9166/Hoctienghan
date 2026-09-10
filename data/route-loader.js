@@ -37,6 +37,7 @@
     science: { styles: ['learning-science.css?v=1'], scripts: ['data/learning-science-engine.js?v=1'] },
     career: { styles: ['career-learning.css?v=1'], scripts: ['data/career-learning-ecosystem.js?v=2'] },
     agents: { styles: ['ai-agent-architecture.css?v=1'], scripts: ['data/ai-agent-architecture.js?v=1'] },
+    aiLanguageOs: { dependencies: ['ai', 'aiInfra', 'globalAi', 'agents', 'globalLanguage', 'advancedAnalytics', 'content'], styles: ['ai-language-os.css?v=1'], scripts: ['data/ai-language-operating-system.js?v=1'] },
     immersiveKorean: { dependencies: ['immersive'], styles: ['immersive-korean-world.css?v=2'], scripts: ['data/immersive-korean-world.js?v=2'] },
     marketplace: { styles: ['global-education-marketplace.css?v=1'], scripts: ['data/global-education-marketplace.js?v=1'] },
     outcomes: { styles: ['learning-outcomes.css?v=1'], scripts: ['data/learning-outcomes.js?v=1'] },
@@ -48,7 +49,8 @@
   const routes = (names, groupNames) => names.split(' ').filter(Boolean).forEach((route) => routeGroups.set(route, groupNames));
   routes('resources resource-view videos video-view review-dashboard support', ['resources']);
   routes('strategy-lab strategy-detail topik-strategy-center', ['topik']);
-  routes('ai-coach adaptive-plan personal-report journey-intelligence', ['ai', 'aiInfra', 'globalAi', 'agents']);
+  routes('ai-coach adaptive-plan personal-report journey-intelligence', ['aiLanguageOs']);
+  routes('ai-language-os', ['aiLanguageOs']);
   routes('grammar-compare grammar-notebook typing-trainer repair-path focus-study chapter-checkpoint study-calendar progress-timeline achievements admin-content vocabulary-collections sentence-builder real-life-missions study-settings error-notebook manual-review-queue offline-packs shadowing-recorder', ['practical', 'scale']);
   routes('conversation-simulator', ['conversation']);
   routes('natural-korean', ['context']);
