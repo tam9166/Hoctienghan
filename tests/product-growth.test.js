@@ -81,9 +81,9 @@ function boot({ evidence = true } = {}) {
   assert.match(locales, /Start at the right level/);
   assert.match(routes, /data\/product-growth\.js\?v=1/);
   assert.match(routes, /routes\('home', \['growth'\]\)/);
-  assert.match(index, /app\.js\?v=64/);
-  assert.match(worker, /klearn-v78/);
-  assert.match(worker, /app\.js\?v=64/);
+  assert.match(index, /app\.js\?v=65/);
+  assert.match(worker, /klearn-v79/);
+  assert.match(worker, /app\.js\?v=65/);
   assert.match(worker, /content\/product-growth\.json/);
   assert.match(migration, /product_growth_referral_codes/);
   assert.match(migration, /referrer_id <> referred_user_id/);

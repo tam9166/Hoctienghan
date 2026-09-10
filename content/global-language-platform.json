@@ -1,9 +1,10 @@
 {
-  "contentVersion": 1,
+  "contentVersion": 2,
   "verified": true,
   "reviewStatus": "approved",
-  "architectureOnly": true,
-  "updatedAt": "2026-09-06",
+  "architectureOnly": false,
+  "implementationMode": "shared-engine-active-content-staged",
+  "updatedAt": "2026-09-10",
   "supportedLanguages": [
     { "id": "ko", "locale": "ko-KR", "nativeName": "한국어", "englishName": "Korean", "contentStatus": "active", "direction": "ltr", "script": "Hangul" },
     { "id": "ja", "locale": "ja-JP", "nativeName": "日本語", "englishName": "Japanese", "contentStatus": "foundation", "direction": "ltr", "script": "Kana + Kanji" },
@@ -23,5 +24,20 @@
     "audio": ["id", "languageId", "text", "url", "locale", "speed", "qualityStatus"]
   },
   "levelSystems": { "ko": "TOPIK", "ja": "JLPT", "zh": "HSK", "en": "CEFR" },
-  "comparison": { "sourceLanguages": ["vi", "ko", "ja", "zh", "en"], "mode": "side-by-side", "storesRawAudio": false }
+  "comparison": {
+    "sourceLanguages": ["vi", "ko", "ja", "zh", "en"],
+    "mode": "side-by-side",
+    "storesRawAudio": false,
+    "examples": [
+      { "id": "student-introduction", "concept": "Giới thiệu nghề nghiệp", "vi": "Tôi là sinh viên.", "ko": "저는 학생이에요.", "ja": "私は学生です。", "note": "Korean dùng trợ từ chủ đề 는; Japanese dùng は." },
+      { "id": "polite-thanks", "concept": "Cảm ơn lịch sự", "vi": "Cảm ơn bạn.", "ko": "감사합니다.", "ja": "ありがとうございます。", "note": "Cả hai mẫu phù hợp trong bối cảnh lịch sự." },
+      { "id": "want-to-eat", "concept": "Diễn đạt mong muốn", "vi": "Tôi muốn ăn món này.", "ko": "이 음식을 먹고 싶어요.", "ja": "この料理を食べたいです。", "note": "Korean dùng -고 싶다; Japanese dùng -たい." }
+    ]
+  },
+  "platformModules": [
+    { "id": "marketplace", "route": "global-education-marketplace", "status": "active" },
+    { "id": "teacher", "route": "teacher-dashboard", "status": "foundation" },
+    { "id": "creator", "route": "creator-studio", "status": "active" },
+    { "id": "certification", "route": "marketplace-certificates", "status": "foundation" }
+  ]
 }

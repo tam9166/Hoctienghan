@@ -16,7 +16,7 @@ const directStyles = [...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g
 
 assert.equal(directScripts.length, 26, 'critical script budget changed');
 assert.equal(directStyles.length, 5, 'critical stylesheet budget changed');
-assert.match(index, /data\/route-loader\.js\?v=4/);
+assert.match(index, /data\/route-loader\.js\?v=5/);
 assert.doesNotMatch(index, /data\/advanced-learning-analytics\.js/);
 assert.doesNotMatch(index, /advanced-voice\.css/);
 assert.match(loader, /const discoveryRoutes = new Set/);
@@ -31,7 +31,7 @@ assert.match(app, /const SearchIndexService =/);
 assert.match(app, /const pageSize = 30/);
 assert.match(app, /messages \|\| \[\]\)\.slice\(-8\)/);
 
-assert.match(worker, /const CACHE = 'klearn-v78'/);
+assert.match(worker, /const CACHE = 'klearn-v79'/);
 assert.match(worker, /const INSTALL_ASSETS = new Set/);
 assert.match(worker, /url\.pathname\.startsWith\('\/api\/'\)/);
 assert.match(worker, /request\.headers\.has\('authorization'\)/);

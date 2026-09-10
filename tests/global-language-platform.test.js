@@ -23,7 +23,9 @@ function boot() {
   vm.createContext(context); vm.runInContext(source, context); return { window, state };
 }
 
-assert.equal(content.architectureOnly, true);
+assert.equal(content.architectureOnly, false);
+assert.equal(content.contentVersion, 2);
+assert.equal(content.implementationMode, 'shared-engine-active-content-staged');
 assert.equal(content.supportedLanguages.length, 4);
 assert.deepEqual(content.examSystems.map((item) => item.id), ['topik', 'jlpt', 'hsk']);
 assert.deepEqual(content.levelSystems, { ko: 'TOPIK', ja: 'JLPT', zh: 'HSK', en: 'CEFR' });
@@ -51,15 +53,29 @@ assert.deepEqual(content.levelSystems, { ko: 'TOPIK', ja: 'JLPT', zh: 'HSK', en:
   assert.equal(platform.profiles.add('ja', { targetLevel: 'N3' }).languages.ja.targetLevel, 'N3');
   assert.equal(platform.profiles.setActive('ja').activeLanguage, 'ja');
   assert.equal(platform.profiles.getLanguage('ja').status, 'planned');
+  assert.equal(platform.sharedLearning.knowledgeId('ko', 'lesson-1'), 'lesson-1', 'legacy Korean IDs must remain unchanged');
+  assert.equal(platform.sharedLearning.knowledgeId('ja', 'lesson-1'), 'ja:lesson-1');
+  assert.equal(platform.sharedLearning.adapters('zh').reusesExistingState, true);
+  assert.equal(platform.sharedLearning.analytics('en').crossUserComparison, false);
+  assert.equal(platform.gateway.capabilities().length, 4);
+  assert.deepEqual(Array.from(platform.gateway.capabilities(), (item) => item.id), ['marketplace', 'teacher', 'creator', 'certification']);
+  assert.equal(platform.expansion.summary().engineReady, 4);
+  assert.equal(platform.expansion.summary().contentReady, 1);
+  assert.equal(platform.expansion.summary().noFabricatedCurriculum, true);
+  assert.equal(content.comparison.examples.length, 3);
+  for (const route of ['global-language-platform', 'global-language-profiles', 'global-exam-framework', 'global-language-comparison', 'global-expansion']) assert.equal(typeof app.window.KLEARN_EXTRA_VIEWS[route], 'function', `${route} missing`);
   await platform.content.load();
-  assert.equal(platform.content.status().architectureOnly, true);
+  assert.equal(platform.content.status().architectureOnly, false);
+  assert.equal(platform.content.status().implementationMode, 'shared-engine-active-content-staged');
   assert.match(appSource, /languageProfiles: 'klearn_language_profiles'/);
   assert.match(appSource, /STORAGE_KEYS\.languageProfiles/);
-  assert.match(indexSource, /data\/global-language-platform\.js\?v=1/);
-assert.match(workerSource, /klearn-v78/);
+  assert.match(indexSource, /global-language-platform\.css\?v=1/);
+  assert.match(indexSource, /data\/global-language-platform\.js\?v=2/);
+  assert.match(indexSource, /app\.js\?v=65/);
+assert.match(workerSource, /klearn-v79/);
   assert.match(workerSource, /global-language-platform\.json/);
   assert.match(migration, /language_profiles/);
   assert.match(migration, /auth\.uid\(\)/);
   assert.match(migration, /row level security/i);
-  console.log('global language platform: core contracts, profiles, TOPIK/JLPT/HSK mapping, vocabulary, grammar, audio, comparison, content gate and RLS passed');
+  console.log('P59 global language platform: four-language engine, shared core, profiles, exams, comparison, ecosystem gateway, expansion status, content gate and RLS passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

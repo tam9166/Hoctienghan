@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v78';
+const CACHE = 'klearn-v79';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=32',
@@ -11,6 +11,7 @@ const OFFLINE_ASSETS = [
   './ai-content-creation.css?v=1',
   './monetization-foundation.css?v=1',
   './future-language-platform.css?v=1',
+  './global-language-platform.css?v=1',
   './learning-science.css?v=1',
   './career-learning.css?v=1',
   './ai-agent-architecture.css?v=1',
@@ -82,8 +83,8 @@ const OFFLINE_ASSETS = [
   './locales/en.js?v=6',
   './locales/zh-CN.js?v=6',
   './data/content-locales.js?v=1',
-  './data/route-loader.js?v=4',
-  './app.js?v=64',
+  './data/route-loader.js?v=5',
+  './app.js?v=65',
   './content/retention-system.json',
   './content/content-quality-system.json',
   './data/resource-library.js?v=1',
@@ -96,7 +97,7 @@ const OFFLINE_ASSETS = [
   './content/enterprise-platform.json',
   './content/ai-infrastructure.json',
   './data/ai-infrastructure.js?v=3',
-  './data/global-language-platform.js?v=1',
+  './data/global-language-platform.js?v=2',
   './data/ai-agent-architecture.js?v=1',
   './content/ai-agent-architecture.json',
   './data/immersive-korean-world.js?v=2',
@@ -160,7 +161,7 @@ const INSTALL_ASSETS = new Set([
   './index.html', './styles.css?v=32', './product-ux.css?v=1', './production-stability.css?v=2', './security-privacy.css?v=1', './mobile-experience.css?v=1',
   './locales/vi.js?v=4', './locales/en.js?v=6', './locales/zh-CN.js?v=6', './data/content-locales.js?v=1',
   './data/romanization.js?v=8', './data/vocabulary-bank.js?v=8', './data/dictionary.js?v=1', './data/theory-lessons.js?v=1', './data/handwriting.js?v=1',
-  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=4', './app.js?v=64',
+  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=5', './app.js?v=65',
   './data/curriculum.js?v=1', './data/adaptive-engine.js?v=8', './data/beginner-foundation.js?v=2', './data/daily-learning-experience.js?v=6',
   './data/product-ux.js?v=1', './content/product-ux.json', './data/user-research.js?v=2', './content/user-research-experiments.json',
   './data/production-stability.js?v=5', './data/security-privacy.js?v=3', './data/mobile-experience.js?v=3', './data/mobile-native.js?v=1',

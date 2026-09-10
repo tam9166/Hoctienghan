@@ -46,7 +46,7 @@ Sau đó mở `http://localhost:8080`.
 - Listening/Reading Hub theo TOPIK level, Korean TTS, recommended practice và daily practice plan.
 - Ghi âm qua MediaRecorder và chấm tương đồng văn bản bằng Speech Recognition khi trình duyệt hỗ trợ.
 - Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
-- PWA manifest + service worker network-first (`klearn-v78`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
+- PWA manifest + service worker network-first (`klearn-v79`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
 
 Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **Tiếng Hàn - TamHoanq** mới.
 
@@ -150,6 +150,13 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Roleplay có du học sinh mới, nhân viên mới và khách du lịch; Career có Interview, Meeting, Email. Các tình huống chuyên sâu University và Travel tiếp tục dùng chung session engine và data model mở rộng được.
 - Mỗi lượt luyện chấm minh bạch theo ý nghĩa, grammar, độ tự nhiên và ngữ cảnh rồi theo dõi ba tín hiệu `confidence`, `fluency`, `accuracy`. Điểm thấp nối về Error Notebook; audio từ voice input không được lưu.
 - Immersion Mode dùng chung `StudySettingsService`, ẩn translation và romanization trong session, sau khi tắt sẽ khôi phục lựa chọn trước đó. Debate dùng rubric local; chỉ mở Trợ lý học tập hiện có khi người dùng chủ động yêu cầu phản biện.
+
+### Global Language Platform
+
+- P59 cung cấp một hub chung cho Korean, Japanese, Chinese và English, với hồ sơ nhiều ngôn ngữ trên cùng tài khoản.
+- SRS, Mastery và Analytics được dùng lại qua Shared Learning Core. ID tiếng Hàn cũ được giữ nguyên; nội dung ngôn ngữ mới dùng namespace riêng để không làm mất tiến độ.
+- Exam Framework chuẩn hóa TOPIK, JLPT và HSK. Korean là content pack đang hoạt động; các ngôn ngữ còn lại chỉ được ghi là engine/profile-ready cho đến khi curriculum được kiểm duyệt và phát hành.
+- Course Marketplace, Teacher Platform, Content Creator và Certification được nối vào cùng cổng sản phẩm thay vì tạo thêm hệ thống song song.
 - Personal Learning Avatar hiện chỉ là nghiên cứu contract dữ liệu từ goal, mastery, SRS và speaking journey; không tạo khuôn mặt/giọng nói AI, không giả lập cảm xúc và không tự nhắn tin.
 
 ### Advanced Korean Learning Ecosystem Expansion

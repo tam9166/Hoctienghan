@@ -24,7 +24,7 @@
     retention: { dependencies: ['practical'], styles: ['retention-system.css?v=1'], scripts: ['data/retention-system.js?v=1'] },
     contentQuality: { dependencies: ['content'], styles: ['content-quality.css?v=1'], scripts: ['data/content-quality-system.js?v=1'] },
     aiInfra: { scripts: ['data/ai-infrastructure.js?v=3'] },
-    globalLanguage: { scripts: ['data/global-language-platform.js?v=1'] },
+    globalLanguage: { styles: ['global-language-platform.css?v=1'], scripts: ['data/global-language-platform.js?v=2'] },
     advancedAnalytics: { scripts: ['data/advanced-learning-analytics.js?v=1'] },
     edtech: { styles: ['edtech-business-intelligence.css?v=1'], scripts: ['data/edtech-business-intelligence.js?v=1'] },
     premium: { styles: ['premium-learning.css?v=1'], scripts: ['data/premium-learning-experience.js?v=1'] },
@@ -75,6 +75,7 @@
   routes('language-exchange community-moderation', ['community']);
   routes('business-center billing-center organization-plans revenue-center crm-center', ['enterprise', 'monetization']);
   routes('future-language-platform cross-language-lab language-brain future-integrations global-course-marketplace', ['globalLanguage', 'futureLanguage']);
+  routes('global-language-platform global-language-profiles global-exam-framework global-language-comparison global-expansion', ['globalLanguage']);
   routes('learning-science active-recall interleaved-practice concept-mastery', ['science']);
   routes('career-center career-vocabulary workplace-scenarios workplace-scenario job-interview-trainer korean-resume-builder business-email-writing presentation-coach workplace-culture career-report', ['career']);
   routes('advanced-voice voice-session voice-history voice-goals voice-report realtime-voice-coach voice-coach-session voice-coach-journey', ['voice']);
