@@ -8,15 +8,15 @@
   const mission = (id, world, title, koreanTitle, icon, level, place, role, description, steps) => Object.freeze({ id, world, title, koreanTitle, icon, level, place, role, description, steps: Object.freeze(steps) });
 
   const missions = [
-    mission('city-restaurant', 'city', 'Nhà hàng', '식당', '혹️', 'Beginner', 'Restaurant', 'Khách hàng', 'Vào quán, gọi món và hỏi thêm nước.', [
-      step('restaurant-1', '어서 오세요. 몇 분이세요?', 'Xin chào, bạn đi mấy người?', '두 명이에요.', [['명'], ['두', '한', '세']], [['counter', 'Số đếm người', ['명']]], ['명'], '인원을 말하세요.'),
-      step('restaurant-2', '무엇을 드릴까요?', 'Bạn muốn gọi món gì?', '비빔밥 하나랑 물 주세요.', [['주세요'], ['비빔밥', '불고기', '라면']], [['juseyo', '주세요', ['주세요']]], ['물', '비빔밥', '불고기'], '음식과 음료를 주문하세요.')
+    mission('city-restaurant', 'city', 'Quán cà phê', '카페', '杯', 'Beginner', 'Cafe', 'Khách hàng', 'Gọi đồ uống và xác nhận dùng tại quán.', [
+      step('cafe-1', '어서 오세요. 주문하시겠어요?', 'Xin chào, bạn muốn gọi món chứ?', '아이스 아메리카노 한 잔 주세요.', [['주세요'], ['아메리카노', '차', '라테']], [['juseyo', '주세요', ['주세요']], ['counter', 'Đơn vị 잔', ['잔']]], ['아메리카노', '라테', '차', '잔'], '음료를 주문하세요.'),
+      step('cafe-2', '매장에서 드시나요?', 'Bạn dùng tại quán phải không?', '네, 여기서 마실게요.', [['여기'], ['마실게요', '먹을게요']], [['choice', 'Ý định -(으)ㄹ게요', ['게요']]], ['여기', '매장', '마시'], '매장에서 마신다고 대답하세요.')
     ]),
     mission('city-airport', 'city', 'Sân bay', '공항', '✈', 'Beginner', 'Airport', 'Hành khách', 'Làm thủ tục và tìm cổng ra máy bay.', [
       step('airport-1', '여권을 보여 주세요.', 'Vui lòng cho xem hộ chiếu.', '네, 여기 있습니다.', [['네'], ['여기', '여권']], [['formal', 'Dạng trang trọng', ['습니다', '요']]], ['여권', '여기'], '여권을 건네주세요.'),
       step('airport-2', '탑승구는 12번입니다.', 'Cổng lên máy bay số 12.', '12번 탑승구는 어디에 있어요?', [['탑승구'], ['어디']], [['location', 'Hỏi vị trí', ['어디', '에']]], ['탑승구', '어디'], '탑승구의 위치를 물어보세요.')
     ]),
-    mission('city-school', 'city', 'Trường học', '학교', '学', 'Beginner', 'School', 'Học viên mới', 'Giới thiệu bản thân và hỏi phòng học.', [
+    mission('city-school', 'city', 'Đại học', '대학교', '学', 'Intermediate', 'University', 'Sinh viên mới', 'Giới thiệu bản thân và hỏi phòng học.', [
       step('school-1', '안녕하세요. 이름이 뭐예요?', 'Xin chào, bạn tên gì?', '저는 민수예요. 반갑습니다.', [['저는'], ['예요', '이에요']], [['topic', '은/는', ['는', '은']], ['copula', '이에요/예요', ['예요', '이에요']]], ['이름', '반갑'], '자기소개를 하세요.'),
       step('school-2', '첫 수업은 3층에서 해요.', 'Buổi học đầu ở tầng 3.', '3층 교실이 어디예요?', [['3층', '교실'], ['어디']], [['location', 'Hỏi vị trí', ['어디']]], ['교실', '어디'], '교실을 찾으세요.')
     ]),
@@ -90,7 +90,7 @@
   global.KLEARN_IMMERSIVE_WORLD_DATA = Object.freeze({
     missions: Object.freeze(missions), debateTopics,
     worlds: Object.freeze([
-      { id: 'city', title: 'Virtual Korean City', subtitle: 'Restaurant · School · Office · Airport · Hospital', icon: '城', view: 'virtual-korean-city' },
+      { id: 'city', title: 'Virtual Korean City', subtitle: 'Airport · Cafe · University · Office', icon: '城', view: 'virtual-korean-city' },
       { id: 'roleplay', title: 'Roleplay Game', subtitle: 'Du học sinh · Nhân viên · Du lịch', icon: '◇', view: 'roleplay-game' },
       { id: 'career', title: 'Career Korean', subtitle: 'Interview · Meeting · Email', icon: '▣', view: 'career-korean' },
       { id: 'university', title: 'University Life', subtitle: 'Class · Friends · Campus', icon: '学', view: 'university-life' },

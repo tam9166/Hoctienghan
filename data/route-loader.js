@@ -37,7 +37,7 @@
     science: { styles: ['learning-science.css?v=1'], scripts: ['data/learning-science-engine.js?v=1'] },
     career: { styles: ['career-learning.css?v=1'], scripts: ['data/career-learning-ecosystem.js?v=2'] },
     agents: { styles: ['ai-agent-architecture.css?v=1'], scripts: ['data/ai-agent-architecture.js?v=1'] },
-    immersiveKorean: { dependencies: ['immersive'], styles: ['immersive-korean-world.css?v=1'], scripts: ['data/immersive-korean-world.js?v=1'] },
+    immersiveKorean: { dependencies: ['immersive'], styles: ['immersive-korean-world.css?v=2'], scripts: ['data/immersive-korean-world.js?v=2'] },
     marketplace: { styles: ['global-education-marketplace.css?v=1'], scripts: ['data/global-education-marketplace.js?v=1'] },
     outcomes: { styles: ['learning-outcomes.css?v=1'], scripts: ['data/learning-outcomes.js?v=1'] },
     growth: { styles: ['product-growth.css?v=1'], scripts: ['data/product-growth.js?v=1'] },
@@ -79,7 +79,7 @@
   routes('career-center career-vocabulary workplace-scenarios workplace-scenario job-interview-trainer korean-resume-builder business-email-writing presentation-coach workplace-culture career-report', ['career']);
   routes('advanced-voice voice-session voice-history voice-goals voice-report realtime-voice-coach voice-coach-session voice-coach-journey', ['voice']);
   routes('ai-content-studio', ['aiContent']);
-  routes('immersive-daily-life immersive-story immersive-culture-game immersive-readiness', ['immersiveKorean']);
+  routes('immersive-daily-life immersive-story immersive-culture-game immersive-readiness immersive-scenarios immersive-progress-map', ['immersiveKorean']);
   routes('global-education-marketplace marketplace-course marketplace-teacher creator-studio marketplace-moderation creator-revenue marketplace-certificates', ['enterprise', 'marketplace']);
   // Extension modules decorate these base hubs and must run after the base module.
   routes('content-platform content-explorer content-detail korean-notebook content-feedback content-quality-dashboard', ['contentQuality']);

@@ -30,13 +30,14 @@ function boot(userId = 'p44-user') {
   return { window, state, scoped, syncEvents, getSettings: () => settings };
 }
 
-assert.equal(content.verified, true); assert.equal(content.reviewStatus, 'approved'); assert.equal(content.version, '1.0.0');
+assert.equal(content.verified, true); assert.equal(content.reviewStatus, 'approved'); assert.equal(content.version, '2.0.0');
 assert.deepEqual(content.levels.map((item) => item.id), ['beginner', 'intermediate', 'advanced']);
-assert.deepEqual(content.cityPlaces.map((item) => item.id), ['restaurant', 'school', 'office', 'airport']);
+assert.deepEqual(content.cityPlaces.map((item) => item.id), ['airport', 'cafe', 'university', 'office']);
+assert.equal(content.scenarioLibrary.length, 7); assert.deepEqual([...new Set(content.scenarioLibrary.map((item) => item.role))].sort(), ['student', 'traveler', 'worker']);
 assert.equal(content.privacy.storesRawAudio, false); assert.equal(content.privacy.storesFreeText, false); assert.equal(content.privacy.progressIsUserScoped, true);
 
 const app = boot(); const w = app.window;
-['ImmersiveLevelService', 'VirtualKoreanCityService', 'DailyLifeSimulationService', 'InteractiveKoreanStoryService', 'CultureDecisionGameService', 'LanguageSurvivalModeService', 'ImmersiveKoreanWorldProgressService', 'RealWorldReadinessService'].forEach((name) => assert.ok(w[name], `${name} missing`));
+['ImmersiveLevelService', 'VirtualKoreanCityService', 'ScenarioLibraryService', 'ImmersiveMissionService', 'ImmersiveProgressMapService', 'DailyLifeSimulationService', 'InteractiveKoreanStoryService', 'CultureDecisionGameService', 'LanguageSurvivalModeService', 'ImmersiveKoreanWorldProgressService', 'RealWorldReadinessService'].forEach((name) => assert.ok(w[name], `${name} missing`));
 assert.equal(w.ImmersiveLevelService.currentId(), 'beginner'); w.ImmersiveLevelService.set('intermediate'); assert.equal(w.ImmersiveLevelService.currentId(), 'intermediate');
 assert.equal(w.VirtualKoreanCityService.places().length, 4); assert.equal(w.VirtualKoreanCityService.open('office'), true); assert.equal(app.state.currentView, 'immersive-session');
 assert.ok(w.ImmersiveWorldController.submitAnswer('안녕하세요. 잘 부탁드립니다.').overall >= 70); w.ImmersiveWorldController.nextStep(); assert.ok(w.ImmersiveWorldController.submitAnswer('네, 오후 세 시까지 확인하겠습니다.').overall >= 70); assert.equal(w.ImmersiveProgressService.get('city-office').completedRuns, 1);
@@ -49,11 +50,13 @@ w.InteractiveKoreanStoryService.start(); w.InteractiveKoreanStoryService.choose(
 w.CultureDecisionGameService.start(); while (!app.state.immersiveKoreanWorldRuntime.culture.completed) { const question = w.CultureDecisionGameService.current(); assert.equal(w.CultureDecisionGameService.answer(question.correctIndex).correct, true); if (!app.state.immersiveKoreanWorldRuntime.culture.completed) w.CultureDecisionGameService.next(); } assert.equal(w.CultureDecisionGameService.best(), 100);
 
 assert.equal(w.LanguageSurvivalModeService.enabled(), false); assert.equal(w.LanguageSurvivalModeService.set(true), true); assert.equal(w.LanguageSurvivalModeService.enabled(), true); assert.equal(app.getSettings().showRomanization, false); assert.equal(app.getSettings().translationDisplay, 'hidden');
+assert.equal(w.ScenarioLibraryService.all().length, 7); assert.equal(w.ScenarioLibraryService.setRole('student'), true); assert.ok(w.ScenarioLibraryService.filtered().every((item) => item.role === 'student')); assert.equal(w.ScenarioLibraryService.setRole('invalid'), false);
+const map = w.ImmersiveProgressMapService.summary(); assert.deepEqual(map.nodes.map((item) => item.id), ['beginner', 'intermediate', 'advanced']); assert.ok(map.total >= 7); assert.ok(map.nextMission);
 const readiness = w.RealWorldReadinessService.calculate(); assert.ok(readiness.score >= 50); assert.equal(readiness.evidence.cityTotal, 4); assert.equal(readiness.evidence.cityCompleted, 1); assert.match(readiness.disclaimer, /không phải chứng nhận/i);
 assert.ok(app.syncEvents.includes('immersive-korean-world')); assert.equal(JSON.stringify(w.ImmersiveKoreanWorldProgressService.snapshot()).includes('안녕하세요'), false, 'P44 progress must not store free text');
 
-for (const route of ['immersive-daily-life', 'immersive-story', 'immersive-culture-game', 'immersive-readiness']) assert.equal(typeof w.KLEARN_EXTRA_VIEWS[route], 'function', `${route} missing`);
+for (const route of ['immersive-daily-life', 'immersive-story', 'immersive-culture-game', 'immersive-readiness', 'immersive-scenarios', 'immersive-progress-map']) assert.equal(typeof w.KLEARN_EXTRA_VIEWS[route], 'function', `${route} missing`);
 const other = boot('p44-other'); other.window.ImmersiveKoreanWorldContentService.hydrate(content); assert.equal(other.window.ImmersiveKoreanWorldProgressService.snapshot().dailyRuns.length, 0, 'P44 data must be user scoped');
 assert.match(migration, /immersive_korean_world_profiles/); assert.match(migration, /immersive_korean_world_events/); assert.match(migration, /row level security/i); assert.match(migration, /auth\.uid\(\)/); assert.match(migration, /raw_text_stored boolean not null default false check \(raw_text_stored = false\)/); assert.match(migration, /raw_audio_stored boolean not null default false check \(raw_audio_stored = false\)/);
-assert.match(index, /immersive-korean-world\.css\?v=1/); assert.match(index, /data\/immersive-korean-world\.js\?v=1/); assert.match(index, /app\.js\?v=63/); assert.match(worker, /klearn-v77/); assert.match(worker, /content\/immersive-korean-world\.json/); assert.match(appSource, /immersiveKoreanWorld: 'klearn_immersive_korean_world'/); assert.match(appSource, /STORAGE_KEYS\.immersiveKoreanWorld/);
-console.log('immersive Korean world: four-place city, levels, mission day, branching story, culture decisions, Korean-only mode, user progress, readiness evidence and RLS passed');
+assert.match(index, /immersive-korean-world\.css\?v=2/); assert.match(index, /data\/immersive-korean-world\.js\?v=2/); assert.match(index, /app\.js\?v=64/); assert.match(worker, /klearn-v78/); assert.match(worker, /content\/immersive-korean-world\.json/); assert.match(appSource, /immersiveKoreanWorld: 'klearn_immersive_korean_world'/); assert.match(appSource, /STORAGE_KEYS\.immersiveKoreanWorld/);
+console.log('P58 immersive Korean world: airport/cafe/university/office city, three roles, story decisions, cultural training, survival mode, scenario library, readiness and progress map passed');

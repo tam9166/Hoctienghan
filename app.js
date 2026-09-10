@@ -244,6 +244,7 @@ MAIN_VIEWS.push('future-language-platform', 'cross-language-lab', 'language-brai
 MAIN_VIEWS.push('learning-science', 'active-recall', 'interleaved-practice', 'concept-mastery');
 MAIN_VIEWS.push('career-center', 'career-vocabulary', 'workplace-scenarios', 'workplace-scenario', 'job-interview-trainer', 'korean-resume-builder', 'business-email-writing', 'presentation-coach', 'workplace-culture', 'career-report');
 MAIN_VIEWS.push('immersive-daily-life', 'immersive-story', 'immersive-culture-game', 'immersive-readiness');
+MAIN_VIEWS.push('immersive-scenarios', 'immersive-progress-map');
 MAIN_VIEWS.push('global-education-marketplace', 'marketplace-course', 'marketplace-teacher', 'creator-studio', 'marketplace-moderation', 'creator-revenue', 'marketplace-certificates');
 MAIN_VIEWS.push('learning-outcomes', 'student-progress-report', 'teacher-outcomes');
 MAIN_VIEWS.push('growth-center', 'invite-friends', 'growth-analytics', 'product-experiments');

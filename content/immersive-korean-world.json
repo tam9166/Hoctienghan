@@ -1,8 +1,8 @@
 {
-  "id": "p44-immersive-korean-world",
-  "version": "1.0.0",
+  "id": "p58-immersive-korean-world",
+  "version": "2.0.0",
   "createdDate": "2026-09-06",
-  "updatedDate": "2026-09-06",
+  "updatedDate": "2026-09-10",
   "verified": true,
   "reviewStatus": "approved",
   "levels": [
@@ -11,10 +11,19 @@
     { "id": "advanced", "label": "Advanced", "description": "Tự xử lý tình huống, giải thích lựa chọn và phản hồi tự nhiên." }
   ],
   "cityPlaces": [
-    { "id": "restaurant", "icon": "食", "title": "Restaurant", "korean": "식당", "missionId": "city-restaurant" },
-    { "id": "school", "icon": "學", "title": "School", "korean": "학교", "missionId": "city-school" },
-    { "id": "office", "icon": "職", "title": "Office", "korean": "회사", "missionId": "city-office" },
-    { "id": "airport", "icon": "✈", "title": "Airport", "korean": "공항", "missionId": "city-airport" }
+    { "id": "airport", "icon": "✈", "title": "Airport", "korean": "공항", "missionId": "city-airport", "role": "traveler", "level": "beginner" },
+    { "id": "cafe", "icon": "杯", "title": "Cafe", "korean": "카페", "missionId": "city-restaurant", "role": "traveler", "level": "beginner" },
+    { "id": "university", "icon": "學", "title": "University", "korean": "대학교", "missionId": "city-school", "role": "student", "level": "intermediate" },
+    { "id": "office", "icon": "職", "title": "Office", "korean": "회사", "missionId": "city-office", "role": "worker", "level": "intermediate" }
+  ],
+  "scenarioLibrary": [
+    { "id": "airport-arrival", "missionId": "city-airport", "placeId": "airport", "role": "traveler", "level": "beginner", "title": "Đến sân bay", "titleKo": "공항 도착", "objective": "Làm thủ tục và tìm đúng cổng lên máy bay.", "skillTags": ["listening", "survival"] },
+    { "id": "cafe-order", "missionId": "city-restaurant", "placeId": "cafe", "role": "traveler", "level": "beginner", "title": "Gọi đồ uống", "titleKo": "카페에서 주문하기", "objective": "Gọi đồ uống và xác nhận dùng tại quán.", "skillTags": ["speaking", "politeness"] },
+    { "id": "university-first-day", "missionId": "city-school", "placeId": "university", "role": "student", "level": "intermediate", "title": "Ngày đầu đại học", "titleKo": "대학교 첫날", "objective": "Giới thiệu bản thân và tìm phòng học.", "skillTags": ["speaking", "campus"] },
+    { "id": "office-onboarding", "missionId": "city-office", "placeId": "office", "role": "worker", "level": "intermediate", "title": "Ngày đầu đi làm", "titleKo": "첫 출근", "objective": "Chào đồng nghiệp và xác nhận nhiệm vụ.", "skillTags": ["honorific", "workplace"] },
+    { "id": "student-roleplay", "missionId": "roleplay-student", "placeId": "university", "role": "student", "level": "intermediate", "title": "Du học sinh mới", "titleKo": "새로 온 유학생", "objective": "Nhờ hỗ trợ đăng ký môn và làm quen bạn học.", "skillTags": ["conversation", "campus"] },
+    { "id": "worker-roleplay", "missionId": "roleplay-employee", "placeId": "office", "role": "worker", "level": "advanced", "title": "Nhân viên mới", "titleKo": "신입 사원", "objective": "Xử lý giao tiếp và lịch trình trong công việc.", "skillTags": ["business", "honorific"] },
+    { "id": "traveler-roleplay", "missionId": "roleplay-traveler", "placeId": "airport", "role": "traveler", "level": "intermediate", "title": "Tự đi Seoul", "titleKo": "서울 자유 여행", "objective": "Di chuyển, nhận phòng và xử lý yêu cầu du lịch.", "skillTags": ["survival", "conversation"] }
   ],
   "dailyLife": [
     {
@@ -133,37 +142,50 @@
       "id": "bow-first-meeting",
       "level": "beginner",
       "situation": "Lần đầu gặp giáo viên lớn tuổi.",
+      "situationKo": "나이가 많은 선생님을 처음 만났습니다.",
       "question": "Cách chào nào phù hợp nhất?",
+      "questionKo": "어떻게 인사하는 것이 가장 적절할까요?",
       "choices": ["안녕!", "안녕하세요. 처음 뵙겠습니다.", "야, 선생님!"],
       "correctIndex": 1,
-      "explanation": "Dùng 존댓말 và cúi nhẹ khi chào lần đầu."
+      "explanation": "Dùng 존댓말 và cúi nhẹ khi chào lần đầu.",
+      "explanationKo": "처음 만날 때는 존댓말을 쓰고 가볍게 인사하는 것이 좋습니다."
     },
     {
       "id": "receive-card",
       "level": "intermediate",
       "situation": "Đồng nghiệp cấp trên đưa danh thiếp.",
+      "situationKo": "직장 상사가 명함을 건넵니다.",
       "question": "Bạn nên làm gì?",
+      "questionKo": "어떻게 받는 것이 좋을까요?",
       "choices": ["Nhận bằng hai tay và xem tên", "Bỏ ngay vào túi sau", "Đặt úp xuống bàn"],
+      "choicesKo": ["두 손으로 받고 이름을 확인합니다.", "바로 뒷주머니에 넣습니다.", "뒤집어서 책상에 놓습니다."],
       "correctIndex": 0,
-      "explanation": "Nhận bằng hai tay thể hiện sự tôn trọng trong bối cảnh công việc."
+      "explanation": "Nhận bằng hai tay thể hiện sự tôn trọng trong bối cảnh công việc.",
+      "explanationKo": "직장에서는 명함을 두 손으로 받으면 상대방을 존중하는 뜻을 전할 수 있습니다."
     },
     {
       "id": "office-disagreement",
       "level": "advanced",
       "situation": "Bạn không đồng ý với đề xuất của trưởng nhóm.",
+      "situationKo": "팀장의 제안에 동의하지 않습니다.",
       "question": "Cách mở lời nào phù hợp?",
+      "questionKo": "어떻게 의견을 말하는 것이 적절할까요?",
       "choices": ["그건 틀렸어요.", "죄송하지만 다른 방법도 검토해 보면 어떨까요?", "싫어요."],
       "correctIndex": 1,
-      "explanation": "Nêu ý kiến gián tiếp và đề xuất phương án giúp giảm đối đầu trong cuộc họp."
+      "explanation": "Nêu ý kiến gián tiếp và đề xuất phương án giúp giảm đối đầu trong cuộc họp.",
+      "explanationKo": "회의에서는 완곡하게 다른 방법을 제안하면 불필요한 대립을 줄일 수 있습니다."
     },
     {
       "id": "friend-age",
       "level": "intermediate",
       "situation": "Bạn mới quen muốn chuyển sang 반말.",
+      "situationKo": "새로 만난 사람과 반말을 쓰고 싶습니다.",
       "question": "Câu nào tự nhiên và tôn trọng?",
+      "questionKo": "어떤 표현이 자연스럽고 예의에 맞을까요?",
       "choices": ["이제 반말해도 돼요?", "지금부터 반말이야.", "너 몇 살이야?"],
       "correctIndex": 0,
-      "explanation": "Nên hỏi sự đồng ý trước khi chuyển sang 반말."
+      "explanation": "Nên hỏi sự đồng ý trước khi chuyển sang 반말.",
+      "explanationKo": "반말로 바꾸기 전에 상대방의 동의를 먼저 구하는 것이 좋습니다."
     }
   ],
   "readiness": {

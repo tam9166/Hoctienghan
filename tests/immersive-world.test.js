@@ -37,7 +37,7 @@ function boot(userId = 'learner-a') {
 const app = boot();
 const worlds = app.KLEARN_IMMERSIVE_WORLD_DATA.worlds;
 assert.deepEqual(Array.from(worlds, (item) => item.id), ['city', 'roleplay', 'career', 'university', 'travel', 'voice']);
-assert.deepEqual(Array.from(app.KLEARN_IMMERSIVE_WORLD_DATA.missions.filter((item) => item.world === 'city'), (item) => item.place), ['Restaurant', 'Airport', 'School', 'Office', 'Hospital']);
+assert.deepEqual(Array.from(app.KLEARN_IMMERSIVE_WORLD_DATA.missions.filter((item) => item.world === 'city'), (item) => item.place), ['Cafe', 'Airport', 'University', 'Office', 'Hospital']);
 assert.deepEqual(Array.from(app.KLEARN_IMMERSIVE_WORLD_DATA.missions.filter((item) => item.world === 'roleplay'), (item) => item.title), ['Du học sinh mới', 'Nhân viên mới', 'Du lịch Hàn Quốc']);
 assert.deepEqual(Array.from(app.KLEARN_IMMERSIVE_WORLD_DATA.missions.filter((item) => item.world === 'career'), (item) => item.title), ['Phỏng vấn', 'Cuộc họp', 'Email công việc']);
 assert.deepEqual(Array.from(app.KLEARN_IMMERSIVE_WORLD_DATA.missions.filter((item) => item.world === 'university'), (item) => item.title), ['Trong lớp', 'Trò chuyện với bạn', 'Trong khuôn viên']);
@@ -45,13 +45,13 @@ assert.deepEqual(Array.from(app.KLEARN_IMMERSIVE_WORLD_DATA.missions.filter((ite
 
 app.ImmersiveWorldController.startMission('city-restaurant');
 assert.equal(app.KLEARN_APP.state.currentView, 'immersive-session');
-const first = app.ImmersiveWorldController.submitAnswer('두 명이에요.');
+const first = app.ImmersiveWorldController.submitAnswer('아이스 아메리카노 한 잔 주세요.');
 assert.ok(first.overall >= 75);
 assert.ok(first.metrics.confidence > 0);
 assert.ok(first.metrics.fluency > 0);
 assert.ok(first.metrics.accuracy > 0);
 app.ImmersiveWorldController.nextStep();
-const second = app.ImmersiveWorldController.submitAnswer('비빔밥 하나랑 물 주세요.');
+const second = app.ImmersiveWorldController.submitAnswer('네, 여기서 마실게요.');
 assert.ok(second.overall >= 75);
 assert.equal(app.ImmersiveProgressService.get('city-restaurant').completedRuns, 1);
 assert.equal(app.ImmersiveProgressService.completion('city').completed, 1);

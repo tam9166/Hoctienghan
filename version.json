@@ -1,8 +1,8 @@
 {
   "version": "1.2.0-rc.1",
   "channel": "release-candidate",
-  "releaseId": "p57-realtime-voice-ai-coach",
-  "releasedAt": "2026-09-09",
+  "releaseId": "p58-immersive-korean-world",
+  "releasedAt": "2026-09-10",
   "schemaVersion": 13,
   "minimumSupportedVersion": "1.0.0-rc.1"
 }
