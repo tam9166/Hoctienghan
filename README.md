@@ -1,330 +1,202 @@
-# Tiếng Hàn - TamHoanq Mobile PWA
+<div align="center">
+  <img src="icons/logo-source.svg" width="96" height="96" alt="Tiếng Hàn - TamHoanq logo">
+  <h1>Tiếng Hàn - TamHoanq</h1>
+  <p><strong>Mỗi ngày một bước tiến gần hơn tới tiếng Hàn thực tế.</strong></p>
+  <p>Ứng dụng học tiếng Hàn mobile-first cho người Việt, từ Hangul đến TOPIK, giao tiếp và mục tiêu nghề nghiệp.</p>
+</div>
 
-![Logo TH của Tiếng Hàn - TamHoanq](icons/logo-source.svg)
+> Status: `v1.2.0-rc.1` · release candidate. The product is actively validated and is not presented as production-ready.
 
-Nền tảng học tiếng Hàn dành cho người Việt, dẫn người học từ Hangul đến TOPIK và giao tiếp thực tế bằng một bước học rõ ràng mỗi ngày. Sản phẩm được triển khai dạng static SPA/PWA.
+## Product
 
-Nhận diện chính dùng xanh chanh `#DDFF66` kết hợp màu chữ tối `#1C2416`; cùng một nguồn logo TH được dùng cho giao diện, favicon và bộ icon PWA.
+Tiếng Hàn - TamHoanq turns a large learning toolkit into a clear daily journey. A learner can start from Level 0, continue with TOPIK, practise real-life situations, review with spaced repetition, and inspect evidence of progress without moving between disconnected tools.
 
-## Chạy trên máy tính
-Dùng một web server cục bộ (không mở trực tiếp file bằng `file://` nếu muốn Service Worker/Microphone hoạt động đúng):
+The current repository contains:
 
-```bash
-python -m http.server 8080
+- a dependency-light static SPA/PWA;
+- browser-local learning with optional Supabase authentication and cloud synchronization;
+- deterministic SRS, mastery, adaptive planning, and analytics engines;
+- optional AI assistance behind explicit privacy consent and graceful fallbacks;
+- a Capacitor mobile shell for Android and iOS validation;
+- serverless APIs and migration foundations for later platform growth.
+
+See [Project overview](PROJECT_OVERVIEW.md) for scope, audiences, capabilities, and current limitations.
+
+## Screenshots
+
+| Daily learning home | Learning path |
+| --- | --- |
+| ![Personalized daily learning home](docs/screenshots/home.png) | ![Korean learning catalog](docs/screenshots/learning.png) |
+
+| TOPIK workspace | Personal analytics |
+| --- | --- |
+| ![TOPIK preparation workspace](docs/screenshots/topik.png) | ![Personal learning analytics](docs/screenshots/analytics.png) |
+
+The complete, reproducible set covers Landing, Home, Learning, Grammar, TOPIK, Assistant, Analytics, and Profile. Capture instructions and privacy rules are in [Portfolio screenshots](docs/screenshots/README.md).
+
+## Features
+
+### Learn from zero
+
+- Level 0 onboarding for learners who do not know Hangul yet.
+- Hangul Academy, syllable building, batchim foundations, first words, and first sentence.
+- Guided checkpoint before TOPIK 1 without a hard lock.
+
+### Build durable knowledge
+
+- Active recall and spaced repetition with difficulty, confidence, error history, and memory risk.
+- Evidence-based mastery and an error notebook with focused repair paths.
+- Daily plans sized to available time, recovery plans, and manual review queues.
+
+### Use Korean in context
+
+- Reading, listening, dictation, pronunciation, writing, and conversation practice.
+- Culture notes, formality guidance, natural expressions, collocations, and real-life scenarios.
+- TOPIK preparation, career Korean, and immersive mission foundations.
+
+### Understand progress
+
+- Personal skill growth, retention, knowledge health, learning outcomes, and goal milestones.
+- Learner-first comparisons against past performance, not public leaderboards.
+- Teacher, content, organization, and operations foundations protected by role-aware interfaces.
+
+### Work online or offline
+
+- Installable PWA with a scoped cache strategy.
+- Local-first progress and background synchronization when cloud services are configured.
+- Downloadable learning packs and a Capacitor mobile shell for native validation.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    UI[Static SPA / PWA] --> Core[Learning services]
+    UI --> Local[(User-scoped localStorage)]
+    Core --> SRS[SRS + mastery + adaptive planning]
+    Local --> Sync[CloudSync queue]
+    Sync --> API[Supabase RPC]
+    API --> DB[(learning_sync + extension tables)]
+    UI --> Edge[Vercel serverless APIs]
+    Edge --> AI[Optional OpenAI service]
 ```
 
-Sau đó mở `http://localhost:8080`.
-
-## Chạy/cài trên điện thoại
-1. Deploy thư mục này lên HTTPS (Vercel, Netlify, GitHub Pages, Firebase Hosting...).
-2. Mở URL bằng Chrome/Safari trên điện thoại.
-3. Android/Chrome: menu → **Add to Home screen / Install app**.
-4. iPhone/Safari: Share → **Add to Home Screen**.
-
-## Tính năng hiện có
-- Welcome, đăng ký/đăng nhập và session persistence bằng localStorage.
-- Branding hiển thị thống nhất là **Tiếng Hàn - TamHoanq**; các key `klearn_*` nội bộ được giữ để tương thích dữ liệu cũ.
-- Appearance có ba chế độ: Theo thiết bị (System), Sáng (Light) và Tối (Dark), lưu lựa chọn riêng theo người dùng với fallback global.
-- Header có quick controls cho ngôn ngữ và giao diện; app hỗ trợ Tiếng Việt (`vi`), English (`en`) và 中文（简体）(`zh-CN`) với locale resources mở rộng được cho các ngôn ngữ mới.
-- Nội dung Korean source/romanization luôn giữ nguyên; nghĩa, hướng dẫn và giải thích dùng `I18nService.localizedText()` với fallback locale an toàn về tiếng Việt.
-- Onboarding mục tiêu, trình độ và Placement Test 10 câu.
-- Dashboard/lộ trình cá nhân hóa theo người học.
-- Điều hướng SPA giữa Trang chủ, Học, Ôn tập, Luyện tập và Cá nhân.
-- Bài học 은/는, đọc câu tiếng Hàn bằng Web Speech Synthesis.
-- Bài sắp xếp câu bằng thao tác chạm (tối ưu mobile).
-- Hệ thống TOPIK 1–6 với current level, target level và tiến độ tính từ lịch sử thật.
-- 270 bộ luyện tập nguyên bản (4.050 câu): TOPIK 1–4 mỗi cấp 30 đề, TOPIK 5–6 mỗi cấp 20 đề, EPS/Vocabulary/Grammar mỗi nhóm 30 đề và 20 đề Beginner.
-- 45 dạng bài gồm vocabulary, grammar, listening, reading, writing, speaking, roleplay, shadowing và đề tổng hợp.
-- Trang chọn đề đánh số, đề ngẫu nhiên 5–50 câu, thử thách nâng cao, luyện lỗi sai, đề đã lưu và lịch sử chi tiết.
-- Kho 1.000 từ TOPIK 1–6 theo chủ đề, loại từ và trạng thái SRS; hỗ trợ tìm bằng tiếng Hàn, romanization hoặc nghĩa theo ngôn ngữ hiện tại.
-- Phiên âm Latin theo Revised Romanization trong bài học, 1.000 từ vựng, flashcard, Speaking, Shadowing, Roleplay, Writing hints và phần review; tìm từ bằng Hangul, tiếng Việt hoặc romanization.
-- Toggle phiên âm được lưu riêng theo người dùng; nội dung kiểm tra TOPIK/listening/vocabulary không làm lộ phiên âm trước khi trả lời.
-- SRS với lựa chọn 5/10/20/30/50/100/tất cả, chọn nguồn từ, pretest, bỏ qua, vẫn nhắc lại hoặc đánh dấu đã thuộc.
-- Kiểm tra vốn từ độc lập theo từ đã học, hay sai, mastered hoặc đang ôn; có thể đưa từ sai vào phiên SRS.
-- Speaking Hub có 10 mode, 12 roleplay, ko-KR Speech Recognition và chấm độ giống văn bản/từ khóa ở mức MVP.
-- Writing Hub có 10 mode, TOPIK Writing 1–6, editor mobile, đếm ký tự/từ, bài mẫu và đánh giá sơ bộ dựa trên từ khóa/cấu trúc.
-- Listening/Reading Hub theo TOPIK level, Korean TTS, recommended practice và daily practice plan.
-- Ghi âm qua MediaRecorder và chấm tương đồng văn bản bằng Speech Recognition khi trình duyệt hỗ trợ.
-- Hồ sơ động, tiến độ kỹ năng, huy hiệu, countdown TOPIK và lịch sử thi thử.
-- PWA manifest + service worker network-first (`klearn-v80`) để cài app, dùng offline và nhận bản deploy mới; các gói học do người dùng tải được tách riêng trong Cache Storage.
-
-Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi chọn Add to Home Screen để launcher nhận tên **Tiếng Hàn - TamHoanq** mới.
-
-## Công cụ từ điển và dịch
-
-- Từ điển offline hơn 1.500 mục, tìm bằng Hangul, romanization hoặc nghĩa tiếng Việt.
-- Entry có phát âm, romanization, ví dụ, lưu yêu thích và thêm vào SRS.
-- Translation Hub hỗ trợ Việt ↔ Hàn cho từ, cụm từ, câu mẫu và một số template offline.
-- Phrasebook offline, lưu câu và lịch sử dịch theo từng tài khoản.
-- Kết quả tiếng Hàn có thể nghe bằng TTS `ko-KR` và chuyển thẳng sang luyện nói.
-- Chưa cấu hình API dịch online; câu ngoài dữ liệu local hiển thị thông báo rõ ràng, không giả kết quả.
-- Trợ lý học tập mở bằng nút nổi, lưu hội thoại theo user, dùng context học tối thiểu và có quick actions sửa câu/dịch/tạo bài tập; phần quyền riêng tư vẫn nêu rõ khi hỗ trợ AI được bật.
-- Endpoint server-side tùy chọn là `/api/chat`; cấu hình `OPENAI_API_KEY` và tùy chọn `OPENAI_MODEL` trên Vercel Environment Variables. Không đặt key trong frontend.
-- Khi chưa có key hoặc offline, AI hiển thị trạng thái cấu hình/kết nối rõ ràng; dictionary, theory và phrasebook vẫn hoạt động offline.
-
-## Giao diện học tập và cloud sync
-
-- Hệ màu giao diện dùng lime `#DDFF66`, accent hover `#CBEF4D`, nền nhạt `#F7FFD1`, chữ đậm `#1F2A1A` và viền `#D6E8A8`; dark mode dùng cùng màu nhấn trên bề mặt tối có độ tương phản rõ.
-- Information architecture chính gồm Home, Học tập, TOPIK, Ôn tập, Trợ lý học tập và Hồ sơ. Home ưu tiên tiến độ, nhiệm vụ hôm nay, bài học tiếp theo, từ đến hạn và kỹ năng cần cải thiện.
-- Học tập gom lesson theo TOPIK, mini quiz, luyện nghe/nói/viết/đọc, sổ từ cá nhân và các lộ trình XKLĐ, du học, công sở. TOPIK có thi từng phần, full đề, kho đề TOPIK 1–6 và đếm ngược kỳ thi.
-- Các hiệu ứng gradient/bóng đổ được tiết chế; button, badge, active navigation, progress và trạng thái tương tác dùng chung color system.
-
-- `CloudSyncService` dùng local-first: thao tác ghi vào localStorage ngay, sau đó debounce sync theo sự kiện có ý nghĩa. Khi chưa cấu hình provider, Profile hiển thị `Chỉ lưu trên thiết bị`; khi mất mạng hiển thị `Ngoại tuyến` và không làm mất tiến độ.
-- Dữ liệu cũ không bị xóa. `/api/config` chỉ trả public URL và publishable/anon key; `data/cloud-sync.js` khởi tạo singleton Supabase client chính thức, tự restore/refresh session và cung cấp provider cho `CloudSyncService`. Access/refresh token do Supabase client quản lý, không được đưa vào payload học tập.
-- `LearnerProfileService` suy ra điểm mạnh/yếu từ SRS, lesson progress, điểm luyện, câu sai, speaking/writing metadata và thống kê 7 ngày; khi chưa đủ dữ liệu sẽ không gắn nhãn điểm yếu.
-- `SmartReviewService` xếp hạng SRS đến hạn, từ/câu sai, mastery thấp và skill yếu theo rule minh bạch; hỗ trợ phiên 5/10/15/20/30 phút.
-- Mastery lesson dùng `not_started → learning → understood → mastered`; progress record có `updatedAt`, `contentVersion` để tương thích về sau.
-- `Trợ lý học tập` mở rộng tutor bằng learner context rút gọn (TOPIK, mastery, SRS, điểm kỹ năng, streak, handwriting và Sổ lỗi), không gửi password/token/database đầy đủ. Nhận xét tuần, sửa câu, bài luyện cá nhân và speaking feedback đều đi qua `/api/chat`.
-- `Sổ lỗi của tôi` lưu local-first tại `klearn_errors`, gộp lỗi trùng theo fingerprint và đồng bộ như một domain người dùng; lỗi có thể đến từ TOPIK/grammar, speaking, writing hoặc công cụ sửa câu. Word Map trong từ điển tạo liên kết theo topic/tag/part-of-speech hiện có.
-- Placement Test hiện có 16 câu đa chiều (vocabulary/grammar/reading/listening) và hiển thị breakdown theo kỹ năng. Đây là adaptive MVP, chưa phải bài thi chuẩn hóa.
-- TOPIK Analytics hiển thị điểm, đúng/sai, thời gian trung bình, breakdown skill, trend 5 đề và readiness ước tính có nhãn rõ ràng.
-- Global Search (`⌕` trên header) tìm theo Hangul, romanization, Vietnamese, English, 中文 trong lesson, dictionary, practice và phrasebook.
-- Weekly Insights tổng hợp phút học, bài, từ thành thạo, đề đã làm, điểm mạnh/yếu; AI chỉ nhận structured stats nhỏ khi được bật.
-- `PronunciationProvider` và `HandwritingProvider` là abstraction cho model tương lai. MVP hiện tại chỉ chấm text similarity/self-confirmation, không giả vờ có phoneme hoặc handwriting recognition AI.
-- `AdaptiveLearningEngine` tạo Daily Mission cố định theo ngày bằng rule deterministic: kỹ năng yếu (+3), lỗi lặp (+3), lâu chưa luyện (+2), SRS đến hạn (+3), liên quan TOPIK mục tiêu (+2), memory/graph yếu (+2). Engine dùng learner profile, progress, practice history, SRS và Error Notebook; không random và không gửi secrets.
-- `GoalTrackingService` lưu mục tiêu/deadline/phút học tại `klearn_learning_goals`; `RoadmapService` tạo roadmap 6 phase tại `klearn_adaptive_roadmaps`. Lớp nhận xét từ trợ lý là tùy chọn, fallback local luôn hoạt động.
-- Daily Mission lưu tại `klearn_daily_missions`, giữ khoảng 30 ngày và khôi phục đúng mission khi reload. Ba domain mới được thêm vào `USER_SYNC_KEYS`, vì vậy Supabase `learning_sync.data` JSONB hiện có tự đồng bộ mà không cần bảng/migration SQL mới.
-- Schema local được nâng lên version 13 theo hướng additive/idempotent; các key mới tự khởi tạo khi cần, không reset users, progress, SRS, Auth hay dữ liệu cloud cũ.
-- `LearningMemoryService` lưu long-term memory chọn lọc tại `klearn_ai_memory`: learning preference, weak/strong knowledge, learning goal và repeated mistakes. Không lưu toàn bộ hội thoại; `MemoryRetrievalService` chỉ lấy tối đa vài memory liên quan đến câu hỏi/bài học. `klearn_ai_memory` và `klearn_knowledge_progress` đều nằm trong `USER_SYNC_KEYS` và dùng JSONB cloud hiện có.
-- `KnowledgeGraphService` cung cấp core grammar graph và tự dựng vocabulary nodes từ dictionary theo topic (ví dụ 은/는 ↔ 이/가 và 학교 → 학생/선생님/수업/공부), related-node lookup và knowledge progress riêng từng user tại `klearn_knowledge_progress`. Graph weakness kết hợp Error Notebook, mastery và SRS để nâng điểm Smart Review/Daily Mission.
-- Hồ sơ có xu hướng học tập và phần ghi nhớ chọn lọc; các thẻ đều mobile-first, dark-mode và chỉ hiển thị tín hiệu học tập cần thiết.
-
-## Product UX Optimization (P23)
-
-- Home tự nhận diện nhóm `beginner`, `topik`, `conversation` hoặc `general` từ hồ sơ hiện có, sau đó ưu tiên một hành động chính và phân bổ tính năng theo tỷ lệ rõ ràng.
-- Progressive disclosure có ba mức `core → developing → advanced`; người mới không bị đẩy vào analytics hoặc công cụ nâng cao quá sớm.
-- Command Center trả lời nhanh câu hỏi “Bạn muốn làm gì?” bằng các lối tắt học bài, ôn từ, luyện nói và làm test; danh sách tự thu gọn theo mức tiến bộ.
-- Smart Search hợp nhất lesson, grammar/công cụ, vocabulary, câu, Sổ lỗi, ghi chú và bookmark; autocomplete hỗ trợ Arrow Up/Down, Enter và Escape.
-- Onboarding rút còn hai màn hình, chỉ thu thập mục tiêu, trình độ và số phút học. Người chưa biết Hangul được đưa thẳng vào Level 0, không bị bắt làm placement test.
-- Empty state luôn có hành động tiếp theo; lỗi được trình bày theo nguyên nhân, cách xử lý và nút retry/Home thay cho thông báo mơ hồ.
-- Trợ năng theo user gồm cỡ chữ lớn, tương phản cao và giảm chuyển động; có skip link, focus ring, nhãn screen reader và vùng chạm tối thiểu 44–48px.
-- Cấu hình P23 lưu user-scoped trong `klearn_product_ux`, tham gia CloudSync JSONB hiện có và không reset bất kỳ dữ liệu học nào.
-
-## Advanced User Retention System (P24)
-
-- `HabitFormationService` đo nhịp học bằng bốn tín hiệu: độ đều, đủ thời lượng mục tiêu, tỷ lệ hoàn thành và độ ổn định khung giờ; không quy habit thành một con số streak.
-- Home có retention card, vòng lặp động lực, so sánh 30 ngày và smart reminder. Reminder tôn trọng cài đặt thông báo, không nhắc sau khi đã học trong ngày, không xin quyền browser và tối đa một đề xuất/ngày.
-- Tổng kết tuần, phản tư tháng và mục tiêu lớn được lưu user-scoped trong `klearn_retention`; Goal Engine được chia thành đúng 50 milestone phản ánh tiến độ thật, không tự mở chỉ vì xem trang.
-- Reactivation chọn kế hoạch nhẹ cho người vắng 7–29 ngày hoặc từ 30 ngày trở lên. Celebration chỉ mở khi có bằng chứng: 100 từ mastered, 50 giờ học tập thực tế (không tính lượt SRS như giờ học), hoặc một kết quả TOPIK đạt từ 60%.
-- `retention_daily_metrics` là aggregate-only cho admin, có RLS chỉ đọc qua Supabase `app_metadata.role = 'admin'`; frontend không bịa số 0 khi migration/backend chưa sẵn sàng. Chạy `supabase/migrations/20260906_advanced_retention_system.sql` khi bật analytics quản trị.
-- P24 nối vào CloudSync JSONB hiện có, cache PWA `klearn-v47`, hỗ trợ dark mode/mobile-first và không thay đổi Auth, SRS, Mastery hoặc dữ liệu cũ.
-
-## Learning Trust and Quality System (P25)
-
-- Content detail hiển thị `Native checked`, `Grammar checked`, `Example checked`, `Difficulty validated`, confidence score, learning source và kiểm tra translation/audio.
-- Quality content được quality-gate bằng `content/content-quality-system.json`; nguồn được ghi rõ theo TOPIK curriculum, frequency vocabulary hoặc native-reviewed examples.
-- Người học có thể báo sai nghĩa, audio, ví dụ, độ khó hoặc nội dung trùng ngay tại nội dung đang xem. Báo cáo local user-scoped dùng CloudSync hiện có; Supabase có bảng riêng với RLS cho reporter/reviewer/admin.
-- Content Health Dashboard chỉ dành cho admin, tổng hợp coverage review, confidence, nguồn, audio/difficulty issues và duplicate detection; không trả dữ liệu user riêng tư.
-- Version history nối với lịch sử P20 và metadata P25 để hiển thị old/new version, ngày cập nhật và lý do thay đổi.
-- Chạy `supabase/migrations/20260906_content_quality_system.sql` để bật native validation, quality review và quality reports trên Supabase. PWA cache nâng lên `klearn-v48`.
-
-## Công cụ học thực hành
-
-- So sánh ngữ pháp song song, sổ ngữ pháp cá nhân và Repair Path nối trực tiếp với Sổ lỗi; lỗi chỉ được khép lại sau review, luyện tập và retest đạt yêu cầu.
-- Luyện gõ Hangul theo 6 stage với độ chính xác, CPM và cụm cách/phút; Focus Study 15/25/45 phút lấy ưu tiên từ SRS, lỗi và Adaptive Learning Engine.
-- Chapter Checkpoint kiểm tra từ vựng, ngữ pháp, nghe và đọc theo nhóm bài học, không khóa tiến độ và đưa điểm yếu về luồng ôn tập.
-- Gói học offline dùng Cache Storage theo thao tác tải/xóa của người dùng; metadata thiết bị không đưa lên CloudSync.
-- Shadowing Recorder chỉ giữ audio tạm trong tab, cùng Lịch học, Timeline cột mốc thật, bộ từ cá nhân, xếp câu và nhiệm vụ tiếng Hàn ngoài đời.
-- Cài đặt học tập theo từng user gồm romanization, bản dịch, tốc độ/tự phát audio, cỡ chữ Hangul, mục tiêu từ, độ khó và mức hướng dẫn; giao diện mới hỗ trợ Việt, English và 中文（简体）.
-
-### Bật Supabase cloud sync (tùy chọn)
-
-1. Tạo Supabase project, bật Email/Password Auth và chạy `supabase/schema.sql` để tạo `learning_sync` cùng RLS `auth.uid() = user_id`.
-2. Trên Vercel đặt `SUPABASE_URL` và `SUPABASE_ANON_KEY`. `SUPABASE_ANON_KEY` có thể là publishable key mới dạng `sb_publishable_...`; không bao giờ dùng `service_role`/`sb_secret_...`.
-3. Trong Supabase Auth → URL Configuration đặt Site URL là production URL, đồng thời thêm production/preview/local URLs cần dùng để email confirmation quay về app.
-4. Người dùng local tiếp tục học bình thường. Chỉ khi họ chủ động “Đăng nhập & liên kết” hoặc “Đăng ký & liên kết”, app mới gắn local profile hiện tại với `session.user.id`, merge và upsert cloud.
-5. Nếu thiếu config, timeout hoặc Supabase outage, app vẫn chạy local mode đầy đủ.
-
-### Education Platform
-
-- `EducationPermissionService` chỉ đọc role `student`, `teacher`, `reviewer`, `admin` từ `Supabase session.user.app_metadata`; app không cho tự nâng role bằng localStorage.
-- Teacher/Admin có khu quản lý School/Center, lớp học, roster, assignment lesson/vocabulary/test, phản hồi writing/speaking, Course Builder và báo cáo tiến độ lớp. Student chỉ đọc assignment/feedback mà RLS trả về cho chính họ.
-- Course Builder có mẫu Business Korean, Travel Korean và TOPIK. Mỗi course item giữ `verified`, `difficulty`, `status`; nội dung chưa verified không thể chuyển thẳng sang `approved`.
-- Chạy migration `supabase/migrations/20260906_education_platform_foundation.sql` sau migration teacher foundation để tạo organization, classroom, course, assignment và RLS. Dashboard giáo viên chỉ nhận snapshot tiến độ tối thiểu; learning journal, chat và audio không được trả qua RPC.
-
-### Future Immersive Korean Experience
-
-- `Thế giới tiếng Hàn` gom Virtual Korean City, Roleplay Game, Career Korean, University Life, Travel Simulator và Voice World vào một session engine; không tạo sáu chatbot hoặc menu AI riêng.
-- P58 chuẩn hóa Korean City còn bốn điểm cốt lõi `Airport · Cafe · University · Office`, thêm Scenario Library theo vai Student/Worker/Traveler và bản đồ tiến độ Beginner → Intermediate → Advanced.
-- Story Learning, Decision Learning và Cultural Training dùng nội dung đã duyệt; Survival Mode ẩn bản dịch trong toàn bộ flow, còn Immersion Score chỉ phản ánh bằng chứng luyện tập nội bộ chứ không phải chứng chỉ.
-- Roleplay có du học sinh mới, nhân viên mới và khách du lịch; Career có Interview, Meeting, Email. Các tình huống chuyên sâu University và Travel tiếp tục dùng chung session engine và data model mở rộng được.
-- Mỗi lượt luyện chấm minh bạch theo ý nghĩa, grammar, độ tự nhiên và ngữ cảnh rồi theo dõi ba tín hiệu `confidence`, `fluency`, `accuracy`. Điểm thấp nối về Error Notebook; audio từ voice input không được lưu.
-- Immersion Mode dùng chung `StudySettingsService`, ẩn translation và romanization trong session, sau khi tắt sẽ khôi phục lựa chọn trước đó. Debate dùng rubric local; chỉ mở Trợ lý học tập hiện có khi người dùng chủ động yêu cầu phản biện.
-
-### Global Language Platform
-
-- P59 cung cấp một hub chung cho Korean, Japanese, Chinese và English, với hồ sơ nhiều ngôn ngữ trên cùng tài khoản.
-- SRS, Mastery và Analytics được dùng lại qua Shared Learning Core. ID tiếng Hàn cũ được giữ nguyên; nội dung ngôn ngữ mới dùng namespace riêng để không làm mất tiến độ.
-- Exam Framework chuẩn hóa TOPIK, JLPT và HSK. Korean là content pack đang hoạt động; các ngôn ngữ còn lại chỉ được ghi là engine/profile-ready cho đến khi curriculum được kiểm duyệt và phát hành.
-- Course Marketplace, Teacher Platform, Content Creator và Certification được nối vào cùng cổng sản phẩm thay vì tạo thêm hệ thống song song.
-- Personal Learning Avatar hiện chỉ là nghiên cứu contract dữ liệu từ goal, mastery, SRS và speaking journey; không tạo khuôn mặt/giọng nói AI, không giả lập cảm xúc và không tự nhắn tin.
-
-### Advanced Korean Learning Ecosystem Expansion
-
-- Hub P5–P10 gom Journey Intelligence, Real Korean Life, Language Science, Skill World, Career & Purpose và Learning Architecture; không tạo thêm AI Tutor/Coach hoặc đặt AI Partner ở Home.
-- Journey Replay, Learning DNA, nhắc học theo thói quen và Mood/Energy chỉ dùng activity, progress, SRS, Mastery và Learner Profile thật. Mood không được diễn giải như dữ liệu tâm lý.
-- Life Simulator có Housing, Hospital, Bank, School và Work; Document/Sign Reader ưu tiên `TextDetector` chạy cục bộ và fallback nhập text. Ảnh, audio, token và dữ liệu riêng tư không được tải lên hoặc lưu.
-- Error Pattern Map tổng hợp xu hướng riêng với Error Notebook; Naturalness/Complexity lưu câu theo user; Skill Tree, Mastery Map, Weekly Boss và badge đều lấy từ mastery thay vì level ảo.
-- Career Path bao gồm IT, Business, Tourism và Office Korean cùng Interview, Email, Presentation và Etiquette. Memory Graph chỉ là structured learning context; bài luyện phụ luôn giữ `sourceId` của content đã duyệt.
-- Nội dung P5–P10 nằm trong `content/ecosystem-expansion.json`, chỉ được fetch khi mở module, qua quality gate `verified + approved`, và được service worker cache cho lần dùng offline tiếp theo.
-
-### Learning Intelligence & Data Science
-
-- Trang Phân tích hiện tại được bổ sung một dashboard Learning Intelligence; không tạo chatbot hay trang AI mới.
-- `MemoryRiskService` tính `Recall Strength` 0–100 và `Memory Risk` từ số lần đúng/sai, mastery, khoảng cách ôn, thời gian chưa gặp và due date. Smart Review dùng cùng phép tính để ưu tiên kiến thức có rủi ro quên cao.
-- Bottleneck Detection so sánh các kỹ năng có dữ liệu; Mistake Root Cause phân nhóm tín hiệu thành lỗ hổng khái niệm, quên quy tắc, nhầm ngữ cảnh hoặc nhận biết âm. Kết quả luôn kèm bằng chứng và mức độ tin cậy.
-- Learning Pattern phân tích khung giờ, thời lượng và loại bài từ practice/focus session; Efficiency Score kết hợp kết quả, khả năng lưu giữ và mức hoàn thành, không thưởng điểm chỉ vì học lâu.
-- Knowledge Graph minh họa quan hệ vocabulary → form/grammar → sentence → topic; Skill Dependency Graph cho biết nền tảng nào còn thiếu trước mục tiêu TOPIK.
-- Forecast 3 tháng hiển thị một khoảng dự kiến, giả định và mức tin cậy; đây không phải cam kết điểm thi. Toàn bộ P18 chạy local từ dữ liệu học hiện có, không đọc chat history, password, token hay audio và không reset dữ liệu người dùng.
-
-### Korean Real-World Ecosystem
-
-- Hub `Chuẩn bị cuộc sống tại Hàn` mở rộng Real Korean Life hiện có với Document Assistant, Menu Reader, Sign Reader, Shopping, Banking, Rental, University, Workplace và Survival Checklist; không tạo chatbot mới.
-- Document Assistant nhận text hoặc ảnh tối đa 8 MB, ưu tiên `TextDetector` trên thiết bị và fallback sang nhập text. Ảnh, OCR text và kết quả phân tích chỉ nằm trong runtime hiện tại, không upload, không ghi localStorage/cloud; app cũng không yêu cầu OTP, PIN hay thông tin ngân hàng.
-- Menu Reader có Restaurant, Cafe và Convenience Store với tên món, thành phần tham khảo, câu gọi món và cảnh báo dị ứng. Sign Reader phân biệt danger/warning/info, giải nghĩa và nêu hành động cần làm.
-- Banking, Rental, University và Workplace Guide cung cấp từng bước, phrase kit và audio TTS hiện có. Shopping Guide giải thích size tham khảo, thử đồ, thanh toán và đổi trả.
-- Culture Warning kiểm tra sắc thái theo ngữ cảnh bằng rule minh bạch: câu đúng ngữ pháp vẫn có thể bị cảnh báo nếu thiếu lịch sự. Survival Checklist chỉ lưu các mục người dùng tự xác nhận trong domain user-scoped hiện có.
-- Nội dung P19 ở `content/real-world-assistant.json`, lazy-load qua quality gate `verified + approved` và được service worker cache cho offline. Vocabulary đã duyệt có thể đưa vào SRS mà không thay đổi TOPIK data.
-
-### Advanced Content Platform
-
-- Hub `Nền tảng nội dung` chuẩn hóa version, ngày tạo/cập nhật và workflow `Draft → Review → Approved`; người học chỉ tìm và mở nội dung Approved.
-- Quality score tách rõ Grammar accuracy, Example quality và Audio quality. Native Review queue giữ nội dung chưa đạt ngưỡng ngoài luồng học, đồng thời tiếp tục dùng role Supabase hiện có cho quyền review/admin.
-- Grammar Example Bank có câu Beginner, Intermediate và Advanced. Vocabulary Frequency Database cung cấp thứ hạng cùng frequency band để ưu tiên từ thông dụng.
-- Content Search tìm lesson, grammar, word và example. Gợi ý bài tiếp theo dùng tiến độ/kỹ năng yếu hiện có, không tạo chatbot hoặc AI page mới.
-- `My Korean Notebook` dùng chung Bookmark và Notes user-scoped. Feedback `khó hiểu / có lỗi / thiếu ví dụ` được lưu theo tài khoản trong `klearn_content_feedback` và đi qua CloudSync hiện có.
-- Nội dung nguồn nằm ở `content/advanced-content-platform.json`, lazy-load qua quality gate và được cache cho offline bởi service worker.
-
-### Community Learning Foundation
-
-- `Community Hub` mở rộng foundation cũ bằng ba nhóm TOPIK 1, Conversation và Business Korean, challenge 30 ngày Hangul, Community Q&A và Peer Practice. Không có social feed hay leaderboard.
-- Profile mặc định `private` và chỉ cho phép chia sẻ display name, level, tối đa bốn interest cùng learning goal sau khi người dùng opt-in. Email, điện thoại, URL và social handle bị chặn khỏi nội dung cộng đồng.
-- Achievement sharing không tự đăng. Người dùng chọn milestone thật và phạm vi `private/groups`; Learning Friend chỉ theo dõi hồ sơ học tập, không mở direct message.
-- Community Safety hỗ trợ report, block và unblock. Hồ sơ đã block bị loại khỏi peer matching; report và block được lưu user-scoped trong domain `klearn_community_progress` hiện có.
-- Hồ sơ peer đi kèm hiện là dữ liệu mẫu được gắn nhãn rõ ràng. Lời mời luyện tập, câu hỏi, báo cáo và milestone share chỉ tạo bản nháp/bản xem trước cục bộ, không giả vờ đã gửi tới người thật hoặc moderation backend.
-- Nội dung seed đã kiểm duyệt nằm ở `content/community-learning.json`, lazy-load và cache offline. Migration `20260906_community_learning_foundation.sql` chuẩn bị tables cùng RLS cho profile, group, challenge, Q&A, useful rating, peer request, milestone share, block và report; cần áp dụng migration và nối backend trước khi bật tương tác đa người dùng trực tuyến.
-- Community Statistics chỉ hiển thị số nhóm, ngày challenge, câu hỏi và lời mời của chính tài khoản hiện tại; không tính rank hoặc so sánh từng người.
-
-### Enterprise Education Platform
-
-- `SubscriptionService` tách tier thương mại `free/premium` khỏi role giáo dục `student/teacher/reviewer/admin`. Tier và trạng thái Premium chỉ được đọc từ `Supabase session.user.app_metadata`; localStorage không thể tự nâng gói, và trạng thái không còn `active/trialing` sẽ dùng entitlement Free.
-- Premium foundation định nghĩa Advanced Analytics, Premium Courses và Extended Practice nhưng không khóa hoặc làm hỏng tính năng học hiện có. Thanh toán chưa được tích hợp và UI không tạo giao dịch giả.
-- Course Marketplace chỉ hiển thị khóa `approved + verified`; enrollment được lưu user-scoped. Certificate preview chỉ tạo khi tiến độ khóa đạt yêu cầu, được ghi rõ là local preview cho tới khi backend ký/xác minh.
-- School Management và Center Dashboard tái sử dụng Organization, Classroom, Teacher Dashboard cùng role/RLS hiện có. Dashboard chỉ đọc snapshot tổng hợp, không đọc journal, chat, recording hoặc nội dung cá nhân thô.
-- Partner API mới dừng ở hợp đồng `docs/partner-api-v1.openapi.json`: OAuth client credentials, scope theo organization và audit request. Không có endpoint thật hoặc secret nào được phát hành trong browser.
-- Admin Analytics chỉ dành cho role `admin`; chỉ số backend chưa kết nối hiển thị `—` thay vì bịa dữ liệu. Product Language schema hỗ trợ `ko/ja/zh`, nhưng chỉ Korean đang active; Japanese và Chinese được ghi rõ là foundation/planned.
-- Migration `20260906_enterprise_education_platform.sql` thêm subscription, entitlement, marketplace, certificate, organization plan, partner client/audit, aggregate analytics và product languages với RLS. Credential hash nằm ở bảng server-only không có authenticated policy.
-
-### Korean AI Infrastructure
-
-- AI Tutor và AI Coach dùng chung `AIOrchestrationService`: request, learner context và response được tách riêng; context chỉ giữ các trường học tập cần thiết, giới hạn độ dài và loại bỏ dữ liệu nhạy cảm.
-- Routing `small/strong`, prompt version và thử nghiệm tone được cấu hình trong `content/ai-infrastructure.json`; model thật chỉ được chọn ở server qua `OPENAI_SMALL_MODEL`, `OPENAI_STRONG_MODEL` hoặc `OPENAI_MODEL`, không đưa secret vào frontend.
-- Quality/safety gate kiểm tra response rỗng, claim không được xác minh và secret pattern. Khi provider lỗi, vượt budget hoặc bị chặn, app dùng fallback nội bộ và vẫn giữ nguyên Auth, CloudSync, SRS và lịch sử học.
-- Usage telemetry chỉ lưu request count, token ước lượng/thực tế, route, prompt version, quality status và fallback; không lưu raw prompt/response. Local metrics nằm trong `klearn_ai_infrastructure`, migration `20260906_korean_ai_infrastructure.sql` chuẩn bị bảng evaluation logs với RLS user/admin.
-
-### Global Language Platform Foundation
-
-- `LanguageCoreService` tách logic language-independent khỏi content Korean, với mã chuẩn `ko`, `ja`, `zh`, `en`, locale, script, hướng chữ và trạng thái content. Korean là gói duy nhất đang active; các ngôn ngữ khác chỉ là foundation, không giả lập curriculum.
-- `LanguageProfileService` lưu active language, level, goal và trạng thái riêng cho từng ngôn ngữ trong `klearn_language_profiles`; dữ liệu được đưa vào `USER_SYNC_KEYS` để không phá CloudSync hiện có.
-- `ExamFrameworkService` chuẩn hóa mapping TOPIK/JLPT/HSK; `CourseStructureService`, `LanguageVocabularyEngine`, `GrammarFrameworkService` và `AudioFrameworkService` dùng schema chung nhưng nhận `languageId` bắt buộc.
-- `LanguageComparisonService` hỗ trợ so sánh song song Vietnamese/Korean/Japanese/Chinese/English mà không trộn SRS hoặc mastery giữa ngôn ngữ. `GlobalLanguageContentService` yêu cầu `verified + approved + architectureOnly` trước khi hydrate.
-- Migration `20260906_global_language_platform.sql` tạo hồ sơ đa ngôn ngữ user-scoped với RLS; không lưu nội dung riêng tư, audio thô hoặc credential.
-
-### User Research and Experiment System
-
-- `UserResearchService` chỉ ghi event học tập tối thiểu khi người dùng bật consent: bắt đầu/hoàn thành lesson, feature usage, review, drop-off, feedback và survey. Mặc định là `unknown`; từ chối consent thì event tracking dừng nhưng app vẫn hoạt động.
-- Properties được allowlist và chặn password, token, secret, email, phone, chat, journal, audio/recording. Không có tracking ngoài phạm vi app; dữ liệu local được namespace theo user và CloudSync không reset progress hiện có.
-- `ResearchAnalyticsService.metrics()` tính funnel, feature usage, drop-off và segment Beginner/TOPIK/Conversation từ event đã consent. `ExperimentService` gán A/B deterministic theo user + experiment, ghi exposure/result tối thiểu và không tạo chatbot/menu mới.
-- Consent notice xuất hiện trong Profile; feedback lesson/report/suggestion và khảo sát ngắn là hành động chủ động của người dùng, nội dung bị giới hạn và lọc dữ liệu nhạy cảm.
-- Content contract nằm ở `content/user-research-experiments.json`; migration `20260906_user_research_experiments.sql` chuẩn bị consent, bounded events, feedback và experiment logs với RLS user/admin.
-
-### Advanced Learning Analytics Platform
-
-- Trang Phân tích bổ sung `AdvancedLearningAnalyticsService` để biến số liệu thành tiến bộ dễ đọc: tốc độ học theo tuần, retention curve ở mốc 1/7/30 ngày, skill growth, learning efficiency và Knowledge Health Score.
-- Course Completion Analysis nhóm lesson theo course/TOPIK/topic để chỉ ra phần hoàn thành thấp; Practice Quality Score tách accuracy, focus và progress thay vì chỉ đếm số phiên.
-- Long-term Progress hiển thị cửa sổ 3 tháng, 6 tháng và 1 năm. Personal Benchmark chỉ so sánh user với chính giai đoạn trước của họ; không có peer ranking hay dữ liệu người khác.
-- Weekly, monthly và yearly report được tạo deterministically từ SRS, Practice History, Mastery, Learner Profile và lesson progress. Người dùng có thể lưu tối đa 30 báo cáo trong `klearn_analytics_reports`; CloudSync vẫn dùng namespace user-scoped hiện có.
-- Content contract nằm ở `content/advanced-learning-analytics.json`; migration `20260906_advanced_learning_analytics.sql` chuẩn bị bảng report cá nhân với RLS owner-only. Không lưu raw chat, journal, token, password hoặc audio.
-
-### EdTech Business Intelligence Platform
-
-- Route `Admin Control Center` mở rộng `admin-analytics` hiện có cho role `admin` từ Supabase metadata; không tạo một admin dashboard song song và không cho học viên xem aggregate vận hành.
-- `BusinessIntelligenceService` đọc các bảng aggregate server-generated để theo dõi lifecycle New/Active/Returning/Churn, Day 1/7/30 retention, course performance, content engagement/ROI, free → premium conversion và learning value.
-- Support queue chỉ lấy `type/status` (bug report, feedback, question), không đọc raw message. System health chỉ lấy error rate, API success, latency P95 và slow requests. Operation reports hỗ trợ daily/weekly/monthly.
-- Khi BI backend chưa kết nối, UI hiển thị trạng thái unavailable/`—`, không bịa số 0. Quick links gom Content Health, Retention, Support và Enterprise trong một control center.
-- Content contract nằm ở `content/edtech-business-intelligence.json`; migration `20260906_edtech_business_intelligence.sql` tạo aggregate tables với RLS admin-only. Không có user ID, email, credential, password, token, chat, journal hoặc audio trong BI tables.
-
-### Premium Learning Experience
-
-- `premium-features` hiện là một hub P31 dùng entitlement Premium do `SubscriptionService` đọc từ Supabase metadata; không có thao tác tự nâng gói bằng localStorage và học cơ bản/SRS/TOPIK hiện tại không bị khóa.
-- Premium Study Plan có TOPIK 6 tháng và Conversation 3 tháng; Advanced Mock Exam dùng PracticeService hiện có với timer/exam-mode/skill breakdown, không tạo ngân hàng câu hỏi giả.
-- Premium Content Pack gồm Business, Academic và Travel Korean. Private Learning Report tái sử dụng P18 report, Learner Profile và Forecast để tạo weakness/prediction/recommendation riêng user.
-- Advanced Speaking Review đọc pronunciation attempts và skill profile thật; Personal Curriculum tạo module từ plan + điểm yếu hiện tại. Không tuyên bố chấm phoneme AI chính xác.
-- Notes/Vocabulary export dùng dữ liệu user-scoped; PDF dùng print dialog của trình duyệt, không upload dữ liệu. Certificate tái sử dụng CertificationService và chỉ dùng completion evidence.
-- Premium Support mở luồng teacher feedback hiện có. Family Account mới là architecture foundation (`owner/learner`, tối đa 4 slot), chưa tự gửi invitation hoặc chia sẻ progress giữa người dùng.
-- Content contract nằm ở `content/premium-learning-experience.json`; migration `20260906_premium_learning_experience.sql` chuẩn bị family account/member với RLS owner/member và entitlement server-managed.
-
-### Global AI Language Companion
-
-- `AICompanionService` là lớp facade theo ngữ cảnh cho Study Advisor, content explanation, practice creator, conversation partner, writing review, career coach và culture advisor; không tạo thêm chatbot/menu mới và vẫn đi qua `AIOrchestrationService` hiện có.
-- `AILearningMemoryService` chỉ lưu memory có cấu trúc theo tài khoản (mục tiêu, trình độ, kỹ năng yếu, lỗi lặp, phong cách và cách giải thích ưa thích). Không lưu raw chat, bài viết, audio, password, token hoặc credential.
-- Hỗ trợ tham số ngôn ngữ `ko`, `ja`, `zh`; Japanese/Chinese là contract/AI routing foundation, không tự bịa curriculum mới. `AIPracticeCreatorService` chỉ nhận content `verified + approved` và luôn trả trạng thái `needs-review`.
-- Mọi response đều qua quality/safety gate và có fallback deterministic khi provider lỗi hoặc hết budget. Advisor cơ bản dùng SRS, Learner Profile và progress cục bộ để user vẫn biết việc cần làm hôm nay khi offline.
-- Contract nằm ở `content/global-ai-language-companion.json`; migration `20260906_global_ai_language_companion.sql` chuẩn bị memory có RLS owner-only và quality log aggregate, tuyệt đối không lưu prompt/response thô.
-
-### Production Engineering & System Stability
-
-- `ProductionMonitoringService` ghi nhận frontend/API/database/AI/sync/cache error theo fingerprint, module, timestamp và frequency; performance telemetry gom page load, API, database và AI latency mà không lưu stack trace hay payload riêng tư.
-- `RecoveryService` checkpoint progress/SRS/profile/settings theo user trước khi rời trang; `BackupService` giữ daily/weekly local backup. Restore là thao tác explicit, không tự ghi đè dữ liệu hiện tại.
-- `BackgroundSyncQueueService` giữ các action học tập được phép (`completed_lesson`, `updated_vocabulary`, `finished_quiz`) khi offline và flush qua `CloudSyncService` khi online. Không đưa private payload vào PWA cache; service worker chỉ cache public assets.
-- `/api/health` trả backend/database/AI status và latency với `Cache-Control: no-store`; `/api/chat`, `/api/config` và health có in-memory rate limit. Migration `20260906_production_stability.sql` thêm aggregate error/performance/health tables, index và RLS admin-only.
-- Admin Control Center có thẻ System status; local fallback hiển thị rõ dữ liệu chưa có backend aggregate thay vì bịa số 0. PWA cache đã nâng lên `klearn-v56`.
-- Contract vận hành nằm ở `content/production-stability.json`; mọi telemetry bị giới hạn field/độ dài và không chứa raw stack, payload, credential hay token.
-
-### Security & Privacy Framework
-
-- `SecurityAuthService` bổ sung facade cho Google, Apple, passwordless email và Supabase MFA (TOTP); email/password hiện tại không bị thay đổi. OAuth/MFA chỉ hoạt động khi Supabase Auth đã cấu hình.
-- `PrivacyCenterService` cho user bật/tắt cloud sync, AI usage và telemetry; precise location tắt mặc định. `DeviceManagementService` chỉ lưu device label, thời điểm và location hint thô, không theo dõi vị trí chính xác.
-- `DataExportService` xuất learning history, vocabulary, progress và notes dạng JSON/CSV hoặc print-to-PDF. `AccountDeletionService` yêu cầu xác nhận rõ ràng, tạo deletion request RLS và không tự xoá cloud bằng client.
-- `RolePermissionService` chuẩn hoá student/teacher/admin/content_editor từ Supabase metadata; localStorage không thể tự cấp role. Audit log chỉ allowlist metadata, không lưu credential/raw learning content.
-- `SecurityScannerService` kiểm tra public config phía client; dependency vulnerability và secret scan đầy đủ vẫn chạy ở CI/server. Contract nằm ở `content/security-privacy.json`, migration `20260906_security_privacy.sql` có RLS owner/admin. PWA cache nâng lên `klearn-v57`.
-
-### Production Launch Readiness
-
-- Mục tiêu triển khai production là Vercel để phục vụ cả static PWA và serverless `/api/*`; Supabase tiếp tục cung cấp Auth/Postgres. Domain, project ID và secret thật không nằm trong repository.
-- CI chạy kiểm tra cú pháp, production build, readiness audit và toàn bộ test trên pull request/push `main`. Deployment chỉ chạy bằng tag SemVer hoặc thao tác thủ công, đi qua GitHub Environment `production` và smoke test trước/sau khi gắn domain chính.
-- `/api/version` công bố release/commit an toàn; `/api/health` trả `503 degraded` ở production khi database chưa cấu hình hoặc không truy cập được. Workflow giám sát gọi full smoke test mỗi 30 phút.
-- `version.json` là release manifest duy nhất, hiện ở `1.0.0-rc.1`. Runbook domain, monitoring, backup/restore, incident, support, release và version nằm trong `docs/production/`.
-- Kiểm tra cục bộ bằng `node scripts/verify-production-build.js`, `node scripts/release-readiness.js`; sau khi có HTTPS URL, chạy `node scripts/smoke-production.js https://your-domain.example`.
-
-### Mobile Native Ecosystem
-
-- Capacitor 8 đóng gói chính web app hiện tại thành Android/iOS shell; không viết lại Learning System và không tạo kho user/progress riêng cho mobile.
-- `KLearnPlatform` định tuyến `/api/*` về `MOBILE_API_BASE_URL` HTTPS trong binary. Supabase dùng cùng user với web qua PKCE/deep link; SRS, Mastery, History và Progress tiếp tục đồng bộ qua `learning_sync` cùng CAS/queue hiện có.
-- Native bridge xử lý lifecycle/reconnect, đăng ký push tách khỏi learning data, camera tạm thời, widget snapshot không chứa thông tin riêng tư và background audio bằng asset thật. Service Worker chỉ chạy trên web/PWA, không chạy trong native shell.
-- `mobile/` có dependency lock, build/doctor scripts và cấu hình sinh project Android/iOS. Workflow `mobile-native.yml` kiểm tra source và tạo unsigned validation artifact theo kênh internal/beta/production; signing/store upload cần owner approval cùng credential bên ngoài Git.
-- Migration `20260909_mobile_native_ecosystem.sql` tạo push device/preference RLS và delivery metadata server-only. Tài liệu kiến trúc, test matrix, security và deployment nằm trong `docs/mobile-native-ecosystem.md`.
-
-### Real-time Voice Coach
-
-- P57 mở rộng trực tiếp Voice Lab P36: SpeechRecognition/MediaRecorder thu transcript và tín hiệu tạm thời, sau đó bộ phân tích cục bộ chấm âm tiết, phụ âm đầu, nguyên âm, batchim, tốc độ, khoảng dừng và confidence.
-- AI orchestration chỉ tạo phản hồi ngắn theo vai và naturalness sau local analysis. JSON response phải qua schema/quality gate; điểm phoneme không do AI tạo hoặc ghi đè.
-- Bốn role-play gồm nhà hàng, phỏng vấn, trường học và văn phòng. Memory lưu chủ đề, âm/cụm từ yếu nhưng không lưu audio; hành trình tổng hợp tiến bộ 30/90 ngày.
-- Budget riêng giới hạn 12 AI feedback/ngày, 8.000 estimated tokens/ngày, 6 lượt/phiên và tối đa hai lượt context. Nếu offline, AI bị tắt, hết budget hoặc response lỗi, deterministic fallback vẫn lưu phiên Speaking bình thường.
-- Chi tiết kỹ thuật và QA: `docs/realtime-voice-ai-coach.md`.
-
-### AI Language Operating System
-
-- `AILanguageOperatingSystem` hợp nhất learner memory, study planner, learning advisor, content curator, progress prediction và multi-language support thành một lớp điều phối phía sau; giao diện chỉ có hành động học, không có ô chat mới.
-- Memory tổng hợp từ Learner Profile, Language Profile và Error Notebook. Chỉ các field đã allowlist mới được cập nhật, và mọi thay đổi chủ động đều yêu cầu xác nhận; raw chat/audio, password và token không được lưu.
-- Planner và Advisor ưu tiên kế hoạch deterministic từ SRS, kỹ năng yếu và Daily Plan. AI chỉ giải thích khi người dùng bấm yêu cầu; nếu AI tắt, offline hoặc provider lỗi, kế hoạch học vẫn hoạt động.
-- Content Curator chỉ chọn nội dung `approved`; bài luyện sinh bởi AI vẫn cần review và không được tự xuất bản. Progress Prediction là forecast có giới hạn, hiển thị evidence và không cam kết điểm thi/nghề nghiệp.
-- Korean, Japanese, Chinese và English dùng chung operating contract. Chỉ Korean có content active; ba ngôn ngữ còn lại không tự sinh curriculum. Giáo viên có thể điều chỉnh đề xuất và luôn giữ quyền duyệt nội dung.
-- Continuous Improvement chỉ lưu metadata tổng hợp về quality/fallback/usefulness trong `klearn_ai_language_os`; Privacy Center tiếp tục là nguồn quyết định AI consent. Chi tiết tại `docs/ai-language-operating-system.md`.
-
-## Dữ liệu MVP
-
-Dữ liệu local vẫn được namespace theo các key `klearn_users`, `klearn_session`, `klearn_progress`, `klearn_srs`, `klearn_practice`, `klearn_practice_history`, `klearn_speaking`, `klearn_writing`, `klearn_settings`. Local auth được giữ cho chế độ thiết bị; Supabase Email/Password Auth là danh tính cloud tùy chọn cho đồng bộ đa thiết bị.
-
-## Chưa phải AI thật
-Điểm phát âm hiện dựa trên Speech-to-Text và độ giống văn bản. Đây không phải chấm âm vị AI chính xác; bản production vẫn cần backend/API pronunciation scoring.
+The application shell is loaded by `index.html` and `app.js`. Route-specific modules are lazy-loaded by `data/route-loader.js`; user-scoped state remains available locally and can be synchronized through a compare-and-swap Supabase RPC. AI requests go through a separate serverless boundary and are optional.
+
+Read the detailed documents:
+
+- [System architecture](SYSTEM_ARCHITECTURE.md)
+- [Database schema](DATABASE_SCHEMA.md)
+- [API documentation](API_DOCUMENTATION.md)
+- [AI architecture](AI_ARCHITECTURE.md)
+- [Learning engine](LEARNING_ENGINE.md)
+- [Security policy](SECURITY.md)
+
+## Technology
+
+| Area | Technology |
+| --- | --- |
+| Web | Semantic HTML, modular CSS, browser JavaScript |
+| PWA | Web App Manifest, Service Worker, Cache Storage |
+| Cloud data | Supabase Auth, PostgreSQL, RLS, RPC |
+| Edge APIs | Vercel serverless functions on Node.js |
+| Optional AI | OpenAI Responses API through `/api/chat` |
+| Mobile shell | Capacitor 8, Android and iOS projects |
+| Validation | Node.js contract tests, headless Edge browser QA, GitHub Actions |
+
+The web client deliberately has no root bundler or runtime package dependency. The native shell has its own dependencies in `mobile/package.json`.
+
+## Installation
+
+### Prerequisites
+
+- Python 3 for a zero-configuration static server, or another HTTP server.
+- Node.js 22 for validation scripts and serverless/mobile tooling.
+- Microsoft Edge for real-browser QA and screenshot capture.
+
+### Run the web application locally
+
+```bash
+git clone https://github.com/tam9166/Hoctienghan.git
+cd Hoctienghan
+python -m http.server 4173 --bind 127.0.0.1
+```
+
+Open `http://127.0.0.1:4173/`. A static server supports local learning and most UI flows. Requests under `/api/*` return `404` unless a serverless development runtime is used.
+
+### Configure optional services
+
+Copy `.env.example` to the environment file used by your hosting/development runtime and provide only the values you need. Important groups are:
+
+- `SUPABASE_URL` and `SUPABASE_ANON_KEY` for cloud authentication and sync;
+- `OPENAI_API_KEY` plus optional model variables for AI assistance;
+- `APP_ALLOWED_ORIGINS` and mobile origins for CORS;
+- `PRODUCTION_URL` for production smoke monitoring.
+
+Never expose a Supabase service-role key or an OpenAI API key in browser code. `/api/config` returns only validated public Supabase configuration.
+
+For serverless and mobile setup, follow [Development guide](DEVELOPMENT_GUIDE.md) and [Mobile native ecosystem](docs/mobile-native-ecosystem.md).
+
+### Validate a change
+
+PowerShell:
+
+```powershell
+Get-ChildItem api,data,scripts,tests -Recurse -Filter *.js | ForEach-Object { node --check $_.FullName }
+node scripts/verify-production-build.js
+node scripts/release-readiness.js
+Get-ChildItem tests -Filter *.test.js | ForEach-Object { node $_.FullName }
+```
+
+The CI workflow repeats syntax, build-contract, release-readiness, and static contract checks on `main` pushes and pull requests.
+
+## Demo
+
+The canonical presentation path is:
+
+```text
+Landing → Sign in → Personalized Home → Learning → Review
+        → Optional Assistant → Analytics → Profile
+```
+
+Use synthetic data or an isolated demo account. Do not demo with a real learner's history. Prepared 5-, 10-, and 20-minute scripts, failure fallbacks, and an architecture explanation are available in [Demo guide](DEMO_GUIDE.md).
+
+## Documentation
+
+| Document | Purpose |
+| --- | --- |
+| [Project overview](PROJECT_OVERVIEW.md) | Product scope, users, capabilities, and limitations |
+| [System architecture](SYSTEM_ARCHITECTURE.md) | Runtime components, data flow, auth, sync, offline behavior |
+| [Database schema](DATABASE_SCHEMA.md) | Physical Supabase schema and logical client domains |
+| [API documentation](API_DOCUMENTATION.md) | Serverless endpoint contracts and examples |
+| [AI architecture](AI_ARCHITECTURE.md) | Consent, routing, context, fallback, and quality boundaries |
+| [Learning engine](LEARNING_ENGINE.md) | SRS, mastery, adaptation, evidence, and safeguards |
+| [Security policy](SECURITY.md) | Threat boundaries, reporting, controls, and known gaps |
+| [Development guide](DEVELOPMENT_GUIDE.md) | Local setup, validation, migrations, and deployment workflow |
+| [Contributing](CONTRIBUTING.md) | Contribution and pull request expectations |
+| [Changelog](CHANGELOG.md) | Release-level changes and known limitations |
+| [Case study](CASE_STUDY.md) | Problem, decisions, outcomes, lessons, and future work |
+| [Demo guide](DEMO_GUIDE.md) | Presentation scripts and safe demo preparation |
+
+Operational runbooks and release evidence live under [`docs/`](docs/). They describe procedures and checks; their presence is not evidence that an environment is deployed or production-ready.
+
+## Roadmap
+
+Near-term priorities are intentionally narrower than the existing platform foundations:
+
+1. validate the core learning journey with real users;
+2. verify curriculum and examples with qualified Korean-language reviewers;
+3. harden API authentication, distributed rate limiting, monitoring, and backup restore drills;
+4. complete native device QA and store-signing workflows;
+5. promote a release only after the documented launch gates pass.
+
+See [Changelog](CHANGELOG.md) for the current release-candidate record.
+
+## License
+
+This repository does not currently declare an open-source license. Copyright remains with the repository owner; cloning or contributing does not grant redistribution or commercial-use rights. Add an explicit `LICENSE` file before publishing under a chosen license.
+
+## Contact
+
+- Project: [github.com/tam9166/Hoctienghan](https://github.com/tam9166/Hoctienghan)
+- Product questions and non-sensitive bugs: [GitHub Issues](https://github.com/tam9166/Hoctienghan/issues)
+- Security reports: follow the private reporting guidance in [SECURITY.md](SECURITY.md); do not post secrets or exploit details in a public issue.
