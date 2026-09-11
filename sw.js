@@ -80,9 +80,9 @@ const OFFLINE_ASSETS = [
   './data/content-quality-system.js?v=2',
   './data/learning-modules.js?v=9',
   './data/practice-bank.js?v=8',
-  './locales/vi.js?v=4',
-  './locales/en.js?v=6',
-  './locales/zh-CN.js?v=6',
+  './locales/vi.js?v=5',
+  './locales/en.js?v=7',
+  './locales/zh-CN.js?v=7',
   './data/content-locales.js?v=1',
   './data/route-loader.js?v=6',
   './app.js?v=66',
@@ -162,7 +162,7 @@ const OFFLINE_ASSETS = [
 // cached on first use, so installation no longer downloads the complete platform.
 const INSTALL_ASSETS = new Set([
   './index.html', './styles.css?v=32', './product-ux.css?v=1', './production-stability.css?v=2', './security-privacy.css?v=1', './mobile-experience.css?v=1',
-  './locales/vi.js?v=4', './locales/en.js?v=6', './locales/zh-CN.js?v=6', './data/content-locales.js?v=1',
+  './locales/vi.js?v=5', './locales/en.js?v=7', './locales/zh-CN.js?v=7', './data/content-locales.js?v=1',
   './data/romanization.js?v=8', './data/vocabulary-bank.js?v=8', './data/dictionary.js?v=1', './data/theory-lessons.js?v=1', './data/handwriting.js?v=1',
   './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=6', './app.js?v=66',
   './data/curriculum.js?v=1', './data/adaptive-engine.js?v=8', './data/beginner-foundation.js?v=2', './data/daily-learning-experience.js?v=6',

@@ -477,8 +477,8 @@ const ProductLanguageService = {
       [/AI Error Notebook/gi, locale === 'en' ? 'My error notebook' : locale === 'zh-CN' ? '我的错题本' : 'Sổ lỗi của tôi'],
       [/AI Summary/gi, locale === 'en' ? 'Progress summary' : locale === 'zh-CN' ? '进度摘要' : 'Tóm tắt tiến độ'],
       [/AI Feedback/gi, locale === 'en' ? 'Feedback' : locale === 'zh-CN' ? '学习反馈' : 'Nhận xét'],
-      [/AI Coach/gi, locale === 'en' ? 'Personal practice' : locale === 'zh-CN' ? '个性化练习' : 'Luyện tập cá nhân'],
-      [/AI Korean Tutor|AI Tutor/gi, locale === 'en' ? 'Learning help' : locale === 'zh-CN' ? '学习帮助' : 'Trợ giúp học tập'],
+      [/AI Coach/gi, locale === 'en' ? 'Learning assistant' : locale === 'zh-CN' ? '学习助手' : 'Trợ lý học tập'],
+      [/AI Korean Tutor|AI Tutor/gi, locale === 'en' ? 'Learning assistant' : locale === 'zh-CN' ? '学习助手' : 'Trợ lý học tập'],
       [/AI Companion/gi, locale === 'en' ? 'Learning companion' : locale === 'zh-CN' ? '学习伙伴' : 'Đồng hành học tập'],
       [/AI Study Advisor/gi, locale === 'en' ? 'Study advisor' : locale === 'zh-CN' ? '学习顾问' : 'Cố vấn học tập'],
       [/AI Analytics/gi, locale === 'en' ? 'Learning insights' : locale === 'zh-CN' ? '学习分析' : 'Phân tích học tập'],
@@ -2325,7 +2325,7 @@ function lessonPreviewView() {
   const lesson = theoryLesson?.title || state.selectedLessonPreview || 'Bài học tiếng Hàn';
   const skill = /Nghe|Listening/.test(lesson) ? 'listening' : /Đọc|Reading/.test(lesson) ? 'reading' : /Viết|Writing|Email|đoạn/.test(lesson) ? 'writing' : /Nói|Speaking|Phỏng vấn/.test(lesson) ? 'speaking' : 'grammar';
   const route = skill === 'writing' ? 'writing-hub' : skill === 'speaking' ? 'speaking-hub' : 'skill-hub';
-  return `<section class="section page-heading"><button class="back-link" data-view="lessons" aria-label="Quay lại">←</button><p class="eyebrow">Bài học MVP</p><h1 class="headline">${escapeHtml(lesson)}</h1><p class="subtle">Mục tiêu: nhận biết cấu trúc, xem ví dụ và chuyển ngay sang bài luyện phù hợp.</p>${renderRomanizationToggle()}</section><section class="card section"><h2 class="section-title">Cách học gợi ý</h2><ol class="learning-steps"><li>Đọc hoặc nghe mẫu tiếng Hàn.</li><li>Đối chiếu nghĩa và cách dùng bằng tiếng Việt.</li><li>Làm bài luyện theo kỹ năng để kiểm tra.</li></ol><div class="example"><div>${renderKoreanLearningText({ korean: '한국어를 꾸준히 연습해요.', romanization: 'hangugeoreul kkujunhi yeonseuphaeyo.', meaningVi: 'Tôi luyện tiếng Hàn đều đặn.' }, { compact: true })}</div><button class="audio-btn" data-speak="한국어를 꾸준히 연습해요." aria-label="Nghe phát âm tiếng Hàn">🔊</button></div></section><button class="btn primary full" data-open-skill="${skill}" data-view="${route}">Bắt đầu luyện ${escapeHtml(lesson)}</button>`;
+  return `<section class="section page-heading"><button class="back-link" data-view="lessons" aria-label="Quay lại">←</button><p class="eyebrow">Bài học theo lộ trình</p><h1 class="headline">${escapeHtml(lesson)}</h1><p class="subtle">Mục tiêu: nhận biết cấu trúc, xem ví dụ và chuyển ngay sang bài luyện phù hợp.</p>${renderRomanizationToggle()}</section><section class="card section"><h2 class="section-title">Cách học gợi ý</h2><ol class="learning-steps"><li>Đọc hoặc nghe mẫu tiếng Hàn.</li><li>Đối chiếu nghĩa và cách dùng bằng tiếng Việt.</li><li>Làm bài luyện theo kỹ năng để kiểm tra.</li></ol><div class="example"><div>${renderKoreanLearningText({ korean: '한국어를 꾸준히 연습해요.', romanization: 'hangugeoreul kkujunhi yeonseuphaeyo.', meaningVi: 'Tôi luyện tiếng Hàn đều đặn.' }, { compact: true })}</div><button class="audio-btn" data-speak="한국어를 꾸준히 연습해요." aria-label="Nghe phát âm tiếng Hàn">🔊</button></div></section><button class="btn primary full" data-open-skill="${skill}" data-view="${route}">Bắt đầu luyện ${escapeHtml(lesson)}</button>`;
 }
 
 function listeningStudioQuestions() {

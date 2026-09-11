@@ -1,7 +1,7 @@
 {
   "name": "Tiếng Hàn - TamHoanq",
   "short_name": "TamHoanq",
-  "description": "Webapp học tiếng Hàn cho người Việt",
+  "description": "Học tiếng Hàn theo lộ trình dành cho người Việt, từ Hangul đến TOPIK và giao tiếp thực tế",
   "id": "./",
   "start_url": "./",
   "scope": "./",

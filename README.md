@@ -2,7 +2,7 @@
 
 ![Logo TH của Tiếng Hàn - TamHoanq](icons/logo-source.svg)
 
-MVP mobile-first học tiếng Hàn dành cho người Việt, triển khai dạng static SPA/PWA.
+Nền tảng học tiếng Hàn dành cho người Việt, dẫn người học từ Hangul đến TOPIK và giao tiếp thực tế bằng một bước học rõ ràng mỗi ngày. Sản phẩm được triển khai dạng static SPA/PWA.
 
 Nhận diện chính dùng xanh chanh `#DDFF66` kết hợp màu chữ tối `#1C2416`; cùng một nguồn logo TH được dùng cho giao diện, favicon và bộ icon PWA.
 
@@ -58,7 +58,7 @@ Nếu đã cài PWA với tên cũ, hãy xóa shortcut cũ, mở lại URL rồi
 - Phrasebook offline, lưu câu và lịch sử dịch theo từng tài khoản.
 - Kết quả tiếng Hàn có thể nghe bằng TTS `ko-KR` và chuyển thẳng sang luyện nói.
 - Chưa cấu hình API dịch online; câu ngoài dữ liệu local hiển thị thông báo rõ ràng, không giả kết quả.
-- AI Gia sư TamHoanq mở bằng nút nổi, lưu hội thoại theo user, dùng context học tối thiểu và có quick actions sửa câu/dịch/tạo bài tập.
+- Trợ lý học tập mở bằng nút nổi, lưu hội thoại theo user, dùng context học tối thiểu và có quick actions sửa câu/dịch/tạo bài tập; phần quyền riêng tư vẫn nêu rõ khi hỗ trợ AI được bật.
 - Endpoint server-side tùy chọn là `/api/chat`; cấu hình `OPENAI_API_KEY` và tùy chọn `OPENAI_MODEL` trên Vercel Environment Variables. Không đặt key trong frontend.
 - Khi chưa có key hoặc offline, AI hiển thị trạng thái cấu hình/kết nối rõ ràng; dictionary, theory và phrasebook vẫn hoạt động offline.
 

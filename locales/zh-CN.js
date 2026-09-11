@@ -68,11 +68,11 @@ Object.assign(window.KLEARN_LOCALES['zh-CN'].phrases, {
   'Phòng luyện Nghe':'听力训练室','Nghe bình thường':'听力','Nghe và nhập Hangul':'听写','Nghe rồi nói lại':'跟读','Nghe và trả lời câu hỏi':'听力测验','Phòng luyện Nói':'口语练习室','Phòng luyện Viết':'写作考试室','Thi thử TOPIK':'TOPIK 模拟考试','Thi thử full đề':'完整模拟考试','Exam mode · timer · không gợi ý':'考试模式 · 计时 · 无提示','Repeat':'跟读重复','Situation':'情境','Role Play':'角色扮演','Free Speaking':'自由表达','Shadowing':'影子跟读','Dictation':'听写','Quiz':'测验','Text comparison':'文本对比','Transcript nhận được':'识别文本','Đánh giá luyện tập':'练习评估','Không phải điểm TOPIK chính thức':'不是官方 TOPIK 成绩','Đặt lại':'重置','Lưu lỗi':'保存错误','Ôn ngữ pháp liên quan':'复习相关语法','Câu tiếp theo':'下一题','Bắt đầu lại':'重新开始','Xóa A-B':'清除 A-B','Nghe từ':'从此处播放','Hết giờ. Hãy nộp bài viết.':'时间到，请提交写作。','Exam mode: không hiển thị transcript, translation, romanization, hint, explanation hoặc dictionary.':'考试模式：隐藏听写文本、翻译、罗马音、提示、解析和词典。','Kết quả thi thử':'模拟考试结果','Thời gian':'用时','Hoàn thành yêu cầu':'完成要求','Độ khớp câu':'句子匹配度','Grammar feedback':'语法反馈','Vocabulary feedback':'词汇反馈','Suggested expression':'推荐表达','Bật transcript':'显示文本','Bật bản dịch':'显示翻译','Bật romanization':'显示罗马音'
 });
 Object.assign(window.KLEARN_LOCALES['zh-CN'].keys, {
-  'lesson.courseEyebrow': '练习课程', 'ai.title': '学习帮助', 'ai.subtitle': '需要时提供额外讲解',
+  'lesson.courseEyebrow': '学习路径课程', 'ai.title': '学习助手', 'ai.subtitle': '需要时提供额外讲解',
   'ai.placeholder': '询问当前韩语课程...', 'ai.thinking': '正在准备回答……',
-  'ai.privacy': '启用后，本功能可使用交流内容和学习进度提供更合适的建议。不会发送密码或登录码。',
+  'ai.privacy': '启用 AI 辅助后，系统可使用交流内容和学习进度提供更合适的建议。不会发送密码或登录码。',
   'ai.empty': '可以询问语法、词汇、发音或当前课程。', 'ai.notConfigured': '在线学习帮助尚未配置。',
-  'ai.offline': '在线学习帮助需要互联网连接。你仍可使用离线词典和短语手册。',
-  'ai.fab': '打开学习帮助', 'ai.fabLabel': '提问', 'ai.newChat': '新交流', 'ai.close': '关闭学习帮助',
-  'ai.disabledTitle': '学习帮助已关闭', 'ai.disabledBody': '智能辅助已根据你的设置关闭。', 'ai.settings': '打开设置', 'nav.assistant': '个性练习'
+  'ai.offline': '学习助手需要互联网连接。你仍可使用离线词典和短语手册。',
+  'ai.fab': '打开学习助手', 'ai.fabLabel': '提问', 'ai.newChat': '新交流', 'ai.close': '关闭学习助手',
+  'ai.disabledTitle': '学习助手已关闭', 'ai.disabledBody': 'AI 辅助已根据你的设置关闭。', 'ai.settings': '打开设置', 'nav.assistant': '学习助手'
 });

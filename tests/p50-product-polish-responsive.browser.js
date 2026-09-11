@@ -49,12 +49,12 @@ async function until(cdp, expression, attempts = 100) { for (let attempt = 0; at
     }
 
     await evaluate(cdp, `document.getElementById('aiFab').click()`); await wait(80);
-    assert.equal(await evaluate(cdp, `Boolean(document.querySelector('.ai-panel')) && document.querySelector('.ai-panel strong').textContent === 'Trợ giúp học tập'`), true, 'learning help panel copy is incorrect');
+    assert.equal(await evaluate(cdp, `Boolean(document.querySelector('.ai-panel')) && document.querySelector('.ai-panel strong').textContent === 'Trợ lý học tập'`), true, 'learning assistant panel copy is incorrect');
     assert.equal(await evaluate(cdp, `document.querySelector('.ai-panel').getBoundingClientRect().right <= innerWidth + 1`), true, 'learning help panel overflows');
     await evaluate(cdp, `document.documentElement.dataset.theme='dark'`); await wait(50);
     assert.equal(await evaluate(cdp, `getComputedStyle(document.body).color !== getComputedStyle(document.body).backgroundColor`), true, 'dark mode text contrast collapsed');
     await evaluate(cdp, `(() => { const sample=document.createElement('p'); sample.id='p50-copy'; sample.textContent='P50 · AI Coach · CloudSync · backend · database'; document.getElementById('app').append(sample); ProductLanguageService.apply(document); })()`);
-    assert.equal(await evaluate(cdp, `document.getElementById('p50-copy').textContent`), 'Luyện tập cá nhân · đồng bộ dữ liệu · hệ thống · kho dữ liệu', 'technical copy was not normalized');
+    assert.equal(await evaluate(cdp, `document.getElementById('p50-copy').textContent`), 'Trợ lý học tập · đồng bộ dữ liệu · hệ thống · kho dữ liệu', 'technical copy was not normalized');
     assert.equal(await evaluate(cdp, `JSON.parse(localStorage.getItem('klearn_progress'))['p50-qa'].p50Marker`), 'keep-me', 'existing progress was changed');
     const personas = await evaluate(cdp, `(() => { const user=KLEARN_APP.state.currentUser; const cases=[{name:'beginner',value:{learningTrack:'foundation',level:'Level 0',learningMode:'casual',goals:['hobby']}},{name:'topik',value:{learningTrack:'topik',level:'TOPIK I',learningMode:'topik',goals:['topik']}},{name:'conversation',value:{learningTrack:'topik',level:'Beginner',learningMode:'conversation',goals:['living']}}]; return cases.map((item)=>{Object.assign(user,item.value); return {expected:item.name,actual:UserExperienceProfileService.segment(),features:FeaturePriorityService.recommended().length};}); })()`);
     personas.forEach((persona) => { assert.equal(persona.actual, persona.expected, `${persona.expected} persona was misclassified`); assert.ok(persona.features > 0, `${persona.expected} has no recommended learning action`); });

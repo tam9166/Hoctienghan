@@ -27,10 +27,10 @@ for (const file of ['styles.css', 'advanced-content-platform.css', 'community-le
 
 assert.match(app, /const ProductLanguageService =/);
 assert.match(app, /ProductLanguageService\.apply\(document\)/);
-assert.match(app, /Trợ giúp học tập/);
+assert.match(app, /Trợ lý học tập/);
 assert.doesNotMatch(app, />✨ AI<\/button>/);
 assert.doesNotMatch(app, /<strong>AI_DISABLED_BY_USER<\/strong>/);
-assert.match(index, />Luyện cá nhân<\/span>/);
+assert.match(index, />Trợ lý<\/span>/);
 assert.match(styles, /\.bottom-nav \.nav-item\[data-route="ai-coach"\]\s*\{\s*display:\s*none/);
 assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
 assert.match(styles, /:focus-visible/);
