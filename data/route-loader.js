@@ -22,7 +22,7 @@
     communityLearning: { styles: ['community-learning.css?v=1'], scripts: ['data/community-learning.js?v=1'] },
     enterprise: { styles: ['enterprise-platform.css?v=1'], scripts: ['data/enterprise-platform.js?v=1'] },
     retention: { dependencies: ['practical'], styles: ['retention-system.css?v=1'], scripts: ['data/retention-system.js?v=1'] },
-    contentQuality: { dependencies: ['content'], styles: ['content-quality.css?v=1'], scripts: ['data/content-quality-system.js?v=1'] },
+    contentQuality: { dependencies: ['content'], styles: ['content-quality.css?v=1'], scripts: ['data/content-quality-system.js?v=2'] },
     aiInfra: { scripts: ['data/ai-infrastructure.js?v=3'] },
     globalLanguage: { styles: ['global-language-platform.css?v=1'], scripts: ['data/global-language-platform.js?v=2'] },
     advancedAnalytics: { scripts: ['data/advanced-learning-analytics.js?v=1'] },

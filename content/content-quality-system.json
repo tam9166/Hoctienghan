@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "contentVersion": 1,
+  "schemaVersion": 2,
+  "contentVersion": 2,
   "verified": true,
   "reviewStatus": "approved",
   "sourcePolicy": ["TOPIK curriculum", "Frequency vocabulary", "Native-reviewed examples"],
@@ -9,6 +9,7 @@
     { "id": "meaning", "vi": "Sai nghĩa / bản dịch chưa tự nhiên", "en": "Meaning or unnatural translation", "zh-CN": "释义或翻译不自然" },
     { "id": "audio", "vi": "Audio hoặc phát âm", "en": "Audio or pronunciation", "zh-CN": "音频或发音" },
     { "id": "example", "vi": "Ví dụ không tự nhiên", "en": "Unnatural example", "zh-CN": "例句不自然" },
+    { "id": "answer", "vi": "Câu hỏi hoặc đáp án sai", "en": "Incorrect question or answer", "zh-CN": "题目或答案错误" },
     { "id": "difficulty", "vi": "Mức độ chưa đúng", "en": "Difficulty seems wrong", "zh-CN": "难度可能不准确" },
     { "id": "duplicate", "vi": "Nội dung trùng", "en": "Duplicate content", "zh-CN": "重复内容" }
   ],

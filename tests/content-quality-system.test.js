@@ -30,7 +30,8 @@ function boot(role = 'admin') {
 assert.equal(content.verified, true);
 assert.equal(content.reviewStatus, 'approved');
 assert.ok(content.reviews.every((item) => item.accuracyScore >= 0 && item.accuracyScore <= 100));
-assert.equal(content.reportTypes.length, 5);
+assert.equal(content.reportTypes.length, 6);
+assert.ok(content.reportTypes.some((item) => item.id === 'answer'));
 
 const admin = boot('admin');
 const quality = admin.window.ContentQualityService;
@@ -50,6 +51,9 @@ assert.equal(admin.window.DuplicateDetectionService.groups([{ id: 'a', type: 'ex
 const report = admin.window.ContentQualityReportService.submit({ contentId: 'grammar-topic-particle', reportType: 'meaning', message: 'Bản dịch cần tự nhiên hơn.' });
 assert.equal(report.qualitySystem, 'P25');
 assert.equal(admin.window.ContentQualityReportService.all().length, 1);
+const answerReport = admin.window.ContentQualityReportService.submit({ contentId: 'grammar-topic-particle', reportType: 'answer', message: 'Câu hỏi hoặc đáp án cần được kiểm tra.' });
+assert.equal(answerReport.reportType, 'answer');
+assert.equal(admin.window.ContentQualityReportService.all().length, 2);
 assert.match(admin.window.KLEARN_EXTRA_VIEWS['content-quality-dashboard'](), /Chất lượng nội dung/);
 const student = boot('student');
 assert.match(student.window.KLEARN_EXTRA_VIEWS['content-quality-dashboard'](), /Không có quyền truy cập/);
@@ -57,7 +61,7 @@ assert.equal(student.window.ContentQualityService.all().length, 3);
 
 assert.match(appSource, /content-quality-dashboard/);
 assert.match(indexSource, /content-quality\.css\?v=1/);
-assert.match(indexSource, /data\/content-quality-system\.js\?v=1/);
+assert.match(indexSource, /data\/content-quality-system\.js\?v=2/);
 assert.match(workerSource, /klearn-v80/);
 assert.match(workerSource, /content-quality-system\.json/);
 assert.match(migration, /content_quality_reviews/);

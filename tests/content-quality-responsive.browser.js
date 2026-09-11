@@ -30,6 +30,7 @@ async function until(cdp, expression, attempts = 100) { for (let attempt = 0; at
     await evaluate(cdp, `document.querySelector('[data-content-open="grammar-topic-particle"]').click()`); await wait(150);
     assert.equal(await until(cdp, `Boolean(document.querySelector('[data-p25-trust]'))`), true, 'quality trust panel did not render');
     assert.equal(await evaluate(cdp, `document.body.textContent.includes('Native checked') && document.body.textContent.includes('TOPIK curriculum')`), true, 'trust metadata missing');
+    assert.equal(await evaluate(cdp, `Boolean(document.querySelector('[data-p25-report-form] option[value="answer"]'))`), true, 'incorrect question/answer report type missing');
     const results = [];
     for (const width of [360, 768, 1024, 1440, 1920]) {
       await cdp.send('Emulation.setDeviceMetricsOverride', { width, height: 1100, deviceScaleFactor: 1, mobile: false }); await wait(100);

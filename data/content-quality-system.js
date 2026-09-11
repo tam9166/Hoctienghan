@@ -21,7 +21,7 @@
     async load() {
       if (runtime.content) return runtime.content;
       if (runtime.loading) return runtime.loading;
-      runtime.loading = fetch('./content/content-quality-system.json', { cache: 'default' }).then((response) => { if (!response.ok) throw new Error(`Quality content ${response.status}`); return response.json(); }).then((value) => {
+      runtime.loading = fetch('./content/content-quality-system.json?v=2', { cache: 'default' }).then((response) => { if (!response.ok) throw new Error(`Quality content ${response.status}`); return response.json(); }).then((value) => {
         if (value?.verified !== true || value.reviewStatus !== 'approved' || !Array.isArray(value.reviews) || !Array.isArray(value.reportTypes)) throw new Error('Content quality gate failed');
         runtime.content = value; runtime.error = ''; return value;
       }).catch((error) => { runtime.error = error.message || 'Content quality unavailable'; return null; }).finally(() => { runtime.loading = false; if (routes.has(state.currentView)) render(); });
