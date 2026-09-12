@@ -1,5 +1,12 @@
 # Changelog
 
+## P71A — Learning Intelligence & Personal Memory System
+
+- Added owner-scoped long-term learning memory for milestones, achievements, weakness history, learning patterns and improvement snapshots.
+- Added evidence-based seven-skill diagnostics, 14-day learning prescriptions and goal timeline simulations.
+- Extended AI context with bounded learning-memory summaries while excluding credentials, raw conversations, audio and private notes.
+- Added RLS-ready Supabase tables, responsive learning-intelligence views and focused unit/browser regression coverage.
+
 All notable repository changes are documented here. The project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) structure and [Semantic Versioning](https://semver.org/) for release metadata where practical.
 
 ## [Unreleased]

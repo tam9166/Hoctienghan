@@ -5,6 +5,7 @@
     resources: { scripts: ['data/resource-library.js?v=1', 'data/content-review.js?v=2'] },
     topik: { scripts: ['data/topik-strategy.js?v=1'] },
     ai: { scripts: ['data/ai-coach.js?v=6', 'data/learning-memory.js?v=3', 'data/personal-intelligence.js?v=3', 'data/learning-intelligence-data.js?v=1', 'data/learning-intelligence.js?v=2'] },
+    intelligenceMemory: { dependencies: ['ai'], styles: ['learning-intelligence-memory.css?v=1'], scripts: ['data/learning-intelligence-memory.js?v=1'] },
     practical: { scripts: ['data/practical-study.js?v=4'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
@@ -23,7 +24,7 @@
     enterprise: { styles: ['enterprise-platform.css?v=1'], scripts: ['data/enterprise-platform.js?v=1'] },
     retention: { dependencies: ['practical'], styles: ['retention-system.css?v=1'], scripts: ['data/retention-system.js?v=1'] },
     contentQuality: { dependencies: ['content'], styles: ['content-quality.css?v=1'], scripts: ['data/content-quality-system.js?v=2'] },
-    aiInfra: { styles: ['ai-quality.css?v=1'], scripts: ['data/ai-infrastructure.js?v=4', 'data/ai-quality-optimization.js?v=1'] },
+    aiInfra: { styles: ['ai-quality.css?v=1'], scripts: ['data/ai-infrastructure.js?v=5', 'data/ai-quality-optimization.js?v=1'] },
     globalLanguage: { styles: ['global-language-platform.css?v=1', 'global-language-core.css?v=1'], scripts: ['data/global-language-platform.js?v=2', 'data/global-language-core-v2.js?v=1'] },
     advancedAnalytics: { scripts: ['data/advanced-learning-analytics.js?v=1'] },
     edtech: { styles: ['edtech-business-intelligence.css?v=1'], scripts: ['data/edtech-business-intelligence.js?v=1'] },
@@ -37,7 +38,7 @@
     science: { styles: ['learning-science.css?v=1'], scripts: ['data/learning-science-engine.js?v=1'] },
     career: { styles: ['career-learning.css?v=1'], scripts: ['data/career-learning-ecosystem.js?v=2'] },
     agents: { styles: ['ai-agent-architecture.css?v=1'], scripts: ['data/ai-agent-architecture.js?v=1'] },
-    aiLanguageOs: { dependencies: ['ai', 'aiInfra', 'globalAi', 'agents', 'globalLanguage', 'advancedAnalytics', 'content'], styles: ['ai-language-os.css?v=1'], scripts: ['data/ai-language-operating-system.js?v=1'] },
+    aiLanguageOs: { dependencies: ['ai', 'intelligenceMemory', 'aiInfra', 'globalAi', 'agents', 'globalLanguage', 'advancedAnalytics', 'content'], styles: ['ai-language-os.css?v=1'], scripts: ['data/ai-language-operating-system.js?v=1'] },
     immersiveKorean: { dependencies: ['immersive'], styles: ['immersive-korean-world.css?v=2'], scripts: ['data/immersive-korean-world.js?v=2'] },
     marketplace: { styles: ['global-education-marketplace.css?v=1'], scripts: ['data/global-education-marketplace.js?v=1'] },
     outcomes: { styles: ['learning-outcomes.css?v=1'], scripts: ['data/learning-outcomes.js?v=1'] },
@@ -52,6 +53,8 @@
   routes('strategy-lab strategy-detail topik-strategy-center', ['topik']);
   routes('ai-coach adaptive-plan personal-report journey-intelligence', ['aiLanguageOs']);
   routes('ai-language-os', ['aiLanguageOs']);
+  routes('learning-intelligence-memory learning-diagnostic learning-prescription learning-goal-simulator', ['intelligenceMemory']);
+  routes('placement onboarding-result', ['intelligenceMemory']);
   routes('grammar-compare grammar-notebook typing-trainer repair-path focus-study chapter-checkpoint study-calendar progress-timeline achievements admin-content vocabulary-collections sentence-builder real-life-missions study-settings error-notebook manual-review-queue offline-packs shadowing-recorder', ['practical', 'scale']);
   routes('conversation-simulator', ['conversation']);
   routes('natural-korean', ['context']);
@@ -99,7 +102,7 @@
   routes('topik', ['topik', 'analytics', 'advancedAnalytics', 'science', 'outcomes']);
   routes('practice speaking-hub', ['voice']);
   routes('home', ['growth']);
-  routes('profile', ['longTerm', 'education', 'communityLearning', 'enterprise', 'retention', 'contentQuality', 'globalLanguage', 'edtech', 'premium', 'aiContent', 'community', 'monetization', 'futureLanguage', 'outcomes', 'growth']);
+  routes('profile', ['longTerm', 'education', 'communityLearning', 'enterprise', 'retention', 'contentQuality', 'globalLanguage', 'edtech', 'premium', 'aiContent', 'community', 'monetization', 'futureLanguage', 'outcomes', 'growth', 'intelligenceMemory']);
   routes('search', ['resources', 'practical', 'context', 'content', 'competitiveContent', 'globalLanguage']);
   const discoveryRoutes = new Set(['lessons', 'review', 'topik', 'practice', 'speaking-hub', 'profile', 'search']);
 
