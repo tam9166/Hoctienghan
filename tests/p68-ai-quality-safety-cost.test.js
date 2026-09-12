@@ -201,9 +201,9 @@ async function callHandler(body, { headers = {}, fetchImpl } = {}) {
   assert.match(read('api/ai/feedback.js'), /rawPromptStored: false/);
   assert.match(read('api/ai/feedback.js'), /rawResponseStored: false/);
   assert.match(read('data/route-loader.js'), /ai-quality-optimization\.js\?v=1/);
-  assert.match(read('sw.js'), /const CACHE = 'klearn-v86'/);
+  assert.match(read('sw.js'), /const CACHE = 'klearn-v87'/);
   assert.match(read('sw.js'), /content\/ai-quality-evaluation-dataset\.json/);
-  assert.match(read('index.html'), /app\.js\?v=72/);
+  assert.match(read('index.html'), /app\.js\?v=73/);
 
   console.log('P68 AI quality, safety and cost: task audit/contracts, minimized context, two-layer validation, hallucination dataset, optional AI, fallback, dedupe, public-only cache, tier control, aggregate telemetry and RLS passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

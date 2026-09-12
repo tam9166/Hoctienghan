@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "status": "approved",
+  "verified": true,
+  "updatedAt": "2026-09-12",
+  "source": "TamHoanq original learning content",
+  "pronunciationTargets": [
+    {
+      "id": "vn-rieul",
+      "sound": "ㄹ",
+      "title": "Âm ㄹ giữa r và l",
+      "word": "라면",
+      "translation": "mì ramen",
+      "focusSyllable": "라",
+      "accepted": ["라면"],
+      "confusions": [{ "heard": "나면", "sound": "ㄴ", "feedback": "Đầu lưỡi cần chạm rất nhanh vào lợi trên; đừng giữ lâu như âm l tiếng Việt." }],
+      "tip": "Chạm nhanh đầu lưỡi vào lợi trên rồi thả ra.",
+      "example": "라면을 먹어요."
+    },
+    {
+      "id": "vn-eo",
+      "sound": "ㅓ",
+      "title": "Phân biệt ㅓ và ㅗ",
+      "word": "서울",
+      "translation": "Seoul",
+      "focusSyllable": "서",
+      "accepted": ["서울"],
+      "confusions": [{ "heard": "소울", "sound": "ㅗ", "feedback": "Âm ㅓ của bạn gần ㅗ. Hãy mở miệng tự nhiên hơn và không tròn môi." }],
+      "tip": "Giữ môi không tròn; âm phát ra ở vị trí giữa và mở.",
+      "example": "서울에 살아요."
+    },
+    {
+      "id": "vn-eu",
+      "sound": "ㅡ",
+      "title": "Phân biệt ㅡ và ㅜ",
+      "word": "음식",
+      "translation": "món ăn",
+      "focusSyllable": "음",
+      "accepted": ["음식"],
+      "confusions": [{ "heard": "움식", "sound": "ㅜ", "feedback": "Âm ㅡ đang gần ㅜ. Kéo ngang môi và không chu môi." }],
+      "tip": "Kéo nhẹ hai khóe môi sang ngang, lưỡi ở vị trí trung tâm.",
+      "example": "한국 음식을 좋아해요."
+    },
+    {
+      "id": "vn-batchim",
+      "sound": "받침",
+      "title": "Đóng âm cuối 받침",
+      "word": "한국",
+      "translation": "Hàn Quốc",
+      "focusSyllable": "국",
+      "accepted": ["한국"],
+      "confusions": [{ "heard": "한구", "sound": "ㄱ 받침", "feedback": "Bạn đang bỏ âm cuối ㄱ. Dừng luồng hơi ở cuối 국, không thêm nguyên âm ư." }],
+      "tip": "Khóa âm cuối gọn, không bật hơi và không thêm nguyên âm.",
+      "example": "한국에서 공부해요."
+    },
+    {
+      "id": "vn-linking",
+      "sound": "연음",
+      "title": "Nối âm tự nhiên",
+      "word": "한국어",
+      "translation": "tiếng Hàn",
+      "focusSyllable": "국어",
+      "accepted": ["한국어", "한구거"],
+      "confusions": [{ "heard": "한국 어", "sound": "연음", "feedback": "Hãy nối ㄱ cuối của 국 sang 어: nghe gần như 한구거, không tách hai từ." }],
+      "tip": "Khi 받침 đứng trước nguyên âm, chuyển âm cuối sang đầu âm tiết sau.",
+      "example": "한국어를 배워요."
+    }
+  ],
+  "mining": {
+    "sourceTypes": ["film", "webtoon", "youtube", "document"],
+    "vocabulary": [
+      { "id": "today", "surface": "오늘", "meaning": "hôm nay" },
+      { "id": "what", "surface": "뭐", "meaning": "gì" },
+      { "id": "eat", "surface": "먹다", "variants": ["먹을래", "먹어요", "먹고"], "meaning": "ăn" },
+      { "id": "coffee", "surface": "커피", "meaning": "cà phê" },
+      { "id": "order", "surface": "주문", "meaning": "gọi món / đặt hàng" },
+      { "id": "hospital", "surface": "병원", "meaning": "bệnh viện" },
+      { "id": "company", "surface": "회사", "meaning": "công ty" },
+      { "id": "meeting", "surface": "회의", "meaning": "cuộc họp" },
+      { "id": "please", "surface": "주세요", "meaning": "xin hãy cho tôi" }
+    ],
+    "grammar": [
+      { "id": "g-eulrae", "pattern": "을래", "label": "-(으)ㄹ래?", "meaning": "muốn / sẽ ... không?" },
+      { "id": "g-juseyo", "pattern": "주세요", "label": "-아/어 주세요", "meaning": "xin hãy..." },
+      { "id": "g-e-isseoyo", "pattern": "에 있어요", "label": "N에 있어요", "meaning": "có / ở tại..." },
+      { "id": "g-go-sipeoyo", "pattern": "고 싶어요", "label": "-고 싶어요", "meaning": "muốn làm..." }
+    ]
+  },
+  "mediaItems": [
+    {
+      "id": "media-short-commute",
+      "type": "short-video",
+      "level": "Beginner",
+      "title": "Video ngắn: hỏi đường tới ga",
+      "rights": "Original TamHoanq learning storyboard",
+      "lines": [
+        { "korean": "지하철역이 어디에 있어요?", "vietnamese": "Ga tàu điện ngầm ở đâu ạ?", "vocabularyIds": [], "grammarIds": ["g-e-isseoyo"] },
+        { "korean": "저기 은행 옆에 있어요.", "vietnamese": "Ở đằng kia, cạnh ngân hàng.", "vocabularyIds": [], "grammarIds": ["g-e-isseoyo"] }
+      ]
+    },
+    {
+      "id": "media-cafe-order",
+      "type": "dialogue",
+      "level": "Beginner",
+      "title": "Gọi đồ uống ở quán cà phê",
+      "rights": "Original TamHoanq learning dialogue",
+      "lines": [
+        { "korean": "어서 오세요. 무엇을 드릴까요?", "vietnamese": "Xin chào. Bạn muốn gọi gì?", "vocabularyIds": ["order"] },
+        { "korean": "아메리카노 한 잔 주세요.", "vietnamese": "Cho tôi một cốc Americano.", "vocabularyIds": ["coffee", "please"], "grammarIds": ["g-juseyo"] }
+      ]
+    },
+    {
+      "id": "media-friend-lunch",
+      "type": "audio",
+      "level": "Beginner",
+      "title": "Bạn bè rủ nhau ăn trưa",
+      "rights": "Original TamHoanq learning dialogue",
+      "lines": [
+        { "korean": "오늘 뭐 먹을래?", "vietnamese": "Hôm nay cậu muốn ăn gì?", "vocabularyIds": ["today", "what", "eat"], "grammarIds": ["g-eulrae"] },
+        { "korean": "비빔밥을 먹고 싶어요.", "vietnamese": "Mình muốn ăn bibimbap.", "vocabularyIds": ["eat"], "grammarIds": ["g-go-sipeoyo"] }
+      ]
+    }
+  ],
+  "scenarios": [
+    { "id": "real-restaurant", "topic": "restaurant", "title": "Gọi món tại nhà hàng", "partner": "어서 오세요. 몇 분이세요?", "expectedKeywords": ["명", "두"], "suggestion": "두 명이에요.", "fallbackPartnerReply": "네, 이쪽으로 오세요.", "contextTip": "Dùng số thuần Hàn với 명 khi nói số người." },
+    { "id": "real-airport", "topic": "airport", "title": "Tìm quầy làm thủ tục", "partner": "어디로 가세요?", "expectedKeywords": ["서울", "가요"], "suggestion": "서울에 가요. 체크인 카운터가 어디예요?", "fallbackPartnerReply": "체크인 카운터는 오른쪽에 있어요.", "contextTip": "Hỏi lịch sự bằng -가 어디예요?" },
+    { "id": "real-interview", "topic": "interview", "title": "Phỏng vấn xin việc", "partner": "자기소개를 해 주세요.", "expectedKeywords": ["저는", "입니다"], "suggestion": "안녕하세요. 저는 민수입니다. 개발자로 일하고 싶습니다.", "fallbackPartnerReply": "지원한 이유를 말씀해 주세요.", "contextTip": "Ưu tiên đuôi trang trọng -습니다 trong phỏng vấn." },
+    { "id": "real-hospital", "topic": "hospital", "title": "Mô tả triệu chứng", "partner": "어디가 아프세요?", "expectedKeywords": ["아파요"], "suggestion": "배가 아파요. 어제부터 아팠어요.", "fallbackPartnerReply": "언제부터 아팠어요?", "contextTip": "Nói vị trí đau + 이/가 아파요." },
+    { "id": "real-workplace", "topic": "workplace", "title": "Trao đổi tại công ty", "partner": "회의 자료를 준비했어요?", "expectedKeywords": ["네", "준비"], "suggestion": "네, 준비했습니다. 지금 보내 드리겠습니다.", "fallbackPartnerReply": "네, 회의 전에 보내 주세요.", "contextTip": "Dùng đuôi trang trọng khi báo cáo công việc." }
+  ],
+  "shadowingLines": [
+    { "id": "shadow-cafe", "korean": "아메리카노 한 잔 주세요.", "vietnamese": "Cho tôi một cốc Americano.", "focus": ["연음", "주세요"], "speeds": [0.75, 1, 1.15] },
+    { "id": "shadow-airport", "korean": "체크인 카운터가 어디예요?", "vietnamese": "Quầy check-in ở đâu ạ?", "focus": ["어", "예요"], "speeds": [0.75, 1, 1.15] },
+    { "id": "shadow-office", "korean": "지금 보내 드리겠습니다.", "vietnamese": "Tôi sẽ gửi ngay bây giờ.", "focus": ["받침", "습니다"], "speeds": [0.75, 1, 1.15] }
+  ]
+}

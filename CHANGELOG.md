@@ -1,5 +1,12 @@
 # Changelog
 
+## P71B — Real Korean Experience System
+
+- Added a Vietnamese-focused pronunciation lab for ㄹ, ㅓ, ㅡ, 받침 and linking with microphone and text fallback.
+- Added short-source sentence mining, SRS flashcard creation, original media dialogues, five real-life conversation scenarios and three-speed shadowing.
+- Reused the existing Voice, Conversation, SRS, Saved Sentences and AI orchestration layers without persisting audio or copyrighted media.
+- Added owner-scoped Supabase tables, offline route assets and responsive P71B regression coverage.
+
 ## P71A — Learning Intelligence & Personal Memory System
 
 - Added owner-scoped long-term learning memory for milestones, achievements, weakness history, learning patterns and improvement snapshots.

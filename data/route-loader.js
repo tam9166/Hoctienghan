@@ -6,6 +6,7 @@
     topik: { scripts: ['data/topik-strategy.js?v=1'] },
     ai: { scripts: ['data/ai-coach.js?v=6', 'data/learning-memory.js?v=3', 'data/personal-intelligence.js?v=3', 'data/learning-intelligence-data.js?v=1', 'data/learning-intelligence.js?v=2'] },
     intelligenceMemory: { dependencies: ['ai'], styles: ['learning-intelligence-memory.css?v=1'], scripts: ['data/learning-intelligence-memory.js?v=1'] },
+    realKoreanExperience: { dependencies: ['voice', 'conversation', 'languageMastery', 'practical'], styles: ['real-korean-experience.css?v=1'], scripts: ['data/real-korean-experience.js?v=1'] },
     practical: { scripts: ['data/practical-study.js?v=4'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
@@ -54,6 +55,7 @@
   routes('ai-coach adaptive-plan personal-report journey-intelligence', ['aiLanguageOs']);
   routes('ai-language-os', ['aiLanguageOs']);
   routes('learning-intelligence-memory learning-diagnostic learning-prescription learning-goal-simulator', ['intelligenceMemory']);
+  routes('real-korean-experience pronunciation-lab-vn sentence-mining media-learning-real real-conversation-lab real-shadowing-lab', ['realKoreanExperience']);
   routes('placement onboarding-result', ['intelligenceMemory']);
   routes('grammar-compare grammar-notebook typing-trainer repair-path focus-study chapter-checkpoint study-calendar progress-timeline achievements admin-content vocabulary-collections sentence-builder real-life-missions study-settings error-notebook manual-review-queue offline-packs shadowing-recorder', ['practical', 'scale']);
   routes('conversation-simulator', ['conversation']);
@@ -97,10 +99,10 @@
   routes('immersive-world', ['immersiveKorean']);
 
   // Category pages load their discovery extensions only after the user enters them.
-  routes('lessons', ['resources', 'practical', 'scale', 'conversation', 'context', 'reading', 'languageMastery', 'immersion', 'immersive', 'ecosystem', 'realWorld', 'content', 'career', 'immersiveKorean', 'marketplace', 'competitiveContent']);
+  routes('lessons', ['resources', 'practical', 'scale', 'conversation', 'context', 'reading', 'languageMastery', 'immersion', 'immersive', 'ecosystem', 'realWorld', 'content', 'career', 'immersiveKorean', 'marketplace', 'competitiveContent', 'realKoreanExperience']);
   routes('review', ['practical', 'scale', 'science']);
   routes('topik', ['topik', 'analytics', 'advancedAnalytics', 'science', 'outcomes']);
-  routes('practice speaking-hub', ['voice']);
+  routes('practice speaking-hub', ['voice', 'realKoreanExperience']);
   routes('home', ['growth']);
   routes('profile', ['longTerm', 'education', 'communityLearning', 'enterprise', 'retention', 'contentQuality', 'globalLanguage', 'edtech', 'premium', 'aiContent', 'community', 'monetization', 'futureLanguage', 'outcomes', 'growth', 'intelligenceMemory']);
   routes('search', ['resources', 'practical', 'context', 'content', 'competitiveContent', 'globalLanguage']);

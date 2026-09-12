@@ -5,6 +5,7 @@
 // ============================================================
 const STORAGE_KEYS = Object.freeze({
   users: 'klearn_users',
+  realKoreanExperience: 'klearn_real_korean_experience',
   session: 'klearn_session',
   progress: 'klearn_progress',
   srs: 'klearn_srs',
@@ -255,6 +256,7 @@ MAIN_VIEWS.push('learning-outcomes', 'student-progress-report', 'teacher-outcome
 MAIN_VIEWS.push('growth-center', 'invite-friends', 'growth-analytics', 'product-experiments');
 MAIN_VIEWS.push('demo-center');
 MAIN_VIEWS.push('learning-intelligence-memory', 'learning-diagnostic', 'learning-prescription', 'learning-goal-simulator');
+MAIN_VIEWS.push('real-korean-experience', 'pronunciation-lab-vn', 'sentence-mining', 'media-learning-real', 'real-conversation-lab', 'real-shadowing-lab');
 const PUBLIC_VIEWS = ['welcome', 'login', 'register', 'demo'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'beginner-placement', 'placement', 'onboarding-result'];
 
@@ -1213,7 +1215,7 @@ async function submitContentReport({ contentId, contentType, reportType = 'other
 }
 
 const USER_SYNC_KEYS = Object.freeze([
-  STORAGE_KEYS.conversationHistory, STORAGE_KEYS.globalEducationMarketplace,
+  STORAGE_KEYS.conversationHistory, STORAGE_KEYS.realKoreanExperience, STORAGE_KEYS.globalEducationMarketplace,
   STORAGE_KEYS.readingExpansion, STORAGE_KEYS.immersiveWorld, STORAGE_KEYS.ecosystemExpansion, STORAGE_KEYS.careerLearning, STORAGE_KEYS.voiceLearning,
   STORAGE_KEYS.realGoalPlans, STORAGE_KEYS.learningJournal, STORAGE_KEYS.teacherFeedback, STORAGE_KEYS.manualReviewQueue, STORAGE_KEYS.teacherWorkspace, STORAGE_KEYS.educationPlatform, STORAGE_KEYS.communityProgress, STORAGE_KEYS.enterprisePlatform, STORAGE_KEYS.monetization, STORAGE_KEYS.productGrowth, STORAGE_KEYS.futureLanguage, STORAGE_KEYS.productUx, STORAGE_KEYS.retention, STORAGE_KEYS.research, STORAGE_KEYS.analyticsReports, STORAGE_KEYS.premiumLearning,
   STORAGE_KEYS.progress, STORAGE_KEYS.srs, STORAGE_KEYS.settings, STORAGE_KEYS.practice, STORAGE_KEYS.practiceHistory,
@@ -1230,6 +1232,7 @@ const CLOUD_SYNC_ARRAY_LIMITS = Object.freeze({
   [STORAGE_KEYS.writingAttempts]: 500,
   [STORAGE_KEYS.conversationHistory]: 250,
   [STORAGE_KEYS.longTermLearningMemory]: 500,
+  [STORAGE_KEYS.realKoreanExperience]: 400,
   [STORAGE_KEYS.productionTelemetry]: 200,
   klearn_ai_conversations: 20
 });

@@ -1,0 +1,44 @@
+/* Real-browser P71B QA: node tests/p71b-real-korean-experience-responsive.browser.js [url] */
+const assert = require('node:assert/strict');
+const childProcess = require('node:child_process');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+
+const edge = [path.join(process.env['ProgramFiles(x86)'] || '', 'Microsoft', 'Edge', 'Application', 'msedge.exe'), path.join(process.env.ProgramFiles || '', 'Microsoft', 'Edge', 'Application', 'msedge.exe'), path.join(process.env.LOCALAPPDATA || '', 'Microsoft', 'Edge', 'Application', 'msedge.exe')].find((candidate) => candidate && fs.existsSync(candidate));
+if (!edge) throw new Error('Microsoft Edge is required for P71B responsive QA.');
+const baseUrl = process.argv[2] || 'http://127.0.0.1:4173/'; const port = 11200 + Math.floor(Math.random() * 70); const profile = path.join(os.tmpdir(), `klearn-p71b-browser-${process.pid}`);
+const browser = childProcess.spawn(edge, ['--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, '--disable-gpu', '--no-first-run', '--no-default-browser-check', 'about:blank'], { stdio: 'ignore', windowsHide: true });
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+async function json(url, options) { const response = await fetch(url, options); if (!response.ok) throw new Error(`${response.status} ${url}`); return response.json(); }
+async function connect(url) { const socket = new WebSocket(url); let id = 0; const pending = new Map(); await new Promise((resolve, reject) => { socket.onopen = resolve; socket.onerror = reject; }); socket.onmessage = (event) => { const message = JSON.parse(event.data); const request = pending.get(message.id); if (!request) return; pending.delete(message.id); message.error ? request.reject(new Error(message.error.message)) : request.resolve(message.result); }; return { send(method, params = {}) { return new Promise((resolve, reject) => { const next = ++id; pending.set(next, { resolve, reject }); socket.send(JSON.stringify({ id: next, method, params })); }); }, close() { socket.close(); } }; }
+async function evaluate(cdp, expression) { const output = await cdp.send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }); if (output.exceptionDetails) throw new Error(output.exceptionDetails.exception?.description || output.exceptionDetails.text); return output.result.value; }
+async function until(cdp, expression, attempts = 180) { for (let attempt = 0; attempt < attempts; attempt += 1) { if (await evaluate(cdp, expression)) return true; await wait(100); } return false; }
+
+(async () => {
+  try {
+    let version; for (let attempt = 0; attempt < 50 && !version; attempt += 1) { try { version = await json(`http://127.0.0.1:${port}/json/version`); } catch (_) { await wait(100); } }
+    if (!version) throw new Error('Could not start Edge.');
+    const target = await json(`http://127.0.0.1:${port}/json/new?${encodeURIComponent(baseUrl)}`, { method: 'PUT' }); const cdp = await connect(target.webSocketDebuggerUrl); await cdp.send('Page.enable'); await cdp.send('Runtime.enable');
+    assert.equal(await until(cdp, `document.readyState === 'complete'`), true);
+    const timestamp = new Date().toISOString(); const user = { id: 'p71b-browser', fullName: 'Real Korean Learner', email: 'p71b@local.test', currentTopikLevel: 1, targetTopikLevel: 2, studyMinutesPerDay: 20, onboardingCompleted: true, createdAt: timestamp };
+    const progress = { p71bRegressionMarker: 'keep-me', lessonProgress: { first: { completed: true, score: 90 } }, skills: { speaking: 55, listening: 50 }, stats: { streak: 2 } }; const srs = [{ wordId: 'school', korean: '학교', mastery: 80, status: 'review', updatedAt: timestamp }];
+    await evaluate(cdp, `(() => { const user=${JSON.stringify(user)}; localStorage.clear(); localStorage.setItem('klearn_users',JSON.stringify([user])); localStorage.setItem('klearn_session',JSON.stringify({userId:user.id,createdAt:${JSON.stringify(timestamp)}})); localStorage.setItem('klearn_progress',JSON.stringify({[user.id]:${JSON.stringify(progress)}})); localStorage.setItem('klearn_srs',JSON.stringify({[user.id]:${JSON.stringify(srs)}})); localStorage.setItem('klearn_settings',JSON.stringify({schemaVersion:13,users:{[user.id]:{theme:'dark',language:'vi'}}})); location.hash='real-korean-experience'; location.reload(); })()`);
+    assert.equal(await until(cdp, `Boolean(window.RealKoreanExperienceService && document.querySelector('.p71b-grid'))`), true, 'P71B route did not load');
+    const flow = await evaluate(cdp, `(async()=>{ const pronunciation=await window.VietnamesePronunciationLabService.analyze('vn-eo',{transcript:'소울'}); const mined=window.SentenceMiningService.mine({sourceType:'youtube',sourceLabel:'Bài học cá nhân',sentence:'오늘 뭐 먹을래?',translation:'Hôm nay ăn gì?'}); const media=window.RealMediaLearningService.complete('media-cafe-order',1); const original=window.AIOrchestrationService.request; window.AIOrchestrationService.request=async()=>({fallback:true,reply:'offline'}); const conversation=await window.RealConversationPracticeService.evaluate('real-hospital','배가 아파요.'); window.AIOrchestrationService.request=original; const shadow=await window.RealShadowingService.compare('shadow-cafe','아메리카노 한 잔 주세요.',{speed:.75}); const support=window.VietnamesePronunciationLabService.support(); return {feedback:pronunciation.feedback,wrong:pronunciation.wrongSound,minedVocabulary:mined.vocabulary.length,media:media.completed,scenarioCount:window.RealConversationPracticeService.all().length,aiStatus:conversation.aiStatus,shadow:shadow.score,audioStored:[pronunciation,conversation,shadow].some((item)=>item.audioStored!==false),support,summary:window.RealKoreanExperienceService.summary()};})()`);
+    assert.match(flow.feedback, /ㅓ.*gần ㅗ/); assert.equal(flow.wrong, 'ㅗ'); assert.ok(flow.minedVocabulary >= 3); assert.equal(flow.media, true); assert.equal(flow.scenarioCount, 5); assert.equal(flow.aiStatus, 'fallback'); assert.ok(flow.shadow >= 85); assert.equal(flow.audioStored, false); assert.ok(flow.summary.pronunciation && flow.summary.mined && flow.summary.media && flow.summary.conversation && flow.summary.shadowing);
+
+    const results = [];
+    for (const width of [360, 768, 1024, 1440, 1920]) {
+      await cdp.send('Emulation.setDeviceMetricsOverride', { width, height: 1100, deviceScaleFactor: 1, mobile: false }); await evaluate(cdp, `window.KLEARN_APP.setView('real-korean-experience')`); await wait(100);
+      const metrics = await evaluate(cdp, `(()=>{const rect=(node)=>{const value=node?.getBoundingClientRect();return value?{left:value.left,width:value.width}:null};return{dark:document.documentElement.dataset.theme==='dark',htmlOverflow:document.documentElement.scrollWidth>document.documentElement.clientWidth,bodyOverflow:document.body.scrollWidth>document.body.clientWidth,app:rect(document.getElementById('app')),nav:rect(document.getElementById('bottomNav')),card:rect(document.querySelector('.p71b-card'))}})()`);
+      assert.equal(metrics.dark, true, `dark mode missing at ${width}px`); assert.equal(metrics.htmlOverflow, false, `html overflow at ${width}px`); assert.equal(metrics.bodyOverflow, false, `body overflow at ${width}px`); assert.ok(metrics.card?.width <= width, `P71B card exceeds ${width}px`);
+      if (width >= 1024) { assert.ok(metrics.nav.width >= 240 && metrics.nav.width <= 280, `sidebar invalid at ${width}px`); assert.ok(metrics.app.left >= 240, `content overlaps sidebar at ${width}px`); } else assert.ok(metrics.app.left < 2, `compact offset at ${width}px`);
+      results.push({ width, sidebar: Math.round(metrics.nav.width), overflow: metrics.htmlOverflow });
+    }
+    assert.equal(await evaluate(cdp, `localStorage.getItem('klearn_progress').includes('keep-me') && localStorage.getItem('klearn_srs').includes('school')`), true, 'existing learning data changed');
+    await evaluate(cdp, `location.reload()`); assert.equal(await until(cdp, `Boolean(window.RealKoreanExperienceService && window.RealKoreanExperienceService.summary().shadowing)`), true, 'P71B progress did not survive reload');
+    const offline = await evaluate(cdp, `(()=>{const before=window.RealKoreanContentService.get();const saved=window.fetch;window.fetch=()=>Promise.reject(new Error('offline'));const after=window.RealKoreanContentService.get();window.fetch=saved;return before===after&&after.scenarios.length===5})()`); assert.equal(offline, true, 'hydrated offline content unavailable');
+    console.log(JSON.stringify(results)); console.log('P71B browser: voice fallback, AI fallback, offline content, persistence, dark mode and 360-1920 responsive passed'); cdp.close();
+  } finally { browser.kill(); await wait(200); fs.rmSync(profile, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 }); }
+})().catch((error) => { console.error(error); process.exitCode = 1; });
