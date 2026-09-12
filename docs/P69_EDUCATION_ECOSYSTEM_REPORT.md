@@ -46,7 +46,7 @@ Student, Teacher and Center plan architecture connects to P67 server-authoritati
 - The full classroom flow passes: create class → invite student → assign course/lesson → complete assignment and assessment → share progress → teacher insight/report → revoke access.
 - Real-browser checks pass at 360, 768, 1024, 1440 and 1920 px in dark mode with no horizontal overflow and a 260 px desktop sidebar.
 - Repository regression result: 59/59 static/unit tests pass and 41 changed/new JavaScript files pass syntax checks.
-- Production build verification passes with 31 direct assets, 94 lazy assets and 2,859,858 referenced bytes; performance and release-readiness checks pass.
+- Production build verification passes with 31 direct assets, 94 lazy assets and 2,859,994 referenced bytes; performance and release-readiness checks pass.
 - HTTPS production smoke remains pending because `PRODUCTION_URL` is not configured; the smoke script correctly refuses localhost as production evidence.
 
 ## 12. Remaining Issues
