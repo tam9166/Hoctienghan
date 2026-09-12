@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v87';
+const CACHE = 'klearn-v88';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=32',
@@ -16,6 +16,7 @@ const OFFLINE_ASSETS = [
   './global-language-core.css?v=1',
   './learning-intelligence-memory.css?v=1',
   './real-korean-experience.css?v=1',
+  './content-science.css?v=1',
   './learning-science.css?v=1',
   './career-learning.css?v=1',
   './ai-agent-architecture.css?v=1',
@@ -93,8 +94,8 @@ const OFFLINE_ASSETS = [
   './locales/en.js?v=8',
   './locales/zh-CN.js?v=8',
   './data/content-locales.js?v=1',
-  './data/route-loader.js?v=13',
-  './app.js?v=73',
+  './data/route-loader.js?v=14',
+  './app.js?v=74',
   './data/content-competitive-upgrade.js?v=1',
   './content/vietnamese-korean-core.json',
   './content/retention-system.json',
@@ -112,6 +113,8 @@ const OFFLINE_ASSETS = [
   './data/learning-intelligence-memory.js?v=1',
   './data/real-korean-experience.js?v=1',
   './content/real-korean-experience.json',
+  './data/content-science-system.js?v=1',
+  './content/content-science-system.json',
   './data/ai-quality-optimization.js?v=1',
   './content/ai-quality-safety.json',
   './content/ai-quality-evaluation-dataset.json',
@@ -186,7 +189,7 @@ const INSTALL_ASSETS = new Set([
   './index.html', './styles.css?v=32', './product-ux.css?v=1', './production-stability.css?v=2', './security-privacy.css?v=1', './mobile-experience.css?v=1',
   './locales/vi.js?v=5', './locales/en.js?v=8', './locales/zh-CN.js?v=8', './data/content-locales.js?v=1',
   './data/romanization.js?v=8', './data/vocabulary-bank.js?v=8', './data/dictionary.js?v=1', './data/theory-lessons.js?v=1', './data/handwriting.js?v=1',
-  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=13', './app.js?v=73',
+  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=14', './app.js?v=74',
   './data/curriculum.js?v=1', './data/adaptive-engine.js?v=8', './data/beginner-foundation.js?v=2', './data/daily-learning-experience.js?v=6',
   './data/product-ux.js?v=1', './content/product-ux.json', './data/user-research.js?v=2', './content/user-research-experiments.json',
   './data/production-stability.js?v=5', './data/security-privacy.js?v=3', './data/mobile-experience.js?v=3', './data/mobile-native.js?v=1',

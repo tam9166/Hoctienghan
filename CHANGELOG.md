@@ -1,5 +1,12 @@
 # Changelog
 
+## P71C — Content Trust & Learning Science System
+
+- Added transparent content authorship/reviewer metadata and four-dimensional human-review quality scoring.
+- Added per-content studied, remembered, used and improved evidence with SRS, Mastery and practice integration.
+- Added personal retention/learning-curve dashboards and owner-scoped content issue reports.
+- Added consent-only anonymous aggregate research boundaries with no user identifiers, private text, transcripts or audio.
+
 ## P71B — Real Korean Experience System
 
 - Added a Vietnamese-focused pronunciation lab for ㄹ, ㅓ, ㅡ, 받침 and linking with microphone and text fallback.

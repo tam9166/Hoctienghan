@@ -82,7 +82,7 @@ function createRuntime() {
   const migration = read('supabase/migrations/20260912_p71b_real_korean_experience.sql'); const report = read('docs/P71B_REAL_KOREAN_EXPERIENCE_REPORT.md');
   assert.match(appSource, /realKoreanExperience: 'klearn_real_korean_experience'/); assert.match(appSource, /STORAGE_KEYS\.realKoreanExperience/); assert.match(appSource, /\[STORAGE_KEYS\.realKoreanExperience\]: 400/);
   assert.match(loader, /real-korean-experience\.css\?v=1/); assert.match(loader, /data\/real-korean-experience\.js\?v=1/); assert.match(loader, /dependencies: \['voice', 'conversation', 'languageMastery', 'practical'\]/);
-  assert.match(worker, /klearn-v87/); assert.match(worker, /content\/real-korean-experience\.json/); assert.match(css, /@media\(max-width:700px\)/); assert.match(css, /@media\(max-width:380px\)/);
+  assert.match(worker, /klearn-v88/); assert.match(worker, /content\/real-korean-experience\.json/); assert.match(css, /@media\(max-width:700px\)/); assert.match(css, /@media\(max-width:380px\)/);
   for (const table of ['real_korean_pronunciation_attempts', 'sentence_mining_items', 'real_korean_media_progress', 'real_korean_scenario_attempts', 'real_korean_shadowing_attempts']) {
     assert.match(migration, new RegExp(`create table if not exists public\\.${table}`)); assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`));
   }

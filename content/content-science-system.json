@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "status": "approved",
+  "verified": true,
+  "updatedAt": "2026-09-12",
+  "qualityModel": {
+    "dimensions": ["accuracy", "naturalness", "difficulty", "completeness"],
+    "weights": { "accuracy": 0.35, "naturalness": 0.25, "difficulty": 0.2, "completeness": 0.2 },
+    "publishThreshold": 80,
+    "rule": "A calculated score supports human review and never approves content by itself."
+  },
+  "reviewPolicy": {
+    "requiredFields": ["createdBy", "reviewedBy", "reviewDate", "quality"],
+    "allowedStatuses": ["draft", "review", "approved", "deprecated"],
+    "reviewExpiryDays": 365
+  },
+  "feedbackTypes": [
+    { "id": "wrong_meaning", "label": "Sai nghĩa" },
+    { "id": "confusing_example", "label": "Ví dụ khó hiểu" },
+    { "id": "broken_audio", "label": "Audio lỗi" }
+  ],
+  "research": {
+    "requiresConsent": true,
+    "scope": "in-app learning outcomes only",
+    "allowedFields": ["dateBucket", "segment", "levelBand", "contentId", "contentType", "studiedCount", "rememberedCount", "usedCount", "improvedCount", "retentionBand", "scoreBand"],
+    "forbiddenFields": ["userId", "email", "password", "token", "freeText", "audio", "transcript", "journal", "ipAddress", "deviceId"]
+  },
+  "reviews": [
+    {
+      "contentId": "lesson-first-introduction",
+      "contentType": "lesson",
+      "status": "approved",
+      "createdBy": { "displayName": "TamHoanq Curriculum Team", "role": "Content author" },
+      "reviewedBy": { "displayName": "TamHoanq Academic Review", "role": "Teacher review team", "scope": "Internal curriculum review" },
+      "reviewDate": "2026-09-02",
+      "sources": ["TamHoanq curriculum", "TOPIK beginner objectives"],
+      "quality": { "accuracy": 96, "naturalness": 94, "difficulty": 95, "completeness": 92 },
+      "evidence": ["grammar review", "example review", "beginner difficulty review"]
+    },
+    {
+      "contentId": "lesson-cafe-order",
+      "contentType": "lesson",
+      "status": "approved",
+      "createdBy": { "displayName": "TamHoanq Curriculum Team", "role": "Content author" },
+      "reviewedBy": { "displayName": "TamHoanq Academic Review", "role": "Teacher review team", "scope": "Internal curriculum review" },
+      "reviewDate": "2026-09-04",
+      "sources": ["TamHoanq curriculum", "Native-reviewed examples"],
+      "quality": { "accuracy": 95, "naturalness": 97, "difficulty": 93, "completeness": 94 },
+      "evidence": ["grammar review", "situational naturalness review", "audio checklist"]
+    },
+    {
+      "contentId": "grammar-topic-particle",
+      "contentType": "grammar",
+      "status": "approved",
+      "createdBy": { "displayName": "TamHoanq Curriculum Team", "role": "Content author" },
+      "reviewedBy": { "displayName": "TamHoanq Academic Review", "role": "Teacher review team", "scope": "Internal curriculum review" },
+      "reviewDate": "2026-09-01",
+      "sources": ["TOPIK curriculum", "Native-reviewed examples"],
+      "quality": { "accuracy": 98, "naturalness": 96, "difficulty": 97, "completeness": 96 },
+      "evidence": ["grammar review", "contrast examples", "difficulty validation"]
+    },
+    {
+      "contentId": "grammar-polite-request",
+      "contentType": "grammar",
+      "status": "approved",
+      "createdBy": { "displayName": "TamHoanq Curriculum Team", "role": "Content author" },
+      "reviewedBy": { "displayName": "TamHoanq Academic Review", "role": "Teacher review team", "scope": "Internal curriculum review" },
+      "reviewDate": "2026-08-28",
+      "sources": ["TamHoanq curriculum", "Native-reviewed examples"],
+      "quality": { "accuracy": 97, "naturalness": 95, "difficulty": 96, "completeness": 93 },
+      "evidence": ["grammar review", "politeness review", "example review"]
+    },
+    {
+      "contentId": "freq-학교",
+      "contentType": "word",
+      "status": "approved",
+      "createdBy": { "displayName": "TamHoanq Vocabulary Team", "role": "Content author" },
+      "reviewedBy": { "displayName": "TamHoanq Academic Review", "role": "Teacher review team", "scope": "Internal vocabulary review" },
+      "reviewDate": "2026-08-17",
+      "sources": ["Frequency vocabulary", "TamHoanq dictionary"],
+      "quality": { "accuracy": 98, "naturalness": 96, "difficulty": 98, "completeness": 92 },
+      "evidence": ["meaning review", "frequency review", "example review"]
+    }
+  ]
+}

@@ -68,7 +68,7 @@ function boot({ online = true, aiFallback = false } = {}) {
   assert.match(read('api/chat.js'), /type: 'json_schema', name: 'voice_feedback', strict: true/);
   assert.match(read('api/chat.js'), /store: false/);
   assert.match(read('realtime-voice-coach.css'), /@media\(max-width:600px\)/);
-  assert.match(read('sw.js'), /klearn-v87/);
+  assert.match(read('sw.js'), /klearn-v88/);
   assert.match(read('sw.js'), /realtime-voice-coach\.js/);
   assert.match(read('app.js'), /'voice-coach-session'/);
 

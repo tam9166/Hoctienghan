@@ -25,6 +25,7 @@
     enterprise: { styles: ['enterprise-platform.css?v=1'], scripts: ['data/enterprise-platform.js?v=1'] },
     retention: { dependencies: ['practical'], styles: ['retention-system.css?v=1'], scripts: ['data/retention-system.js?v=1'] },
     contentQuality: { dependencies: ['content'], styles: ['content-quality.css?v=1'], scripts: ['data/content-quality-system.js?v=2'] },
+    contentScience: { dependencies: ['contentQuality', 'advancedAnalytics', 'outcomes'], styles: ['content-science.css?v=1'], scripts: ['data/content-science-system.js?v=1'] },
     aiInfra: { styles: ['ai-quality.css?v=1'], scripts: ['data/ai-infrastructure.js?v=5', 'data/ai-quality-optimization.js?v=1'] },
     globalLanguage: { styles: ['global-language-platform.css?v=1', 'global-language-core.css?v=1'], scripts: ['data/global-language-platform.js?v=2', 'data/global-language-core-v2.js?v=1'] },
     advancedAnalytics: { scripts: ['data/advanced-learning-analytics.js?v=1'] },
@@ -67,7 +68,7 @@
   routes('education-platform teacher-dashboard organization-center education-assignments education-feedback course-builder organization-analytics education-content education-ecosystem assessment-center creator-workflow school-report education-certificates', ['education']);
   routes('immersive-world virtual-korean-city immersive-session roleplay-game debate-studio career-korean university-life travel-simulator voice-world speaking-journey learning-avatar-research', ['immersive']);
   routes('ecosystem-expansion real-korean-life life-simulator document-reader address-number-trainer language-science korean-thinking skill-world career-purpose career-practice learning-architecture', ['ecosystem']);
-  routes('analytics progress-reports learning-outcomes student-progress-report', ['analytics', 'advancedAnalytics', 'outcomes']);
+  routes('analytics progress-reports learning-outcomes student-progress-report', ['analytics', 'advancedAnalytics', 'outcomes', 'contentScience']);
   routes('teacher-outcomes', ['education', 'outcomes']);
   routes('growth-center', ['retention', 'monetization', 'community', 'outcomes', 'growth']);
   routes('invite-friends', ['monetization', 'community', 'growth']);
@@ -81,6 +82,7 @@
   routes('enterprise-platform subscription-center premium-features school-management center-dashboard course-marketplace certification-center partner-api admin-analytics language-platform', ['enterprise', 'edtech', 'premium', 'growth']);
   routes('retention-center weekly-review monthly-reflection goal-milestones retention-analytics', ['retention']);
   routes('content-quality-dashboard', ['content', 'contentQuality']);
+  routes('content-science content-science-feedback', ['contentScience']);
   routes('language-exchange community-moderation', ['community']);
   routes('business-center billing-center organization-plans revenue-center crm-center', ['enterprise', 'monetization']);
   routes('premium-center subscription-admin', ['monetization']);
@@ -94,7 +96,7 @@
   routes('immersive-daily-life immersive-story immersive-culture-game immersive-readiness immersive-scenarios immersive-progress-map', ['immersiveKorean']);
   routes('global-education-marketplace marketplace-course marketplace-teacher creator-studio marketplace-moderation creator-revenue marketplace-certificates', ['enterprise', 'marketplace']);
   // Extension modules decorate these base hubs and must run after the base module.
-  routes('content-platform content-explorer content-detail korean-notebook content-feedback content-quality-dashboard', ['contentQuality']);
+  routes('content-platform content-explorer content-detail korean-notebook content-feedback content-quality-dashboard', ['contentQuality', 'contentScience']);
   routes('learning-community', ['community']);
   routes('immersive-world', ['immersiveKorean']);
 

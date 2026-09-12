@@ -99,7 +99,7 @@ function boot(userId = 'p70-user') {
   for (const field of ['nativeLanguage','targetLanguage','examSystem','scriptSystem']) assert.match(aiSource, new RegExp(`'${field}'`));
   assert.match(loader, /data\/global-language-core-v2\.js\?v=1/); assert.match(loader, /global-language-core\.css\?v=1/);
   assert.match(loader, /routes\('search', \['resources', 'practical', 'context', 'content', 'competitiveContent', 'globalLanguage'\]\)/);
-  assert.match(worker, /klearn-v87/); assert.match(worker, /content\/global-language-core-v2\.json/); assert.match(worker, /content\/language-packs\/ko-core\.json/);
+  assert.match(worker, /klearn-v88/); assert.match(worker, /content\/global-language-core-v2\.json/); assert.match(worker, /content\/language-packs\/ko-core\.json/);
   for (const table of ['language_learning_profiles','language_learning_items','language_writing_attempts','global_language_pack_catalog','language_content_registry']) assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`));
   assert.match(migration, /user_id = auth\.uid\(\)/); assert.match(migration, /unique \(user_id, language_id, item_type, content_id\)/);
   assert.match(migration, /super admins publish language content/); assert.match(migration, /Owner-only level, goal and progress per target language/);

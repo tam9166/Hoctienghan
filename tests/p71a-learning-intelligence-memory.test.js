@@ -99,7 +99,7 @@ assert.match(aiSource, /'learningMemorySummary'/);
 assert.match(aiSource, /'diagnosticSummary'/);
 assert.match(loader, /learning-intelligence-memory\.css\?v=1/);
 assert.match(loader, /data\/learning-intelligence-memory\.js\?v=1/);
-assert.match(worker, /klearn-v87/);
+assert.match(worker, /klearn-v88/);
 assert.match(worker, /data\/learning-intelligence-memory\.js\?v=1/);
 for (const table of ['learning_memory_events', 'learning_diagnostic_reports', 'learning_prescriptions', 'learning_goal_simulations']) {
   assert.match(migration, new RegExp(`create table if not exists public\\.${table}`));
