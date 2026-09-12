@@ -73,8 +73,8 @@ function boot() {
   assert.doesNotMatch(appSource.match(/const USER_SYNC_KEYS = \[[\s\S]*?\n\];/)?.[0] || '', /STORAGE_KEYS\.productDemo/);
   assert.match(routes, /demo: \{ styles: \['product-demo\.css\?v=1'\]/);
   assert.match(routes, /routes\('demo demo-center', \['demo'\]\)/);
-  assert.match(index, /app\.js\?v=68/);
-  assert.match(worker, /klearn-v82/);
+  assert.match(index, /app\.js\?v=69/);
+  assert.match(worker, /klearn-v83/);
   assert.match(worker, /content\/product-demo\.json/);
   assert.match(worker, /data\/product-demo\.js\?v=1/);
   assert.match(css, /data-presentation-mode="true"/);

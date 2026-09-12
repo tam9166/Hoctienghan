@@ -64,11 +64,11 @@ function boot({ online = true, aiFallback = false } = {}) {
   assert.match(read('data/route-loader.js'), /realtime-voice-coach\.css\?v=1/);
   assert.match(read('data/route-loader.js'), /data\/realtime-voice-coach\.js\?v=1/);
   assert.match(read('api/chat.js'), /realtime_voice_feedback/);
-  assert.match(read('api/chat.js'), /max_output_tokens: task === 'realtime_voice_feedback' \? 320 : 900/);
+  assert.match(read('api/chat.js'), /max_output_tokens: taskContract\.maxOutputTokens/);
   assert.match(read('api/chat.js'), /type: 'json_schema', name: 'voice_feedback', strict: true/);
   assert.match(read('api/chat.js'), /store: false/);
   assert.match(read('realtime-voice-coach.css'), /@media\(max-width:600px\)/);
-  assert.match(read('sw.js'), /klearn-v82/);
+  assert.match(read('sw.js'), /klearn-v83/);
   assert.match(read('sw.js'), /realtime-voice-coach\.js/);
   assert.match(read('app.js'), /'voice-coach-session'/);
 

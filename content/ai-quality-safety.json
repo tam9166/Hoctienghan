@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-12",
+  "status": "approved-architecture",
+  "principles": {
+    "aiOptional": true,
+    "learningCoreWorksWithoutAi": true,
+    "rawPromptStored": false,
+    "rawResponseStored": false,
+    "taskSpecificContext": true,
+    "serverAndClientValidation": true,
+    "pricingConfiguredByEnvironment": true
+  },
+  "featureAudit": [
+    {"feature":"AI Coach","task":"coach","purpose":"Giải thích và định hướng trong ngữ cảnh học hiện tại","input":"Câu hỏi + learner context tối thiểu","output":"Hướng dẫn có hành động tiếp theo","cost":"medium","risk":"Có thể suy diễn dữ liệu hoặc đưa khuyến nghị chung chung","value":"medium"},
+    {"feature":"Sentence Correction","task":"sentence_correction","purpose":"Sửa câu và giải thích lỗi","input":"Một câu + level + lỗi ngữ pháp liên quan","output":"Câu sửa, giải thích, ví dụ","cost":"medium","risk":"Sửa quá mức hoặc tạo cấu trúc không tự nhiên","value":"high"},
+    {"feature":"Speaking Feedback","task":"speaking_feedback","purpose":"Giải thích transcript và tín hiệu phát âm đã đo cục bộ","input":"Câu mẫu, transcript, điểm cục bộ, level","output":"Điểm tốt, điểm cần sửa, câu mẫu","cost":"high","risk":"Tuyên bố chấm phoneme/native chính thức khi không có bằng chứng âm học","value":"high"},
+    {"feature":"Weekly Report","task":"weekly_report","purpose":"Tóm tắt dữ liệu tuần thành hành động","input":"Streak, phút học, điểm, kỹ năng yếu","output":"Bằng chứng, điểm mạnh/yếu, ba hành động","cost":"medium","risk":"Bịa số liệu hoặc nguyên nhân","value":"medium"},
+    {"feature":"Personalized Practice","task":"personalized_practice","purpose":"Tạo bài luyện bù lỗi hiện tại","input":"Level, bài hiện tại, kỹ năng yếu, lỗi gần đây","output":"Bài tập, đáp án, giải thích","cost":"high","risk":"Đáp án sai hoặc lệch trình độ","value":"high"},
+    {"feature":"Grammar Support","task":"grammar_support","purpose":"Giải thích cấu trúc trong ngữ cảnh","input":"Cấu trúc/câu hỏi + level + bài hiện tại","output":"Quy tắc, khi dùng, ví dụ, cảnh báo","cost":"medium","risk":"Bịa quy tắc hoặc ví dụ không tự nhiên","value":"high"},
+    {"feature":"Learning Recommendation","task":"learning_recommendation","purpose":"Diễn đạt đề xuất dựa trên engine hiện tại","input":"Goal, SRS đến hạn, kỹ năng yếu, điểm gần đây","output":"Một bước tiếp theo và lý do bằng chứng","cost":"low","risk":"Gọi AI cho quyết định có thể làm bằng rule","value":"low"}
+  ],
+  "taskContracts": {
+    "tutor": {"value":"medium","route":"small","maxOutputTokens":600,"contextFields":["userLanguage","currentTopikLevel","targetTopikLevel","learningStyle","currentLesson","weakSkills","recentMistakes","relevantMemory"],"requiredOutput":["answer","uncertainty_when_needed","next_step"],"cache":"none"},
+    "coach": {"value":"medium","route":"strong","maxOutputTokens":650,"contextFields":["currentTopikLevel","targetTopikLevel","learningStyle","learningMode","weakSkills","recentMistakes","dueSrsCount","currentLesson"],"requiredOutput":["evidence","recommendation","next_step"],"cache":"none"},
+    "sentence_correction": {"value":"high","route":"strong","maxOutputTokens":700,"contextFields":["currentTopikLevel","targetTopikLevel","currentLesson","weakGrammar","recentMistakes"],"requiredOutput":["correction","explanation","example"],"cache":"none"},
+    "speaking_feedback": {"value":"high","route":"strong","maxOutputTokens":480,"contextFields":["currentTopikLevel","targetTopikLevel","currentLesson","weakSkills","recentMistakes","speakingScore"],"requiredOutput":["evidence_boundary","strength","repair","example"],"cache":"none"},
+    "realtime_voice_feedback": {"value":"high","route":"strong","maxOutputTokens":320,"contextFields":["currentTopikLevel","targetTopikLevel","conversationSummary","recentMistakes","speakingScore"],"requiredOutput":["json_schema"],"cache":"none"},
+    "weekly_report": {"value":"medium","route":"small","maxOutputTokens":600,"contextFields":["currentTopikLevel","targetTopikLevel","weakSkills","recentScores","streak","weeklyStudyMinutes","dueSrsCount","masteryByTopic"],"requiredOutput":["evidence","strengths","improvements","actions"],"cache":"none"},
+    "personalized_practice": {"value":"high","route":"strong","maxOutputTokens":800,"contextFields":["currentTopikLevel","targetTopikLevel","currentLesson","weakGrammar","weakVocabulary","weakSkills","recentMistakes"],"requiredOutput":["questions","answers","explanations"],"cache":"none"},
+    "grammar_support": {"value":"high","route":"strong","maxOutputTokens":650,"contextFields":["userLanguage","currentTopikLevel","currentLesson","weakGrammar","recentMistakes"],"requiredOutput":["rule","usage","examples","warning"],"cache":"public-explicit-only"},
+    "learning_recommendation": {"value":"low","route":"small","maxOutputTokens":300,"contextFields":["currentTopikLevel","targetTopikLevel","weakSkills","dueSrsCount","recentScores","dailyPlan","currentView"],"requiredOutput":["one_action","evidence"],"cache":"none","preferRuleEngine":true},
+    "translation": {"value":"medium","route":"small","maxOutputTokens":260,"contextFields":["userLanguage","currentTopikLevel","currentLesson"],"requiredOutput":["translation","register_note"],"cache":"public-explicit-only"},
+    "content_explanation": {"value":"medium","route":"small","maxOutputTokens":450,"contextFields":["userLanguage","currentTopikLevel","currentLesson"],"requiredOutput":["explanation","example"],"cache":"public-explicit-only"}
+  },
+  "quality": {
+    "dimensions":["accuracy","usefulness","naturalness","completeness"],
+    "minimumDisplayScore":70,
+    "criticalReasons":["sensitive-data","prompt-leakage","unsupported-official-claim","fabricated-grammar","invalid-format"],
+    "fallbackVi":"Không thể phân tích chính xác. Hãy thử lại; bạn vẫn có thể tiếp tục bài học và ôn tập không dùng AI."
+  },
+  "feedbackReasons":["wrong_grammar","hard_to_understand","unnatural_example","level_mismatch"],
+  "cache":{"storage":"session","ttlMinutes":1440,"personalContextAllowed":false,"rawPromptKeyStored":false},
+  "cost":{"currency":"USD","pricingSource":"server-environment","defaultMonetaryEstimate":null,"retentionDays":30},
+  "premium":{"featureKey":"ai_assistance","serverAuthoritative":true,"free":"limited","premium":"expanded","pro":"advanced-fair-use"}
+}

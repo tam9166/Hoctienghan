@@ -6,6 +6,8 @@ All notable repository changes are documented here. The project follows [Keep a 
 
 ### Added
 
+- Added P68 task-specific AI contracts, minimized learner context, client/server response quality gates, normal/edge/wrong evaluation data, human feedback metadata, aggregate usage/cost telemetry and public-only session caching.
+- Added an additive Supabase migration for private AI feedback and security-invoker usage summaries without storing raw prompts or responses.
 - Added the P67 ethical Free/Premium/Pro capability map, server-authoritative entitlement projection, fair-use AI quota, no-auto-charge trial, cancellation request flow, and admin subscription/payment audit view.
 - Added provider-neutral billing API boundaries and an additive Supabase subscription, trial, quota, pricing-research, cancellation and audit migration.
 - Added a controlled Vietnamese-first Korean content lab with Hangul Zero, Vietnamese contrast, natural-register examples, listening, transparent TOPIK practice, survival lessons, culture notes, and story learning.
@@ -14,6 +16,8 @@ All notable repository changes are documented here. The project follows [Keep a 
 
 ### Changed
 
+- Routed simple and complex AI tasks independently, capped output per task, deduplicated identical in-flight requests, and preserved deterministic learning fallbacks when AI is disabled, unavailable, throttled or rejected.
+- Bumped the PWA cache and route/app asset revisions for the P68 quality layer and offline-safe fallback.
 - Kept learning foundations, basic skills, SRS, progress, offline core, journals and community foundations available to Free users; Premium and Pro add depth without deleting progress on expiry or cancellation.
 - Bumped the PWA cache and route/app asset revisions for the offline-capable P67 Premium center.
 - Bumped the PWA cache and route/app asset revisions for the P66 offline-capable content route.
@@ -21,6 +25,7 @@ All notable repository changes are documented here. The project follows [Keep a 
 
 ### Documentation
 
+- Added the P68 AI feature/value audit, quality and hallucination evidence, cost/privacy review, test results and remaining-risk report.
 - Added product overview, architecture, database, API, AI, learning-engine, security, development, contribution, case-study and demo documentation.
 - Added reproducible portfolio screenshot guidance and validation.
 - Reorganized README as a source-linked project entry point.

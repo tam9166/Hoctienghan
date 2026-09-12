@@ -34,9 +34,9 @@ assert.match(index, />Trợ lý<\/span>/);
 assert.match(styles, /\.bottom-nav \.nav-item\[data-route="ai-coach"\]\s*\{\s*display:\s*none/);
 assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
 assert.match(styles, /:focus-visible/);
-assert.match(worker, /const CACHE = 'klearn-v82'/);
+assert.match(worker, /const CACHE = 'klearn-v83'/);
 assert.match(index, /styles\.css\?v=32/);
-assert.match(index, /app\.js\?v=68/);
+assert.match(index, /app\.js\?v=69/);
 
 function pngSize(file) {
   const data = fs.readFileSync(path.join(root, file));

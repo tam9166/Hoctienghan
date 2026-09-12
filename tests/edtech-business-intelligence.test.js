@@ -70,7 +70,7 @@ assert.equal(student.window.BusinessIntelligenceService.available(), false);
 assert.equal(student.window.BusinessIntelligenceService.hydrate({ daily: [{ active_users: 999 }] }).lifecycle.activeUsers, 999, 'service can be tested with aggregate fixture but route access remains role-gated');
 assert.match(indexSource, /edtech-business-intelligence\.css\?v=1/);
 assert.match(indexSource, /data\/edtech-business-intelligence\.js\?v=1/);
-assert.match(workerSource, /klearn-v82/);
+assert.match(workerSource, /klearn-v83/);
 assert.match(workerSource, /edtech-business-intelligence\.json/);
 assert.match(workerSource, /edtech-business-intelligence\.js/);
 assert.match(migration, /edtech_bi_daily_metrics/);
