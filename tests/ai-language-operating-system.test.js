@@ -100,7 +100,7 @@ assert.equal(content.prediction.guaranteesOutcome, false);
 
   assert.equal(typeof w.KLEARN_EXTRA_VIEWS['ai-language-os'], 'function');
   assert.match(appSource, /aiLanguageOs: 'klearn_ai_language_os'/); assert.match(appSource, /STORAGE_KEYS\.aiLanguageOs/); assert.match(appSource, /MAIN_VIEWS\.push\('ai-language-os'\)/);
-  assert.match(index, /ai-language-os\.css\?v=1/); assert.match(index, /data\/ai-language-operating-system\.js\?v=1/); assert.match(index, /data\/route-loader\.js\?v=10/); assert.match(index, /app\.js\?v=70/);
-  assert.match(worker, /klearn-v84/); assert.match(worker, /content\/ai-language-operating-system\.json/); assert.match(css, /@media \(max-width: 620px\)/);
+  assert.match(index, /ai-language-os\.css\?v=1/); assert.match(index, /data\/ai-language-operating-system\.js\?v=1/); assert.match(index, /data\/route-loader\.js\?v=11/); assert.match(index, /app\.js\?v=71/);
+  assert.match(worker, /klearn-v85/); assert.match(worker, /content\/ai-language-operating-system\.json/); assert.match(css, /@media \(max-width: 620px\)/);
   console.log('P60 AI Language OS: memory confirmation, evidence planner, advisor, approved curation, bounded forecast, multilingual support, human authority, privacy fallback and metadata-only improvement passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v84';
+const CACHE = 'klearn-v85';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=32',
@@ -13,6 +13,7 @@ const OFFLINE_ASSETS = [
   './premium-monetization.css?v=1',
   './future-language-platform.css?v=1',
   './global-language-platform.css?v=1',
+  './global-language-core.css?v=1',
   './learning-science.css?v=1',
   './career-learning.css?v=1',
   './ai-agent-architecture.css?v=1',
@@ -87,11 +88,11 @@ const OFFLINE_ASSETS = [
   './data/learning-modules.js?v=9',
   './data/practice-bank.js?v=8',
   './locales/vi.js?v=5',
-  './locales/en.js?v=7',
-  './locales/zh-CN.js?v=7',
+  './locales/en.js?v=8',
+  './locales/zh-CN.js?v=8',
   './data/content-locales.js?v=1',
-  './data/route-loader.js?v=10',
-  './app.js?v=70',
+  './data/route-loader.js?v=11',
+  './app.js?v=71',
   './data/content-competitive-upgrade.js?v=1',
   './content/vietnamese-korean-core.json',
   './content/retention-system.json',
@@ -110,6 +111,7 @@ const OFFLINE_ASSETS = [
   './content/ai-quality-safety.json',
   './content/ai-quality-evaluation-dataset.json',
   './data/global-language-platform.js?v=2',
+  './data/global-language-core-v2.js?v=1',
   './data/ai-agent-architecture.js?v=1',
   './content/ai-agent-architecture.json',
   './data/ai-language-operating-system.js?v=1',
@@ -119,6 +121,8 @@ const OFFLINE_ASSETS = [
   './data/global-education-marketplace.js?v=1',
   './content/global-education-marketplace.json',
   './content/global-language-platform.json',
+  './content/global-language-core-v2.json',
+  './content/language-packs/ko-core.json',
   './data/user-research.js?v=2',
   './content/user-research-experiments.json',
   './data/advanced-learning-analytics.js?v=1',
@@ -175,9 +179,9 @@ const OFFLINE_ASSETS = [
 // cached on first use, so installation no longer downloads the complete platform.
 const INSTALL_ASSETS = new Set([
   './index.html', './styles.css?v=32', './product-ux.css?v=1', './production-stability.css?v=2', './security-privacy.css?v=1', './mobile-experience.css?v=1',
-  './locales/vi.js?v=5', './locales/en.js?v=7', './locales/zh-CN.js?v=7', './data/content-locales.js?v=1',
+  './locales/vi.js?v=5', './locales/en.js?v=8', './locales/zh-CN.js?v=8', './data/content-locales.js?v=1',
   './data/romanization.js?v=8', './data/vocabulary-bank.js?v=8', './data/dictionary.js?v=1', './data/theory-lessons.js?v=1', './data/handwriting.js?v=1',
-  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=10', './app.js?v=70',
+  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=11', './app.js?v=71',
   './data/curriculum.js?v=1', './data/adaptive-engine.js?v=8', './data/beginner-foundation.js?v=2', './data/daily-learning-experience.js?v=6',
   './data/product-ux.js?v=1', './content/product-ux.json', './data/user-research.js?v=2', './content/user-research-experiments.json',
   './data/production-stability.js?v=5', './data/security-privacy.js?v=3', './data/mobile-experience.js?v=3', './data/mobile-native.js?v=1',

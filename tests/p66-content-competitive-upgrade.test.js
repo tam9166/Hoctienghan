@@ -46,7 +46,7 @@ assert.match(app, /competitiveContentProgress: 'klearn_competitive_content_progr
 assert.match(app, /STORAGE_KEYS\.competitiveContentProgress/);
 assert.match(app, /MAIN_VIEWS\.push\('vietnamese-korean-core'\)/);
 assert.match(loader, /competitiveContent/); assert.match(loader, /content-competitive-upgrade\.js\?v=1/); assert.match(loader, /routes\('vietnamese-korean-core'/);
-assert.match(worker, /klearn-v84/); assert.match(worker, /content\/vietnamese-korean-core\.json/); assert.match(worker, /content-competitive\.css\?v=1/);
+assert.match(worker, /klearn-v85/); assert.match(worker, /content\/vietnamese-korean-core\.json/); assert.match(worker, /content-competitive\.css\?v=1/);
 assert.match(moduleSource, /human-review gate/); assert.match(moduleSource, /qualitySystem: 'P66'/); assert.match(moduleSource, /__p66Wrapped/);
 assert.match(css, /@media \(max-width: 420px\)/); assert.match(css, /@media \(min-width: 1024px\)/);
 assert.doesNotMatch(migration, /\b(delete|truncate)\s+(from\s+)?public\.(user_|learning_|srs|mastery)/i);

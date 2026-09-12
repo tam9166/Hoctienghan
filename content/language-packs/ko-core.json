@@ -1,0 +1,10 @@
+{
+  "id":"ko-core",
+  "languageId":"ko",
+  "version":1,
+  "status":"active",
+  "reviewStatus":"approved",
+  "modules":{"grammar":"existing-reviewed-catalog","vocabulary":"existing-reviewed-catalog","listening":"existing-reviewed-catalog","speaking":"existing-reviewed-catalog","culture":"existing-reviewed-catalog"},
+  "contentEmbedded":false,
+  "note":"The Korean curriculum remains in its existing reviewed data modules; this pack is a lazy registry descriptor and does not duplicate content."
+}

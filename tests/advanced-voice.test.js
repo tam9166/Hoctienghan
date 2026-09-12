@@ -80,7 +80,7 @@ function boot() {
   assert.match(index, /data\/advanced-voice\.js\?v=2/);
   assert.match(css, /voice-phoneme-grid/);
   assert.match(css, /@media \(max-width: 600px\)/);
-  assert.match(worker, /klearn-v84/);
+  assert.match(worker, /klearn-v85/);
   assert.match(worker, /advanced-voice\.json/);
   assert.match(appSource, /voiceLearning: 'klearn_voice_learning'/);
   assert.match(appSource, /STORAGE_KEYS\.voiceLearning/);

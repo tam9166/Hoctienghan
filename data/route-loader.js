@@ -24,7 +24,7 @@
     retention: { dependencies: ['practical'], styles: ['retention-system.css?v=1'], scripts: ['data/retention-system.js?v=1'] },
     contentQuality: { dependencies: ['content'], styles: ['content-quality.css?v=1'], scripts: ['data/content-quality-system.js?v=2'] },
     aiInfra: { styles: ['ai-quality.css?v=1'], scripts: ['data/ai-infrastructure.js?v=4', 'data/ai-quality-optimization.js?v=1'] },
-    globalLanguage: { styles: ['global-language-platform.css?v=1'], scripts: ['data/global-language-platform.js?v=2'] },
+    globalLanguage: { styles: ['global-language-platform.css?v=1', 'global-language-core.css?v=1'], scripts: ['data/global-language-platform.js?v=2', 'data/global-language-core-v2.js?v=1'] },
     advancedAnalytics: { scripts: ['data/advanced-learning-analytics.js?v=1'] },
     edtech: { styles: ['edtech-business-intelligence.css?v=1'], scripts: ['data/edtech-business-intelligence.js?v=1'] },
     premium: { styles: ['premium-learning.css?v=1'], scripts: ['data/premium-learning-experience.js?v=1'] },
@@ -81,6 +81,7 @@
   routes('premium-center subscription-admin', ['monetization']);
   routes('future-language-platform cross-language-lab language-brain future-integrations global-course-marketplace', ['globalLanguage', 'futureLanguage']);
   routes('global-language-platform global-language-profiles global-exam-framework global-language-comparison global-expansion', ['globalLanguage']);
+  routes('global-language-onboarding global-writing-system global-content-packs global-language-search global-adaptive-plan', ['globalLanguage']);
   routes('learning-science active-recall interleaved-practice concept-mastery', ['science']);
   routes('career-center career-vocabulary workplace-scenarios workplace-scenario job-interview-trainer korean-resume-builder business-email-writing presentation-coach workplace-culture career-report', ['career']);
   routes('advanced-voice voice-session voice-history voice-goals voice-report realtime-voice-coach voice-coach-session voice-coach-journey', ['voice']);
@@ -99,7 +100,7 @@
   routes('practice speaking-hub', ['voice']);
   routes('home', ['growth']);
   routes('profile', ['longTerm', 'education', 'communityLearning', 'enterprise', 'retention', 'contentQuality', 'globalLanguage', 'edtech', 'premium', 'aiContent', 'community', 'monetization', 'futureLanguage', 'outcomes', 'growth']);
-  routes('search', ['resources', 'practical', 'context', 'content', 'competitiveContent']);
+  routes('search', ['resources', 'practical', 'context', 'content', 'competitiveContent', 'globalLanguage']);
   const discoveryRoutes = new Set(['lessons', 'review', 'topik', 'practice', 'speaking-hub', 'profile', 'search']);
 
   const assetPromises = new Map(); const groupPromises = new Map(); const loadedGroups = new Set();

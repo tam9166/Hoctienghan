@@ -6,6 +6,8 @@ All notable repository changes are documented here. The project follows [Keep a 
 
 ### Added
 
+- Added the P70 language-independent lesson/configuration core, optional multi-language onboarding, per-language profile state, writing/exam frameworks, universal SRS/mastery/adaptive services and minimal native-to-target AI context.
+- Added a lazy human-reviewed language-pack registry, multilingual search/community/market foundations, owner-scoped Supabase learning tables and 100-pack scale validation.
 - Added the P69 five-role education ecosystem, consented classroom progress sharing, assignments, secure assessments, teacher insights, organization management, creator approval workflow and evidence-backed certificates.
 - Added an additive Supabase migration with organization/class-scoped RLS, student-controlled consent, answer-key isolation, server-side assessment grading and privacy-safe school reporting.
 - Added P68 task-specific AI contracts, minimized learner context, client/server response quality gates, normal/edge/wrong evaluation data, human feedback metadata, aggregate usage/cost telemetry and public-only session caching.
@@ -18,6 +20,8 @@ All notable repository changes are documented here. The project follows [Keep a 
 
 ### Changed
 
+- Extended P59 from shared contracts to an operational P70 state layer while preserving Korean IDs, Korean curriculum, CloudSync, SRS, Mastery, AI safety and the P69 education ecosystem.
+- Bumped the PWA cache and app/route revisions for the lazy P70 global-language routes.
 - Extended the existing B2C education foundation with optional B2B Student, Teacher and Center plans while preserving personal learning, SRS, Mastery, Adaptive Learning, AI fallback and CloudSync data.
 - Bumped the PWA cache and route/app asset revisions for the offline-capable P69 education ecosystem.
 - Routed simple and complex AI tasks independently, capped output per task, deduplicated identical in-flight requests, and preserved deterministic learning fallbacks when AI is disabled, unavailable, throttled or rejected.
@@ -29,6 +33,7 @@ All notable repository changes are documented here. The project follows [Keep a 
 
 ### Documentation
 
+- Added the P70 architecture, language core, profiles, writing, exams, SRS, adaptive, AI, content, localization, security, performance and testing report.
 - Added the P69 role, classroom, assessment, creator, school, privacy, monetization, testing and remaining-risk report.
 - Added the P68 AI feature/value audit, quality and hallucination evidence, cost/privacy review, test results and remaining-risk report.
 - Added product overview, architecture, database, API, AI, learning-engine, security, development, contribution, case-study and demo documentation.

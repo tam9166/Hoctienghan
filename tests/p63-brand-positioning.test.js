@@ -19,8 +19,8 @@ assert.match(index, /Học tiếng Hàn theo lộ trình dành cho người Vi�
 assert.match(index, /Hangul đến TOPIK và tiếng Hàn dùng được trong đời sống/);
 assert.match(index, /data-route="ai-coach"[^>]*>[\s\S]*?<span>Trợ lý<\/span>/);
 assert.match(index, /locales\/vi\.js\?v=5/);
-assert.match(index, /locales\/en\.js\?v=7/);
-assert.match(index, /locales\/zh-CN\.js\?v=7/);
+assert.match(index, /locales\/en\.js\?v=8/);
+assert.match(index, /locales\/zh-CN\.js\?v=8/);
 
 assert.equal(manifest.name, 'Tiếng Hàn - TamHoanq');
 assert.equal(manifest.theme_color, '#DDFF66');
@@ -39,8 +39,8 @@ assert.doesNotMatch(vi.slice(vi.lastIndexOf('// Product language')), /AI Gia sư
 assert.match(en, /'ai\.title': 'Learning assistant'/);
 assert.match(zh, /'ai\.title': '学习助手'/);
 assert.match(worker, /locales\/vi\.js\?v=5/);
-assert.match(worker, /locales\/en\.js\?v=7/);
-assert.match(worker, /locales\/zh-CN\.js\?v=7/);
+assert.match(worker, /locales\/en\.js\?v=8/);
+assert.match(worker, /locales\/zh-CN\.js\?v=8/);
 
 for (const heading of [
   '## 1. Current Brand Analysis',

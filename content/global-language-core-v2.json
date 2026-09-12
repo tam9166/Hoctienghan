@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 2,
+  "reviewStatus": "approved",
+  "updatedAt": "2026-09-12",
+  "languages": {
+    "ko": {"locale":"ko-KR","name":"한국어","levelSystem":"TOPIK","scripts":[{"id":"hangul","type":"syllable_block","features":["stroke_order","jamo","batchim"]}],"skills":["vocabulary","grammar","listening","speaking","reading","writing"],"specificFeatures":["hangul","particles","honorifics"]},
+    "ja": {"locale":"ja-JP","name":"日本語","levelSystem":"JLPT","scripts":[{"id":"hiragana","type":"kana"},{"id":"katakana","type":"kana"},{"id":"kanji","type":"character"}],"skills":["vocabulary","grammar","listening","speaking","reading","writing"],"specificFeatures":["kana","kanji","keigo"]},
+    "zh": {"locale":"zh-CN","name":"中文","levelSystem":"HSK","scripts":[{"id":"hanzi","type":"character","features":["stroke_order","radicals"]},{"id":"pinyin","type":"alphabet"}],"skills":["vocabulary","grammar","listening","speaking","reading","writing"],"specificFeatures":["pinyin","tones","hanzi"]},
+    "en": {"locale":"en-US","name":"English","levelSystem":"CEFR","scripts":[{"id":"latin","type":"alphabet"}],"skills":["vocabulary","grammar","listening","speaking","reading","writing"],"specificFeatures":["phonics","stress","connected_speech"]}
+  },
+  "exams": [
+    {"id":"topik","languageId":"ko","levels":["1","2","3","4","5","6"],"skills":["listening","reading","writing"],"status":"active"},
+    {"id":"jlpt","languageId":"ja","levels":["N5","N4","N3","N2","N1"],"skills":["language_knowledge","reading","listening"],"status":"framework"},
+    {"id":"hsk","languageId":"zh","levels":["1","2","3","4","5","6"],"skills":["listening","reading","writing"],"status":"framework"},
+    {"id":"ielts","languageId":"en","levels":["4","5","6","7","8","9"],"skills":["listening","reading","writing","speaking"],"status":"framework"},
+    {"id":"toeic","languageId":"en","levels":["A1","A2","B1","B2","C1"],"skills":["listening","reading"],"status":"framework"}
+  ],
+  "itemTypes":["vocabulary","grammar","character","kanji","sentence"],
+  "contentSchema":["id","language","level","skill","topic","status","reviewStatus"],
+  "packs":[
+    {"id":"ko-core","languageId":"ko","status":"active","reviewStatus":"approved","url":"content/language-packs/ko-core.json"},
+    {"id":"ja-foundation","languageId":"ja","status":"foundation","reviewStatus":"draft","url":null},
+    {"id":"zh-foundation","languageId":"zh","status":"foundation","reviewStatus":"draft","url":null},
+    {"id":"en-foundation","languageId":"en","status":"foundation","reviewStatus":"draft","url":null}
+  ],
+  "searchEntries":[
+    {"id":"hello-ko","languageId":"ko","type":"expression","term":"안녕하세요","meaning":"xin chào","level":"TOPIK 1","reviewStatus":"approved"},
+    {"id":"hello-ja","languageId":"ja","type":"expression","term":"こんにちは","meaning":"xin chào","level":"N5","reviewStatus":"approved"},
+    {"id":"hello-zh","languageId":"zh","type":"expression","term":"你好","meaning":"xin chào","level":"HSK 1","reviewStatus":"approved"}
+  ],
+  "communityGroups":[{"id":"ko-learners","languageId":"ko"},{"id":"ja-learners","languageId":"ja"},{"id":"zh-learners","languageId":"zh"}],
+  "markets": {
+    "VN":{"interfaceLocales":["vi-VN","en-US"],"paymentMode":"provider_configuration_required"},
+    "KR":{"interfaceLocales":["ko-KR","en-US"],"paymentMode":"provider_configuration_required"},
+    "GLOBAL":{"interfaceLocales":["en-US"],"paymentMode":"provider_configuration_required"}
+  },
+  "privacy":{"profileOwnerOnly":true,"languageIsolation":true,"aiContextAllowlist":["nativeLanguage","targetLanguage","level","goal","weakSkills","recentScores"]}
+}
