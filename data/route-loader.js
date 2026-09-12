@@ -42,7 +42,8 @@
     marketplace: { styles: ['global-education-marketplace.css?v=1'], scripts: ['data/global-education-marketplace.js?v=1'] },
     outcomes: { styles: ['learning-outcomes.css?v=1'], scripts: ['data/learning-outcomes.js?v=1'] },
     growth: { styles: ['product-growth.css?v=1'], scripts: ['data/product-growth.js?v=1'] },
-    demo: { styles: ['product-demo.css?v=1'], scripts: ['data/product-demo.js?v=1'] }
+    demo: { styles: ['product-demo.css?v=1'], scripts: ['data/product-demo.js?v=1'] },
+    competitiveContent: { styles: ['content-competitive.css?v=1'], scripts: ['data/content-competitive-upgrade.js?v=1'] }
   });
 
   const routeGroups = new Map();
@@ -68,6 +69,7 @@
   routes('growth-analytics', ['retention', 'growth']);
   routes('product-experiments', ['growth']);
   routes('demo demo-center', ['demo']);
+  routes('vietnamese-korean-core', ['competitiveContent']);
   routes('real-world-assistant korean-document-assistant korean-menu-reader korean-sign-reader real-world-guide survival-checklist', ['realWorld']);
   routes('content-platform content-explorer content-detail korean-notebook content-feedback', ['content']);
   routes('learning-community study-groups community-challenge peer-practice community-questions community-profile community-safety', ['communityLearning']);
@@ -90,13 +92,13 @@
   routes('immersive-world', ['immersiveKorean']);
 
   // Category pages load their discovery extensions only after the user enters them.
-  routes('lessons', ['resources', 'practical', 'scale', 'conversation', 'context', 'reading', 'languageMastery', 'immersion', 'immersive', 'ecosystem', 'realWorld', 'content', 'career', 'immersiveKorean', 'marketplace']);
+  routes('lessons', ['resources', 'practical', 'scale', 'conversation', 'context', 'reading', 'languageMastery', 'immersion', 'immersive', 'ecosystem', 'realWorld', 'content', 'career', 'immersiveKorean', 'marketplace', 'competitiveContent']);
   routes('review', ['practical', 'scale', 'science']);
   routes('topik', ['topik', 'analytics', 'advancedAnalytics', 'science', 'outcomes']);
   routes('practice speaking-hub', ['voice']);
   routes('home', ['growth']);
   routes('profile', ['longTerm', 'education', 'communityLearning', 'enterprise', 'retention', 'contentQuality', 'globalLanguage', 'edtech', 'premium', 'aiContent', 'community', 'monetization', 'futureLanguage', 'outcomes', 'growth']);
-  routes('search', ['resources', 'practical', 'context', 'content']);
+  routes('search', ['resources', 'practical', 'context', 'content', 'competitiveContent']);
   const discoveryRoutes = new Set(['lessons', 'review', 'topik', 'practice', 'speaking-hub', 'profile', 'search']);
 
   const assetPromises = new Map(); const groupPromises = new Map(); const loadedGroups = new Set();

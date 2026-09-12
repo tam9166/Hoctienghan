@@ -4,11 +4,23 @@ All notable repository changes are documented here. The project follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+
+- Added a controlled Vietnamese-first Korean content lab with Hangul Zero, Vietnamese contrast, natural-register examples, listening, transparent TOPIK practice, survival lessons, culture notes, and story learning.
+- Added whole-inventory P66 audit output with normalized content identity, topic, provisional quality score, and review status.
+- Added additive Supabase metadata for provenance, honest audio labeling, quality dimensions, AI-check evidence, and content versions.
+
+### Changed
+
+- Bumped the PWA cache and route/app asset revisions for the P66 offline-capable content route.
+- Kept all P66 items behind a human-review gate; AI checks cannot mark content approved or official.
+
 ### Documentation
 
 - Added product overview, architecture, database, API, AI, learning-engine, security, development, contribution, case-study and demo documentation.
 - Added reproducible portfolio screenshot guidance and validation.
 - Reorganized README as a source-linked project entry point.
+- Added P65 product evaluation and P66 competitive content upgrade reports.
 
 ## [1.2.0-rc.1] - 2026-09-10
 
