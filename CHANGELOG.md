@@ -6,6 +6,8 @@ All notable repository changes are documented here. The project follows [Keep a 
 
 ### Added
 
+- Added the P69 five-role education ecosystem, consented classroom progress sharing, assignments, secure assessments, teacher insights, organization management, creator approval workflow and evidence-backed certificates.
+- Added an additive Supabase migration with organization/class-scoped RLS, student-controlled consent, answer-key isolation, server-side assessment grading and privacy-safe school reporting.
 - Added P68 task-specific AI contracts, minimized learner context, client/server response quality gates, normal/edge/wrong evaluation data, human feedback metadata, aggregate usage/cost telemetry and public-only session caching.
 - Added an additive Supabase migration for private AI feedback and security-invoker usage summaries without storing raw prompts or responses.
 - Added the P67 ethical Free/Premium/Pro capability map, server-authoritative entitlement projection, fair-use AI quota, no-auto-charge trial, cancellation request flow, and admin subscription/payment audit view.
@@ -16,6 +18,8 @@ All notable repository changes are documented here. The project follows [Keep a 
 
 ### Changed
 
+- Extended the existing B2C education foundation with optional B2B Student, Teacher and Center plans while preserving personal learning, SRS, Mastery, Adaptive Learning, AI fallback and CloudSync data.
+- Bumped the PWA cache and route/app asset revisions for the offline-capable P69 education ecosystem.
 - Routed simple and complex AI tasks independently, capped output per task, deduplicated identical in-flight requests, and preserved deterministic learning fallbacks when AI is disabled, unavailable, throttled or rejected.
 - Bumped the PWA cache and route/app asset revisions for the P68 quality layer and offline-safe fallback.
 - Kept learning foundations, basic skills, SRS, progress, offline core, journals and community foundations available to Free users; Premium and Pro add depth without deleting progress on expiry or cancellation.
@@ -25,6 +29,7 @@ All notable repository changes are documented here. The project follows [Keep a 
 
 ### Documentation
 
+- Added the P69 role, classroom, assessment, creator, school, privacy, monetization, testing and remaining-risk report.
 - Added the P68 AI feature/value audit, quality and hallucination evidence, cost/privacy review, test results and remaining-risk report.
 - Added product overview, architecture, database, API, AI, learning-engine, security, development, contribution, case-study and demo documentation.
 - Added reproducible portfolio screenshot guidance and validation.

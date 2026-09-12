@@ -13,7 +13,7 @@
     longTerm: { scripts: ['data/long-term-ecosystem-data.js?v=1', 'data/long-term-ecosystem.js?v=1'] },
     languageMastery: { styles: ['language-mastery.css?v=1'], scripts: ['data/language-mastery-data.js?v=1', 'data/language-mastery.js?v=1'] },
     immersion: { styles: ['immersion-motivation.css?v=1'], scripts: ['data/immersion-motivation-data.js?v=1', 'data/immersion-motivation.js?v=1'] },
-    education: { styles: ['education-platform.css?v=1'], scripts: ['data/education-platform-data.js?v=1', 'data/education-platform.js?v=1'] },
+    education: { styles: ['education-platform.css?v=1', 'education-ecosystem.css?v=1'], scripts: ['data/education-platform-data.js?v=2', 'data/education-platform.js?v=2', 'data/education-ecosystem-platform.js?v=1'] },
     immersive: { styles: ['immersive-world.css?v=1'], scripts: ['data/immersive-world-data.js?v=1', 'data/immersive-world.js?v=1'] },
     ecosystem: { styles: ['ecosystem-expansion.css?v=1'], scripts: ['data/ecosystem-expansion.js?v=2'] },
     analytics: { styles: ['learning-analytics.css?v=1'], scripts: ['data/learning-analytics-engine.js?v=1'] },
@@ -59,7 +59,7 @@
   routes('topik-strategy-center real-goal-planner learning-journal teacher-review manual-review-queue teacher-workspace community-hub personal-report', ['longTerm']);
   routes('language-mastery subtitle-learning vocabulary-image-memory grammar-mastery', ['languageMastery']);
   routes('immersion-journey survival-kit media-learning slang-dictionary daily-korean-feed monthly-challenge achievement-room personal-portfolio', ['immersion']);
-  routes('education-platform teacher-dashboard organization-center education-assignments education-feedback course-builder organization-analytics education-content', ['education']);
+  routes('education-platform teacher-dashboard organization-center education-assignments education-feedback course-builder organization-analytics education-content education-ecosystem assessment-center creator-workflow school-report education-certificates', ['education']);
   routes('immersive-world virtual-korean-city immersive-session roleplay-game debate-studio career-korean university-life travel-simulator voice-world speaking-journey learning-avatar-research', ['immersive']);
   routes('ecosystem-expansion real-korean-life life-simulator document-reader address-number-trainer language-science korean-thinking skill-world career-purpose career-practice learning-architecture', ['ecosystem']);
   routes('analytics progress-reports learning-outcomes student-progress-report', ['analytics', 'advancedAnalytics', 'outcomes']);

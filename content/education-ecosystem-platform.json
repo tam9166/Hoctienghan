@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-12",
+  "status": "architecture-ready",
+  "principles": {
+    "b2cOptional": true,
+    "b2bSupported": true,
+    "studentLearningCoreUnchanged": true,
+    "serverAuthoritativeRoles": true,
+    "organizationScopedAccess": true,
+    "studentControlsProgressSharing": true,
+    "teacherCannotReadPrivateData": true,
+    "aiNeverApprovesContent": true
+  },
+  "roles": [
+    {"id":"student","label":"Student","scope":"self","capabilities":["learn","practice","view_own_progress","view_own_assignments","view_own_feedback","submit_assessment","control_progress_sharing"]},
+    {"id":"teacher","label":"Teacher","scope":"assigned_classes","capabilities":["create_class","invite_student","assign_course","create_assignment","create_assessment","view_shared_progress","give_feedback","request_teacher_ai"]},
+    {"id":"content_creator","label":"Content Creator","scope":"own_content","capabilities":["create_content","edit_own_draft","request_ai_check","submit_review"]},
+    {"id":"center_admin","label":"Center Admin","scope":"organization","capabilities":["manage_organization_members","manage_classes","view_organization_reports","manage_organization_plan","issue_certificate"]},
+    {"id":"super_admin","label":"Super Admin","scope":"platform","capabilities":["manage_system","manage_roles","human_review","publish_content","view_platform_audit"]}
+  ],
+  "supportingRoles":["reviewer","content_editor","admin"],
+  "assessmentTypes":["vocabulary","grammar","listening","reading"],
+  "assignmentTypes":["lesson","vocabulary","listening_test","reading_test","grammar_test","course"],
+  "creatorContentTypes":["lesson","vocabulary","grammar","exercise","listening"],
+  "creatorWorkflow":["draft","ai_checked","human_review","approved","published"],
+  "safeProgressFields":["attendance","progress","lessonCompletion","vocabularyMastery","grammarWeakness","topikReadiness","skillGrowth","lastActiveAt"],
+  "riskRules":[
+    {"id":"inactive","severity":"high","threshold":14,"unit":"days"},
+    {"id":"low_activity","severity":"medium","threshold":2,"unit":"sessions_7d"},
+    {"id":"score_decline","severity":"medium","threshold":10,"unit":"percentage_points"}
+  ],
+  "plans":[
+    {"id":"student","billingKey":"free_or_premium","price":null,"scope":"individual"},
+    {"id":"teacher","billingKey":"teacher_plan","price":null,"scope":"assigned_classes"},
+    {"id":"center","billingKey":"center_plan","price":null,"scope":"organization_seats"}
+  ],
+  "teacherAiTasks":["quiz_draft","assignment_suggestion","class_error_summary"],
+  "teacherAiPolicy":{"optional":true,"usesAggregateOnly":true,"humanApprovalRequired":true,"rawStudentDataAllowed":false},
+  "certificateEvidence":["course_completion","achievement","verified_level"]
+}

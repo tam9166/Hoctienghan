@@ -1,0 +1,21 @@
+.p69-gateway { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:24px; border:1px solid var(--border,#d6e8a8); border-radius:18px; background:var(--surface,#fff); }
+.p69-gateway h2 { margin:4px 0 8px; color:var(--text,#1f2a1a); }
+.p69-gateway p { margin:0; color:var(--muted,#687063); }
+.p69-role-grid,.p69-action-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; }
+.p69-role-grid article,.p69-action-grid button,.p69-list article { min-width:0; padding:18px; border:1px solid var(--border,#d6e8a8); border-radius:16px; background:var(--surface,#fff); color:var(--text,#1f2a1a); text-align:left; }
+.p69-role-grid article.active { border-color:var(--primary,#c5ed4f); box-shadow:inset 4px 0 0 var(--primary,#c5ed4f); }
+.p69-role-grid h2,.p69-list h2 { margin:6px 0; font-size:1rem; }
+.p69-role-grid small,.p69-list small { color:var(--muted,#687063); text-transform:uppercase; letter-spacing:.06em; }
+.p69-action-grid button { display:grid; gap:8px; cursor:pointer; }
+.p69-action-grid button:hover { border-color:var(--primary,#c5ed4f); background:color-mix(in srgb,var(--primary,#c5ed4f) 10%,var(--surface,#fff)); }
+.p69-action-grid span { color:var(--muted,#687063); font-size:.82rem; }
+.p69-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; padding:20px; }
+.p69-form label { display:grid; gap:6px; font-size:.82rem; color:var(--muted,#687063); }
+.p69-form input,.p69-form select { width:100%; min-height:44px; border:1px solid var(--border,#d6e8a8); border-radius:10px; padding:8px 10px; background:var(--surface,#fff); color:var(--text,#1f2a1a); }
+.p69-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+.p69-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+.p69-metrics span { display:grid; gap:3px; padding:14px; border-radius:12px; background:var(--surface-muted,#f5f7f1); }
+.p69-metrics b { font-size:1.35rem; }
+.p69-metrics small { color:var(--muted,#687063); }
+@media(max-width:700px){.p69-gateway{align-items:stretch;flex-direction:column;padding:18px}.p69-form{grid-template-columns:1fr}.p69-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:380px){.p69-role-grid,.p69-action-grid,.p69-list{grid-template-columns:1fr}.p69-metrics{grid-template-columns:1fr}}

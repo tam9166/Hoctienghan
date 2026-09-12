@@ -35,7 +35,7 @@
     role() { return AccessControlService?.role?.() || 'student'; },
     can(capability) { return Boolean(data.capabilities[this.role()]?.includes(capability)); },
     require(capability) { if (!this.can(capability)) return false; return true; },
-    label() { return ({ student: 'Student', teacher: 'Teacher', reviewer: 'Reviewer', content_editor: 'Content Editor', admin: 'Admin' })[this.role()] || 'Student'; }
+    label() { return ({ student: 'Student', teacher: 'Teacher', reviewer: 'Reviewer', content_editor: 'Content Editor', content_creator: 'Content Creator', center_admin: 'Center Admin', admin: 'Admin', super_admin: 'Super Admin' })[this.role()] || 'Student'; }
   };
 
   const OrganizationService = {
@@ -107,7 +107,7 @@
     available() { return EducationPermissionService.can('view_teacher_dashboard'); },
     rows(classId = OrganizationService.selectedClass()?.id) {
       if (!this.available()) return [];
-      return OrganizationService.members(classId).filter((item) => item.status === 'active').map((member) => {
+      return OrganizationService.members(classId).filter((item) => item.status === 'active' && (!global.ProgressConsentService || global.ProgressConsentService.active(item.studentId, classId))).map((member) => {
         const summary = sanitizeSummary(member.summary || {});
         const sorted = Object.entries(summary.skills).sort((a, b) => a[1] - b[1]);
         return { ...member, ...summary, weakSkill: sorted[0]?.[0] || 'Chưa đủ dữ liệu', mistakeCount: summary.mistakes.length };
@@ -210,7 +210,7 @@
     async refreshSummaries() {
       if (!this.ready() || !TeacherDashboardService.available()) return;
       const members = store().memberships.filter((item) => item.status === 'active' && isUuid(item.studentId));
-      await Promise.all(members.map(async (member) => { const { data: summary, error } = await this.client().rpc('education_student_summary', { target_student: member.studentId }); if (!error && summary) OrganizationService.cacheSummary(member.studentId, summary); }));
+      await Promise.all(members.map(async (member) => { const { data: summary, error } = await this.client().rpc('education_student_summary_v2', { target_student: member.studentId, target_class: member.classId }); OrganizationService.cacheSummary(member.studentId, !error && summary ? summary : {}); }));
     },
     async createOrganization(payload) { const { data: row, error } = await this.client().from('education_organizations').insert({ name: text(payload.name, 120), type: payload.type }).select().single(); if (error) throw error; return OrganizationService.createOrganization({ id: row.id, name: row.name, type: row.type }); },
     async respondToInvitation(enrollmentId, decision) { const { error } = await this.client().rpc('respond_to_class_invitation', { enrollment_id: enrollmentId, decision }); if (error) throw error; return this.refresh(); },

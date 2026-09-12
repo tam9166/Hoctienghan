@@ -77,7 +77,7 @@ function boot() {
   assert.match(css, /min-height: 48px/);
   assert.match(css, /safe-area-inset-bottom/);
   assert.match(css, /prefers-reduced-motion/);
-  assert.match(worker, /klearn-v83/);
+  assert.match(worker, /klearn-v84/);
   assert.match(worker, /addEventListener\('push'/);
   assert.match(worker, /addEventListener\('notificationclick'/);
   assert.match(worker, /maximumPerDay: 2/);

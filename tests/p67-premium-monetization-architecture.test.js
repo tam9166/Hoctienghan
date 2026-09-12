@@ -88,7 +88,7 @@ const syncBlock = appSource.slice(appSource.indexOf('const USER_SYNC_KEYS'), app
 assert.doesNotMatch(syncBlock, /subscriptionEntitlementCache/, 'CloudSync payload must not overwrite server subscription state');
 assert.match(loader, /premium-monetization-architecture\.js\?v=1/);
 assert.match(loader, /routes\('premium-center subscription-admin', \['monetization'\]\)/);
-assert.match(worker, /const CACHE = 'klearn-v83'/);
+assert.match(worker, /const CACHE = 'klearn-v84'/);
 assert.match(worker, /content\/premium-monetization-architecture\.json/);
 assert.match(worker, /premium-monetization\.css\?v=1/);
 
