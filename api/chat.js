@@ -1,5 +1,6 @@
 const rateLimit = require('./_rate-limit');
 const applyCors = require('./_cors');
+const billing = require('./billing/_shared');
 const MAX_MESSAGES = 12;
 const ROUTES = new Set(['small', 'strong']);
 const TASKS = new Set(['tutor', 'coach', 'translation', 'definition', 'flashcard', 'short_feedback', 'grammar', 'speaking', 'realtime_voice_feedback', 'writing', 'conversation', 'planning', 'study_advisor', 'content_explanation', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor']);
@@ -39,6 +40,15 @@ module.exports = async function handler(req, res) {
   const learnerContext = body.learnerContext && typeof body.learnerContext === 'object' ? compact(body.learnerContext) : {};
   const rawContext = JSON.stringify(learnerContext).slice(0, MAX_CONTEXT_CHARS);
   if (containsSensitive(messages[messages.length - 1].content) || containsSensitive(rawContext)) return res.status(400).json({ error: 'Unsafe AI request' });
+  let aiUsage = null;
+  if (process.env.BILLING_ENFORCEMENT_ENABLED === 'true') {
+    const auth = await billing.authenticate(req);
+    if (!auth.ok) return res.status(auth.status).json({ code: 'AI_SUBSCRIPTION_AUTH_REQUIRED', error: auth.error });
+    const claim = await billing.rpc(auth, 'commercial_claim_ai_usage', { request_tokens: 0 });
+    if (!claim.ok) return res.status(claim.status || 503).json({ code: 'AI_QUOTA_UNAVAILABLE', error: claim.error });
+    aiUsage = Array.isArray(claim.data) ? claim.data[0] : claim.data;
+    if (!aiUsage?.allowed) return res.status(429).json({ code: 'AI_DAILY_LIMIT_REACHED', error: 'Bạn đã dùng hết lượt AI hôm nay. Các chức năng học cốt lõi vẫn hoạt động.', aiUsage });
+  }
   const responseLanguage = { en: 'English', 'zh-CN': 'Simplified Chinese', zh: 'Simplified Chinese', ko: 'Korean', ja: 'Japanese' }[language] || 'Vietnamese';
   const voiceContract = task === 'realtime_voice_feedback' ? ' Chỉ trả về một JSON object hợp lệ, không markdown, gồm replyKo, feedbackVi, correctionKo, naturalness (0-100), reason và confidence (0-1). replyKo phải ngắn, tự nhiên và đúng vai. Không tự chấm phoneme, batchim hoặc acoustic; các điểm đó thuộc bộ phân tích cục bộ.' : '';
   const system = `Bạn là lớp AI hỗ trợ học ngôn ngữ của Tiếng Hàn - TamHoanq. Task: ${task}. Prompt version: ${promptVersion}. Trả lời bằng ${responseLanguage}; giữ nguyên ngôn ngữ đích, Korean và romanization khi có. Giải thích phù hợp trình độ người học, chỉ dùng dữ liệu trong context tối thiểu, nói rõ khi không chắc chắn, không bịa grammar/điểm TOPIK/nguồn chính thức. Không tuyên bố chấm phoneme hoặc handwriting AI nếu không có model.${voiceContract} Context: ${rawContext}`;
@@ -52,6 +62,6 @@ module.exports = async function handler(req, res) {
     const reply = payload.output_text || payload.output?.flatMap((item) => item.content || []).map((part) => part.text || '').join('') || '';
     if (!reply || containsSensitive(reply)) return res.status(502).json({ error: 'AI quality gate rejected response' });
     const usage = payload.usage || {};
-    return res.status(200).json({ reply: String(reply).slice(0, 8000), usage: { inputTokens: usage.input_tokens || usage.prompt_tokens || 0, outputTokens: usage.output_tokens || usage.completion_tokens || 0, totalTokens: usage.total_tokens || 0 }, modelRoute, promptVersion });
+    return res.status(200).json({ reply: String(reply).slice(0, 8000), usage: { inputTokens: usage.input_tokens || usage.prompt_tokens || 0, outputTokens: usage.output_tokens || usage.completion_tokens || 0, totalTokens: usage.total_tokens || 0 }, aiUsage, modelRoute, promptVersion });
   } catch (_) { return res.status(502).json({ error: 'AI unavailable' }); }
 };

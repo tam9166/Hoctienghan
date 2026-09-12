@@ -21,7 +21,7 @@ const unique = (values) => [...new Set(values)];
 assert.equal(directPaths.length, unique(directPaths).length, 'duplicate direct asset in index.html');
 assert.equal(lazyPaths.length, unique(lazyPaths).length, 'duplicate lazy asset in route loader');
 for (const asset of [...direct, ...lazy]) assert.equal(exists(asset), true, `missing production asset: ${asset}`);
-assert.match(index, /data\/route-loader\.js\?v=7/);
+assert.match(index, /data\/route-loader\.js\?v=8/);
 assert.doesNotMatch(index, /data\/advanced-learning-analytics\.js/);
 assert.doesNotMatch(index, /advanced-voice\.css/);
 

@@ -6,12 +6,16 @@ All notable repository changes are documented here. The project follows [Keep a 
 
 ### Added
 
+- Added the P67 ethical Free/Premium/Pro capability map, server-authoritative entitlement projection, fair-use AI quota, no-auto-charge trial, cancellation request flow, and admin subscription/payment audit view.
+- Added provider-neutral billing API boundaries and an additive Supabase subscription, trial, quota, pricing-research, cancellation and audit migration.
 - Added a controlled Vietnamese-first Korean content lab with Hangul Zero, Vietnamese contrast, natural-register examples, listening, transparent TOPIK practice, survival lessons, culture notes, and story learning.
 - Added whole-inventory P66 audit output with normalized content identity, topic, provisional quality score, and review status.
 - Added additive Supabase metadata for provenance, honest audio labeling, quality dimensions, AI-check evidence, and content versions.
 
 ### Changed
 
+- Kept learning foundations, basic skills, SRS, progress, offline core, journals and community foundations available to Free users; Premium and Pro add depth without deleting progress on expiry or cancellation.
+- Bumped the PWA cache and route/app asset revisions for the offline-capable P67 Premium center.
 - Bumped the PWA cache and route/app asset revisions for the P66 offline-capable content route.
 - Kept all P66 items behind a human-review gate; AI checks cannot mark content approved or official.
 
@@ -21,6 +25,7 @@ All notable repository changes are documented here. The project follows [Keep a 
 - Added reproducible portfolio screenshot guidance and validation.
 - Reorganized README as a source-linked project entry point.
 - Added P65 product evaluation and P66 competitive content upgrade reports.
+- Added the P67 monetization architecture, security evidence, validation results and remaining-risk report.
 
 ## [1.2.0-rc.1] - 2026-09-10
 

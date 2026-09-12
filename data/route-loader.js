@@ -32,7 +32,7 @@
     voice: { dependencies: ['aiInfra'], styles: ['advanced-voice.css?v=2', 'realtime-voice-coach.css?v=1'], scripts: ['data/advanced-voice.js?v=2', 'data/realtime-voice-coach.js?v=1'] },
     aiContent: { dependencies: ['aiInfra'], styles: ['ai-content-creation.css?v=1'], scripts: ['data/ai-content-creation.js?v=1'] },
     community: { dependencies: ['communityLearning'], styles: ['community-ecosystem.css?v=1'], scripts: ['data/community-ecosystem.js?v=1'] },
-    monetization: { styles: ['monetization-foundation.css?v=1'], scripts: ['data/monetization-foundation.js?v=1'] },
+    monetization: { dependencies: ['enterprise'], styles: ['monetization-foundation.css?v=1', 'premium-monetization.css?v=1'], scripts: ['data/monetization-foundation.js?v=1', 'data/premium-monetization-architecture.js?v=1'] },
     futureLanguage: { styles: ['future-language-platform.css?v=1'], scripts: ['data/future-language-platform.js?v=1'] },
     science: { styles: ['learning-science.css?v=1'], scripts: ['data/learning-science-engine.js?v=1'] },
     career: { styles: ['career-learning.css?v=1'], scripts: ['data/career-learning-ecosystem.js?v=2'] },
@@ -78,6 +78,7 @@
   routes('content-quality-dashboard', ['content', 'contentQuality']);
   routes('language-exchange community-moderation', ['community']);
   routes('business-center billing-center organization-plans revenue-center crm-center', ['enterprise', 'monetization']);
+  routes('premium-center subscription-admin', ['monetization']);
   routes('future-language-platform cross-language-lab language-brain future-integrations global-course-marketplace', ['globalLanguage', 'futureLanguage']);
   routes('global-language-platform global-language-profiles global-exam-framework global-language-comparison global-expansion', ['globalLanguage']);
   routes('learning-science active-recall interleaved-practice concept-mastery', ['science']);

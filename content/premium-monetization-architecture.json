@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-12",
+  "status": "architecture-ready",
+  "principles": {
+    "coreLearningAlwaysFree": true,
+    "clientCanGrantEntitlement": false,
+    "serverValidationRequired": true,
+    "autoChargeTrial": false,
+    "progressNeverPaywalled": true,
+    "priceDecided": false
+  },
+  "plans": [
+    {
+      "id": "free",
+      "name": "Free",
+      "audience": "Người bắt đầu và người học đều đặn",
+      "promise": "Học thật, ôn thật và thấy tiến độ mà không phải trả tiền.",
+      "features": ["hangul_foundation", "basic_lessons", "basic_vocabulary", "basic_srs", "progress_tracking", "ai_assistance"],
+      "aiDailyLimit": 5,
+      "trialEligible": true
+    },
+    {
+      "id": "premium",
+      "name": "Premium",
+      "audience": "Người học nghiêm túc hướng tới TOPIK hoặc giao tiếp",
+      "promise": "Mở rộng chiều sâu phân tích và luyện tập, không thay thế nền tảng miễn phí.",
+      "features": ["hangul_foundation", "basic_lessons", "basic_vocabulary", "basic_srs", "progress_tracking", "full_topik_roadmap", "advanced_analytics", "ai_assistance", "advanced_speaking_feedback", "personalized_learning_plan"],
+      "aiDailyLimit": 50,
+      "trialEligible": false
+    },
+    {
+      "id": "pro",
+      "name": "Pro",
+      "audience": "Người cần tiếng Hàn cho nghề nghiệp",
+      "promise": "Thêm lộ trình nghề nghiệp và viết chuyên nghiệp với giới hạn AI sử dụng hợp lý.",
+      "features": ["hangul_foundation", "basic_lessons", "basic_vocabulary", "basic_srs", "progress_tracking", "full_topik_roadmap", "advanced_analytics", "ai_assistance", "advanced_speaking_feedback", "personalized_learning_plan", "career_korean", "interview_practice", "business_korean", "professional_writing"],
+      "aiDailyLimit": 200,
+      "trialEligible": false,
+      "fairUse": true
+    }
+  ],
+  "featureValueMap": [
+    {"feature": "Hangul Foundation", "key": "hangul_foundation", "userValue": "Bắt đầu từ số 0", "cost": "low", "recommendedTier": "free"},
+    {"feature": "Basic lessons", "key": "basic_lessons", "userValue": "Kiến thức nền tảng", "cost": "low", "recommendedTier": "free"},
+    {"feature": "Basic vocabulary", "key": "basic_vocabulary", "userValue": "Xây vốn từ đầu tiên", "cost": "low", "recommendedTier": "free"},
+    {"feature": "Basic SRS", "key": "basic_srs", "userValue": "Nhớ lâu hơn", "cost": "low", "recommendedTier": "free"},
+    {"feature": "Progress tracking", "key": "progress_tracking", "userValue": "Thấy tiến bộ thật", "cost": "low", "recommendedTier": "free"},
+    {"feature": "Beginner Path", "key": "beginner_path", "userValue": "Đi từ Hangul đến câu đầu tiên", "cost": "low", "recommendedTier": "free"},
+    {"feature": "Basic grammar", "key": "basic_grammar", "userValue": "Dùng cấu trúc nền tảng", "cost": "low", "recommendedTier": "free"},
+    {"feature": "Basic listening", "key": "basic_listening", "userValue": "Nhận diện âm và câu cơ bản", "cost": "medium", "recommendedTier": "free"},
+    {"feature": "Basic speaking", "key": "basic_speaking", "userValue": "Luyện nói và ghi âm cơ bản", "cost": "medium", "recommendedTier": "free"},
+    {"feature": "Basic writing", "key": "basic_writing", "userValue": "Viết chữ và câu nền tảng", "cost": "low", "recommendedTier": "free"},
+    {"feature": "Dictionary & translation", "key": "dictionary_translation", "userValue": "Tra cứu trong khi học", "cost": "medium", "recommendedTier": "free"},
+    {"feature": "Handwriting & basic pronunciation", "key": "handwriting_pronunciation", "userValue": "Tạo nền chữ viết và phát âm", "cost": "medium", "recommendedTier": "free"},
+    {"feature": "Offline Core", "key": "offline_core", "userValue": "Tiếp tục học nền tảng khi mất mạng", "cost": "medium", "recommendedTier": "free"},
+    {"feature": "Daily learning plan", "key": "daily_learning", "userValue": "Biết hôm nay cần học gì", "cost": "low", "recommendedTier": "free"},
+    {"feature": "Mastery & Error Notebook", "key": "mastery_error_notebook", "userValue": "Theo dõi kiến thức và lỗi cá nhân", "cost": "low", "recommendedTier": "free"},
+    {"feature": "Learning journal & achievements", "key": "journal_achievements", "userValue": "Duy trì động lực và bằng chứng học", "cost": "low", "recommendedTier": "free"},
+    {"feature": "Community foundation", "key": "community_foundation", "userValue": "Học cùng nhóm với quyền riêng tư", "cost": "medium", "recommendedTier": "free"},
+    {"feature": "AI assistance", "key": "ai_assistance", "userValue": "Giải thích và gợi ý khi cần", "cost": "high", "recommendedTier": "limited-by-plan"},
+    {"feature": "Full TOPIK roadmap", "key": "full_topik_roadmap", "userValue": "Chuẩn bị kỳ thi có hệ thống", "cost": "medium", "recommendedTier": "premium"},
+    {"feature": "Advanced analytics", "key": "advanced_analytics", "userValue": "Hiểu điểm nghẽn và xu hướng", "cost": "medium", "recommendedTier": "premium"},
+    {"feature": "Advanced speaking feedback", "key": "advanced_speaking_feedback", "userValue": "Phản hồi nói chi tiết hơn", "cost": "high", "recommendedTier": "premium"},
+    {"feature": "Personalized learning plan", "key": "personalized_learning_plan", "userValue": "Kế hoạch theo mục tiêu", "cost": "medium", "recommendedTier": "premium"},
+    {"feature": "TOPIK mock exams", "key": "topik_mock_exams", "userValue": "Luyện thi trong luồng mô phỏng", "cost": "medium", "recommendedTier": "premium"},
+    {"feature": "Conversation simulator", "key": "conversation_simulator", "userValue": "Luyện phản xạ theo tình huống", "cost": "high", "recommendedTier": "premium"},
+    {"feature": "Reading & dictation labs", "key": "reading_dictation_labs", "userValue": "Đọc/nghe sâu với phản hồi chi tiết", "cost": "medium", "recommendedTier": "premium"},
+    {"feature": "Immersion & real-world scenarios", "key": "immersion_scenarios", "userValue": "Thực hành trong bối cảnh đời thật", "cost": "high", "recommendedTier": "premium"},
+    {"feature": "Advanced voice analysis", "key": "advanced_voice_analysis", "userValue": "Phản hồi âm tiết, độ trôi chảy và hành trình nói", "cost": "high", "recommendedTier": "premium"},
+    {"feature": "Learning outcome reports", "key": "learning_outcome_reports", "userValue": "Đo kết quả thay vì chỉ hoạt động", "cost": "medium", "recommendedTier": "premium"},
+    {"feature": "Document, menu & sign assistant", "key": "real_world_assistant", "userValue": "Chuẩn bị xử lý tiếng Hàn đời thật", "cost": "high", "recommendedTier": "premium"},
+    {"feature": "Career Korean", "key": "career_korean", "userValue": "Từ vựng và tình huống nghề nghiệp", "cost": "medium", "recommendedTier": "pro"},
+    {"feature": "Interview practice", "key": "interview_practice", "userValue": "Chuẩn bị phỏng vấn", "cost": "high", "recommendedTier": "pro"},
+    {"feature": "Business Korean", "key": "business_korean", "userValue": "Giao tiếp công sở", "cost": "medium", "recommendedTier": "pro"},
+    {"feature": "Professional writing", "key": "professional_writing", "userValue": "Email và văn bản chuyên nghiệp", "cost": "high", "recommendedTier": "pro"},
+    {"feature": "Teacher feedback", "key": "teacher_feedback", "userValue": "Nhận phản hồi có trách nhiệm từ giáo viên", "cost": "high", "recommendedTier": "pro"},
+    {"feature": "Teacher & organization management", "key": "education_management", "userValue": "Quản lý lớp và bài tập", "cost": "high", "recommendedTier": "platform"},
+    {"feature": "Content management & quality review", "key": "content_operations", "userValue": "Duy trì nội dung có kiểm duyệt", "cost": "high", "recommendedTier": "platform"},
+    {"feature": "Course marketplace & creator tools", "key": "marketplace_creator", "userValue": "Mở rộng khóa học có kiểm duyệt", "cost": "high", "recommendedTier": "platform"},
+    {"feature": "Admin, product & organization analytics", "key": "admin_operations", "userValue": "Vận hành sản phẩm bằng dữ liệu tổng hợp", "cost": "high", "recommendedTier": "platform"}
+  ],
+  "permissionModes": ["allowed", "limited", "blocked"],
+  "subscriptionStatuses": ["trial", "active", "expired", "cancelled"],
+  "trial": {"plan": "premium", "days": 7, "paymentMethodRequired": false, "autoCharge": false, "explicitConfirmationRequiredForPaidPlan": true},
+  "payment": {
+    "providers": [
+      {"id": "stripe", "status": "adapter-ready"},
+      {"id": "google_play", "status": "adapter-ready"},
+      {"id": "apple_store", "status": "adapter-ready"},
+      {"id": "local_payment", "status": "adapter-ready"}
+    ],
+    "credentialsInClient": false,
+    "webhookAuthoritative": true,
+    "prices": null
+  },
+  "pricingFramework": ["learner_value", "operating_cost", "vietnamese_affordability", "educational_access", "provider_fees"],
+  "upgradeCopy": "Bạn vẫn có thể tiếp tục học miễn phí. Premium mở rộng phân tích và luyện tập khi bạn cần.",
+  "cancelCopy": "Bạn có thể hủy dễ dàng. Quyền lợi tiếp tục đến hết kỳ đã xác nhận; tiến độ học không bị xóa.",
+  "analytics": ["free_to_premium_conversion", "premium_retention", "subscription_churn", "revenue_aggregate", "cancellation_reason"]
+}
