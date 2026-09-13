@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "status": "approved",
+  "verified": true,
+  "updatedAt": "2026-09-13",
+  "league": {
+    "name": "Korean Learning League",
+    "period": "weekly",
+    "source": "server-verified-learning-xp",
+    "tiers": [
+      { "id": "bronze", "name": "Bronze", "minimumXp": 0 },
+      { "id": "silver", "name": "Silver", "minimumXp": 250 },
+      { "id": "gold", "name": "Gold", "minimumXp": 500 },
+      { "id": "platinum", "name": "Platinum", "minimumXp": 900 },
+      { "id": "master", "name": "Master", "minimumXp": 1400 }
+    ]
+  },
+  "leaderboardPolicy": {
+    "canonicalOnly": true,
+    "excludedActivities": ["mission_completed", "challenge_completed", "quest_completed"],
+    "neverExpose": ["email", "phone", "realName", "accessToken", "location"],
+    "offlineBehavior": "unavailable-not-simulated"
+  },
+  "friendQuestTemplates": [
+    { "id": "friend-500", "title": "Cùng nhau đạt 500 XP", "durationDays": 7, "targetXp": 500, "maxMembers": 4 },
+    { "id": "friend-speaking", "title": "Tuần luyện nói", "durationDays": 7, "targetXp": 300, "maxMembers": 4 }
+  ],
+  "monthlyChallenges": [
+    { "id": "monthly-learning-days", "title": "20 ngày học trong tháng", "metric": "learning_days", "target": 20, "reward": { "type": "badge", "id": "twenty-days" } },
+    { "id": "monthly-valid-xp", "title": "1.000 Learning XP hợp lệ", "metric": "valid_xp", "target": 1000, "reward": { "type": "cosmetic", "id": "monthly-lime-frame" } }
+  ],
+  "sideQuests": [
+    { "id": "side-listen", "title": "Nghe nhanh", "description": "Hoàn thành 1 hoạt động nghe hợp lệ.", "estimatedMinutes": 2, "activityTypes": ["listening_practice"], "target": 1, "route": "listening-studio", "reward": { "type": "xp", "amount": 5 } },
+    { "id": "side-speak", "title": "Nói 3 câu", "description": "Hoàn thành 3 lượt luyện nói có bằng chứng.", "estimatedMinutes": 3, "activityTypes": ["speaking_practice"], "target": 3, "route": "speaking-hub", "reward": { "type": "badge", "id": "voice-warmup" } },
+    { "id": "side-remember", "title": "Nhớ 10 từ", "description": "Hoàn thành 10 lượt SRS hợp lệ, không tính event trùng.", "estimatedMinutes": 3, "activityTypes": ["srs_review"], "target": 10, "route": "review", "reward": { "type": "cosmetic", "id": "word-spark" } },
+    { "id": "side-repair", "title": "Sửa lỗi hôm nay", "description": "Hoàn thành 1 phiên luyện từ Error Notebook.", "estimatedMinutes": 3, "activityTypes": ["grammar_practice", "quick_practice"], "target": 1, "route": "error-notebook", "reward": { "type": "xp", "amount": 5 } }
+  ],
+  "privacy": {
+    "defaultLeaderboardVisible": false,
+    "defaultProfileVisible": false,
+    "nicknameMaximum": 40,
+    "supports": ["nickname", "hide-leaderboard", "hide-profile", "block", "report", "mute"]
+  },
+  "antiCheat": {
+    "eventIdUnique": true,
+    "serverCanonicalForRanking": true,
+    "dailyCapInherited": true,
+    "replayRewardsExcludedFromRanking": true,
+    "rawClientXpAccepted": false
+  }
+}

@@ -8,6 +8,8 @@
     intelligenceMemory: { dependencies: ['ai'], styles: ['learning-intelligence-memory.css?v=1'], scripts: ['data/learning-intelligence-memory.js?v=1'] },
     realKoreanExperience: { dependencies: ['voice', 'conversation', 'languageMastery', 'practical'], styles: ['real-korean-experience.css?v=1'], scripts: ['data/real-korean-experience.js?v=1'] },
     immersiveSpoken: { dependencies: ['voice'], styles: ['immersive-spoken-content.css?v=1'], scripts: ['data/immersive-spoken-content.js?v=1'] },
+    socialEngagement: { dependencies: ['community'], styles: ['social-engagement.css?v=1'], scripts: ['data/social-engagement.js?v=1'] },
+    learningUx: { styles: ['learning-ux-explainability.css?v=1'], scripts: ['data/learning-ux-explainability.js?v=1'] },
     practical: { scripts: ['data/practical-study.js?v=4'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
@@ -94,6 +96,8 @@
   routes('career-center career-vocabulary workplace-scenarios workplace-scenario job-interview-trainer korean-resume-builder business-email-writing presentation-coach workplace-culture career-report', ['career']);
   routes('advanced-voice voice-session voice-history voice-goals voice-report realtime-voice-coach voice-coach-session voice-coach-journey', ['voice']);
   routes('immersive-content korean-stories story-episode korean-radio radio-episode spoken-exercises speaking-flashcards spoken-shadowing', ['immersiveSpoken']);
+  routes('social-engagement korean-league friend-quests social-challenges side-quests social-privacy', ['socialEngagement']);
+  routes('practice-center practice-session engagement-center learning-score-explanation xp-explanation progress-explanation engagement-balance', ['learningUx']);
   routes('ai-content-studio', ['aiContent']);
   routes('immersive-daily-life immersive-story immersive-culture-game immersive-readiness immersive-scenarios immersive-progress-map', ['immersiveKorean']);
   routes('global-education-marketplace marketplace-course marketplace-teacher creator-studio marketplace-moderation creator-revenue marketplace-certificates', ['enterprise', 'marketplace']);

@@ -8,6 +8,7 @@ const STORAGE_KEYS = Object.freeze({
   engagement: 'klearn_engagement_core',
   microLearning: 'klearn_micro_learning',
   immersiveSpoken: 'klearn_immersive_spoken',
+  socialEngagement: 'klearn_social_engagement',
   realKoreanExperience: 'klearn_real_korean_experience',
   contentScience: 'klearn_content_science',
   session: 'klearn_session',
@@ -265,6 +266,8 @@ MAIN_VIEWS.push('content-science', 'content-science-feedback');
 MAIN_VIEWS.push('engagement-center', 'practice-center', 'engagement-practice');
 MAIN_VIEWS.push('micro-path', 'character-room', 'character-detail', 'korean-adventure', 'adventure-session', 'adventure-result');
 MAIN_VIEWS.push('immersive-content', 'korean-stories', 'story-episode', 'korean-radio', 'radio-episode', 'spoken-exercises', 'speaking-flashcards', 'spoken-shadowing');
+MAIN_VIEWS.push('social-engagement', 'korean-league', 'friend-quests', 'social-challenges', 'side-quests', 'social-privacy');
+MAIN_VIEWS.push('learning-score-explanation', 'xp-explanation', 'progress-explanation', 'engagement-balance');
 const PUBLIC_VIEWS = ['welcome', 'login', 'register', 'demo'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'beginner-placement', 'placement', 'onboarding-result'];
 
@@ -1223,7 +1226,7 @@ async function submitContentReport({ contentId, contentType, reportType = 'other
 }
 
 const USER_SYNC_KEYS = Object.freeze([
-  STORAGE_KEYS.conversationHistory, STORAGE_KEYS.realKoreanExperience, STORAGE_KEYS.contentScience, STORAGE_KEYS.engagement, STORAGE_KEYS.microLearning, STORAGE_KEYS.immersiveSpoken, STORAGE_KEYS.globalEducationMarketplace,
+  STORAGE_KEYS.conversationHistory, STORAGE_KEYS.realKoreanExperience, STORAGE_KEYS.contentScience, STORAGE_KEYS.engagement, STORAGE_KEYS.microLearning, STORAGE_KEYS.immersiveSpoken, STORAGE_KEYS.socialEngagement, STORAGE_KEYS.globalEducationMarketplace,
   STORAGE_KEYS.readingExpansion, STORAGE_KEYS.immersiveWorld, STORAGE_KEYS.ecosystemExpansion, STORAGE_KEYS.careerLearning, STORAGE_KEYS.voiceLearning,
   STORAGE_KEYS.realGoalPlans, STORAGE_KEYS.learningJournal, STORAGE_KEYS.teacherFeedback, STORAGE_KEYS.manualReviewQueue, STORAGE_KEYS.teacherWorkspace, STORAGE_KEYS.educationPlatform, STORAGE_KEYS.communityProgress, STORAGE_KEYS.enterprisePlatform, STORAGE_KEYS.monetization, STORAGE_KEYS.productGrowth, STORAGE_KEYS.futureLanguage, STORAGE_KEYS.productUx, STORAGE_KEYS.retention, STORAGE_KEYS.research, STORAGE_KEYS.analyticsReports, STORAGE_KEYS.premiumLearning,
   STORAGE_KEYS.progress, STORAGE_KEYS.srs, STORAGE_KEYS.settings, STORAGE_KEYS.practice, STORAGE_KEYS.practiceHistory,
@@ -1245,6 +1248,7 @@ const CLOUD_SYNC_ARRAY_LIMITS = Object.freeze({
   [STORAGE_KEYS.engagement]: 1,
   [STORAGE_KEYS.microLearning]: 1,
   [STORAGE_KEYS.immersiveSpoken]: 1,
+  [STORAGE_KEYS.socialEngagement]: 1,
   [STORAGE_KEYS.productionTelemetry]: 200,
   klearn_ai_conversations: 20
 });
@@ -1375,7 +1379,13 @@ const CloudSyncService = {
     const latest = new Date(right.updatedAt || 0) >= new Date(left.updatedAt || 0) ? right : left;
     return [{ schemaVersion: 1, episodeEvents: union('episodeEvents', 500), radioEvents: union('radioEvents', 300), spokenAttempts: union('spokenAttempts', 200), flashAttempts: union('flashAttempts', 200), shadowAttempts: union('shadowAttempts', 200), activeEpisode: latest.activeEpisode || null, updatedAt: latest.updatedAt || null }];
   },
-  mergeDomain(key, local, remote) { if (key === STORAGE_KEYS.srs) return this.mergeSrs(local, remote); if (key === STORAGE_KEYS.progress) return this.mergeProgress(local, remote); if (key === STORAGE_KEYS.languageLearningState) return this.mergeLanguageLearningState(local, remote); if (key === STORAGE_KEYS.engagement) return this.mergeEngagement(local, remote); if (key === STORAGE_KEYS.microLearning) return this.mergeMicroLearning(local, remote); if (key === STORAGE_KEYS.immersiveSpoken) return this.mergeImmersiveSpoken(local, remote); return this.mergeValue(local, remote); },
+  mergeSocialEngagement(local = [], remote = []) {
+    const left = Array.isArray(local) ? local[0] || {} : {}; const right = Array.isArray(remote) ? remote[0] || {} : {}; const time = (item) => new Date(item?.updatedAt || item?.createdAt || item?.claimedAt || 0).getTime() || 0;
+    const union = (field, limit) => { const map = new Map(); [...(Array.isArray(left[field]) ? left[field] : []), ...(Array.isArray(right[field]) ? right[field] : [])].forEach((item) => { if (!item?.id) return; const previous = map.get(item.id); if (!previous || time(item) >= time(previous)) map.set(item.id, item); }); return [...map.values()].sort((a, b) => time(b) - time(a)).slice(0, limit); };
+    const latest = new Date(right.updatedAt || 0) >= new Date(left.updatedAt || 0) ? right : left;
+    return [{ schemaVersion: 1, profile: { nickname: 'Học viên', leaderboardVisible: false, profileVisible: false, ...(latest.profile || {}) }, friendQuests: union('friendQuests', 50), challengeJoins: union('challengeJoins', 36), sideQuestRuns: union('sideQuestRuns', 100), rewards: union('rewards', 200), mutes: [...new Set([...(left.mutes || []), ...(right.mutes || [])])].slice(0, 200), syncQueue: union('syncQueue', 300), updatedAt: latest.updatedAt || null }];
+  },
+  mergeDomain(key, local, remote) { if (key === STORAGE_KEYS.srs) return this.mergeSrs(local, remote); if (key === STORAGE_KEYS.progress) return this.mergeProgress(local, remote); if (key === STORAGE_KEYS.languageLearningState) return this.mergeLanguageLearningState(local, remote); if (key === STORAGE_KEYS.engagement) return this.mergeEngagement(local, remote); if (key === STORAGE_KEYS.microLearning) return this.mergeMicroLearning(local, remote); if (key === STORAGE_KEYS.immersiveSpoken) return this.mergeImmersiveSpoken(local, remote); if (key === STORAGE_KEYS.socialEngagement) return this.mergeSocialEngagement(local, remote); return this.mergeValue(local, remote); },
   mergeSnapshot(remote) {
     if (!remote?.data || !state.currentUser) return;
     const allKeys = new Set(USER_SYNC_KEYS); allKeys.forEach((key) => { const all = storage.get(key, {}); if (key === STORAGE_KEYS.settings) { const safeSettings = all && typeof all === 'object' && !Array.isArray(all) ? { ...all, users: { ...(all.users || {}) } } : { users: {} }; safeSettings.users[state.currentUser.id] = this.mergeDomain(key, safeSettings.users[state.currentUser.id], remote.data[key]); storage.set(key, safeSettings); return; } const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; safe[state.currentUser.id] = this.mergeDomain(key, safe[state.currentUser.id], remote.data[key]); storage.set(key, safe); });

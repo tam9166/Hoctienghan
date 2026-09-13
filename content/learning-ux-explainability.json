@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "status": "approved",
+  "verified": true,
+  "updatedAt": "2026-09-13",
+  "practicePrompt": "Bạn muốn luyện gì?",
+  "practiceItems": [
+    { "id": "mistakes", "icon": "🎯", "title": "Mistakes", "description": "Sửa lỗi gần đây", "route": "error-notebook", "source": "Error Notebook" },
+    { "id": "vocabulary", "icon": "📚", "title": "Vocabulary", "description": "Ôn từ đến hạn", "route": "review", "source": "SRS" },
+    { "id": "grammar", "icon": "문", "title": "Grammar", "description": "Củng cố cấu trúc yếu", "route": "grammar-compare", "source": "Practice Bank" },
+    { "id": "listening", "icon": "🎧", "title": "Listening", "description": "Nghe và phản xạ", "route": "listening-studio", "source": "Listening Studio" },
+    { "id": "speaking", "icon": "🎙", "title": "Speaking", "description": "Nói và nhận phản hồi", "route": "speaking-hub", "source": "Speaking Practice" },
+    { "id": "writing", "icon": "✍️", "title": "Writing", "description": "Viết câu có hướng dẫn", "route": "writing-hub", "source": "Writing Practice" },
+    { "id": "topik", "icon": "🏆", "title": "TOPIK", "description": "Luyện theo cấu trúc đề", "route": "practice-hub", "source": "TOPIK Practice" },
+    { "id": "quick", "icon": "⏱", "title": "Quick Practice", "description": "Phiên trộn 5–15 phút", "route": "engagement-practice", "source": "Adaptive + SRS" }
+  ],
+  "conceptRules": [
+    { "id": "destination-particle", "selectedPattern": "학교를 가", "correction": "학교에 가요.", "why": "가다 thường dùng 에 để đánh dấu nơi đến.", "grammarRoute": "grammar-compare" },
+    { "id": "topic-subject", "selectedPattern": "은/는|이/가", "correction": "Xem lại vai trò chủ đề và chủ ngữ trong câu.", "why": "은/는 nêu chủ đề hoặc đối chiếu; 이/가 đánh dấu chủ ngữ được tập trung.", "grammarRoute": "grammar-compare" }
+  ],
+  "meaning": {
+    "mastery": "Learning truth: mức độ nhớ và sử dụng kiến thức dựa trên bằng chứng.",
+    "xp": "Motivation: ghi nhận hoạt động học hợp lệ, không đo trình độ.",
+    "score": "Progress indicator: tổng hợp sáu kỹ năng khi đủ mẫu.",
+    "quest": "Engagement: gợi ý hành động nhỏ có tiêu chí hoàn thành.",
+    "league": "Social motivation: so sánh weekly valid XP khi người dùng tự nguyện tham gia."
+  }
+}

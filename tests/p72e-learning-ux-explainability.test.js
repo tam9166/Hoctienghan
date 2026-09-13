@@ -1,0 +1,26 @@
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const root = path.resolve(__dirname, '..'); const read = (file) => fs.readFileSync(path.join(root, file), 'utf8'); const content = JSON.parse(read('content/learning-ux-explainability.json'));
+function createRuntime(beginner = false) {
+  const srs = [{ wordId: 'w1', reviewCount: 3, status: 'mastered' }, { wordId: 'w2', reviewCount: 1, status: 'review' }]; const progress = { lessonProgress: { a: { completed: true }, b: { completed: false } }, daily: { tasks: [{ completed: true }, { completed: false }] }, stats: { lessonsCompleted: 1 } }; const saved = [];
+  const question = { id: 'q-school', topic: 'particle', prompt: 'Chọn trợ từ', koreanText: '저는 학교__ 가요.', correctAnswer: '에', explanationVi: '에 đánh dấu nơi đến.' };
+  const state = { currentUser: { id: 'u1', learningTrack: beginner ? 'foundation' : 'topik', currentTopikLevel: 1 }, currentView: 'practice-session', practiceSession: { checked: true, selected: '를', index: 0, questions: [question], answers: [{ questionId: 'q-school', correct: false }] } };
+  const window = { KLEARN_APP: { state, STORAGE_KEYS: {}, PracticeService: { saveMeta: (value) => saved.push(value), getMeta: () => ({}) }, getUserProgress: () => progress, getUserSrs: () => srs, setView: (view) => { state.currentView = view; }, render() {}, escapeHtml: String }, UserExperienceProfileService: { segment: () => beginner ? 'beginner' : 'topik' }, TamHoanqScoreService: { calculate: () => ({ status: 'measured', score: 52, confidence: 'medium', sampleSize: 12, skillCoverage: 6, breakdown: { vocabulary: { score: 70, sampleSize: 3 }, grammar: { score: 45, sampleSize: 2 }, listening: { score: 40, sampleSize: 2 }, speaking: { score: 50, sampleSize: 2 }, reading: { score: 60, sampleSize: 2 }, writing: { score: 40, sampleSize: 1 } }, xpIncluded: false }) }, LearningXPService: { events: () => [{ event_id: 'a', activity_type: 'lesson_completed', xp: 10, sync_status: 'synced' }, { event_id: 'b', activity_type: 'speaking_practice', xp: 15, sync_status: 'pending' }] }, AIOrchestrationService: { request: async () => ({ reply: '에 dùng cho nơi đến.', fallback: false }) }, KLEARN_EXTRA_VIEWS: {}, document: null, addEventListener() {} }; window.window = window;
+  vm.runInNewContext(read('data/learning-ux-explainability.js'), { window, console, Date, Math, JSON, Object, Array, Number, String, Boolean, RegExp, Set, Map, Promise, Symbol, FormData: class FormData {} }); window.LearningUxContentService.hydrate(content); return { window, state, srs, progress, saved, question };
+}
+(async () => {
+  const r = createRuntime(); const w = r.window; assert.equal(content.practiceItems.length, 8); assert.equal(new Set(content.practiceItems.map((item) => item.id)).size, 8);
+  const explanation = w.AnswerExplanationService.explain(r.question, '학교를 가요'); assert.match(explanation.why, /에/); assert.equal(explanation.affectsScore, false); assert.equal(explanation.affectsMastery, false); assert.equal(explanation.affectsSrs, false);
+  const before = JSON.stringify({ srs: r.srs, progress: r.progress }); const ai = await w.AnswerExplanationService.explainWithAI(r.question, '를'); assert.equal(ai.explanation, '에 dùng cho nơi đến.'); assert.equal(JSON.stringify({ srs: r.srs, progress: r.progress }), before, 'AI explanation must be read-only');
+  assert.equal(w.AnswerExplanationService.tryAgain(), true); assert.equal(r.state.practiceSession.checked, false); assert.equal(r.state.practiceSession.selected, ''); assert.equal(r.saved.length, 1);
+  const score = w.LearningScoreExplanationService.get(); assert.equal(score.score, 52); assert.equal(score.xpIncluded, false); assert.equal(score.aiJudgment, false); assert.equal(Object.keys(score.breakdown).length, 6);
+  assert.equal(w.XPExplanationService.total(), 25); assert.equal(w.XPExplanationService.rows().find((item) => item.type === 'speaking_practice').pending, 15);
+  const progress = w.ProgressExplanationService.get(); assert.equal(progress.statement, 'Bạn hoàn thành 1/2 mục tiêu hôm nay.'); assert.equal(progress.masteredWords, 1);
+  const beginner = createRuntime(true); assert.match(beginner.window.KLEARN_EXTRA_VIEWS['engagement-center'](), /một nhiệm vụ nhỏ/i); assert.doesNotMatch(beginner.window.KLEARN_EXTRA_VIEWS['engagement-center'](), /data-view="(?:social-engagement|learning-score-explanation|xp-explanation)"/i);
+  const loader = read('data/route-loader.js'); const index = read('index.html'); const worker = read('sw.js'); const core = read('data/engagement-core.js'); const css = read('learning-ux-explainability.css');
+  assert.match(loader, /learningUx/); assert.match(loader, /practice-center practice-session engagement-center/); assert.doesNotMatch(index, /data\/learning-ux-explainability\.js/); assert.match(worker, /content\/learning-ux-explainability\.json/); assert.match(core, /const beginner = global\.UserExperienceProfileService/); assert.match(css, /@media\(max-width:600px\)/); assert.match(css, /prefers-reduced-motion/);
+  console.log('P72E practice center, inline answer explanation, score/XP/progress transparency, beginner disclosure, accessibility and lazy loading passed');
+})().catch((error) => { console.error(error); process.exitCode = 1; });
