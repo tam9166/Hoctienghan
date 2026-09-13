@@ -6,6 +6,7 @@
 const STORAGE_KEYS = Object.freeze({
   users: 'klearn_users',
   engagement: 'klearn_engagement_core',
+  microLearning: 'klearn_micro_learning',
   realKoreanExperience: 'klearn_real_korean_experience',
   contentScience: 'klearn_content_science',
   session: 'klearn_session',
@@ -261,6 +262,7 @@ MAIN_VIEWS.push('learning-intelligence-memory', 'learning-diagnostic', 'learning
 MAIN_VIEWS.push('real-korean-experience', 'pronunciation-lab-vn', 'sentence-mining', 'media-learning-real', 'real-conversation-lab', 'real-shadowing-lab');
 MAIN_VIEWS.push('content-science', 'content-science-feedback');
 MAIN_VIEWS.push('engagement-center', 'practice-center', 'engagement-practice');
+MAIN_VIEWS.push('micro-path', 'character-room', 'character-detail', 'korean-adventure', 'adventure-session', 'adventure-result');
 const PUBLIC_VIEWS = ['welcome', 'login', 'register', 'demo'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'beginner-placement', 'placement', 'onboarding-result'];
 
@@ -1219,7 +1221,7 @@ async function submitContentReport({ contentId, contentType, reportType = 'other
 }
 
 const USER_SYNC_KEYS = Object.freeze([
-  STORAGE_KEYS.conversationHistory, STORAGE_KEYS.realKoreanExperience, STORAGE_KEYS.contentScience, STORAGE_KEYS.engagement, STORAGE_KEYS.globalEducationMarketplace,
+  STORAGE_KEYS.conversationHistory, STORAGE_KEYS.realKoreanExperience, STORAGE_KEYS.contentScience, STORAGE_KEYS.engagement, STORAGE_KEYS.microLearning, STORAGE_KEYS.globalEducationMarketplace,
   STORAGE_KEYS.readingExpansion, STORAGE_KEYS.immersiveWorld, STORAGE_KEYS.ecosystemExpansion, STORAGE_KEYS.careerLearning, STORAGE_KEYS.voiceLearning,
   STORAGE_KEYS.realGoalPlans, STORAGE_KEYS.learningJournal, STORAGE_KEYS.teacherFeedback, STORAGE_KEYS.manualReviewQueue, STORAGE_KEYS.teacherWorkspace, STORAGE_KEYS.educationPlatform, STORAGE_KEYS.communityProgress, STORAGE_KEYS.enterprisePlatform, STORAGE_KEYS.monetization, STORAGE_KEYS.productGrowth, STORAGE_KEYS.futureLanguage, STORAGE_KEYS.productUx, STORAGE_KEYS.retention, STORAGE_KEYS.research, STORAGE_KEYS.analyticsReports, STORAGE_KEYS.premiumLearning,
   STORAGE_KEYS.progress, STORAGE_KEYS.srs, STORAGE_KEYS.settings, STORAGE_KEYS.practice, STORAGE_KEYS.practiceHistory,
@@ -1239,6 +1241,7 @@ const CLOUD_SYNC_ARRAY_LIMITS = Object.freeze({
   [STORAGE_KEYS.realKoreanExperience]: 400,
   [STORAGE_KEYS.contentScience]: 600,
   [STORAGE_KEYS.engagement]: 1,
+  [STORAGE_KEYS.microLearning]: 1,
   [STORAGE_KEYS.productionTelemetry]: 200,
   klearn_ai_conversations: 20
 });
@@ -1357,7 +1360,13 @@ const CloudSyncService = {
     const wallet = { streakFreezes: Math.max(0, Math.min(3, rewardFreezes - usedFreezes)), badges: [...new Set([...(left.wallet?.badges || []), ...(right.wallet?.badges || [])])], cosmetics: [...new Set([...(left.wallet?.cosmetics || []), ...(right.wallet?.cosmetics || [])])] };
     return [{ schemaVersion: 1, xpEvents, questClaims, protections, quests, wallet, updatedAt: new Date(Math.max(new Date(left.updatedAt || 0).getTime() || 0, new Date(right.updatedAt || 0).getTime() || 0)).toISOString() }];
   },
-  mergeDomain(key, local, remote) { if (key === STORAGE_KEYS.srs) return this.mergeSrs(local, remote); if (key === STORAGE_KEYS.progress) return this.mergeProgress(local, remote); if (key === STORAGE_KEYS.languageLearningState) return this.mergeLanguageLearningState(local, remote); if (key === STORAGE_KEYS.engagement) return this.mergeEngagement(local, remote); return this.mergeValue(local, remote); },
+  mergeMicroLearning(local = [], remote = []) {
+    const left = Array.isArray(local) ? local[0] || {} : {}; const right = Array.isArray(remote) ? remote[0] || {} : {};
+    const union = (a, b) => { const map = new Map(); const time = (item) => new Date(item?.updatedAt || item?.completedAt || item?.createdAt || 0).getTime() || 0; [...(Array.isArray(a) ? a : []), ...(Array.isArray(b) ? b : [])].forEach((item) => { const id = item?.id; if (!id) return; const previous = map.get(id); if (!previous || time(item) >= time(previous)) map.set(id, item); }); return [...map.values()].sort((aItem, bItem) => time(bItem) - time(aItem)); };
+    const rightLatest = new Date(right.updatedAt || 0) >= new Date(left.updatedAt || 0); const latest = rightLatest ? right : left;
+    return [{ schemaVersion: 1, nodeEvents: union(left.nodeEvents, right.nodeEvents).slice(0, 600), characterEvents: union(left.characterEvents, right.characterEvents).slice(0, 200), adventureRuns: union(left.adventureRuns, right.adventureRuns).slice(0, 100), rewards: union(left.rewards, right.rewards).slice(0, 100), activeAdventure: latest.activeAdventure || null, activeNodeId: latest.activeNodeId || null, selectedUnitId: latest.selectedUnitId || null, updatedAt: latest.updatedAt || null }];
+  },
+  mergeDomain(key, local, remote) { if (key === STORAGE_KEYS.srs) return this.mergeSrs(local, remote); if (key === STORAGE_KEYS.progress) return this.mergeProgress(local, remote); if (key === STORAGE_KEYS.languageLearningState) return this.mergeLanguageLearningState(local, remote); if (key === STORAGE_KEYS.engagement) return this.mergeEngagement(local, remote); if (key === STORAGE_KEYS.microLearning) return this.mergeMicroLearning(local, remote); return this.mergeValue(local, remote); },
   mergeSnapshot(remote) {
     if (!remote?.data || !state.currentUser) return;
     const allKeys = new Set(USER_SYNC_KEYS); allKeys.forEach((key) => { const all = storage.get(key, {}); if (key === STORAGE_KEYS.settings) { const safeSettings = all && typeof all === 'object' && !Array.isArray(all) ? { ...all, users: { ...(all.users || {}) } } : { users: {} }; safeSettings.users[state.currentUser.id] = this.mergeDomain(key, safeSettings.users[state.currentUser.id], remote.data[key]); storage.set(key, safeSettings); return; } const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; safe[state.currentUser.id] = this.mergeDomain(key, safe[state.currentUser.id], remote.data[key]); storage.set(key, safe); });

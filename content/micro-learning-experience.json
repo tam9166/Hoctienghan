@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "status": "approved",
+  "verified": true,
+  "updatedAt": "2026-09-13",
+  "pathPresentation": {
+    "title": "Bước nhỏ tiếng Hàn",
+    "description": "Lớp trình bày 3–10 phút trên Roadmap hiện có; không thay thế curriculum, SRS hay Mastery.",
+    "nodeTypes": ["vocabulary", "grammar", "listening", "speaking", "reading", "writing", "review", "checkpoint"],
+    "statuses": ["locked", "available", "in_progress", "completed"],
+    "completionPolicy": "evidence-required"
+  },
+  "nodeTemplates": [
+    { "slot": 1, "type": "reading", "title": "Đọc bài theo chủ đề", "minutes": 5, "route": "lesson-preview", "criterion": { "event": "completed_lesson", "minimumScore": 0 } },
+    { "slot": 2, "type": "vocabulary", "title": "Nhớ 5 từ trọng tâm", "minutes": 4, "route": "review", "criterion": { "event": "srs_updated", "minimumScore": 0 } },
+    { "slot": 3, "type": "grammar", "title": "Dùng mẫu câu trong ngữ cảnh", "minutes": 6, "route": "grammar-compare", "criterion": { "event": "practice_completed", "skill": "grammar", "minimumScore": 50 } },
+    { "slot": 4, "type": "listening", "title": "Nghe và nhận ra ý chính", "minutes": 5, "route": "listening-studio", "criterion": { "event": "listening_completed", "minimumScore": 0 } },
+    { "slot": 5, "type": "speaking", "title": "Nói lại câu dùng ngay", "minutes": 5, "route": "speaking-room", "criterion": { "event": "speaking_completed", "minimumScore": 0 } },
+    { "slot": 6, "type": "writing", "title": "Viết một câu hoàn chỉnh", "minutes": 7, "route": "writing-hub", "criterion": { "event": "writing_completed", "minimumScore": 0 } },
+    { "slot": 7, "type": "review", "title": "Trộn kỹ năng ôn nhanh", "minutes": 5, "route": "practice-center", "criterion": { "event": "practice_completed", "minimumScore": 0 } },
+    { "slot": 8, "type": "checkpoint", "title": "Checkpoint Unit", "minutes": 10, "route": "practice-hub", "criterion": { "event": "practice_completed", "minimumScore": 60 } }
+  ],
+  "characters": [
+    { "id": "bom", "name": "Bom", "role": "Beginner guide", "personality": "Bình tĩnh, chia mọi việc thành bước nhỏ", "avatar": "봄", "accent": "lime", "unlock": { "type": "default", "target": 0 } },
+    { "id": "yuna", "name": "Yuna", "role": "Student", "personality": "Tò mò, thích hỏi cách nói tự nhiên", "avatar": "유", "accent": "sky", "unlock": { "type": "nodes", "target": 2 } },
+    { "id": "dojin", "name": "Dojin", "role": "Office worker", "personality": "Rõ ràng, chú ý phép lịch sự và bối cảnh", "avatar": "도", "accent": "ink", "unlock": { "type": "nodes", "target": 5 } },
+    { "id": "ara", "name": "Ara", "role": "Teacher", "personality": "Khuyến khích tự sửa lỗi và giải thích ngắn gọn", "avatar": "아", "accent": "coral", "unlock": { "type": "adventures", "target": 1 } }
+  ],
+  "adventures": [
+    {
+      "id": "seoul-cafe-order",
+      "title": "Một ly cà phê ở Seoul",
+      "level": "beginner",
+      "world": "Seoul Daily Life",
+      "location": "Yeonnam Cafe",
+      "characterId": "bom",
+      "mission": "Gọi một ly Americano lịch sự.",
+      "skills": ["vocabulary", "speaking"],
+      "vocabulary": ["아메리카노", "주세요", "포장"],
+      "grammar": ["N 주세요"],
+      "reward": { "type": "cosmetic", "id": "cafe-stamp" },
+      "steps": [
+        { "id": "welcome", "speaker": "Staff", "dialogue": "어서 오세요. 주문하시겠어요?", "translation": "Xin chào. Bạn gọi món chứ?", "mode": "choice", "choices": [
+          { "id": "order-polite", "text": "아메리카노 하나 주세요.", "score": 2, "consequence": "continue", "feedback": "Tự nhiên và lịch sự khi gọi món." },
+          { "id": "order-exists", "text": "아메리카노 있어요?", "score": 1, "consequence": "alternative", "feedback": "Câu này hỏi quán có món hay không. Nhân viên sẽ hỏi lại số lượng." },
+          { "id": "order-eat", "text": "아메리카노 먹어요.", "score": 0, "consequence": "hint", "feedback": "Đồ uống dùng 마시다; khi gọi món hãy dùng 주세요." }
+        ]},
+        { "id": "takeout", "speaker": "Staff", "dialogue": "드시고 가세요, 포장해 드릴까요?", "translation": "Bạn dùng tại quán hay mang đi?", "mode": "choice", "choices": [
+          { "id": "stay", "text": "여기서 먹을게요.", "score": 2, "consequence": "continue", "feedback": "Câu trả lời đúng bối cảnh." },
+          { "id": "take", "text": "포장해 주세요.", "score": 2, "consequence": "continue", "feedback": "Yêu cầu mang đi rõ ràng." }
+        ]}
+      ]
+    },
+    {
+      "id": "campus-club-meeting",
+      "title": "Gặp bạn ở câu lạc bộ",
+      "level": "intermediate",
+      "world": "Campus",
+      "location": "Student Center",
+      "characterId": "yuna",
+      "mission": "Giới thiệu bản thân và hỏi lịch sinh hoạt.",
+      "skills": ["grammar", "speaking"],
+      "vocabulary": ["동아리", "모임", "시간"],
+      "grammar": ["N에 관심이 있다", "-언제예요?"],
+      "reward": { "type": "cosmetic", "id": "campus-note" },
+      "steps": [
+        { "id": "introduce", "speaker": "Yuna", "dialogue": "안녕하세요. 어떤 동아리에 관심이 있어요?", "translation": "Chào bạn. Bạn quan tâm câu lạc bộ nào?", "mode": "construction", "tokens": ["저는", "사진", "동아리에", "관심이", "있어요"], "answer": "저는 사진 동아리에 관심이 있어요", "feedback": "Chủ đề + lĩnh vực quan tâm + 관심이 있어요." },
+        { "id": "schedule", "speaker": "Yuna", "dialogue": "그럼 다음 모임에 오세요.", "translation": "Vậy hãy đến buổi sinh hoạt tiếp theo nhé.", "mode": "construction", "tokens": ["모임은", "언제예요"], "answer": "모임은 언제예요", "feedback": "Dùng 은/는 để nêu chủ đề rồi hỏi thời gian." }
+      ]
+    },
+    {
+      "id": "office-progress-update",
+      "title": "Báo cáo tiến độ ngắn",
+      "level": "advanced",
+      "world": "Work Korean",
+      "location": "Team Meeting",
+      "characterId": "dojin",
+      "mission": "Báo cáo trạng thái và bước tiếp theo bằng giọng công sở.",
+      "skills": ["writing", "speaking"],
+      "vocabulary": ["진행 상황", "문제", "예정"],
+      "grammar": ["-고 있습니다", "-(으)로 예정입니다"],
+      "reward": { "type": "cosmetic", "id": "meeting-card" },
+      "steps": [
+        { "id": "status", "speaker": "Dojin", "dialogue": "현재 진행 상황을 알려 주세요.", "translation": "Hãy cho biết tình hình tiến độ hiện tại.", "mode": "free", "keywords": ["진행", "완료", "예정"], "minimumKeywords": 2, "hint": "현재 ...를 진행하고 있습니다. ...까지 완료할 예정입니다." },
+        { "id": "risk", "speaker": "Dojin", "dialogue": "예상되는 문제와 대응 방법은 무엇입니까?", "translation": "Vấn đề dự kiến và cách ứng phó là gì?", "mode": "free", "keywords": ["문제", "확인", "대응"], "minimumKeywords": 2, "hint": "... 문제가 있어서 ...를 확인하고 대응하겠습니다." }
+      ]
+    }
+  ],
+  "privacy": { "progressIsUserScoped": true, "storesRawAudio": false, "storesFreeResponse": false },
+  "excluded": ["Duolingo branding", "Duo", "league", "friend quest", "story catalog", "radio"]
+}
