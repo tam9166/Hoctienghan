@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "status": "approved",
+  "verified": true,
+  "updatedAt": "2026-09-13",
+  "source": "TamHoanq original learning content",
+  "audioPolicy": {
+    "allowedSources": ["Native", "AI voice", "TTS"],
+    "nativeRequiresEvidence": true,
+    "defaultSource": "TTS",
+    "disclosure": "Các tập hiện tại dùng giọng TTS của thiết bị, không được gọi là giọng người bản xứ."
+  },
+  "storySeries": [
+    {
+      "id": "first-week-seoul",
+      "title": "Tuần đầu ở Seoul",
+      "description": "Theo chân Minh trong những tình huống đầu tiên ở Hàn Quốc.",
+      "episodes": [
+        {
+          "id": "seoul-first-cafe",
+          "order": 1,
+          "level": "Beginner",
+          "title": "Buổi sáng ở quán cà phê",
+          "estimatedMinutes": 6,
+          "audio": { "source": "TTS", "voiceLocale": "ko-KR", "evidence": null },
+          "scenes": [
+            { "id": "counter", "setting": "Quầy gọi món", "dialogue": [
+              { "speaker": "직원", "korean": "어서 오세요. 무엇을 드릴까요?", "vietnamese": "Xin chào. Bạn muốn gọi gì?" },
+              { "speaker": "민", "korean": "아메리카노 한 잔 주세요.", "vietnamese": "Cho tôi một cốc Americano." }
+            ]}
+          ],
+          "vocabulary": [
+            { "id": "story-americano", "korean": "아메리카노", "meaning": "Americano" },
+            { "id": "story-one-cup", "korean": "한 잔", "meaning": "một cốc" },
+            { "id": "story-please", "korean": "주세요", "meaning": "xin hãy cho tôi" }
+          ],
+          "grammar": [{ "id": "g-n-juseyo", "pattern": "N 주세요", "explanation": "Dùng khi gọi hoặc xin một vật; phù hợp với người phục vụ." }],
+          "question": { "prompt": "Minh đã gọi món gì?", "options": ["아메리카노", "차", "물"], "answer": 0, "explanation": "Cụm 아메리카노 한 잔 주세요 nêu rõ món và số lượng." },
+          "speakingTask": { "prompt": "Hãy gọi một đồ uống bạn thích.", "target": "아메리카노 한 잔 주세요.", "keywords": ["주세요"] }
+        },
+        {
+          "id": "seoul-subway-help",
+          "order": 2,
+          "level": "Beginner",
+          "title": "Tìm ga tàu điện",
+          "estimatedMinutes": 7,
+          "audio": { "source": "TTS", "voiceLocale": "ko-KR", "evidence": null },
+          "scenes": [{ "id": "street", "setting": "Gần ngã tư", "dialogue": [
+            { "speaker": "민", "korean": "실례합니다. 지하철역이 어디에 있어요?", "vietnamese": "Xin lỗi. Ga tàu điện ở đâu ạ?" },
+            { "speaker": "행인", "korean": "은행 옆에 있어요.", "vietnamese": "Ở cạnh ngân hàng." }
+          ]}],
+          "vocabulary": [{ "id": "story-station", "korean": "지하철역", "meaning": "ga tàu điện" }, { "id": "story-next", "korean": "옆", "meaning": "bên cạnh" }],
+          "grammar": [{ "id": "g-location", "pattern": "N에 있어요", "explanation": "Diễn tả một nơi hoặc vật đang ở vị trí nào." }],
+          "question": { "prompt": "Ga nằm ở đâu?", "options": ["은행 옆", "학교 앞", "카페 안"], "answer": 0, "explanation": "Người đi đường nói 은행 옆에 있어요." },
+          "speakingTask": { "prompt": "Hỏi vị trí ga tàu điện.", "target": "지하철역이 어디에 있어요?", "keywords": ["지하철역", "어디"] }
+        }
+      ]
+    },
+    {
+      "id": "workday-korean",
+      "title": "Một ngày đi làm",
+      "description": "Nghe và phản hồi trong bối cảnh công sở.",
+      "episodes": [
+        {
+          "id": "work-meeting-update",
+          "order": 1,
+          "level": "Intermediate",
+          "title": "Báo cáo tiến độ",
+          "estimatedMinutes": 9,
+          "audio": { "source": "TTS", "voiceLocale": "ko-KR", "evidence": null },
+          "scenes": [{ "id": "meeting", "setting": "Họp nhóm", "dialogue": [
+            { "speaker": "팀장", "korean": "현재 진행 상황을 알려 주세요.", "vietnamese": "Hãy cho biết tiến độ hiện tại." },
+            { "speaker": "직원", "korean": "자료를 검토하고 있습니다. 오후까지 완료할 예정입니다.", "vietnamese": "Tôi đang kiểm tra tài liệu. Dự kiến hoàn thành trước buổi chiều." }
+          ]}],
+          "vocabulary": [{ "id": "story-progress", "korean": "진행 상황", "meaning": "tình hình tiến độ" }, { "id": "story-review", "korean": "검토하다", "meaning": "kiểm tra, rà soát" }],
+          "grammar": [{ "id": "g-progressive", "pattern": "-고 있습니다", "explanation": "Dạng trang trọng diễn tả hành động đang diễn ra." }, { "id": "g-plan", "pattern": "-(으)ㄹ 예정입니다", "explanation": "Nêu kế hoạch dự kiến trong bối cảnh trang trọng." }],
+          "question": { "prompt": "Nhân viên dự kiến hoàn thành khi nào?", "options": ["오전", "오후까지", "내일"], "answer": 1, "explanation": "오후까지 nghĩa là trước hoặc đến buổi chiều." },
+          "speakingTask": { "prompt": "Báo cáo một việc đang làm.", "target": "자료를 검토하고 있습니다.", "keywords": ["고 있습니다"] }
+        }
+      ]
+    }
+  ],
+  "radioSeries": [
+    { "id": "radio-daily", "series": "Daily Korean", "level": "Beginner", "title": "Bữa sáng hôm nay", "durationMinutes": 4, "audio": { "source": "TTS", "voiceLocale": "ko-KR", "evidence": null }, "transcript": "오늘 아침에는 빵하고 우유를 먹었어요. 간단하지만 맛있었어요.", "summary": "Một câu chuyện ngắn về bữa sáng.", "vocabulary": [{ "korean": "아침", "meaning": "buổi sáng" }, { "korean": "간단하다", "meaning": "đơn giản" }], "quiz": { "prompt": "Người nói đã uống gì?", "options": ["우유", "커피", "물"], "answer": 0 } },
+    { "id": "radio-beginner", "series": "Beginner Talk", "level": "Beginner", "title": "Cuối tuần làm gì?", "durationMinutes": 5, "audio": { "source": "TTS", "voiceLocale": "ko-KR", "evidence": null }, "transcript": "주말에 친구를 만나요. 같이 영화를 보고 저녁을 먹어요.", "summary": "Kế hoạch gặp bạn cuối tuần.", "vocabulary": [{ "korean": "주말", "meaning": "cuối tuần" }, { "korean": "같이", "meaning": "cùng nhau" }], "quiz": { "prompt": "Họ xem gì?", "options": ["영화", "뉴스", "축구"], "answer": 0 } },
+    { "id": "radio-work", "series": "Work Korean", "level": "Intermediate", "title": "Đổi lịch họp", "durationMinutes": 6, "audio": { "source": "TTS", "voiceLocale": "ko-KR", "evidence": null }, "transcript": "오늘 회의는 세 시로 변경되었습니다. 참석이 어려우면 미리 알려 주세요.", "summary": "Thông báo lịch họp và yêu cầu phản hồi.", "vocabulary": [{ "korean": "변경되다", "meaning": "được thay đổi" }, { "korean": "참석", "meaning": "tham dự" }], "quiz": { "prompt": "Cuộc họp chuyển sang mấy giờ?", "options": ["두 시", "세 시", "네 시"], "answer": 1 } },
+    { "id": "radio-topik", "series": "TOPIK Listening", "level": "Intermediate", "title": "Thông báo thư viện", "durationMinutes": 7, "audio": { "source": "TTS", "voiceLocale": "ko-KR", "evidence": null }, "transcript": "도서관 공사로 인해 이번 주 토요일에는 문을 닫습니다. 책은 금요일까지 반납해 주세요.", "summary": "Thông báo đóng cửa thư viện.", "vocabulary": [{ "korean": "공사", "meaning": "thi công" }, { "korean": "반납하다", "meaning": "trả lại" }], "quiz": { "prompt": "Thư viện đóng cửa ngày nào?", "options": ["금요일", "토요일", "일요일"], "answer": 1 } },
+    { "id": "radio-culture", "series": "Culture Korean", "level": "Advanced", "title": "Lời mời ăn cơm", "durationMinutes": 8, "audio": { "source": "TTS", "voiceLocale": "ko-KR", "evidence": null }, "transcript": "한국어의 '밥 한번 먹자'는 항상 구체적인 약속을 뜻하지는 않습니다. 관계를 이어 가고 싶다는 인사로도 사용됩니다.", "summary": "Sắc thái văn hóa của một lời mời phổ biến.", "vocabulary": [{ "korean": "구체적", "meaning": "cụ thể" }, { "korean": "관계를 이어 가다", "meaning": "duy trì mối quan hệ" }], "quiz": { "prompt": "Câu này đôi khi thể hiện điều gì?", "options": ["Kết thúc quan hệ", "Muốn giữ liên hệ", "Từ chối gặp"], "answer": 1 } }
+  ],
+  "spokenExercises": [
+    { "id": "spoken-food", "level": "Beginner", "question": "오늘 뭐 먹어요?", "translation": "Hôm nay bạn ăn gì?", "sample": "김치찌개 먹어요.", "keywords": ["먹어요"], "pronunciationTarget": "김치찌개 먹어요." },
+    { "id": "spoken-weekend", "level": "Beginner", "question": "주말에 뭐 해요?", "translation": "Cuối tuần bạn làm gì?", "sample": "친구를 만나요.", "keywords": ["만나요"], "pronunciationTarget": "친구를 만나요." },
+    { "id": "spoken-work", "level": "Intermediate", "question": "지금 무슨 일을 하고 있어요?", "translation": "Hiện bạn đang làm việc gì?", "sample": "보고서를 작성하고 있어요.", "keywords": ["고 있어요"], "pronunciationTarget": "보고서를 작성하고 있어요." }
+  ],
+  "speakingFlashcards": [
+    { "id": "speak-korea", "korean": "한국", "meaning": "Hàn Quốc", "example": "한국에서 공부해요.", "srsEntryId": "freq-한국" },
+    { "id": "speak-school", "korean": "학교", "meaning": "trường học", "example": "학교에 가요.", "srsEntryId": "freq-학교" },
+    { "id": "speak-food", "korean": "음식", "meaning": "món ăn", "example": "한국 음식을 좋아해요.", "srsEntryId": "freq-음식" },
+    { "id": "speak-friend", "korean": "친구", "meaning": "bạn bè", "example": "친구를 만나요.", "srsEntryId": "freq-친구" },
+    { "id": "speak-meeting", "korean": "회의", "meaning": "cuộc họp", "example": "회의가 세 시에 시작돼요.", "srsEntryId": "freq-회의" }
+  ],
+  "shadowingLines": [
+    { "id": "spoken-shadow-cafe", "korean": "아메리카노 한 잔 주세요.", "meaning": "Cho tôi một cốc Americano.", "audio": { "source": "TTS", "voiceLocale": "ko-KR", "evidence": null }, "speeds": [0.75, 1, 1.15] },
+    { "id": "spoken-shadow-weekend", "korean": "주말에 친구를 만나요.", "meaning": "Cuối tuần tôi gặp bạn.", "audio": { "source": "TTS", "voiceLocale": "ko-KR", "evidence": null }, "speeds": [0.75, 1, 1.15] },
+    { "id": "spoken-shadow-office", "korean": "오후까지 완료할 예정입니다.", "meaning": "Dự kiến hoàn thành trước buổi chiều.", "audio": { "source": "TTS", "voiceLocale": "ko-KR", "evidence": null }, "speeds": [0.75, 1, 1.15] }
+  ],
+  "privacy": { "progressIsUserScoped": true, "storesRawAudio": false }
+}

@@ -7,6 +7,7 @@
     ai: { scripts: ['data/ai-coach.js?v=6', 'data/learning-memory.js?v=3', 'data/personal-intelligence.js?v=3', 'data/learning-intelligence-data.js?v=1', 'data/learning-intelligence.js?v=2'] },
     intelligenceMemory: { dependencies: ['ai'], styles: ['learning-intelligence-memory.css?v=1'], scripts: ['data/learning-intelligence-memory.js?v=1'] },
     realKoreanExperience: { dependencies: ['voice', 'conversation', 'languageMastery', 'practical'], styles: ['real-korean-experience.css?v=1'], scripts: ['data/real-korean-experience.js?v=1'] },
+    immersiveSpoken: { dependencies: ['voice'], styles: ['immersive-spoken-content.css?v=1'], scripts: ['data/immersive-spoken-content.js?v=1'] },
     practical: { scripts: ['data/practical-study.js?v=4'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
@@ -92,6 +93,7 @@
   routes('learning-science active-recall interleaved-practice concept-mastery', ['science']);
   routes('career-center career-vocabulary workplace-scenarios workplace-scenario job-interview-trainer korean-resume-builder business-email-writing presentation-coach workplace-culture career-report', ['career']);
   routes('advanced-voice voice-session voice-history voice-goals voice-report realtime-voice-coach voice-coach-session voice-coach-journey', ['voice']);
+  routes('immersive-content korean-stories story-episode korean-radio radio-episode spoken-exercises speaking-flashcards spoken-shadowing', ['immersiveSpoken']);
   routes('ai-content-studio', ['aiContent']);
   routes('immersive-daily-life immersive-story immersive-culture-game immersive-readiness immersive-scenarios immersive-progress-map', ['immersiveKorean']);
   routes('global-education-marketplace marketplace-course marketplace-teacher creator-studio marketplace-moderation creator-revenue marketplace-certificates', ['enterprise', 'marketplace']);
@@ -101,10 +103,10 @@
   routes('immersive-world', ['immersiveKorean']);
 
   // Category pages load their discovery extensions only after the user enters them.
-  routes('lessons', ['resources', 'practical', 'scale', 'conversation', 'context', 'reading', 'languageMastery', 'immersion', 'immersive', 'ecosystem', 'realWorld', 'content', 'career', 'immersiveKorean', 'marketplace', 'competitiveContent', 'realKoreanExperience']);
+  routes('lessons', ['resources', 'practical', 'scale', 'conversation', 'context', 'reading', 'languageMastery', 'immersion', 'immersive', 'ecosystem', 'realWorld', 'content', 'career', 'immersiveKorean', 'marketplace', 'competitiveContent', 'realKoreanExperience', 'immersiveSpoken']);
   routes('review', ['practical', 'scale', 'science']);
   routes('topik', ['topik', 'analytics', 'advancedAnalytics', 'science', 'outcomes']);
-  routes('practice speaking-hub', ['voice', 'realKoreanExperience']);
+  routes('practice speaking-hub', ['voice', 'realKoreanExperience', 'immersiveSpoken']);
   routes('home', ['growth']);
   routes('profile', ['longTerm', 'education', 'communityLearning', 'enterprise', 'retention', 'contentQuality', 'globalLanguage', 'edtech', 'premium', 'aiContent', 'community', 'monetization', 'futureLanguage', 'outcomes', 'growth', 'intelligenceMemory']);
   routes('search', ['resources', 'practical', 'context', 'content', 'competitiveContent', 'globalLanguage']);
