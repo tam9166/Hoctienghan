@@ -5,6 +5,7 @@
 // ============================================================
 const STORAGE_KEYS = Object.freeze({
   users: 'klearn_users',
+  engagement: 'klearn_engagement_core',
   realKoreanExperience: 'klearn_real_korean_experience',
   contentScience: 'klearn_content_science',
   session: 'klearn_session',
@@ -259,6 +260,7 @@ MAIN_VIEWS.push('demo-center');
 MAIN_VIEWS.push('learning-intelligence-memory', 'learning-diagnostic', 'learning-prescription', 'learning-goal-simulator');
 MAIN_VIEWS.push('real-korean-experience', 'pronunciation-lab-vn', 'sentence-mining', 'media-learning-real', 'real-conversation-lab', 'real-shadowing-lab');
 MAIN_VIEWS.push('content-science', 'content-science-feedback');
+MAIN_VIEWS.push('engagement-center', 'practice-center', 'engagement-practice');
 const PUBLIC_VIEWS = ['welcome', 'login', 'register', 'demo'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'beginner-placement', 'placement', 'onboarding-result'];
 
@@ -1217,7 +1219,7 @@ async function submitContentReport({ contentId, contentType, reportType = 'other
 }
 
 const USER_SYNC_KEYS = Object.freeze([
-  STORAGE_KEYS.conversationHistory, STORAGE_KEYS.realKoreanExperience, STORAGE_KEYS.contentScience, STORAGE_KEYS.globalEducationMarketplace,
+  STORAGE_KEYS.conversationHistory, STORAGE_KEYS.realKoreanExperience, STORAGE_KEYS.contentScience, STORAGE_KEYS.engagement, STORAGE_KEYS.globalEducationMarketplace,
   STORAGE_KEYS.readingExpansion, STORAGE_KEYS.immersiveWorld, STORAGE_KEYS.ecosystemExpansion, STORAGE_KEYS.careerLearning, STORAGE_KEYS.voiceLearning,
   STORAGE_KEYS.realGoalPlans, STORAGE_KEYS.learningJournal, STORAGE_KEYS.teacherFeedback, STORAGE_KEYS.manualReviewQueue, STORAGE_KEYS.teacherWorkspace, STORAGE_KEYS.educationPlatform, STORAGE_KEYS.communityProgress, STORAGE_KEYS.enterprisePlatform, STORAGE_KEYS.monetization, STORAGE_KEYS.productGrowth, STORAGE_KEYS.futureLanguage, STORAGE_KEYS.productUx, STORAGE_KEYS.retention, STORAGE_KEYS.research, STORAGE_KEYS.analyticsReports, STORAGE_KEYS.premiumLearning,
   STORAGE_KEYS.progress, STORAGE_KEYS.srs, STORAGE_KEYS.settings, STORAGE_KEYS.practice, STORAGE_KEYS.practiceHistory,
@@ -1236,6 +1238,7 @@ const CLOUD_SYNC_ARRAY_LIMITS = Object.freeze({
   [STORAGE_KEYS.longTermLearningMemory]: 500,
   [STORAGE_KEYS.realKoreanExperience]: 400,
   [STORAGE_KEYS.contentScience]: 600,
+  [STORAGE_KEYS.engagement]: 1,
   [STORAGE_KEYS.productionTelemetry]: 200,
   klearn_ai_conversations: 20
 });
@@ -1346,7 +1349,15 @@ const CloudSyncService = {
     ids.forEach((languageId) => { const a = local.languages?.[languageId] || {}; const b = remote.languages?.[languageId] || {}; const bLatest = new Date(b.updatedAt || 0) >= new Date(a.updatedAt || 0); const older = bLatest ? a : b; const newer = bLatest ? b : a; const latest = { ...older, ...newer }; const items = [...(Array.isArray(a.srs) ? a.srs : []), ...(Array.isArray(b.srs) ? b.srs : [])]; const srs = new Map(); items.forEach((item) => { const itemId = item?.id || item?.contentId; if (!itemId) return; const previous = srs.get(itemId); if (!previous || new Date(item.updatedAt || item.lastReviewed || 0) >= new Date(previous.updatedAt || previous.lastReviewed || 0)) srs.set(itemId, item); }); const mastery = {}; const masteryIds = new Set([...Object.keys(a.mastery || {}), ...Object.keys(b.mastery || {})]); masteryIds.forEach((itemId) => { const left = a.mastery?.[itemId]; const right = b.mastery?.[itemId]; mastery[itemId] = !left ? right : !right ? left : new Date(right.updatedAt || 0) >= new Date(left.updatedAt || 0) ? right : left; }); languages[languageId] = { ...latest, languageId, srs: [...srs.values()].slice(0, 500), mastery, progress: { ...(older.progress || {}), ...(newer.progress || {}), skills: { ...(older.progress?.skills || {}), ...(newer.progress?.skills || {}) } } }; });
     const remoteLatest = new Date(remote.updatedAt || 0) >= new Date(local.updatedAt || 0); return { ...(remoteLatest ? local : remote), ...(remoteLatest ? remote : local), languages, schemaVersion: 2 };
   },
-  mergeDomain(key, local, remote) { if (key === STORAGE_KEYS.srs) return this.mergeSrs(local, remote); if (key === STORAGE_KEYS.progress) return this.mergeProgress(local, remote); if (key === STORAGE_KEYS.languageLearningState) return this.mergeLanguageLearningState(local, remote); return this.mergeValue(local, remote); },
+  mergeEngagement(local = [], remote = []) {
+    const left = Array.isArray(local) ? local[0] || {} : {}; const right = Array.isArray(remote) ? remote[0] || {} : {};
+    const union = (a, b, key) => { const map = new Map(); [...(Array.isArray(a) ? a : []), ...(Array.isArray(b) ? b : [])].forEach((item) => { const id = item?.[key]; if (!id) return; const previous = map.get(id); if (!previous || new Date(item.updatedAt || item.created_at || item.claimed_at || 0) >= new Date(previous.updatedAt || previous.created_at || previous.claimed_at || 0)) map.set(id, item); }); return [...map.values()]; };
+    const xpEvents = union(left.xpEvents, right.xpEvents, 'event_id').slice(-1500); const questClaims = union(left.questClaims, right.questClaims, 'quest_id').slice(-200); const protections = union(left.protections, right.protections, 'event_id').slice(-100); const quests = union(left.quests, right.quests, 'id').slice(-40);
+    const rewardFreezes = questClaims.filter((item) => item.reward_type === 'streak_freeze').reduce((sum, item) => sum + Number(item.reward_amount || 0), 0); const usedFreezes = protections.filter((item) => item.protection_type === 'freeze').length;
+    const wallet = { streakFreezes: Math.max(0, Math.min(3, rewardFreezes - usedFreezes)), badges: [...new Set([...(left.wallet?.badges || []), ...(right.wallet?.badges || [])])], cosmetics: [...new Set([...(left.wallet?.cosmetics || []), ...(right.wallet?.cosmetics || [])])] };
+    return [{ schemaVersion: 1, xpEvents, questClaims, protections, quests, wallet, updatedAt: new Date(Math.max(new Date(left.updatedAt || 0).getTime() || 0, new Date(right.updatedAt || 0).getTime() || 0)).toISOString() }];
+  },
+  mergeDomain(key, local, remote) { if (key === STORAGE_KEYS.srs) return this.mergeSrs(local, remote); if (key === STORAGE_KEYS.progress) return this.mergeProgress(local, remote); if (key === STORAGE_KEYS.languageLearningState) return this.mergeLanguageLearningState(local, remote); if (key === STORAGE_KEYS.engagement) return this.mergeEngagement(local, remote); return this.mergeValue(local, remote); },
   mergeSnapshot(remote) {
     if (!remote?.data || !state.currentUser) return;
     const allKeys = new Set(USER_SYNC_KEYS); allKeys.forEach((key) => { const all = storage.get(key, {}); if (key === STORAGE_KEYS.settings) { const safeSettings = all && typeof all === 'object' && !Array.isArray(all) ? { ...all, users: { ...(all.users || {}) } } : { users: {} }; safeSettings.users[state.currentUser.id] = this.mergeDomain(key, safeSettings.users[state.currentUser.id], remote.data[key]); storage.set(key, safeSettings); return; } const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; safe[state.currentUser.id] = this.mergeDomain(key, safe[state.currentUser.id], remote.data[key]); storage.set(key, safe); });
@@ -2425,7 +2436,7 @@ function finishTopikExam() {
   const result = { id: exam.id, userId: state.currentUser.id, setId: `t${exam.level}-${exam.id}`, setTitle: `TOPIK ${exam.level} Exam Practice`, level: `TOPIK_${exam.level}`, startedAt: exam.startedAt, completedAt: new Date().toISOString(), durationSeconds: Math.max(1, Math.round((Date.now() - new Date(exam.startedAt).getTime()) / 1000)), score: correct, total, percentage: Math.round(correct / total * 100), correct, wrong: total - correct, skipped: answers.filter((item) => !item.selectedAnswer).length, answers, wrongQuestionIds: answers.filter((item) => !item.correct).map((item) => item.questionId), skillBreakdown: Object.fromEntries(Object.entries(grouped).map(([key, value]) => [key, Math.round(value.correct / value.total * 100)])), topicBreakdown: {}, examMode: true, contentVersion: 1 };
   const all = storage.get(STORAGE_KEYS.examAttempts, {}); const history = Array.isArray(all?.[state.currentUser.id]?.history) ? all[state.currentUser.id].history : []; storage.set(STORAGE_KEYS.examAttempts, { ...(all && typeof all === 'object' ? all : {}), [state.currentUser.id]: { history: [result, ...history.filter((item) => item.id !== result.id)].slice(0, 50), active: null, updatedAt: new Date().toISOString() } });
   const practiceAll = storage.get(STORAGE_KEYS.practiceHistory, {}); const practiceSafe = practiceAll && typeof practiceAll === 'object' ? practiceAll : {}; practiceSafe[state.currentUser.id] = [result, ...(Array.isArray(practiceSafe[state.currentUser.id]) ? practiceSafe[state.currentUser.id].filter((item) => item.id !== result.id) : [])].slice(0, 200); storage.set(STORAGE_KEYS.practiceHistory, practiceSafe);
-  window.ErrorNotebookService?.capturePractice?.(result, exam.questions); const progress = getUserProgress(); progress.daily.tasks.practice = true; progress.daily.tasks.listening = progress.daily.tasks.listening || exam.questions.some((item) => item.skill === 'listening'); progress.skills = { ...progress.skills, ...Object.fromEntries(Object.entries(grouped).map(([skill, value]) => [skill, Math.max(progress.skills[skill] || 0, Math.round(value.correct / value.total * 100))])) }; saveUserProgress(progress); state.examResult = { result, questions: exam.questions }; state.examSession = null; setView('topik-exam-result');
+  window.ErrorNotebookService?.capturePractice?.(result, exam.questions); const progress = getUserProgress(); progress.daily.tasks.practice = true; progress.daily.tasks.listening = progress.daily.tasks.listening || exam.questions.some((item) => item.skill === 'listening'); progress.skills = { ...progress.skills, ...Object.fromEntries(Object.entries(grouped).map(([skill, value]) => [skill, Math.max(progress.skills[skill] || 0, Math.round(value.correct / value.total * 100))])) }; saveUserProgress(progress); emitLearningMutation('topik_completed', result.id, { status: 'completed', score: result.percentage }, `topik_completed:${state.currentUser.id}:${result.id}`); state.examResult = { result, questions: exam.questions }; state.examSession = null; setView('topik-exam-result');
 }
 function topikExamResultView() { const data = state.examResult; if (!data?.result) return practiceHubView(); const result = data.result; return `<section class="result-page exam-result-page"><p class="eyebrow">TOPIK Exam Practice · TOPIK ${result.level.replace('TOPIK_', '')}</p><h1 class="headline">Kết quả thi thử</h1><div class="result-score-ring" style="--score:${result.percentage * 3.6}deg"><div><strong>${result.score}/${result.total}</strong><span>${result.percentage}%</span></div></div><div class="result-counts"><span>Đúng <b>${result.correct}</b></span><span>Sai <b>${result.wrong}</b></span><span>Bỏ qua <b>${result.skipped}</b></span><span>Thời gian <b>${Math.ceil(result.durationSeconds / 60)}′</b></span></div><section class="card result-analysis"><h2>Phân tích kỹ năng</h2>${Object.entries(result.skillBreakdown).map(([skill, score]) => `<div class="analysis-row"><span>${escapeHtml(skill)}</span><div class="bar"><span style="width:${score}%"></span></div><b>${score}%</b></div>`).join('')}</section><p class="support-message">Kết quả này đã được đưa vào TOPIK Analytics, Learner Profile, Adaptive Engine và Sổ lỗi. Đây là kết quả luyện tập, không phải điểm thi chính thức.</p><div class="result-actions"><button class="btn secondary" data-view="analytics">TOPIK Analytics</button><button class="btn secondary" data-view="error-notebook">Xem Sổ lỗi</button><button class="btn primary" data-view="topik">Về TOPIK</button></div></section>`; }
 
@@ -2684,8 +2695,8 @@ function bindEvents() {
   const listeningTimeline = document.getElementById('listeningTimeline'); if (listeningTimeline) listeningTimeline.oninput = () => { state.listeningStudio.position = Number(listeningTimeline.value); saveListeningSession(); };
   document.querySelectorAll('[data-listening-loop]').forEach((button) => { button.onclick = () => { const key = button.dataset.listeningLoop; if (key === 'clear') { state.listeningStudio.loopA = null; state.listeningStudio.loopB = null; } else { state.listeningStudio[key === 'a' ? 'loopA' : 'loopB'] = Number(state.listeningStudio.position || 0); } saveListeningSession(); render(); }; });
   document.querySelectorAll('[data-listening-toggle]').forEach((input) => { input.onchange = () => { state.listeningStudio[`${input.dataset.listeningToggle}Visible`] = input.checked; saveListeningSession(); render(); }; });
-  const dictationInput = document.getElementById('dictationInput'); const dictationButton = document.querySelector('[data-listening-dictation]'); if (dictationInput) dictationInput.oninput = () => { state.listeningStudio.dictation = dictationInput.value; }; if (dictationButton) dictationButton.onclick = () => { const q = listeningCurrentQuestion(); state.listeningStudio.dictationResult = { answer: state.listeningStudio.dictation || dictationInput?.value || '', score: similarityScore(q.koreanText || q.audioText || '', state.listeningStudio.dictation || dictationInput?.value || '') }; saveListeningSession(); render(); };
-  document.querySelectorAll('[data-listening-quiz]').forEach((button) => { button.onclick = () => { const q = listeningCurrentQuestion(); state.listeningStudio.quizAnswer = { answer: button.dataset.listeningQuiz, correct: button.dataset.listeningQuiz === q.correctAnswer }; saveListeningSession(); render(); }; });
+  const dictationInput = document.getElementById('dictationInput'); const dictationButton = document.querySelector('[data-listening-dictation]'); if (dictationInput) dictationInput.oninput = () => { state.listeningStudio.dictation = dictationInput.value; }; if (dictationButton) dictationButton.onclick = () => { const q = listeningCurrentQuestion(); const answer = String(state.listeningStudio.dictation || dictationInput?.value || '').trim(); if (!answer) return toast('Hãy nhập bản chép trước khi kiểm tra.'); const eventId = uniqueId(); state.listeningStudio.dictationResult = { id: eventId, answer, score: similarityScore(q.koreanText || q.audioText || '', answer) }; saveListeningSession(); emitLearningMutation('listening_completed', q.id, { status: 'completed', evidenceId: eventId, score: state.listeningStudio.dictationResult.score, mode: 'dictation' }, `listening_completed:${state.currentUser.id}:${eventId}`); render(); };
+  document.querySelectorAll('[data-listening-quiz]').forEach((button) => { button.onclick = () => { const q = listeningCurrentQuestion(); const eventId = uniqueId(); state.listeningStudio.quizAnswer = { id: eventId, answer: button.dataset.listeningQuiz, correct: button.dataset.listeningQuiz === q.correctAnswer }; saveListeningSession(); emitLearningMutation('listening_completed', q.id, { status: 'completed', evidenceId: eventId, score: state.listeningStudio.quizAnswer.correct ? 100 : 0, mode: 'quiz' }, `listening_completed:${state.currentUser.id}:${eventId}`); render(); }; });
   const listeningSaveError = document.querySelector('[data-listening-save-error]'); if (listeningSaveError) listeningSaveError.onclick = () => { const q = listeningCurrentQuestion(); const result = state.listeningStudio.dictationResult; window.ErrorNotebookService?.add?.({ type: 'listening', question: q.koreanText || q.audioText, mistake: result?.answer || '', correction: q.koreanText || q.audioText, explanation: `Text comparison ${result?.score || 0}%` }); toast('Đã lưu lỗi nghe vào Sổ lỗi.'); };
   document.querySelectorAll('[data-listening-next]').forEach((button) => { button.onclick = () => { state.listeningStudio.index = (state.listeningStudio.index + 1) % listeningStudioQuestions().length; state.listeningStudio.position = 0; state.listeningStudio.dictation = ''; state.listeningStudio.dictationResult = null; state.listeningStudio.quizAnswer = null; saveListeningSession(); render(); }; });
   document.querySelectorAll('[data-start-topik-exam]').forEach((button) => { button.onclick = () => startTopikExam(); });
@@ -3215,6 +3226,7 @@ function saveSpeakingAttempt(transcript) {
   progress.daily.tasks.speaking = true;
   progress.skills.speaking = Math.min(100, Math.max(progress.skills.speaking, Math.round(evaluation.score * 0.8)));
   saveUserProgress(progress);
+  emitLearningMutation('speaking_completed', result.id, { status: 'completed', score: result.score, mode: result.mode }, `speaking_completed:${state.currentUser.id}:${result.id}`);
   return result;
 }
 
@@ -3273,6 +3285,7 @@ function submitWriting(event) {
   progress.daily.tasks.writing = true;
   progress.skills.writing = Math.min(100, Math.max(progress.skills.writing, Math.round(result.preliminaryScore * 0.8)));
   saveUserProgress(progress);
+  emitLearningMutation('writing_completed', result.id, { status: 'completed', score: result.preliminaryScore, promptId: result.promptId }, `writing_completed:${state.currentUser.id}:${result.id}`);
   state.writingRoom.draft = '';
   saveWritingRoomDraft();
   setView('writing-result');
@@ -3318,6 +3331,7 @@ function completeLesson() {
   if (!state.lessonCheck?.correct && !state.sentenceCorrect && !state.lessonProgress[lessonId]?.completed) return;
   const progress = getUserProgress();
   const firstCompletion = !progress.lessonProgress[lessonId]?.completed;
+  let completionMutation = null;
   if (firstCompletion) {
     const existing = progress.lessonProgress[lessonId] || {};
     const completedAt = new Date().toISOString();
@@ -3325,13 +3339,15 @@ function completeLesson() {
     progress.stats.lessonsCompleted += 1;
     progress.skills.reading = Math.min(100, progress.skills.reading + 5);
     lessonVocabulary(currentLessonContent()).forEach((entry) => DictionaryService.addToSrs(entry, { source: 'lesson-completed', lessonId }));
-    const mutationBase = `${state.currentUser.id}:${lessonId}:${completedAt}`;
-    emitLearningMutation('completed_lesson', lessonId, { status: 'completed', score: progress.lessonProgress[lessonId].score }, `completed_lesson:${mutationBase}`);
-    emitLearningMutation('mastery_updated', lessonId, { mastery: progress.lessonProgress[lessonId].masteryScore }, `mastery_updated:${mutationBase}`);
+    completionMutation = `${state.currentUser.id}:${lessonId}:${completedAt}`;
     window.UserResearchService?.track?.('lesson_completed', { contentId: lessonId, feature: 'lesson', score: progress.lessonProgress[lessonId].score });
   }
   progress.daily.tasks.lesson = true;
   saveUserProgress(progress);
+  if (completionMutation) {
+    emitLearningMutation('completed_lesson', lessonId, { status: 'completed', score: progress.lessonProgress[lessonId].score }, `completed_lesson:${completionMutation}`);
+    emitLearningMutation('mastery_updated', lessonId, { mastery: progress.lessonProgress[lessonId].masteryScore }, `mastery_updated:${completionMutation}`);
+  }
   toast('Đã lưu tiến độ bài học.');
   state.lessonStep = 0;
   setView('course-detail');

@@ -1,0 +1,111 @@
+.p72-heading { padding-bottom: 8px; }
+.p72-summary,
+.p72-home-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.p72-summary article,
+.p72-home-strip button,
+.p72-score-breakdown,
+.p72-quests,
+.p72-practice-callout,
+.p72-quick,
+.p72-quick-plan {
+  min-width: 0;
+  border: 1px solid var(--outline);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.p72-summary article { display: grid; align-content: start; gap: 8px; padding: 20px; }
+.p72-summary small,
+.p72-home-strip small,
+.p72-practice-callout small,
+.p72-quick small { color: var(--muted); font-size: .72rem; font-weight: 800; letter-spacing: .08em; }
+.p72-summary strong { color: var(--heading); font-size: clamp(1.6rem, 3vw, 2.5rem); line-height: 1.1; overflow-wrap: anywhere; }
+.p72-summary span,
+.p72-summary p { color: var(--muted); font-size: .82rem; line-height: 1.55; margin: 0; }
+.p72-xp { border-top: 4px solid var(--primary) !important; }
+.p72-score { border-top: 4px solid var(--secondary) !important; }
+.p72-streak { border-top: 4px solid var(--warning) !important; }
+.p72-streak div { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.p72-score-breakdown,
+.p72-quests,
+.p72-practice-callout,
+.p72-quick,
+.p72-quick-plan { margin-top: 16px; padding: 20px; }
+.p72-score-breakdown > header,
+.p72-quests > header,
+.p72-practice-callout,
+.p72-quick { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.p72-score-breakdown h2,
+.p72-quests h2,
+.p72-practice-callout h2,
+.p72-quick h2 { margin: 3px 0; color: var(--heading); }
+.p72-score-breakdown > header > span { color: var(--muted); font-size: .8rem; }
+.p72-score-breakdown > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+.p72-score-breakdown article { display: grid; grid-template-columns: 1fr auto; gap: 5px 10px; padding: 12px; border-radius: 12px; background: var(--surface-low); }
+.p72-score-breakdown article b { color: var(--heading); }
+.p72-score-breakdown article small { color: var(--muted); }
+.p72-score-breakdown article i,
+.p72-quests .bar { grid-column: 1 / -1; height: 6px; overflow: hidden; border-radius: 999px; background: var(--surface-mid); }
+.p72-score-breakdown article em,
+.p72-quests .bar i { display: block; height: 100%; border-radius: inherit; background: var(--primary-hover); }
+.p72-quests > div { display: grid; gap: 10px; margin-top: 16px; }
+.p72-quests article { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--outline); border-radius: 12px; }
+.p72-quests article > span,
+.p72-quick-plan article > span { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--primary-light); color: var(--text); font-weight: 800; }
+.p72-quests h3 { margin: 3px 0 8px; color: var(--heading); font-size: 1rem; }
+.p72-quests p { margin: 7px 0 0; color: var(--muted); font-size: .78rem; }
+.p72-quests article.claimed { opacity: .72; }
+.p72-practice-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+.p72-practice-grid > button,
+.p72-home-strip button { appearance: none; text-align: left; color: var(--text); }
+.p72-practice-grid > button { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; min-width: 0; padding: 15px; border: 1px solid var(--outline); border-radius: 13px; background: var(--surface); }
+.p72-practice-grid > button:hover { border-color: var(--primary-hover); background: var(--primary-light); }
+.p72-practice-grid span { font-size: 1.25rem; }
+.p72-practice-grid div { display: grid; min-width: 0; gap: 3px; }
+.p72-practice-grid small { overflow: hidden; color: var(--muted); font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; }
+.p72-practice-grid i { font-style: normal; }
+.p72-quick > div:nth-child(2) { display: flex; flex-wrap: wrap; gap: 6px; }
+.p72-quick [data-p72-minutes] { min-height: 42px; padding: 8px 12px; border: 1px solid var(--outline); border-radius: 10px; background: var(--surface-low); color: var(--text); }
+.p72-quick [data-p72-minutes].active { border-color: var(--primary-hover); background: var(--primary); color: var(--accent-ink); font-weight: 800; }
+.p72-quick-plan { display: grid; gap: 10px; }
+.p72-quick-plan article { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--outline); }
+.p72-quick-plan article div { display: grid; gap: 3px; }
+.p72-quick-plan article small { color: var(--muted); }
+.p72-home-strip { margin: 14px 0; }
+.p72-home-strip button { display: grid; gap: 5px; padding: 15px; }
+.p72-home-strip button:hover { border-color: var(--primary-hover); }
+.p72-home-strip b { overflow-wrap: anywhere; color: var(--heading); }
+.p72-home-strip span { color: var(--muted); font-size: .76rem; }
+.p72-loading { min-height: 180px; border-radius: var(--radius); background: linear-gradient(90deg, var(--surface-low), var(--surface), var(--surface-low)); background-size: 200% 100%; animation: p72-loading 1.2s linear infinite; }
+@keyframes p72-loading { to { background-position: -200% 0; } }
+
+[data-theme="dark"] .p72-quick [data-p72-minutes].active { background: var(--primary); color: var(--accent-ink); }
+
+@media (max-width: 900px) {
+  .p72-summary { grid-template-columns: 1fr; }
+  .p72-practice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .p72-score-breakdown > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .p72-home-strip { grid-template-columns: 1fr; }
+  .p72-score-breakdown > header,
+  .p72-quests > header,
+  .p72-practice-callout,
+  .p72-quick { align-items: stretch; flex-direction: column; }
+  .p72-score-breakdown > div,
+  .p72-practice-grid { grid-template-columns: 1fr; }
+  .p72-quests article { grid-template-columns: 40px minmax(0, 1fr); }
+  .p72-quests article > button { grid-column: 1 / -1; width: 100%; }
+  .p72-summary article,
+  .p72-score-breakdown,
+  .p72-quests,
+  .p72-practice-callout,
+  .p72-quick,
+  .p72-quick-plan { padding: 15px; }
+}
+
+@media (prefers-reduced-motion: reduce) { .p72-loading { animation: none; } }

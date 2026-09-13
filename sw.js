@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v88';
+const CACHE = 'klearn-v89';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=32',
@@ -6,6 +6,7 @@ const OFFLINE_ASSETS = [
   './production-stability.css?v=2',
   './security-privacy.css?v=1',
   './mobile-experience.css?v=1',
+  './engagement-core.css?v=1',
   './advanced-voice.css?v=2',
   './realtime-voice-coach.css?v=1',
   './ai-content-creation.css?v=1',
@@ -95,7 +96,9 @@ const OFFLINE_ASSETS = [
   './locales/zh-CN.js?v=8',
   './data/content-locales.js?v=1',
   './data/route-loader.js?v=14',
-  './app.js?v=74',
+  './app.js?v=75',
+  './data/engagement-core.js?v=1',
+  './content/engagement-core.json',
   './data/content-competitive-upgrade.js?v=1',
   './content/vietnamese-korean-core.json',
   './content/retention-system.json',
@@ -189,7 +192,7 @@ const INSTALL_ASSETS = new Set([
   './index.html', './styles.css?v=32', './product-ux.css?v=1', './production-stability.css?v=2', './security-privacy.css?v=1', './mobile-experience.css?v=1',
   './locales/vi.js?v=5', './locales/en.js?v=8', './locales/zh-CN.js?v=8', './data/content-locales.js?v=1',
   './data/romanization.js?v=8', './data/vocabulary-bank.js?v=8', './data/dictionary.js?v=1', './data/theory-lessons.js?v=1', './data/handwriting.js?v=1',
-  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=14', './app.js?v=74',
+  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=14', './app.js?v=75',
   './data/curriculum.js?v=1', './data/adaptive-engine.js?v=8', './data/beginner-foundation.js?v=2', './data/daily-learning-experience.js?v=6',
   './data/product-ux.js?v=1', './content/product-ux.json', './data/user-research.js?v=2', './content/user-research-experiments.json',
   './data/production-stability.js?v=5', './data/security-privacy.js?v=3', './data/mobile-experience.js?v=3', './data/mobile-native.js?v=1',

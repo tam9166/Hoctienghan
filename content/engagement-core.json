@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "status": "approved",
+  "verified": true,
+  "updatedAt": "2026-09-13",
+  "xpPolicy": {
+    "meaning": "engagement-only",
+    "disclaimer": "Learning XP measures participation. It never replaces mastery, proficiency or TOPIK scores.",
+    "dailyCap": 300,
+    "rules": {
+      "lesson_completed": { "xp": 10, "referenceDailyLimit": 1 },
+      "vocabulary_practice": { "xp": 8, "referenceDailyLimit": 3 },
+      "srs_review": { "xp": 2, "referenceDailyLimit": 2 },
+      "listening_practice": { "xp": 12, "referenceDailyLimit": 3 },
+      "speaking_practice": { "xp": 15, "referenceDailyLimit": 3 },
+      "writing_practice": { "xp": 15, "referenceDailyLimit": 3 },
+      "grammar_practice": { "xp": 10, "referenceDailyLimit": 3 },
+      "topik_practice": { "xp": 20, "referenceDailyLimit": 3 },
+      "quick_practice": { "xp": 6, "referenceDailyLimit": 3 },
+      "mission_completed": { "xp": 20, "referenceDailyLimit": 1 },
+      "challenge_completed": { "xp": 40, "referenceDailyLimit": 1 },
+      "quest_completed": { "xp": 10, "referenceDailyLimit": 1 }
+    }
+  },
+  "scoreModel": {
+    "label": "TamHoanq Korean Score",
+    "minimumSkills": 4,
+    "minimumSamples": 6,
+    "weights": {
+      "vocabulary": 0.2,
+      "grammar": 0.2,
+      "listening": 0.18,
+      "reading": 0.18,
+      "speaking": 0.12,
+      "writing": 0.12
+    },
+    "disclaimer": "Score is calculated from learning evidence without AI judgment. Insufficient evidence is shown explicitly."
+  },
+  "questPolicy": {
+    "types": ["daily", "weekly", "monthly", "special"],
+    "rewardTypes": ["xp", "badge", "cosmetic", "streak_freeze"],
+    "fakeMasteryRewardAllowed": false
+  },
+  "practiceCenter": [
+    { "id": "mistakes", "icon": "🎯", "title": "Lỗi sai", "route": "error-notebook", "source": "Error Notebook" },
+    { "id": "vocabulary", "icon": "📚", "title": "Từ vựng", "route": "review", "source": "SRS" },
+    { "id": "grammar", "icon": "🧠", "title": "Grammar", "route": "grammar-compare", "source": "Grammar Practice" },
+    { "id": "listening", "icon": "🎧", "title": "Listening", "route": "listening-studio", "source": "Listening Studio" },
+    { "id": "speaking", "icon": "🎤", "title": "Speaking", "route": "speaking-room", "source": "Speaking Practice" },
+    { "id": "writing", "icon": "✍️", "title": "Writing", "route": "writing-hub", "source": "Writing Practice" },
+    { "id": "topik", "icon": "🔥", "title": "TOPIK", "route": "practice-hub", "source": "TOPIK Practice" },
+    { "id": "quick", "icon": "⏱", "title": "Quick Practice", "route": "engagement-practice", "source": "Adaptive + SRS + Error Notebook" }
+  ]
+}
