@@ -126,7 +126,7 @@ assert.match(appSource, /STORAGE_KEYS\.productUx/);
 assert.match(indexSource, /class="skip-link" href="#app"/);
 assert.match(indexSource, /product-ux\.css\?v=2/);
 assert.match(indexSource, /data\/product-ux\.js\?v=2/);
-assert.match(workerSource, /klearn-v94/);
+assert.match(workerSource, /klearn-v99/);
 assert.match(workerSource, /content\/product-ux\.json/);
 
 console.log('product UX: personalized segments, priorities, disclosure, smart search, actionable errors, short onboarding, accessibility and offline assets passed');

@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "updatedAt": "2026-09-15",
+  "supportiveCopy": {
+    "shortSession": "Chỉ 5 phút cũng đủ để giữ nhịp học hôm nay.",
+    "returning": "Chào mừng bạn quay lại. Mình tiếp tục từ một bước nhỏ, không cần học bù."
+  },
+  "missionTracks": [
+    {
+      "id": "beginner-introduction",
+      "level": "beginner",
+      "title": "Tự giới thiệu",
+      "scenarioId": "airport-check-in",
+      "goal": "Nói tên và điểm đến bằng câu ngắn, lịch sự."
+    },
+    {
+      "id": "intermediate-ordering",
+      "level": "intermediate",
+      "title": "Gọi món trọn lượt",
+      "scenarioId": "restaurant-order",
+      "goal": "Gọi món, thêm nước và xác nhận số lượng."
+    },
+    {
+      "id": "advanced-work-email",
+      "level": "advanced",
+      "title": "Email công việc",
+      "scenarioId": "office-email",
+      "goal": "Đề nghị đổi lịch bằng văn phong trang trọng."
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "airport-check-in",
+      "title": "Làm thủ tục ở sân bay",
+      "level": "beginner",
+      "goal": "Giới thiệu điểm đến và thông tin hành lý.",
+      "requiredSkills": ["speaking", "vocabulary"],
+      "context": "Nhân viên hỏi điểm đến và hành lý của bạn.",
+      "vocabulary": ["여권", "짐", "서울"],
+      "grammar": ["-에 가요", "-이에요/예요"],
+      "dialogue": "어디에 가세요?",
+      "speakingTask": "Nói điểm đến và cho biết bạn có một kiện hành lý.",
+      "modelAnswer": "서울에 가요. 짐은 하나예요.",
+      "keywords": ["서울", "가요", "짐"],
+      "grammarPatterns": ["에", "예요"]
+    },
+    {
+      "id": "restaurant-order",
+      "title": "Gọi món ở nhà hàng",
+      "level": "beginner",
+      "goal": "Gọi món, nước và số lượng một cách lịch sự.",
+      "requiredSkills": ["speaking", "grammar"],
+      "context": "Bạn muốn gọi một phần kimchi jjigae và nước.",
+      "vocabulary": ["김치찌개", "물", "하나"],
+      "grammar": ["-주세요"],
+      "dialogue": "주문하시겠어요?",
+      "speakingTask": "Gọi món và nước bằng cách nói lịch sự.",
+      "modelAnswer": "김치찌개 하나와 물 주세요.",
+      "keywords": ["김치찌개", "물", "주세요"],
+      "grammarPatterns": ["주세요"]
+    },
+    {
+      "id": "cafe-order",
+      "title": "Gọi đồ uống ở quán cà phê",
+      "level": "beginner",
+      "goal": "Gọi đồ uống và chọn hình thức mang đi.",
+      "requiredSkills": ["speaking", "vocabulary"],
+      "context": "Bạn gọi một americano lạnh mang đi.",
+      "vocabulary": ["아이스 아메리카노", "포장"],
+      "grammar": ["-으로 해 주세요"],
+      "dialogue": "뭐 드릴까요?",
+      "speakingTask": "Gọi đồ uống và nói bạn muốn mang đi.",
+      "modelAnswer": "아이스 아메리카노 하나 포장으로 해 주세요.",
+      "keywords": ["아이스", "아메리카노", "포장"],
+      "grammarPatterns": ["주세요"]
+    },
+    {
+      "id": "shopping-size",
+      "title": "Hỏi cỡ quần áo",
+      "level": "intermediate",
+      "goal": "Mô tả vấn đề và yêu cầu thử cỡ phù hợp.",
+      "requiredSkills": ["conversation", "grammar"],
+      "context": "Chiếc áo hơi nhỏ; bạn muốn thử cỡ lớn hơn.",
+      "vocabulary": ["크기", "큰 사이즈", "입어 보다"],
+      "grammar": ["-보다", "-을 수 있을까요"],
+      "dialogue": "사이즈가 괜찮으세요?",
+      "speakingTask": "Giải thích vấn đề và hỏi thử cỡ lớn hơn.",
+      "modelAnswer": "좀 작아요. 더 큰 사이즈를 입어 볼 수 있을까요?",
+      "keywords": ["작아요", "큰 사이즈", "입어"],
+      "grammarPatterns": ["볼 수 있을까요"]
+    },
+    {
+      "id": "hospital-symptoms",
+      "title": "Mô tả triệu chứng ở bệnh viện",
+      "level": "intermediate",
+      "goal": "Mô tả triệu chứng và thời điểm bắt đầu.",
+      "requiredSkills": ["speaking", "listening"],
+      "context": "Bạn bị đau đầu từ hôm qua và có sốt.",
+      "vocabulary": ["머리가 아프다", "열", "어제부터"],
+      "grammar": ["-부터", "-고 있어요"],
+      "dialogue": "어디가 불편하세요?",
+      "speakingTask": "Nói triệu chứng và thời điểm bắt đầu.",
+      "modelAnswer": "어제부터 머리가 아프고 열이 나요.",
+      "keywords": ["어제부터", "머리", "열"],
+      "grammarPatterns": ["부터", "고"]
+    },
+    {
+      "id": "interview-introduction",
+      "title": "Tự giới thiệu khi phỏng vấn",
+      "level": "advanced",
+      "goal": "Trình bày kinh nghiệm và điểm mạnh phù hợp công việc.",
+      "requiredSkills": ["speaking", "career-korean"],
+      "context": "Nhà tuyển dụng yêu cầu bạn giới thiệu kinh nghiệm và điểm mạnh.",
+      "vocabulary": ["경험", "강점", "협업"],
+      "grammar": ["-은/는 것입니다", "-도록 하겠습니다"],
+      "dialogue": "자기소개와 본인의 강점을 말씀해 주세요.",
+      "speakingTask": "Trình bày kinh nghiệm, một điểm mạnh và cách bạn đóng góp.",
+      "modelAnswer": "저는 3년간 팀 프로젝트를 경험했습니다. 제 강점은 협업하는 것입니다.",
+      "keywords": ["경험", "강점", "협업"],
+      "grammarPatterns": ["것입니다"]
+    },
+    {
+      "id": "office-email",
+      "title": "Viết email công việc",
+      "level": "advanced",
+      "goal": "Xin đổi lịch và yêu cầu xác nhận bằng văn phong trang trọng.",
+      "requiredSkills": ["writing", "formality"],
+      "context": "Bạn cần xin dời cuộc họp sang 3 giờ chiều và xin xác nhận.",
+      "vocabulary": ["회의", "연기하다", "확인"],
+      "grammar": ["-을 수 있을까요", "-부탁드립니다"],
+      "dialogue": "회의 시간 변경을 요청하는 메일을 작성하세요.",
+      "speakingTask": "Viết hoặc nói yêu cầu dời lịch một cách trang trọng.",
+      "modelAnswer": "안녕하세요. 회의를 오후 3시로 연기할 수 있을까요? 확인 부탁드립니다.",
+      "keywords": ["회의", "오후 3시", "확인"],
+      "grammarPatterns": ["을 수 있을까요", "부탁드립니다"]
+    }
+  ]
+}

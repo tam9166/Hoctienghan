@@ -80,10 +80,10 @@ function boot({ evidence = true } = {}) {
   assert.match(locales, /Bắt đầu đúng trình độ/);
   assert.match(locales, /Start at the right level/);
   assert.match(routes, /data\/product-growth\.js\?v=1/);
-  assert.match(routes, /routes\('home', \['growth'\]\)/);
-  assert.match(index, /app\.js\?v=80/);
-  assert.match(worker, /klearn-v94/);
-  assert.match(worker, /app\.js\?v=80/);
+  assert.match(routes, /routes\('home', \['growth', 'realUserRetentionCore'\]\)/);
+  assert.match(index, /app\.js\?v=81/);
+  assert.match(worker, /klearn-v99/);
+  assert.match(worker, /app\.js\?v=81/);
   assert.match(worker, /content\/product-growth\.json/);
   assert.match(migration, /product_growth_referral_codes/);
   assert.match(migration, /referrer_id <> referred_user_id/);

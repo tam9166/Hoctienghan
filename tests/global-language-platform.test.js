@@ -71,8 +71,8 @@ assert.deepEqual(content.levelSystems, { ko: 'TOPIK', ja: 'JLPT', zh: 'HSK', en:
   assert.match(appSource, /STORAGE_KEYS\.languageProfiles/);
   assert.match(indexSource, /global-language-platform\.css\?v=1/);
   assert.match(indexSource, /data\/global-language-platform\.js\?v=2/);
-  assert.match(indexSource, /app\.js\?v=80/);
-assert.match(workerSource, /klearn-v94/);
+  assert.match(indexSource, /app\.js\?v=81/);
+assert.match(workerSource, /klearn-v99/);
   assert.match(workerSource, /global-language-platform\.json/);
   assert.match(migration, /language_profiles/);
   assert.match(migration, /auth\.uid\(\)/);
