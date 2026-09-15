@@ -109,19 +109,24 @@ assert.equal(beginner.window.document.documentElement.dataset.contrast, 'high');
 assert.equal(beginner.window.document.documentElement.dataset.reduceMotion, 'true');
 assert.equal(beginner.values.get('product-ux')['ux-user'][0].fontScale, 'large');
 
-for (const route of ['home', 'command-center', 'search', 'ux-settings', 'onboarding-goals', 'onboarding-level']) assert.equal(typeof beginner.window.KLEARN_EXTRA_VIEWS[route], 'function', `${route} is registered`);
-assert.match(beginner.window.KLEARN_EXTRA_VIEWS.home(), /Tiếp tục Hangul/);
+for (const route of ['home', 'command-center', 'search', 'ux-settings', 'onboarding-goals', 'onboarding-level', 'onboarding-time']) assert.equal(typeof beginner.window.KLEARN_EXTRA_VIEWS[route], 'function', `${route} is registered`);
+assert.match(beginner.window.KLEARN_EXTRA_VIEWS.home(), /Nguyên âm cơ bản/);
 assert.doesNotMatch(beginner.window.KLEARN_EXTRA_VIEWS.home(), /TOPIK Analytics/);
-assert.match(beginner.window.KLEARN_EXTRA_VIEWS['onboarding-goals'](), /1 \/ 2/);
-assert.match(beginner.window.KLEARN_EXTRA_VIEWS['onboarding-level'](), /2 \/ 2/);
+assert.match(beginner.window.KLEARN_EXTRA_VIEWS['onboarding-goals'](), /1 \/ 3/);
+assert.match(beginner.window.KLEARN_EXTRA_VIEWS['onboarding-level'](), /2 \/ 3/);
+assert.match(beginner.window.KLEARN_EXTRA_VIEWS['onboarding-time'](), /3 \/ 3/);
 assert.doesNotMatch(beginner.window.KLEARN_EXTRA_VIEWS['onboarding-level'](), /placement test/i);
+assert.equal(content.onboarding.goals.length, 5);
+assert.equal(content.onboarding.levels.length, 3);
+assert.deepEqual(content.onboarding.minutes, [5, 15, 30]);
+assert.equal(content.onboarding.beginnerJourney.length, 7);
 
 assert.match(appSource, /productUx: 'klearn_product_ux'/);
 assert.match(appSource, /STORAGE_KEYS\.productUx/);
 assert.match(indexSource, /class="skip-link" href="#app"/);
-assert.match(indexSource, /product-ux\.css\?v=1/);
-assert.match(indexSource, /data\/product-ux\.js\?v=1/);
-assert.match(workerSource, /klearn-v93/);
+assert.match(indexSource, /product-ux\.css\?v=2/);
+assert.match(indexSource, /data\/product-ux\.js\?v=2/);
+assert.match(workerSource, /klearn-v94/);
 assert.match(workerSource, /content\/product-ux\.json/);
 
 console.log('product UX: personalized segments, priorities, disclosure, smart search, actionable errors, short onboarding, accessibility and offline assets passed');

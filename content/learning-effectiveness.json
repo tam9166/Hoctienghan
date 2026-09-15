@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "status": "approved",
+  "verified": true,
+  "updatedAt": "2026-09-15",
+  "source": "TamHoanq authored Vietnamese-first curriculum",
+  "vietnameseAdvantage": [
+    { "id": "sound-eo-o", "type": "pronunciation", "focus": "ㅓ vs ㅗ", "problem": "Người Việt dễ tròn môi khi đọc ㅓ khiến âm gần ㅗ.", "repair": "Giữ môi tự nhiên khi đọc ㅓ; tròn môi rõ hơn khi đọc ㅗ.", "example": "서 / 소", "route": "pronunciation-lab-vn" },
+    { "id": "sound-eu", "type": "pronunciation", "focus": "ㅡ", "problem": "Dễ thêm âm ư tiếng Việt hoặc chu môi thành ㅜ.", "repair": "Kéo ngang khóe môi, giữ lưỡi giữa và không thêm âm cuối.", "example": "그 / 구", "route": "pronunciation-lab-vn" },
+    { "id": "sound-rieul", "type": "pronunciation", "focus": "ㄹ", "problem": "Dễ giữ âm quá lâu như l hoặc rung mạnh như r tiếng Việt.", "repair": "Chạm đầu lưỡi nhanh vào lợi trên rồi thả.", "example": "라면", "route": "pronunciation-lab-vn" },
+    { "id": "grammar-topic", "type": "grammar", "focus": "은/는 và 이/가", "problem": "Dịch trực tiếp từ tiếng Việt làm mất vai trò chủ đề và thông tin mới.", "repair": "은/는 đặt chủ đề hoặc đối chiếu; 이/가 nhấn người/vật thực hiện hay thông tin mới.", "example": "저는 학생이에요. 누가 와요? 민수가 와요.", "route": "grammar-mastery" },
+    { "id": "grammar-object", "type": "grammar", "focus": "을/를", "problem": "Tiếng Việt không biến đổi danh từ theo 받침 nên dễ chọn sai dạng.", "repair": "Có 받침 dùng 을; không có 받침 dùng 를.", "example": "밥을 먹어요. 커피를 마셔요.", "route": "grammar-mastery" },
+    { "id": "vocab-wear", "type": "vocabulary", "focus": "입다 / 쓰다 / 신다", "problem": "Tiếng Việt dùng một động từ “mặc/đeo”, còn tiếng Hàn chọn theo đồ vật.", "repair": "입다 cho quần áo, 쓰다 cho mũ/kính, 신다 cho giày/tất.", "example": "옷을 입다 · 모자를 쓰다 · 신발을 신다", "route": "word-life" }
+  ],
+  "wordLife": [
+    { "id": "eat", "korean": "먹다", "meaning": "ăn", "example": "저는 김치찌개를 먹어요.", "related": ["음식", "식당", "맛있다"], "commonMistake": "먹다 là dạng từ điển; trong hội thoại lịch sự không nói 저는 먹다.", "pattern": "N을/를 먹다", "realUsage": "먹어요 · 먹었습니다 · 먹고 싶어요", "situation": "Gọi món, kể bữa ăn hoặc nói món muốn ăn." },
+    { "id": "go", "korean": "가다", "meaning": "đi", "example": "학교에 가요.", "related": ["오다", "집", "학교"], "commonMistake": "Không dùng 학교를 가요 khi 학교 là nơi đến.", "pattern": "N에 가다", "realUsage": "가요 · 갔어요 · 가고 싶어요", "situation": "Nói điểm đến hoặc kế hoạch di chuyển." },
+    { "id": "wear", "korean": "입다", "meaning": "mặc", "example": "오늘 셔츠를 입어요.", "related": ["옷", "바지", "벗다"], "commonMistake": "Không dùng 입다 cho giày hoặc mũ.", "pattern": "옷을/를 입다", "realUsage": "입어요 · 입었어요 · 입어 보세요", "situation": "Mua sắm, miêu tả trang phục." },
+    { "id": "study", "korean": "공부하다", "meaning": "học", "example": "도서관에서 한국어를 공부해요.", "related": ["학생", "학교", "시험"], "commonMistake": "Địa điểm diễn ra hành động dùng 에서, không dùng 에.", "pattern": "N에서 N을/를 공부하다", "realUsage": "공부해요 · 공부했어요 · 공부해야 해요", "situation": "Nói nơi học, môn học hoặc kế hoạch ôn thi." },
+    { "id": "know", "korean": "알다", "meaning": "biết", "example": "그 사람을 알아요.", "related": ["모르다", "이해하다", "정보"], "commonMistake": "알아요 là biết; 이해해요 là hiểu nội dung.", "pattern": "N을/를 알다", "realUsage": "알아요 · 알고 있어요 · 잘 모르겠어요", "situation": "Xác nhận mình biết người, địa điểm hoặc thông tin." }
+  ],
+  "listeningJourney": [
+    { "id": "sound", "order": 1, "title": "Âm thanh", "outcome": "Phân biệt âm dễ nhầm", "route": "pronunciation-lab-vn", "minimumEvidence": 1 },
+    { "id": "word", "order": 2, "title": "Từ", "outcome": "Nghe và nhận ra từ quen", "route": "active-recall-lab", "minimumEvidence": 3 },
+    { "id": "sentence", "order": 3, "title": "Câu", "outcome": "Nghe câu ngắn ở tốc độ chậm", "route": "listening-studio", "minimumEvidence": 5 },
+    { "id": "dialogue", "order": 4, "title": "Hội thoại", "outcome": "Theo được lượt hỏi và trả lời", "route": "media-learning-real", "minimumEvidence": 8 },
+    { "id": "native-speed", "order": 5, "title": "Tốc độ tự nhiên", "outcome": "Shadowing câu hoàn chỉnh", "route": "real-shadowing-lab", "minimumEvidence": 12 }
+  ],
+  "activeRecallModes": [
+    { "id": "vi-ko", "label": "Việt → Hàn", "instruction": "Tự nhớ từ tiếng Hàn trước khi kiểm tra." },
+    { "id": "listen-write", "label": "Nghe → viết", "instruction": "Nghe từ rồi nhập đúng Hangul." },
+    { "id": "listen-speak", "label": "Nghe → nói", "instruction": "Nghe và nói lại; có thể nhập khi micro không hỗ trợ." },
+    { "id": "look-speak", "label": "Nhìn → nói", "instruction": "Nhìn nghĩa rồi nói từ tiếng Hàn." }
+  ],
+  "course": {
+    "id": "beginner-zero-topik-1",
+    "title": "Korean Beginner Zero → TOPIK 1",
+    "chapters": [
+      { "id": "hangul", "title": "Đọc và viết Hangul", "route": "foundation", "lessonCount": 7, "checkpoint": "Beginner Checkpoint" },
+      { "id": "first-words", "title": "100 từ đầu tiên", "route": "first-words", "lessonCount": 10, "checkpoint": "Active Recall Checkpoint" },
+      { "id": "first-sentences", "title": "Câu giao tiếp đầu tiên", "route": "first-sentence", "lessonCount": 8, "checkpoint": "Real Usage Checkpoint" },
+      { "id": "topik-one", "title": "Nền tảng TOPIK 1", "route": "lessons", "lessonCount": 12, "checkpoint": "TOPIK 1 Readiness" }
+    ],
+    "certificateCriteria": { "foundationCheckpoint": 70, "completedLessons": 20, "activeRecallAccuracy": 70 }
+  }
+}

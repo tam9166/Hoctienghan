@@ -1,8 +1,8 @@
 {
-  "contentVersion": 1,
+  "contentVersion": 2,
   "verified": true,
   "reviewStatus": "approved",
-  "updatedAt": "2026-09-06",
+  "updatedAt": "2026-09-15",
   "segments": {
     "beginner": {
       "label": { "vi": "Nhập môn", "en": "Beginner", "zh-CN": "入门" },
@@ -50,20 +50,27 @@
   ],
   "onboarding": {
     "goals": [
-      { "id": "study", "icon": "🎓", "label": { "vi": "Du học", "en": "Study abroad", "zh-CN": "留学" } },
-      { "id": "work", "icon": "💼", "label": { "vi": "Làm việc", "en": "Work", "zh-CN": "工作" } },
-      { "id": "eps", "icon": "🏭", "label": { "vi": "EPS / XKLĐ", "en": "EPS / Employment", "zh-CN": "EPS / 就业" } },
       { "id": "topik", "icon": "🏆", "label": { "vi": "Thi TOPIK", "en": "TOPIK exam", "zh-CN": "TOPIK 考试" } },
-      { "id": "hobby", "icon": "♥", "label": { "vi": "Sở thích", "en": "Personal interest", "zh-CN": "兴趣" } },
-      { "id": "living", "icon": "⌂", "label": { "vi": "Sống tại Hàn", "en": "Live in Korea", "zh-CN": "在韩国生活" } }
+      { "id": "conversation", "icon": "💬", "label": { "vi": "Giao tiếp", "en": "Conversation", "zh-CN": "会话" } },
+      { "id": "study", "icon": "🎓", "label": { "vi": "Du học", "en": "Study abroad", "zh-CN": "留学" } },
+      { "id": "work", "icon": "💼", "label": { "vi": "Công việc", "en": "Work", "zh-CN": "工作" } },
+      { "id": "travel", "icon": "✈", "label": { "vi": "Du lịch", "en": "Travel", "zh-CN": "旅行" } }
     ],
     "levels": [
       { "id": "foundation-unknown", "label": { "vi": "Chưa biết chữ Hàn", "en": "New to Hangul", "zh-CN": "尚未学习韩文" }, "level": "Level 0", "track": "foundation", "entry": "hangul-academy" },
-      { "id": "foundation-reading", "label": { "vi": "Biết Hangul, đọc chậm", "en": "Know Hangul, read slowly", "zh-CN": "认识韩文但阅读较慢" }, "level": "Beginner Reading", "track": "foundation", "entry": "reading-first" },
-      { "id": "beginner", "label": { "vi": "Biết một số từ", "en": "Know some words", "zh-CN": "认识一些词汇" }, "level": "Beginner", "track": "topik", "entry": "lessons" },
-      { "id": "topik", "label": { "vi": "Đã học TOPIK", "en": "Have studied TOPIK", "zh-CN": "学过 TOPIK" }, "level": "TOPIK I", "track": "topik", "entry": "practice-hub" }
+      { "id": "foundation-reading", "label": { "vi": "Biết Hangul", "en": "I know Hangul", "zh-CN": "认识韩文" }, "level": "Beginner Reading", "track": "foundation", "entry": "reading-first" },
+      { "id": "beginner", "label": { "vi": "Đã học cơ bản", "en": "I know the basics", "zh-CN": "学过基础内容" }, "level": "Beginner", "track": "topik", "entry": "lessons" }
     ],
-    "minutes": [5, 15, 30, 60]
+    "minutes": [5, 15, 30],
+    "beginnerJourney": [
+      { "day": 1, "title": { "vi": "Nguyên âm cơ bản", "en": "Basic vowels", "zh-CN": "基础元音" }, "outcome": { "vi": "Đọc được 5 nguyên âm đầu tiên", "en": "Read your first 5 vowels", "zh-CN": "读出前 5 个元音" }, "route": "hangul-academy", "criterion": "vowels", "target": 5 },
+      { "day": 2, "title": { "vi": "Phụ âm cơ bản", "en": "Basic consonants", "zh-CN": "基础辅音" }, "outcome": { "vi": "Nhận ra 5 phụ âm", "en": "Recognize 5 consonants", "zh-CN": "识别 5 个辅音" }, "route": "hangul-academy", "criterion": "consonants", "target": 5 },
+      { "day": 3, "title": { "vi": "Ghép âm tiết", "en": "Build syllables", "zh-CN": "拼读音节" }, "outcome": { "vi": "Tự ghép âm tiết đầu tiên", "en": "Build your first syllable", "zh-CN": "拼出第一个音节" }, "route": "syllable-builder", "criterion": "activity", "target": "syllable-ga" },
+      { "day": 4, "title": { "vi": "Batchim cơ bản", "en": "Basic batchim", "zh-CN": "基础收音" }, "outcome": { "vi": "Đọc phụ âm cuối cơ bản", "en": "Read a basic final consonant", "zh-CN": "读出基础收音" }, "route": "batchim-academy", "criterion": "activity-prefix", "target": "batchim-" },
+      { "day": 5, "title": { "vi": "Đọc từ đơn giản", "en": "Read simple words", "zh-CN": "阅读简单单词" }, "outcome": { "vi": "Đọc từ trước khi xem nghĩa", "en": "Read before revealing meaning", "zh-CN": "先读再看意思" }, "route": "reading-first", "criterion": "activity", "target": "reading-first" },
+      { "day": 6, "title": { "vi": "Ôn lại và luyện viết", "en": "Review and write", "zh-CN": "复习与书写" }, "outcome": { "vi": "Viết lại âm tiết đã học", "en": "Write a learned syllable", "zh-CN": "书写学过的音节" }, "route": "handwriting", "criterion": "handwriting", "target": 1 },
+      { "day": 7, "title": { "vi": "Câu đầu tiên", "en": "Your first sentence", "zh-CN": "第一句话" }, "outcome": { "vi": "Hiểu câu chào hỏi đầu tiên", "en": "Understand your first greeting", "zh-CN": "理解第一句问候" }, "route": "first-sentence", "criterion": "activity", "target": "first-sentence" }
+    ]
   },
   "errors": {
     "network": { "cause": { "vi": "Kết nối mạng hoặc dịch vụ cloud đang gián đoạn.", "en": "The network or cloud service is unavailable.", "zh-CN": "网络或云服务暂时不可用。" }, "resolution": { "vi": "Dữ liệu local vẫn an toàn. Kiểm tra mạng rồi thử lại.", "en": "Local data is safe. Check your connection and retry.", "zh-CN": "本地数据安全。请检查网络后重试。" }, "action": "retry" },

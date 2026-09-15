@@ -9,6 +9,7 @@ const STORAGE_KEYS = Object.freeze({
   microLearning: 'klearn_micro_learning',
   immersiveSpoken: 'klearn_immersive_spoken',
   socialEngagement: 'klearn_social_engagement',
+  learningEffectiveness: 'klearn_learning_effectiveness',
   realKoreanExperience: 'klearn_real_korean_experience',
   contentScience: 'klearn_content_science',
   session: 'klearn_session',
@@ -268,8 +269,9 @@ MAIN_VIEWS.push('micro-path', 'character-room', 'character-detail', 'korean-adve
 MAIN_VIEWS.push('immersive-content', 'korean-stories', 'story-episode', 'korean-radio', 'radio-episode', 'spoken-exercises', 'speaking-flashcards', 'spoken-shadowing');
 MAIN_VIEWS.push('social-engagement', 'korean-league', 'friend-quests', 'social-challenges', 'side-quests', 'social-privacy');
 MAIN_VIEWS.push('learning-score-explanation', 'xp-explanation', 'progress-explanation', 'engagement-balance');
+MAIN_VIEWS.push('learning-effectiveness', 'vietnamese-learning-assistant', 'word-life', 'learning-health-report', 'improvement-plan', 'listening-journey', 'active-recall-lab', 'complete-course');
 const PUBLIC_VIEWS = ['welcome', 'login', 'register', 'demo'];
-const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'beginner-placement', 'placement', 'onboarding-result'];
+const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'onboarding-time', 'beginner-placement', 'placement', 'onboarding-result'];
 
 function escapeHtml(value = '') {
   return String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
@@ -1226,7 +1228,7 @@ async function submitContentReport({ contentId, contentType, reportType = 'other
 }
 
 const USER_SYNC_KEYS = Object.freeze([
-  STORAGE_KEYS.conversationHistory, STORAGE_KEYS.realKoreanExperience, STORAGE_KEYS.contentScience, STORAGE_KEYS.engagement, STORAGE_KEYS.microLearning, STORAGE_KEYS.immersiveSpoken, STORAGE_KEYS.socialEngagement, STORAGE_KEYS.globalEducationMarketplace,
+  STORAGE_KEYS.conversationHistory, STORAGE_KEYS.realKoreanExperience, STORAGE_KEYS.contentScience, STORAGE_KEYS.engagement, STORAGE_KEYS.microLearning, STORAGE_KEYS.immersiveSpoken, STORAGE_KEYS.socialEngagement, STORAGE_KEYS.learningEffectiveness, STORAGE_KEYS.globalEducationMarketplace,
   STORAGE_KEYS.readingExpansion, STORAGE_KEYS.immersiveWorld, STORAGE_KEYS.ecosystemExpansion, STORAGE_KEYS.careerLearning, STORAGE_KEYS.voiceLearning,
   STORAGE_KEYS.realGoalPlans, STORAGE_KEYS.learningJournal, STORAGE_KEYS.teacherFeedback, STORAGE_KEYS.manualReviewQueue, STORAGE_KEYS.teacherWorkspace, STORAGE_KEYS.educationPlatform, STORAGE_KEYS.communityProgress, STORAGE_KEYS.enterprisePlatform, STORAGE_KEYS.monetization, STORAGE_KEYS.productGrowth, STORAGE_KEYS.futureLanguage, STORAGE_KEYS.productUx, STORAGE_KEYS.retention, STORAGE_KEYS.research, STORAGE_KEYS.analyticsReports, STORAGE_KEYS.premiumLearning,
   STORAGE_KEYS.progress, STORAGE_KEYS.srs, STORAGE_KEYS.settings, STORAGE_KEYS.practice, STORAGE_KEYS.practiceHistory,
@@ -1249,6 +1251,7 @@ const CLOUD_SYNC_ARRAY_LIMITS = Object.freeze({
   [STORAGE_KEYS.microLearning]: 1,
   [STORAGE_KEYS.immersiveSpoken]: 1,
   [STORAGE_KEYS.socialEngagement]: 1,
+  [STORAGE_KEYS.learningEffectiveness]: 400,
   [STORAGE_KEYS.productionTelemetry]: 200,
   klearn_ai_conversations: 20
 });
@@ -1385,7 +1388,10 @@ const CloudSyncService = {
     const latest = new Date(right.updatedAt || 0) >= new Date(left.updatedAt || 0) ? right : left;
     return [{ schemaVersion: 1, profile: { nickname: 'Học viên', leaderboardVisible: false, profileVisible: false, ...(latest.profile || {}) }, friendQuests: union('friendQuests', 50), challengeJoins: union('challengeJoins', 36), sideQuestRuns: union('sideQuestRuns', 100), rewards: union('rewards', 200), mutes: [...new Set([...(left.mutes || []), ...(right.mutes || [])])].slice(0, 200), syncQueue: union('syncQueue', 300), updatedAt: latest.updatedAt || null }];
   },
-  mergeDomain(key, local, remote) { if (key === STORAGE_KEYS.srs) return this.mergeSrs(local, remote); if (key === STORAGE_KEYS.progress) return this.mergeProgress(local, remote); if (key === STORAGE_KEYS.languageLearningState) return this.mergeLanguageLearningState(local, remote); if (key === STORAGE_KEYS.engagement) return this.mergeEngagement(local, remote); if (key === STORAGE_KEYS.microLearning) return this.mergeMicroLearning(local, remote); if (key === STORAGE_KEYS.immersiveSpoken) return this.mergeImmersiveSpoken(local, remote); if (key === STORAGE_KEYS.socialEngagement) return this.mergeSocialEngagement(local, remote); return this.mergeValue(local, remote); },
+  mergeLearningEffectiveness(local = [], remote = []) {
+    const map = new Map(); [...(Array.isArray(local) ? local : []), ...(Array.isArray(remote) ? remote : [])].forEach((item) => { if (!item?.id) return; const previous = map.get(item.id); if (!previous || new Date(item.updatedAt || item.createdAt || 0) >= new Date(previous.updatedAt || previous.createdAt || 0)) map.set(item.id, item); }); return [...map.values()].sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0)).slice(0, 400);
+  },
+  mergeDomain(key, local, remote) { if (key === STORAGE_KEYS.srs) return this.mergeSrs(local, remote); if (key === STORAGE_KEYS.progress) return this.mergeProgress(local, remote); if (key === STORAGE_KEYS.languageLearningState) return this.mergeLanguageLearningState(local, remote); if (key === STORAGE_KEYS.engagement) return this.mergeEngagement(local, remote); if (key === STORAGE_KEYS.microLearning) return this.mergeMicroLearning(local, remote); if (key === STORAGE_KEYS.immersiveSpoken) return this.mergeImmersiveSpoken(local, remote); if (key === STORAGE_KEYS.socialEngagement) return this.mergeSocialEngagement(local, remote); if (key === STORAGE_KEYS.learningEffectiveness) return this.mergeLearningEffectiveness(local, remote); return this.mergeValue(local, remote); },
   mergeSnapshot(remote) {
     if (!remote?.data || !state.currentUser) return;
     const allKeys = new Set(USER_SYNC_KEYS); allKeys.forEach((key) => { const all = storage.get(key, {}); if (key === STORAGE_KEYS.settings) { const safeSettings = all && typeof all === 'object' && !Array.isArray(all) ? { ...all, users: { ...(all.users || {}) } } : { users: {} }; safeSettings.users[state.currentUser.id] = this.mergeDomain(key, safeSettings.users[state.currentUser.id], remote.data[key]); storage.set(key, safeSettings); return; } const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; safe[state.currentUser.id] = this.mergeDomain(key, safe[state.currentUser.id], remote.data[key]); storage.set(key, safe); });
@@ -1641,7 +1647,7 @@ const VocabularyService = {
 // Authentication and onboarding service
 // ============================================================
 const auth = {
-  async register({ fullName, email, password }) {
+  async register({ fullName, email, password, skipHydrate = false }) {
     const users = getUsers();
     if (users.some((user) => user?.email === email)) throw new Error('Email này đã được đăng ký.');
     const now = new Date().toISOString();
@@ -1656,7 +1662,7 @@ const auth = {
     storage.set(STORAGE_KEYS.session, createSessionRecord(user.id, {}, new Date(now)));
     state.currentUser = user;
     syncUserData();
-    await CloudSyncService.hydrate();
+    if (!skipHydrate) await CloudSyncService.hydrate();
     return user;
   },
   async login(email, password) {
@@ -1735,7 +1741,10 @@ const CloudAccountService = {
     if (!local) local = getUsers().find((item) => item.cloudUserId === cloudUser.id) || null;
     if (!local) {
       const sameEmailLegacy = getUsers().find((item) => normalizeEmail(item.email) === normalizeEmail(cloudUser.email) && !item.cloudUserId);
-      if (sameEmailLegacy) throw new Error('Thiết bị có dữ liệu local cùng email. Hãy đăng nhập local trước và chủ động kết nối cloud để tránh gộp nhầm.');
+      if (sameEmailLegacy && explicitLink) local = sameEmailLegacy;
+      else if (sameEmailLegacy) throw new Error('Chúng tôi tìm thấy tiến trình trước đây. Hãy đăng nhập để tiếp tục mà không mất dữ liệu.');
+    }
+    if (!local) {
       const now = new Date().toISOString();
       local = normalizeUser({ id: `cloud-${cloudUser.id}`, cloudUserId: cloudUser.id, cloudEmail: cloudUser.email, fullName: cloudUser.user_metadata?.full_name || cloudUser.email?.split('@')[0] || 'Người học', email: cloudUser.email || '', avatar: 'TH', goals: [], level: 'Beginner', currentTopikLevel: 1, targetTopikLevel: 2, onboardingCompleted: false, onboardingStep: 'goals', createdAt: now, updatedAt: now });
       saveUsers([...getUsers(), local]); initializeUserData(local.id);
@@ -1747,6 +1756,19 @@ const CloudAccountService = {
   },
   async signIn(email, password, explicitLink = false) { state.cloudAuthBusy = true; state.cloudAuthMessage = ''; try { const data = await window.AuthService.signIn(email, password); try { const link = await this.attachCloudUser(data.user, { explicitLink }); state.cloudAuthMessage = link.syncSucceeded ? 'Đã kết nối cloud và đồng bộ dữ liệu.' : 'Đã kết nối cloud. Đồng bộ chưa hoàn tất; dữ liệu local vẫn an toàn.'; return { ...data, syncSucceeded: link.syncSucceeded }; } catch (error) { await window.AuthService.signOut().catch(() => {}); state.cloudUser = null; throw error; } } finally { state.cloudAuthBusy = false; } },
   async signUp(email, password, explicitLink = false) { state.cloudAuthBusy = true; state.cloudAuthMessage = ''; try { const result = await window.AuthService.signUp(email, password); if (result.confirmationRequired) { state.cloudAuthMessage = 'Hãy mở email xác nhận Supabase rồi quay lại đăng nhập cloud.'; return result; } if (result.user) { try { const link = await this.attachCloudUser(result.user, { explicitLink }); result.syncSucceeded = link.syncSucceeded; } catch (error) { await window.AuthService.signOut().catch(() => {}); state.cloudUser = null; throw error; } } state.cloudAuthMessage = result.syncSucceeded ? 'Tài khoản cloud đã được tạo, liên kết và đồng bộ.' : 'Tài khoản cloud đã được liên kết. Đồng bộ chưa hoàn tất; dữ liệu local vẫn an toàn.'; return result; } finally { state.cloudAuthBusy = false; } },
+  async createDefaultAccount({ fullName, email, password }) {
+    if (getUsers().some((item) => normalizeEmail(item?.email) === normalizeEmail(email))) { const error = new Error('Chúng tôi tìm thấy tiến trình học trước đây. Hãy chọn tiếp tục tiến trình.'); error.code = 'EXISTING_PROGRESS'; throw error; }
+    let remote = null; let protectionPending = false;
+    try { remote = await window.AuthService?.signUp?.(email, password); }
+    catch (error) {
+      if (/already|đã có tài khoản|registered/i.test(String(error?.message || ''))) throw new Error('Email này đã có tài khoản. Hãy đăng nhập để tiếp tục.');
+      protectionPending = true;
+    }
+    const local = await auth.register({ fullName, email, password, skipHydrate: true });
+    if (remote?.user && !remote.confirmationRequired) await this.attachCloudUser(remote.user, { explicitLink: true });
+    updateCurrentUser({ accountProtectionStatus: remote?.confirmationRequired ? 'confirmation-pending' : protectionPending ? 'retry-pending' : 'protected' });
+    return { user: state.currentUser || local, confirmationRequired: Boolean(remote?.confirmationRequired), protectionPending };
+  },
   async signOut() { await window.AuthService?.signOut?.(); state.cloudUser = null; CloudSyncService.provider = null; CloudSyncService.setStatus('local'); state.cloudAuthMessage = 'Đã ngắt cloud. Dữ liệu local vẫn được giữ nguyên.'; render(); },
   async restore() { const session = await window.AuthService?.getSession?.(); const cloudUser = session?.user; state.cloudUser = cloudUser ? { id: cloudUser.id, email: cloudUser.email || '' } : null; if (!cloudUser) return; const linked = getUsers().find((item) => item.cloudUserId === cloudUser.id); if (linked && (!state.currentUser || state.currentUser.id === linked.id)) await this.attachCloudUser(cloudUser); else if (state.currentUser?.cloudUserId === cloudUser.id) await CloudSyncService.hydrate(); }
 };
@@ -1755,6 +1777,7 @@ window.CloudAccountService = CloudAccountService;
 function onboardingViewFor(user) {
   const step = user?.onboardingStep || 'goals';
   if (step === 'level') return 'onboarding-level';
+  if (step === 'time') return 'onboarding-time';
   if (step === 'beginner-placement') return 'beginner-placement';
   if (step === 'placement') return 'placement';
   if (step === 'result') return 'onboarding-result';
@@ -1852,18 +1875,32 @@ function welcomeView() {
   </section>`;
 }
 
+function existingLearningSummary() {
+  const progressByUser = storage.get(STORAGE_KEYS.progress, {}); const srsByUser = storage.get(STORAGE_KEYS.srs, {});
+  const candidates = getUsers().map((user) => {
+    const progress = progressByUser?.[user.id] || {}; const foundation = progress.foundation || {}; const cards = Array.isArray(srsByUser?.[user.id]) ? srsByUser[user.id] : [];
+    const lessons = Number(progress.stats?.lessonsCompleted || 0); const characters = Array.isArray(foundation.learnedCharacters) ? foundation.learnedCharacters.length : 0; const learnedWords = cards.filter((card) => card.status !== SRS_STATES.NOT_STARTED || Number(card.reviewCount) > 0).length;
+    const hasProgress = user.onboardingCompleted === true || lessons > 0 || characters > 0 || learnedWords > 0;
+    return { user, lessons, characters, learnedWords, hasProgress, updatedAt: user.updatedAt || user.createdAt || '' };
+  }).filter((item) => item.hasProgress).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+  if (!candidates.length) return null;
+  const latest = candidates[0]; return { count: candidates.length, lessons: latest.lessons, characters: latest.characters, learnedWords: latest.learnedWords };
+}
+
 function registerView() {
+  const previous = state.dismissedProgressRecovery ? null : existingLearningSummary();
   return `<section class="auth-page"><button class="back-link" data-view="welcome" aria-label="Quay lại">←</button><div class="auth-branding"><span class="brand-mark brand-mark-compact" aria-label="Logo Tiếng Hàn - TamHoanq">TH</span><span>Tiếng Hàn - TamHoanq</span></div><p class="eyebrow">Tạo tài khoản học viên</p>
     <h1 class="headline">${I18nService.t('auth.register')}</h1><p class="subtle">${I18nService.t('auth.registerSubtitle')}</p>
+    ${previous ? `<aside class="progress-recovery" role="status"><strong>Chúng tôi tìm thấy tiến trình học trước đây.</strong><p>${previous.characters} ký tự · ${previous.learnedWords} từ · ${previous.lessons} bài đã học vẫn được giữ nguyên.</p><div><button class="btn primary" type="button" id="continueExistingProgress">Tiếp tục tiến trình</button><button class="btn secondary" type="button" id="startNewProgress">Bắt đầu mới</button></div></aside>` : ''}
     <form id="registerForm" class="auth-form" novalidate>
       <label>Họ tên<input name="fullName" type="text" autocomplete="name" maxlength="80" placeholder="Nguyễn Minh Anh" /></label>
       <label>Email<input name="email" type="email" autocomplete="email" inputmode="email" placeholder="ban@example.com" /></label>
       <label>Mật khẩu<input name="password" type="password" autocomplete="new-password" minlength="6" placeholder="Ít nhất 6 ký tự" /></label>
       <label>Xác nhận mật khẩu<input name="confirmPassword" type="password" autocomplete="new-password" minlength="6" placeholder="Nhập lại mật khẩu" /></label>
-      <p id="formError" class="form-error hidden" role="alert"></p><button class="btn primary full" type="submit">Đăng ký local</button><button class="btn secondary full" type="button" id="cloudRegisterButton">☁ Đăng ký cloud</button>
+      <p id="formError" class="form-error hidden" role="alert"></p><button class="btn primary full" type="submit">Tạo tài khoản</button>
     </form>
     <p class="auth-switch">Đã có tài khoản? <button class="text-button" data-view="login">Đăng nhập</button></p>
-    <p class="security-note">MVP này lưu tài khoản trên thiết bị. Không sử dụng lại mật khẩu quan trọng của bạn.</p>${renderThemeControl(true)}
+    <p class="security-note">Tiến trình được bảo vệ và có thể tiếp tục khi bạn đổi thiết bị. Nếu đang ngoại tuyến, bạn vẫn có thể bắt đầu học.</p>${renderThemeControl(true)}
   </section>`;
 }
 
@@ -1873,7 +1910,7 @@ function loginView() {
     <form id="loginForm" class="auth-form" novalidate>
       <label>Email<input name="email" type="email" autocomplete="email" inputmode="email" placeholder="ban@example.com" /></label>
       <label>Mật khẩu<input name="password" type="password" autocomplete="current-password" placeholder="Mật khẩu" /></label>
-      <p id="formError" class="form-error hidden" role="alert"></p><button class="btn primary full" type="submit">Đăng nhập local</button><button class="btn secondary full" type="button" id="cloudLoginButton">☁ Đăng nhập cloud</button>
+      <p id="formError" class="form-error hidden" role="alert"></p><button class="btn primary full" type="submit">Đăng nhập</button>
     </form>
     <button class="text-button forgot-button" id="forgotPassword">Quên mật khẩu?</button>
     <p class="auth-switch">Chưa có tài khoản? <button class="text-button" data-view="register">Đăng ký</button></p><button class="btn secondary full" data-view="demo">Dùng tài khoản demo</button>${renderThemeControl(true)}
@@ -2755,13 +2792,15 @@ function bindEvents() {
   document.querySelectorAll('[data-question-romanization]').forEach((button) => { button.onclick = () => { const id = button.dataset.questionRomanization; state.questionRomanization[id] = !(state.questionRomanization[id] ?? showRomanizationEnabled()); render(); }; });
   const registerForm = document.getElementById('registerForm'); if (registerForm) registerForm.onsubmit = handleRegister;
   const loginForm = document.getElementById('loginForm'); if (loginForm) loginForm.onsubmit = handleLogin;
+  const continueExistingProgress = document.getElementById('continueExistingProgress'); if (continueExistingProgress) continueExistingProgress.onclick = () => setView('login');
+  const startNewProgress = document.getElementById('startNewProgress'); if (startNewProgress) startNewProgress.onclick = () => { state.dismissedProgressRecovery = true; render(); document.querySelector('#registerForm input')?.focus(); };
   const cloudLoginButton = document.getElementById('cloudLoginButton'); if (cloudLoginButton) cloudLoginButton.onclick = async () => { const form = new FormData(loginForm); showFormError(''); try { await CloudAccountService.signIn(normalizeEmail(form.get('email')), String(form.get('password') || ''), false); setView('home'); } catch (error) { showFormError(error.message); } };
   const cloudRegisterButton = document.getElementById('cloudRegisterButton'); if (cloudRegisterButton) cloudRegisterButton.onclick = async () => { const form = new FormData(registerForm); showFormError(''); try { const result = await CloudAccountService.signUp(normalizeEmail(form.get('email')), String(form.get('password') || ''), false); if (result.confirmationRequired) { showFormError(state.cloudAuthMessage); return; } setView('home'); } catch (error) { showFormError(error.message); } };
   const cloudConnectForm = document.getElementById('cloudConnectForm'); if (cloudConnectForm) cloudConnectForm.onsubmit = async (event) => { event.preventDefault(); const form = new FormData(cloudConnectForm); state.cloudAuthMessage = ''; try { if (event.submitter?.value === 'signup') await CloudAccountService.signUp(normalizeEmail(form.get('email')), String(form.get('password') || ''), true); else await CloudAccountService.signIn(normalizeEmail(form.get('email')), String(form.get('password') || ''), true); render(); } catch (error) { state.cloudAuthMessage = error.message; render(); } };
   const syncNowButton = document.getElementById('syncNowButton'); if (syncNowButton) syncNowButton.onclick = async () => { await CloudSyncService.flush('manual'); render(); };
   const cloudSignOutButton = document.getElementById('cloudSignOutButton'); if (cloudSignOutButton) cloudSignOutButton.onclick = () => CloudAccountService.signOut();
   const editForm = document.getElementById('editProfileForm'); if (editForm) editForm.onsubmit = handleEditProfile;
-  const forgot = document.getElementById('forgotPassword'); if (forgot) forgot.onclick = () => toast('Khôi phục mật khẩu cần backend. Với MVP, hãy đăng ký tài khoản mới trên thiết bị này.');
+  const forgot = document.getElementById('forgotPassword'); if (forgot) forgot.onclick = () => toast('Hãy dùng email đã đăng ký để nhận hướng dẫn khôi phục mật khẩu khi dịch vụ sẵn sàng.');
   document.querySelectorAll('[data-goal]').forEach((button) => { button.onclick = () => toggleGoal(button.dataset.goal); });
   const goalsContinue = document.getElementById('goalsContinue'); if (goalsContinue) goalsContinue.onclick = continueGoals;
   document.querySelectorAll('[data-level-choice]').forEach((button) => { button.onclick = () => selectLevelChoice(button.dataset.levelChoice); });
@@ -2874,12 +2913,14 @@ async function handleRegister(event) {
   if (password.length < 6) return setFormError('Mật khẩu phải có ít nhất 6 ký tự.');
   if (password !== confirmPassword) return setFormError('Mật khẩu xác nhận chưa khớp.');
   try {
-    await auth.register({ fullName, email, password });
+    const result = await CloudAccountService.createDefaultAccount({ fullName, email, password });
     state.selectedGoals = [];
     state.selectedLevel = '';
     state.selectedOnboardingPath = '';
+    if (result.confirmationRequired) toast('Tài khoản đã tạo. Hãy kiểm tra email để hoàn tất bảo vệ tài khoản; bạn có thể học ngay.');
+    else if (result.protectionPending) toast('Tài khoản đã tạo. Tiến trình của bạn vẫn an toàn và sẽ được bảo vệ trực tuyến khi có kết nối.');
     setView('onboarding-goals');
-  } catch (error) { setFormError(error.message); }
+  } catch (error) { if (error.code === 'EXISTING_PROGRESS') state.dismissedProgressRecovery = false; setFormError(error.message); }
 }
 
 async function handleLogin(event) {
@@ -2889,7 +2930,11 @@ async function handleLogin(event) {
   const password = String(form.get('password') || '');
   if (!email || !password) return setFormError('Vui lòng nhập email và mật khẩu.');
   try {
-    const user = await auth.login(email, password);
+    let user = null;
+    try {
+      const existing = getUsers().find((item) => normalizeEmail(item?.email) === email && !item.cloudUserId);
+      const result = await CloudAccountService.signIn(email, password, Boolean(existing)); user = result.local || state.currentUser;
+    } catch (_) { user = await auth.login(email, password); }
     state.selectedGoals = [...(user.goals || [])];
     state.selectedLevel = user.level || '';
     state.selectedOnboardingPath = APP_DATA.levelChoices.find((choice) => choice.level === state.selectedLevel)?.id || '';
@@ -3559,6 +3604,7 @@ window.addEventListener('klearn-cloud-auth', (event) => {
   state.cloudUser = cloudUser ? { id: cloudUser.id, email: cloudUser.email || '' } : null;
   if (!cloudUser) { CloudSyncService.setStatus('local'); if (state.currentView === 'profile') render(); return; }
   if (state.currentUser?.cloudUserId === cloudUser.id) CloudSyncService.hydrate().then(() => { if (state.currentView === 'profile') render(); });
+  else if (state.currentUser && !state.currentUser.cloudUserId && normalizeEmail(state.currentUser.email) === normalizeEmail(cloudUser.email) && state.currentUser.accountProtectionStatus === 'confirmation-pending') CloudAccountService.attachCloudUser(cloudUser, { explicitLink: true }).then(() => updateCurrentUser({ accountProtectionStatus: 'protected' })).catch(() => {});
 });
 window.SupabaseService?.init?.().then(() => CloudAccountService.restore()).then(() => { if (state.currentUser && state.currentView === 'profile') render(); });
 

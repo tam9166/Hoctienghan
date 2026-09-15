@@ -10,6 +10,7 @@
     immersiveSpoken: { dependencies: ['voice'], styles: ['immersive-spoken-content.css?v=1'], scripts: ['data/immersive-spoken-content.js?v=1'] },
     socialEngagement: { dependencies: ['community'], styles: ['social-engagement.css?v=1'], scripts: ['data/social-engagement.js?v=1'] },
     learningUx: { styles: ['learning-ux-explainability.css?v=1'], scripts: ['data/learning-ux-explainability.js?v=1'] },
+    learningEffectiveness: { dependencies: ['intelligenceMemory', 'realKoreanExperience', 'science'], styles: ['learning-effectiveness.css?v=1'], scripts: ['data/learning-effectiveness.js?v=1'] },
     practical: { scripts: ['data/practical-study.js?v=4'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
@@ -98,6 +99,7 @@
   routes('immersive-content korean-stories story-episode korean-radio radio-episode spoken-exercises speaking-flashcards spoken-shadowing', ['immersiveSpoken']);
   routes('social-engagement korean-league friend-quests social-challenges side-quests social-privacy', ['socialEngagement']);
   routes('practice-center practice-session engagement-center learning-score-explanation xp-explanation progress-explanation engagement-balance', ['learningUx']);
+  routes('learning-effectiveness vietnamese-learning-assistant word-life learning-health-report improvement-plan listening-journey active-recall-lab complete-course', ['learningEffectiveness']);
   routes('ai-content-studio', ['aiContent']);
   routes('immersive-daily-life immersive-story immersive-culture-game immersive-readiness immersive-scenarios immersive-progress-map', ['immersiveKorean']);
   routes('global-education-marketplace marketplace-course marketplace-teacher creator-studio marketplace-moderation creator-revenue marketplace-certificates', ['enterprise', 'marketplace']);
@@ -107,7 +109,7 @@
   routes('immersive-world', ['immersiveKorean']);
 
   // Category pages load their discovery extensions only after the user enters them.
-  routes('lessons', ['resources', 'practical', 'scale', 'conversation', 'context', 'reading', 'languageMastery', 'immersion', 'immersive', 'ecosystem', 'realWorld', 'content', 'career', 'immersiveKorean', 'marketplace', 'competitiveContent', 'realKoreanExperience', 'immersiveSpoken']);
+  routes('lessons', ['resources', 'practical', 'scale', 'conversation', 'context', 'reading', 'languageMastery', 'immersion', 'immersive', 'ecosystem', 'realWorld', 'content', 'career', 'immersiveKorean', 'marketplace', 'competitiveContent', 'realKoreanExperience', 'immersiveSpoken', 'learningEffectiveness']);
   routes('review', ['practical', 'scale', 'science']);
   routes('topik', ['topik', 'analytics', 'advancedAnalytics', 'science', 'outcomes']);
   routes('practice speaking-hub', ['voice', 'realKoreanExperience', 'immersiveSpoken']);

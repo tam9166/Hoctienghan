@@ -215,6 +215,28 @@ summary:focus-visible,
 .ux-onboarding .form-error { padding: 10px; border-radius: 10px; background: var(--danger-soft); color: var(--danger); }
 .ux-onboarding main > .btn { min-height: 52px; margin-top: 17px; }
 .ux-onboarding main > .back-btn { width: 44px; height: 44px; margin-bottom: 14px; border: 1px solid var(--outline); border-radius: 12px; background: var(--surface); color: var(--text); }
+.progress-recovery { margin: 18px 0; padding: 16px; border: 1px solid var(--primary-hover); border-radius: 16px; background: var(--primary-soft); color: var(--text); }
+.progress-recovery strong, .progress-recovery p { display: block; margin: 0 0 8px; }
+.progress-recovery p { color: var(--muted); line-height: 1.55; }
+.progress-recovery > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.p73-minute-options { grid-template-columns: 1fr; gap: 10px; }
+.p73-minute-options button { min-height: 70px; padding: 14px 16px; display: grid; gap: 4px; text-align: left; }
+.p73-minute-options button small { color: var(--muted); }
+.p73-beginner-home { max-width: 820px; }
+.p73-today-card { padding: clamp(18px, 4vw, 28px); display: flex; align-items: center; justify-content: space-between; gap: 18px; border: 1px solid var(--primary-hover); border-radius: 20px; background: var(--primary-soft); }
+.p73-today-card small { color: var(--secondary); font-weight: 900; letter-spacing: .08em; }
+.p73-today-card h2 { margin: 6px 0; color: var(--heading); font-size: clamp(22px, 5vw, 32px); }
+.p73-today-card p { margin: 0; color: var(--muted); }
+.p73-seven-days { display: grid; gap: 8px; }
+.p73-seven-days article { min-width: 0; padding: 12px 14px; display: grid; grid-template-columns: 36px minmax(0,1fr); align-items: center; gap: 11px; border: 1px solid var(--outline); border-radius: 13px; background: var(--surface); }
+.p73-seven-days article > span { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: var(--surface-low); color: var(--muted); font-weight: 900; }
+.p73-seven-days article b, .p73-seven-days article small { display: block; }
+.p73-seven-days article small { margin-top: 3px; color: var(--muted); }
+.p73-seven-days article.current { border-color: var(--primary-hover); }
+.p73-seven-days article.current > span, .p73-seven-days article.completed > span { background: var(--primary); color: var(--accent-ink); }
+.p73-progress-story { margin: 0; padding: 18px; border: 0; border-left: 4px solid var(--primary-hover); border-radius: 0 14px 14px 0; background: var(--surface-low); }
+.p73-progress-story small { color: var(--secondary); font-weight: 900; letter-spacing: .08em; }
+.p73-progress-story p { margin: 7px 0 0; color: var(--text); line-height: 1.65; }
 
 .ux-accessibility-form { padding: 18px; display: grid; gap: 18px; border: 1px solid var(--outline); border-radius: 16px; background: var(--surface); }
 .ux-accessibility-form fieldset { margin: 0; padding: 0; border: 0; }
@@ -245,6 +267,12 @@ html[data-reduce-motion="true"] *::after {
   animation-duration: .01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: .01ms !important;
+}
+
+@media (max-width: 599px) {
+  .p73-today-card { align-items: stretch; flex-direction: column; }
+  .p73-today-card .btn, .progress-recovery .btn { width: 100%; min-height: 48px; }
+  .progress-recovery > div { display: grid; }
 }
 
 @media (min-width: 600px) {

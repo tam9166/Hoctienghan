@@ -32,21 +32,21 @@ async function until(cdp, expression, attempts = 80) { for (let attempt = 0; att
     await evaluate(cdp, `(() => { localStorage.setItem('klearn_users', ${JSON.stringify(JSON.stringify([user]))}); localStorage.setItem('klearn_session', ${JSON.stringify(JSON.stringify({ userId: user.id, createdAt: timestamp }))}); localStorage.setItem('klearn_progress', ${JSON.stringify(JSON.stringify({ [user.id]: { skills: {}, stats: { streak: 2, lessonsCompleted: 0 }, lessonProgress: {}, daily: { date: timestamp.slice(0,10), tasks: {} } } }))}); localStorage.setItem('klearn_settings', ${JSON.stringify(JSON.stringify({ users: { [user.id]: { theme: 'dark', language: 'vi' } } }))}); localStorage.setItem('klearn_errors', ${JSON.stringify(JSON.stringify({ [user.id]: [{ id: 'ux-error', mistake: '은/는', correction: '이/가', explanation: 'Nhầm trợ từ', resolved: false }] }))}); localStorage.setItem('klearn_saved_sentences', ${JSON.stringify(JSON.stringify({ [user.id]: [{ id: 'ux-sentence', korean: '저는 학생이에요.', translation: 'Tôi là học sinh.' }] }))}); location.hash='home'; location.reload(); })()`);
     assert.equal(await until(cdp, `Boolean(window.ProductUxContentService && document.querySelector('.ux-home'))`), true, 'personalized Home did not render');
     assert.equal(await evaluate(cdp, `document.documentElement.dataset.theme === 'dark'`), true, 'dark mode was not preserved');
-    assert.equal(await evaluate(cdp, `document.body.textContent.includes('Tiếp tục Hangul')`), true, 'beginner recommendation is missing');
+    assert.equal(await evaluate(cdp, `document.body.textContent.includes('Hôm nay chỉ cần hoàn thành một bước nhỏ')`), true, 'beginner next action is missing');
     assert.equal(await evaluate(cdp, `document.body.textContent.includes('TOPIK Analytics')`), false, 'advanced analytics leaked into beginner Home');
 
     const results = [];
     for (const width of [360, 768, 1024, 1440, 1920]) {
       await cdp.send('Emulation.setDeviceMetricsOverride', { width, height: 1050, deviceScaleFactor: 1, mobile: false }); await wait(120);
-      const metrics = await evaluate(cdp, `(() => { const rect=(node)=>{const value=node?.getBoundingClientRect();return value?{left:value.left,width:value.width,right:value.right,bottom:value.bottom}:null}; const app=document.getElementById('app'), nav=document.getElementById('bottomNav'), recommended=document.querySelector('.ux-recommended>div'); return { width:innerWidth, dark:document.documentElement.dataset.theme==='dark', htmlOverflow:document.documentElement.scrollWidth>document.documentElement.clientWidth, bodyOverflow:document.body.scrollWidth>document.body.clientWidth, app:rect(app), nav:rect(nav), navPosition:getComputedStyle(nav).position, recommendationColumns:recommended?getComputedStyle(recommended).gridTemplateColumns.split(' ').length:0, minTouch:Math.min(...[...document.querySelectorAll('.ux-home button')].map((node)=>node.getBoundingClientRect().height)) }; })()`);
+      const metrics = await evaluate(cdp, `(() => { const rect=(node)=>{const value=node?.getBoundingClientRect();return value?{left:value.left,width:value.width,right:value.right,bottom:value.bottom}:null}; const app=document.getElementById('app'), nav=document.getElementById('bottomNav'); return { width:innerWidth, dark:document.documentElement.dataset.theme==='dark', htmlOverflow:document.documentElement.scrollWidth>document.documentElement.clientWidth, bodyOverflow:document.body.scrollWidth>document.body.clientWidth, app:rect(app), nav:rect(nav), navPosition:getComputedStyle(nav).position, journeyNodes:document.querySelectorAll('.p73-seven-days article').length, minTouch:Math.min(...[...document.querySelectorAll('.ux-home button')].map((node)=>node.getBoundingClientRect().height)) }; })()`);
       assert.equal(metrics.dark, true, `dark mode missing at ${width}px`);
       assert.equal(metrics.htmlOverflow, false, `html overflow at ${width}px`);
       assert.equal(metrics.bodyOverflow, false, `body overflow at ${width}px`);
       assert.ok(metrics.minTouch >= 44, `touch target below 44px at ${width}px`);
       if (width >= 1024) { assert.ok(metrics.nav.width >= 240 && metrics.nav.width <= 280, `sidebar invalid at ${width}px`); assert.ok(metrics.app.left >= 240, `content overlaps desktop sidebar at ${width}px`); }
       else { assert.ok(metrics.app.left < 2, `mobile/tablet content offset at ${width}px`); assert.ok(metrics.nav.width <= width, `bottom navigation overflows at ${width}px`); }
-      assert.equal(metrics.recommendationColumns, width >= 600 ? 2 : 1, `recommendation layout invalid at ${width}px`);
-      results.push({ width, sidebar: Math.round(metrics.nav.width), columns: metrics.recommendationColumns, overflow: metrics.htmlOverflow, dark: metrics.dark });
+      assert.equal(metrics.journeyNodes, 7, `seven-day journey invalid at ${width}px`);
+      results.push({ width, sidebar: Math.round(metrics.nav.width), journeyNodes: metrics.journeyNodes, overflow: metrics.htmlOverflow, dark: metrics.dark });
     }
 
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 360, height: 1100, deviceScaleFactor: 1, mobile: false });
@@ -55,8 +55,9 @@ async function until(cdp, expression, attempts = 80) { for (let attempt = 0; att
     assert.equal(await evaluate(cdp, `document.body.textContent.includes('công cụ nâng cao đang được ẩn')`), true, 'progressive disclosure explanation is missing');
 
     await evaluate(cdp, `window.KLEARN_APP.setView('search')`); await wait(100);
-    await evaluate(cdp, `(() => { const input=document.getElementById('uxSearchInput'); input.value='학교'; input.dispatchEvent(new Event('input',{bubbles:true})); input.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true})); })()`);
-    assert.ok(await evaluate(cdp, `document.querySelectorAll('#uxAutocomplete [role="option"]').length`), 'autocomplete has no options');
+    await evaluate(cdp, `(() => { const input=document.getElementById('uxSearchInput'); input.value='학교'; input.dispatchEvent(new Event('input',{bubbles:true})); })()`);
+    assert.equal(await until(cdp, `document.querySelectorAll('#uxAutocomplete [role="option"]').length > 0 && typeof document.getElementById('uxSearchInput').onkeydown === 'function'`), true, 'autocomplete has no options');
+    await evaluate(cdp, `document.getElementById('uxSearchInput').onkeydown({key:'ArrowDown',preventDefault(){}})`);
     assert.match(await evaluate(cdp, `document.getElementById('uxSearchInput').getAttribute('aria-activedescendant') || ''`), /^ux-option-/);
     await evaluate(cdp, `document.getElementById('uxSearchInput').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))`);
     assert.equal(await evaluate(cdp, `document.getElementById('uxSearchInput').getAttribute('aria-expanded')`), 'false');
@@ -73,16 +74,17 @@ async function until(cdp, expression, attempts = 80) { for (let attempt = 0; att
 
     await evaluate(cdp, `(() => { const users=JSON.parse(localStorage.getItem('klearn_users')); users[0].onboardingCompleted=false; users[0].onboardingStep='goals'; localStorage.setItem('klearn_users',JSON.stringify(users)); location.hash='onboarding-goals'; location.reload(); })()`);
     assert.equal(await until(cdp, `Boolean(document.querySelector('[data-ux-goal]'))`), true, 'short onboarding did not load');
-    await evaluate(cdp, `document.querySelector('[data-ux-goal="hobby"]').click(); document.getElementById('uxOnboardingGoalsNext').click()`); await wait(100);
+    await evaluate(cdp, `document.querySelector('[data-ux-goal="conversation"]').click(); document.getElementById('uxOnboardingGoalsNext').click()`); await wait(100);
     assert.equal(await evaluate(cdp, `Boolean(document.querySelector('[data-ux-level]'))`), true, 'onboarding level screen did not render');
-    await evaluate(cdp, `document.querySelector('[data-ux-level="foundation-unknown"]').click()`); await wait(60);
+    await evaluate(cdp, `document.querySelector('[data-ux-level="foundation-unknown"]').click(); document.getElementById('uxOnboardingLevelNext').click()`); await wait(100);
+    assert.equal(await evaluate(cdp, `document.body.textContent.includes('3 / 3')`), true, 'onboarding time screen did not render');
     await evaluate(cdp, `document.querySelector('[data-ux-minutes="15"]').click()`); await wait(60);
     await evaluate(cdp, `document.getElementById('uxOnboardingFinish').click()`); await wait(120);
     const onboarding = await evaluate(cdp, `({ view:window.KLEARN_APP.state.currentView, completed:window.KLEARN_APP.state.currentUser.onboardingCompleted, track:window.KLEARN_APP.state.currentUser.learningTrack, minutes:window.KLEARN_APP.state.currentUser.studyMinutesPerDay })`);
     assert.deepEqual(onboarding, { view: 'home', completed: true, track: 'foundation', minutes: 15 });
 
     console.log(JSON.stringify(results));
-    console.log('product UX responsive: 360, 768, 1024, 1440, 1920, dark mode, progressive disclosure, autocomplete keyboard, empty/error UX, accessibility and two-step onboarding passed');
+    console.log('product UX responsive: 360, 768, 1024, 1440, 1920, dark mode, progressive disclosure, autocomplete keyboard, empty/error UX, accessibility and three-step onboarding passed');
     cdp.close();
   } finally {
     browser.kill(); await wait(200); fs.rmSync(profile, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 });

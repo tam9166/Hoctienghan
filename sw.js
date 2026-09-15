@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v93';
+const CACHE = 'klearn-v94';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=32',
@@ -11,6 +11,7 @@ const OFFLINE_ASSETS = [
   './immersive-spoken-content.css?v=1',
   './social-engagement.css?v=1',
   './learning-ux-explainability.css?v=1',
+  './learning-effectiveness.css?v=1',
   './advanced-voice.css?v=2',
   './realtime-voice-coach.css?v=1',
   './ai-content-creation.css?v=1',
@@ -43,7 +44,7 @@ const OFFLINE_ASSETS = [
   './community-learning.css?v=1',
   './community-ecosystem.css?v=1',
   './enterprise-platform.css?v=1',
-  './product-ux.css?v=1',
+  './product-ux.css?v=2',
   './retention-system.css?v=1',
   './content-quality.css?v=1',
   './content-competitive.css?v=1',
@@ -90,7 +91,7 @@ const OFFLINE_ASSETS = [
   './data/advanced-content-platform.js?v=1',
   './data/community-learning.js?v=1',
   './data/enterprise-platform.js?v=1',
-  './data/product-ux.js?v=1',
+  './data/product-ux.js?v=2',
   './data/retention-system.js?v=1',
   './data/content-quality-system.js?v=2',
   './data/learning-modules.js?v=9',
@@ -99,8 +100,8 @@ const OFFLINE_ASSETS = [
   './locales/en.js?v=8',
   './locales/zh-CN.js?v=8',
   './data/content-locales.js?v=1',
-  './data/route-loader.js?v=17',
-  './app.js?v=79',
+  './data/route-loader.js?v=18',
+  './app.js?v=80',
   './data/engagement-core.js?v=2',
   './content/engagement-core.json',
   './data/micro-learning-experience.js?v=1',
@@ -111,6 +112,8 @@ const OFFLINE_ASSETS = [
   './content/social-engagement.json',
   './data/learning-ux-explainability.js?v=1',
   './content/learning-ux-explainability.json',
+  './data/learning-effectiveness.js?v=1',
+  './content/learning-effectiveness.json',
   './data/content-competitive-upgrade.js?v=1',
   './content/vietnamese-korean-core.json',
   './content/retention-system.json',
@@ -201,12 +204,12 @@ const OFFLINE_ASSETS = [
 // Install only the app shell and core offline-learning assets. Optional routes are
 // cached on first use, so installation no longer downloads the complete platform.
 const INSTALL_ASSETS = new Set([
-  './index.html', './styles.css?v=32', './product-ux.css?v=1', './production-stability.css?v=2', './security-privacy.css?v=1', './mobile-experience.css?v=1',
+  './index.html', './styles.css?v=32', './product-ux.css?v=2', './production-stability.css?v=2', './security-privacy.css?v=1', './mobile-experience.css?v=1',
   './locales/vi.js?v=5', './locales/en.js?v=8', './locales/zh-CN.js?v=8', './data/content-locales.js?v=1',
   './data/romanization.js?v=8', './data/vocabulary-bank.js?v=8', './data/dictionary.js?v=1', './data/theory-lessons.js?v=1', './data/handwriting.js?v=1',
-  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=17', './app.js?v=79',
+  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=18', './app.js?v=80',
   './data/curriculum.js?v=1', './data/adaptive-engine.js?v=8', './data/beginner-foundation.js?v=2', './data/daily-learning-experience.js?v=6',
-  './data/product-ux.js?v=1', './content/product-ux.json', './data/user-research.js?v=2', './content/user-research-experiments.json',
+  './data/product-ux.js?v=2', './content/product-ux.json', './data/user-research.js?v=2', './content/user-research-experiments.json',
   './engagement-core.css?v=1', './data/engagement-core.js?v=2', './content/engagement-core.json', './micro-learning-experience.css?v=1', './data/micro-learning-experience.js?v=1', './content/micro-learning-experience.json', './immersive-spoken-content.css?v=1', './data/immersive-spoken-content.js?v=1', './content/immersive-spoken-content.json',
   './data/production-stability.js?v=5', './data/security-privacy.js?v=3', './data/mobile-experience.js?v=3', './data/mobile-native.js?v=1',
   './product-demo.css?v=1', './data/product-demo.js?v=1', './content/product-demo.json',
