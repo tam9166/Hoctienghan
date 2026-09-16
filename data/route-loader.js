@@ -13,7 +13,9 @@
     learningEffectiveness: { dependencies: ['intelligenceMemory', 'realKoreanExperience', 'science'], styles: ['learning-effectiveness.css?v=1'], scripts: ['data/learning-effectiveness.js?v=1'] },
     realUserRetentionCore: { styles: ['real-user-retention.css?v=2'], scripts: ['data/real-user-retention.js?v=4'] },
     realUserRetention: { dependencies: ['realUserRetentionCore', 'retention', 'conversation', 'longTerm', 'intelligenceMemory'] },
-    practical: { scripts: ['data/practical-study.js?v=4'] },
+    productDelightCore: { styles: ['product-delight.css?v=1'], scripts: ['data/product-delight.js?v=1'] },
+    productDelight: { dependencies: ['productDelightCore', 'retention', 'practical', 'context', 'career', 'growth', 'realUserRetention'] },
+    practical: { scripts: ['data/practical-study.js?v=5'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
     context: { scripts: ['data/korean-context-data.js?v=1', 'data/korean-context-system.js?v=1'] },
@@ -103,6 +105,7 @@
   routes('practice-center practice-session engagement-center learning-score-explanation xp-explanation progress-explanation engagement-balance', ['learningUx']);
   routes('learning-effectiveness vietnamese-learning-assistant word-life learning-health-report improvement-plan listening-journey active-recall-lab complete-course', ['learningEffectiveness']);
   routes('real-user-retention learning-journey real-korean-missions real-korean-mission conversation-memory evidence-achievements learning-reflection monthly-learning-report', ['realUserRetention']);
+  routes('product-delight learning-companion learning-celebrations habit-intelligence delight-focus-session culture-context career-journey delight-feedback delight-analytics', ['productDelight']);
   routes('ai-content-studio', ['aiContent']);
   routes('immersive-daily-life immersive-story immersive-culture-game immersive-readiness immersive-scenarios immersive-progress-map', ['immersiveKorean']);
   routes('global-education-marketplace marketplace-course marketplace-teacher creator-studio marketplace-moderation creator-revenue marketplace-certificates', ['enterprise', 'marketplace']);
@@ -116,7 +119,7 @@
   routes('review', ['practical', 'scale', 'science']);
   routes('topik', ['topik', 'analytics', 'advancedAnalytics', 'science', 'outcomes']);
   routes('practice speaking-hub', ['voice', 'realKoreanExperience', 'immersiveSpoken']);
-  routes('home', ['growth', 'realUserRetentionCore']);
+  routes('home', ['growth', 'realUserRetentionCore', 'productDelightCore']);
   routes('profile', ['longTerm', 'education', 'communityLearning', 'enterprise', 'retention', 'contentQuality', 'globalLanguage', 'edtech', 'premium', 'aiContent', 'community', 'monetization', 'futureLanguage', 'outcomes', 'growth', 'intelligenceMemory']);
   routes('search', ['resources', 'practical', 'context', 'content', 'competitiveContent', 'globalLanguage']);
   const discoveryRoutes = new Set(['lessons', 'review', 'topik', 'practice', 'speaking-hub', 'profile', 'search']);

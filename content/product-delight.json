@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "verified": true,
+  "reviewStatus": "approved",
+  "updatedAt": "2026-09-16",
+  "companion": {
+    "name": "TamHoanq",
+    "personality": "calm-supportive",
+    "tone": "encouraging-without-pressure",
+    "principles": [
+      "Chỉ nhắc lại tiến bộ có bằng chứng.",
+      "Không dùng nỗi sợ mất streak để thúc ép.",
+      "Luôn đưa ra một bước tiếp theo nhỏ và rõ ràng."
+    ]
+  },
+  "celebrations": [
+    { "id": "first-hangul", "title": "Bạn đã đọc ký tự Hangul đầu tiên", "evidence": "hangul", "threshold": 1, "canDo": ["Nhận ra hình dạng một ký tự", "Bắt đầu ghép âm tiết"], "next": "Học thêm nguyên âm và phụ âm", "route": "foundation" },
+    { "id": "first-sentence", "title": "Bạn đã hoàn thành câu tiếng Hàn đầu tiên", "evidence": "sentence", "threshold": 1, "canDo": ["Nhận ra trật tự câu cơ bản", "Dùng một câu hoàn chỉnh"], "next": "Luyện thêm câu giới thiệu", "route": "sentence-builder" },
+    { "id": "words-100", "title": "Bạn đã thành thạo 100 từ", "evidence": "mastered", "threshold": 100, "canDo": ["Hiểu nhiều câu cơ bản hơn", "Bắt đầu đọc đoạn ngắn"], "next": "Củng cố từ theo chủ đề", "route": "review" },
+    { "id": "words-500", "title": "Bạn đã thành thạo 500 từ", "evidence": "mastered", "threshold": 500, "canDo": ["Theo dõi hội thoại quen thuộc", "Đọc nội dung đơn giản"], "next": "Luyện nghe và hội thoại", "route": "real-korean-missions" },
+    { "id": "words-1000", "title": "Bạn đã đạt 1.000 từ vựng", "evidence": "mastered", "threshold": 1000, "canDo": ["Hiểu hội thoại cơ bản", "Đọc nội dung đơn giản", "Bắt đầu luyện TOPIK có chiến lược"], "next": "Chuẩn bị TOPIK 2", "route": "topik" },
+    { "id": "first-conversation", "title": "Bạn đã hoàn thành hội thoại đầu tiên", "evidence": "conversation", "threshold": 1, "canDo": ["Phản hồi trong một tình huống thật", "Nhận ra từ còn thiếu"], "next": "Thử một tình huống mới", "route": "real-korean-missions" },
+    { "id": "topik-milestone", "title": "Bạn đã đạt một mốc TOPIK", "evidence": "topik", "threshold": 60, "canDo": ["Hoàn thành bài luyện có cấu trúc", "Nhìn thấy kỹ năng cần cải thiện"], "next": "Xem chiến lược cho phần yếu", "route": "topik-strategy-center" }
+  ],
+  "focusTemplates": {
+    "5": [
+      { "type": "srs", "minutes": 2, "label": "Ôn SRS" },
+      { "type": "weakness", "minutes": 2, "label": "Sửa điểm yếu" },
+      { "type": "reflection", "minutes": 1, "label": "Ghi nhận điều đã nhớ" }
+    ],
+    "15": [
+      { "type": "srs", "minutes": 3, "label": "Ôn SRS" },
+      { "type": "weakness", "minutes": 5, "label": "Từ vựng hoặc lỗi yếu" },
+      { "type": "listening", "minutes": 5, "label": "Luyện nghe" },
+      { "type": "reflection", "minutes": 2, "label": "Phản tư ngắn" }
+    ],
+    "30": [
+      { "type": "srs", "minutes": 8, "label": "Ôn SRS" },
+      { "type": "weakness", "minutes": 8, "label": "Khắc phục điểm yếu" },
+      { "type": "listening", "minutes": 10, "label": "Nghe và phản hồi" },
+      { "type": "reflection", "minutes": 4, "label": "Phản tư và chọn bước tiếp" }
+    ]
+  },
+  "culture": [
+    { "id": "daily-life", "category": "Daily life", "korean": "밥 먹었어요?", "meaning": "Bạn ăn cơm chưa?", "why": "Có thể là lời hỏi thăm thân thiện, không chỉ là câu hỏi về bữa ăn.", "when": "Người quen, đồng nghiệp thân thiện", "route": "natural-korean" },
+    { "id": "work-culture", "category": "Work culture", "korean": "확인 부탁드립니다.", "meaning": "Nhờ anh/chị xác nhận giúp.", "why": "Cách kết thúc yêu cầu lịch sự, phổ biến trong email công việc.", "when": "Email, trao đổi công sở", "route": "business-email-writing" },
+    { "id": "social-etiquette", "category": "Social etiquette", "korean": "감사합니다.", "meaning": "Cảm ơn.", "why": "Giữ mức lịch sự an toàn với người lạ, khách hàng và người lớn tuổi.", "when": "Dịch vụ, công việc, lần đầu gặp", "route": "natural-korean" },
+    { "id": "food", "category": "Food", "korean": "잘 먹겠습니다.", "meaning": "Tôi xin phép ăn ngon miệng.", "why": "Thể hiện sự trân trọng trước bữa ăn hoặc với người đã chuẩn bị/chi trả.", "when": "Trước bữa ăn", "route": "survival-kit" },
+    { "id": "travel", "category": "Travel", "korean": "여기에서 내려 주세요.", "meaning": "Cho tôi xuống ở đây.", "why": "Mẫu câu dịch vụ rõ ràng và lịch sự khi đi taxi.", "when": "Taxi, di chuyển", "route": "real-korean-missions" },
+    { "id": "entertainment", "category": "Entertainment", "korean": "대박!", "meaning": "Đỉnh thật!/Không thể tin được!", "why": "Từ cảm thán thân mật; sắc thái thay đổi theo ngữ điệu.", "when": "Bạn bè, nội dung giải trí; tránh văn bản trang trọng", "route": "slang-dictionary" }
+  ],
+  "careerPaths": [
+    { "id": "study", "title": "Study Korean", "description": "Lớp học, đăng ký môn và giao tiếp học thuật.", "modules": ["Vocabulary", "Scenario", "Presentation"], "route": "career-center" },
+    { "id": "work", "title": "Work Korean", "description": "Phỏng vấn, trao đổi với đồng nghiệp và văn hóa công sở.", "modules": ["Vocabulary", "Scenario", "Interview"], "route": "job-interview-trainer" },
+    { "id": "business", "title": "Business Korean", "description": "Email, họp, báo cáo và thuyết trình.", "modules": ["Email", "Interview", "Presentation"], "route": "business-email-writing" },
+    { "id": "living", "title": "Living Korean", "description": "Nhà ở, bệnh viện, ngân hàng và sinh hoạt hằng ngày.", "modules": ["Vocabulary", "Scenario", "Email"], "route": "real-world-assistant" }
+  ],
+  "feedbackPrompts": [
+    { "id": "day-7", "minimumDays": 7, "question": "Học phần nào khó nhất?" },
+    { "id": "day-30", "minimumDays": 30, "question": "Điều gì giúp bạn tiến bộ?" }
+  ]
+}
