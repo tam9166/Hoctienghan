@@ -74,7 +74,7 @@ function boot() {
   assert.match(routes, /demo: \{ styles: \['product-demo\.css\?v=1'\]/);
   assert.match(routes, /routes\('demo demo-center', \['demo'\]\)/);
   assert.match(index, /app\.js\?v=83/);
-  assert.match(worker, /klearn-v101/);
+  assert.match(worker, /klearn-v102/);
   assert.match(worker, /content\/product-demo\.json/);
   assert.match(worker, /data\/product-demo\.js\?v=1/);
   assert.match(css, /data-presentation-mode="true"/);

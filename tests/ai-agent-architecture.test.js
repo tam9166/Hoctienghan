@@ -87,6 +87,6 @@ assert.equal(content.privacy.storesRawAudio, false);
 
   assert.match(migration, /ai_agent_preferences/); assert.match(migration, /ai_agent_audit_logs/); assert.match(migration, /row level security/i); assert.match(migration, /auth\.uid\(\)/); assert.doesNotMatch(migration, /raw_prompt\s+text|raw_response\s+text|raw_audio\s+/i);
   assert.match(index, /ai-agent-architecture\.css\?v=1/); assert.match(index, /data\/ai-agent-architecture\.js\?v=1/); assert.match(index, /app\.js\?v=83/);
-  assert.match(worker, /klearn-v101/); assert.match(worker, /content\/ai-agent-architecture\.json/); assert.match(appSource, /aiAgents: 'klearn_ai_agents'/); assert.match(appSource, /STORAGE_KEYS\.aiAgents/);
+  assert.match(worker, /klearn-v102/); assert.match(worker, /content\/ai-agent-architecture\.json/); assert.match(appSource, /aiAgents: 'klearn_ai_agents'/); assert.match(appSource, /STORAGE_KEYS\.aiAgents/);
   console.log('AI agent architecture: eight bounded specialists, deterministic routing, one primary agent, mandatory quality control, approved-source gates, confirmed memory, metadata-only audit and RLS passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

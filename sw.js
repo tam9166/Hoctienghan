@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v101';
+const CACHE = 'klearn-v102';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=32',
@@ -15,6 +15,7 @@ const OFFLINE_ASSETS = [
   './real-user-retention.css?v=2',
   './product-delight.css?v=1',
   './content-intelligence-platform.css?v=1',
+  './teacher-creator-ecosystem.css?v=1',
   './advanced-voice.css?v=2',
   './realtime-voice-coach.css?v=1',
   './ai-content-creation.css?v=1',
@@ -103,7 +104,7 @@ const OFFLINE_ASSETS = [
   './locales/en.js?v=8',
   './locales/zh-CN.js?v=8',
   './data/content-locales.js?v=1',
-  './data/route-loader.js?v=25',
+  './data/route-loader.js?v=26',
   './app.js?v=83',
   './data/engagement-core.js?v=2',
   './content/engagement-core.json',
@@ -123,6 +124,8 @@ const OFFLINE_ASSETS = [
   './content/product-delight.json',
   './data/content-intelligence-platform.js?v=1',
   './content/content-intelligence-platform.json',
+  './data/teacher-creator-ecosystem.js?v=1',
+  './content/teacher-creator-ecosystem.json',
   './data/content-competitive-upgrade.js?v=1',
   './content/vietnamese-korean-core.json',
   './content/retention-system.json',
@@ -216,7 +219,7 @@ const INSTALL_ASSETS = new Set([
   './index.html', './styles.css?v=32', './product-ux.css?v=2', './production-stability.css?v=2', './security-privacy.css?v=1', './mobile-experience.css?v=1',
   './locales/vi.js?v=5', './locales/en.js?v=8', './locales/zh-CN.js?v=8', './data/content-locales.js?v=1',
   './data/romanization.js?v=8', './data/vocabulary-bank.js?v=8', './data/dictionary.js?v=1', './data/theory-lessons.js?v=1', './data/handwriting.js?v=1',
-  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=25', './app.js?v=83',
+  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=26', './app.js?v=83',
   './data/curriculum.js?v=1', './data/adaptive-engine.js?v=8', './data/beginner-foundation.js?v=2', './data/daily-learning-experience.js?v=6',
   './data/product-ux.js?v=2', './content/product-ux.json', './data/user-research.js?v=2', './content/user-research-experiments.json',
   './engagement-core.css?v=1', './data/engagement-core.js?v=2', './content/engagement-core.json', './micro-learning-experience.css?v=1', './data/micro-learning-experience.js?v=1', './content/micro-learning-experience.json', './immersive-spoken-content.css?v=1', './data/immersive-spoken-content.js?v=1', './content/immersive-spoken-content.json',

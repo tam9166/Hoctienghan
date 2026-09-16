@@ -82,7 +82,7 @@ function boot({ evidence = true } = {}) {
   assert.match(routes, /data\/product-growth\.js\?v=1/);
   assert.match(routes, /routes\('home', \['growth', 'realUserRetentionCore', 'productDelightCore'\]\)/);
   assert.match(index, /app\.js\?v=83/);
-  assert.match(worker, /klearn-v101/);
+  assert.match(worker, /klearn-v102/);
   assert.match(worker, /app\.js\?v=83/);
   assert.match(worker, /content\/product-growth\.json/);
   assert.match(migration, /product_growth_referral_codes/);

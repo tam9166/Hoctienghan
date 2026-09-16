@@ -201,7 +201,7 @@ async function callHandler(body, { headers = {}, fetchImpl } = {}) {
   assert.match(read('api/ai/feedback.js'), /rawPromptStored: false/);
   assert.match(read('api/ai/feedback.js'), /rawResponseStored: false/);
   assert.match(read('data/route-loader.js'), /ai-quality-optimization\.js\?v=1/);
-  assert.match(read('sw.js'), /const CACHE = 'klearn-v101'/);
+  assert.match(read('sw.js'), /const CACHE = 'klearn-v102'/);
   assert.match(read('sw.js'), /content\/ai-quality-evaluation-dataset\.json/);
   assert.match(read('index.html'), /app\.js\?v=83/);
 

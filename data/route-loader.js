@@ -16,6 +16,7 @@
     productDelightCore: { styles: ['product-delight.css?v=1'], scripts: ['data/product-delight.js?v=1'] },
     productDelight: { dependencies: ['productDelightCore', 'retention', 'practical', 'context', 'career', 'growth', 'realUserRetention'] },
     contentIntelligence: { dependencies: ['content', 'contentQuality', 'contentScience', 'aiContent', 'practical', 'scale'], styles: ['content-intelligence-platform.css?v=1'], scripts: ['data/content-intelligence-platform.js?v=1'] },
+    teacherCreator: { dependencies: ['education', 'contentIntelligence'], styles: ['teacher-creator-ecosystem.css?v=1'], scripts: ['data/teacher-creator-ecosystem.js?v=1'] },
     practical: { scripts: ['data/practical-study.js?v=5'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
@@ -74,7 +75,9 @@
   routes('topik-strategy-center real-goal-planner learning-journal teacher-review manual-review-queue teacher-workspace community-hub personal-report', ['longTerm']);
   routes('language-mastery subtitle-learning vocabulary-image-memory grammar-mastery', ['languageMastery']);
   routes('immersion-journey survival-kit media-learning slang-dictionary daily-korean-feed monthly-challenge achievement-room personal-portfolio', ['immersion']);
-  routes('education-platform teacher-dashboard organization-center education-assignments education-feedback course-builder organization-analytics education-content education-ecosystem assessment-center creator-workflow school-report education-certificates', ['education']);
+  routes('education-platform', ['education', 'teacherCreator']);
+  routes('teacher-dashboard organization-center education-assignments education-feedback course-builder organization-analytics education-content education-ecosystem assessment-center creator-workflow school-report education-certificates', ['education']);
+  routes('teacher-creator-ecosystem teacher-profile-p76 creator-studio-p76 creator-review-p76 creator-course-builder-p76 learner-feedback-p76 teacher-classroom-p76 creator-analytics-p76', ['teacherCreator']);
   routes('immersive-world virtual-korean-city immersive-session roleplay-game debate-studio career-korean university-life travel-simulator voice-world speaking-journey learning-avatar-research', ['immersive']);
   routes('ecosystem-expansion real-korean-life life-simulator document-reader address-number-trainer language-science korean-thinking skill-world career-purpose career-practice learning-architecture', ['ecosystem']);
   routes('analytics progress-reports learning-outcomes student-progress-report', ['analytics', 'advancedAnalytics', 'outcomes', 'contentScience']);

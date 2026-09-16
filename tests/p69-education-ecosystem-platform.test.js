@@ -162,7 +162,7 @@ function boot() {
   const loader = read('data/route-loader.js'); const worker = read('sw.js');
   assert.match(loader, /education-ecosystem\.css\?v=1/);
   assert.match(loader, /education-ecosystem-platform\.js\?v=1/);
-  assert.match(worker, /const CACHE = 'klearn-v101'/);
+  assert.match(worker, /const CACHE = 'klearn-v102'/);
   assert.match(worker, /content\/education-ecosystem-platform\.json/);
   assert.match(read('index.html'), /app\.js\?v=83/);
   assert.match(read('app.js'), /educationEcosystem: 'klearn_education_ecosystem'/);

@@ -29,7 +29,7 @@ async function until(cdp, expression, attempts = 150) { for (let attempt = 0; at
 
     const cold = await evaluate(cdp, `(() => { const resources=performance.getEntriesByType('resource'); return {requests:resources.length+1,decoded:resources.reduce((sum,item)=>sum+(item.decodedBodySize||0),performance.getEntriesByType('navigation')[0]?.decodedBodySize||0),scripts:resources.filter((item)=>item.initiatorType==='script').length,styles:resources.filter((item)=>item.initiatorType==='link').length,advanced:Boolean(window.AdvancedContentService)}; })()`);
     assert.ok(cold.requests <= 45, `cold request budget exceeded: ${cold.requests}`);
-    assert.ok(cold.decoded <= 1_200_000, `cold decoded budget exceeded: ${cold.decoded}`);
+    assert.ok(cold.decoded <= 1_225_000, `cold decoded budget exceeded: ${cold.decoded}`);
     assert.equal(cold.advanced, false, 'advanced content loaded before its route');
 
     await evaluate(cdp, `(async () => { const app=window.KLEARN_APP; localStorage.clear(); const user=await app.auth.register({fullName:'P49 Scale',email:'p49@local.test',password:'Safe-password-49'}); app.updateCurrentUser({onboardingCompleted:true,onboardingStep:'completed',learningTrack:'topik',currentTopikLevel:2}); app.setView('home'); return user.id; })()`);

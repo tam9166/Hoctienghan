@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "roles": {
+    "learner": ["learn", "rate_content", "report_content", "view_own_progress"],
+    "teacher": ["manage_own_profile", "create_class", "manage_own_classes", "create_assignment", "create_study_plan", "view_consented_progress", "create_content", "edit_own_draft", "create_course", "submit_review", "view_own_analytics"],
+    "creator": ["manage_own_profile", "create_content", "edit_own_draft", "create_course", "submit_review", "view_own_analytics"],
+    "reviewer": ["review_content", "approve_content", "reject_content"],
+    "admin": ["publish_content", "manage_roles", "view_audit"]
+  },
+  "teacherProfileFields": ["displayName", "avatar", "bio", "experience", "specialization", "languages", "certification"],
+  "contentTypes": ["vocabulary", "grammar", "listening", "reading", "speaking", "writing", "culture"],
+  "requiredContentFields": ["title", "level", "skill", "objective", "explanation", "example", "exercise"],
+  "workflow": {
+    "statuses": ["draft", "automated_check", "pending_review", "approved", "rejected", "published"],
+    "checklist": ["accuracy", "naturalness", "difficulty", "example", "audio", "learning_objective"]
+  },
+  "courseFields": ["title", "description", "level", "goal", "thumbnail", "category"],
+  "courseHierarchy": ["course", "chapter", "lesson", "exercise", "assessment"],
+  "qualityWeights": {
+    "contentQuality": 0.4,
+    "studentCompletion": 0.2,
+    "learningImprovement": 0.25,
+    "reviewHistory": 0.15
+  },
+  "revenueMetadata": {
+    "tiers": ["free", "premium"],
+    "subscriptionEligible": true,
+    "paymentEnabled": false
+  },
+  "systemOwner": {
+    "id": "system:tamhoanq",
+    "displayName": "TamHoanq",
+    "status": "verified"
+  },
+  "privacy": {
+    "classroomProgressFields": ["studentId", "displayName", "progress", "studyMinutes", "weakSkill", "mistakeCount", "updatedAt"],
+    "forbiddenFields": ["password", "passwordHash", "email", "access_token", "refresh_token", "journal", "chat", "recording"]
+  }
+}
