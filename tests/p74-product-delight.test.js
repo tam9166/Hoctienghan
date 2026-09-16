@@ -56,7 +56,7 @@ function runtime(options = {}) {
     RealKoreanMissionService: { history: () => options.missions || [], recommended: () => options.recommendedMission || null },
     ConversationHistoryService: { all: () => options.conversations || [] },
     OfflinePackService: {
-      catalog: () => options.packs || ['beginner', 'topik-1', 'topik-2', 'vocabulary', 'listening'].map((id) => ({ id, version: 1, assets: [`./content/${id}.json`] })),
+      catalog: () => options.packs || ['beginner', 'topik-1', 'topik-2', 'vocabulary', 'listening', 'business-korean', 'travel-korean'].map((id) => ({ id, version: 1, assets: [`./content/${id}.json`] })),
       metadata: () => options.downloaded || [],
       status: (pack) => (options.downloaded || []).some((item) => item.id === pack.id) ? 'downloaded' : 'available'
     },
@@ -140,7 +140,7 @@ assert.equal(goalReturn.window.DelightReturnLoopService.recommend().type, 'goal'
 const shortReturn = runtime();
 assert.equal(shortReturn.window.DelightReturnLoopService.recommend().type, 'short');
 
-assert.equal(month.window.DelightOfflinePackService.summary().total, 5);
+assert.equal(month.window.DelightOfflinePackService.summary().total, 7);
 assert.equal(month.window.CultureContextLayerService.all().length, 6);
 assert.equal(month.window.CareerKoreanJourneyService.select('business').id, 'business');
 const sent = month.window.DelightFeedbackService.submit({ promptId: 'day-30', category: 'learning_problem', rating: 4, comment: 'Phần nghe còn nhanh.' });
@@ -163,9 +163,9 @@ assert.match(app, /mergeProductDelight/);
 assert.match(app, /STORAGE_KEYS\.productDelight/);
 assert.match(loader, /productDelightCore/);
 assert.match(loader, /routes\('home', \['growth', 'realUserRetentionCore', 'productDelightCore'\]\)/);
-assert.match(index, /route-loader\.js\?v=24/);
-assert.match(index, /app\.js\?v=82/);
-assert.match(worker, /klearn-v100/);
+assert.match(index, /route-loader\.js\?v=25/);
+assert.match(index, /app\.js\?v=83/);
+assert.match(worker, /klearn-v101/);
 assert.match(worker, /content\/product-delight\.json/);
 assert.match(practical, /id:'vocabulary-pack'/);
 assert.match(practical, /id:'listening-pack'/);

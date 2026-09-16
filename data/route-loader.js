@@ -15,6 +15,7 @@
     realUserRetention: { dependencies: ['realUserRetentionCore', 'retention', 'conversation', 'longTerm', 'intelligenceMemory'] },
     productDelightCore: { styles: ['product-delight.css?v=1'], scripts: ['data/product-delight.js?v=1'] },
     productDelight: { dependencies: ['productDelightCore', 'retention', 'practical', 'context', 'career', 'growth', 'realUserRetention'] },
+    contentIntelligence: { dependencies: ['content', 'contentQuality', 'contentScience', 'aiContent', 'practical', 'scale'], styles: ['content-intelligence-platform.css?v=1'], scripts: ['data/content-intelligence-platform.js?v=1'] },
     practical: { scripts: ['data/practical-study.js?v=5'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
@@ -106,11 +107,12 @@
   routes('learning-effectiveness vietnamese-learning-assistant word-life learning-health-report improvement-plan listening-journey active-recall-lab complete-course', ['learningEffectiveness']);
   routes('real-user-retention learning-journey real-korean-missions real-korean-mission conversation-memory evidence-achievements learning-reflection monthly-learning-report', ['realUserRetention']);
   routes('product-delight learning-companion learning-celebrations habit-intelligence delight-focus-session culture-context career-journey delight-feedback delight-analytics', ['productDelight']);
+  routes('content-intelligence content-operations content-performance content-gaps content-pack-manager', ['contentIntelligence']);
   routes('ai-content-studio', ['aiContent']);
   routes('immersive-daily-life immersive-story immersive-culture-game immersive-readiness immersive-scenarios immersive-progress-map', ['immersiveKorean']);
   routes('global-education-marketplace marketplace-course marketplace-teacher creator-studio marketplace-moderation creator-revenue marketplace-certificates', ['enterprise', 'marketplace']);
   // Extension modules decorate these base hubs and must run after the base module.
-  routes('content-platform content-explorer content-detail korean-notebook content-feedback content-quality-dashboard', ['contentQuality', 'contentScience']);
+  routes('content-platform content-explorer content-detail korean-notebook content-feedback content-quality-dashboard', ['contentQuality', 'contentScience', 'contentIntelligence']);
   routes('learning-community', ['community']);
   routes('immersive-world', ['immersiveKorean']);
 

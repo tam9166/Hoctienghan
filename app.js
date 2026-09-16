@@ -12,6 +12,7 @@ const STORAGE_KEYS = Object.freeze({
   learningEffectiveness: 'klearn_learning_effectiveness',
   realUserRetention: 'klearn_real_user_retention',
   productDelight: 'klearn_product_delight',
+  contentIntelligence: 'klearn_content_intelligence',
   realKoreanExperience: 'klearn_real_korean_experience',
   contentScience: 'klearn_content_science',
   session: 'klearn_session',

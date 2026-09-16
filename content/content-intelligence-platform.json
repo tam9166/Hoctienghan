@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "platformVersion": 1,
+  "status": "approved",
+  "verified": true,
+  "updatedAt": "2026-09-16T00:00:00.000Z",
+  "entitySchema": {
+    "required": ["id", "type", "title", "level", "topic", "skill", "difficulty", "author", "review_status", "version", "created_at", "updated_at"],
+    "types": ["lesson", "vocabulary", "grammar", "listening", "reading", "writing", "speaking", "culture", "story"],
+    "levels": ["Foundation", "TOPIK 1", "TOPIK 2", "TOPIK 3", "TOPIK 4", "TOPIK 5", "TOPIK 6"],
+    "difficulties": ["Beginner", "Elementary", "Intermediate", "Advanced"]
+  },
+  "workflow": {
+    "statuses": ["draft", "ai_review", "human_review", "approved", "published", "archived"],
+    "transitions": {
+      "draft": ["ai_review", "human_review", "archived"],
+      "ai_review": ["human_review", "draft", "archived"],
+      "human_review": ["approved", "draft", "archived"],
+      "approved": ["published", "draft", "archived"],
+      "published": ["draft", "archived"],
+      "archived": ["draft"]
+    }
+  },
+  "qualityModel": {
+    "weights": {
+      "accuracy": 0.22,
+      "naturalness": 0.16,
+      "difficultyFit": 0.14,
+      "exampleQuality": 0.14,
+      "audioQuality": 0.12,
+      "learningEffectiveness": 0.22
+    },
+    "publishThreshold": 80,
+    "minimumEvidenceCoverage": 0.6
+  },
+  "reviewChecklists": {
+    "lesson": ["Mục tiêu học rõ", "Ví dụ chính xác và tự nhiên", "Có tiêu chí hoàn thành", "Độ khó đúng level"],
+    "vocabulary": ["Nghĩa đúng", "Cách dùng rõ", "Ví dụ tự nhiên", "Có lỗi thường gặp khi cần"],
+    "grammar": ["Giải thích đúng", "Ví dụ tự nhiên", "Phù hợp level", "Có đối chiếu lỗi phổ biến"],
+    "listening": ["Audio nghe rõ", "Transcript chính xác", "Tốc độ được ghi nhãn", "Nguồn giọng đọc minh bạch"],
+    "reading": ["Đoạn đọc phù hợp level", "Từ mới được hỗ trợ", "Câu hỏi đo hiểu bài"],
+    "writing": ["Đề bài rõ", "Tiêu chí đánh giá cụ thể", "Bài mẫu phù hợp level"],
+    "speaking": ["Tình huống thực tế", "Mẫu nói tự nhiên", "Có fallback không microphone"],
+    "culture": ["Ngữ cảnh xã hội rõ", "Không khái quát hóa thiếu căn cứ", "Mức độ lịch sự chính xác"],
+    "story": ["Mạch truyện rõ", "Ngôn ngữ đúng level", "Nhiệm vụ học gắn với nội dung"]
+  },
+  "gapTargets": {
+    "Foundation": { "lesson": 2, "vocabulary": 2, "listening": 1, "speaking": 1 },
+    "TOPIK 1": { "lesson": 3, "vocabulary": 3, "grammar": 2, "listening": 2, "reading": 2 },
+    "TOPIK 2": { "lesson": 3, "vocabulary": 3, "grammar": 3, "listening": 3, "reading": 3, "writing": 1 },
+    "TOPIK 3": { "lesson": 2, "grammar": 2, "listening": 2, "reading": 2, "writing": 2, "speaking": 1 }
+  },
+  "packs": [
+    { "id": "beginner-pack", "title": "Beginner Korean Pack", "level": "Foundation", "skills": ["hangul", "vocabulary", "listening"], "offlinePackId": "beginner-pack" },
+    { "id": "topik-1-pack", "title": "TOPIK 1 Pack", "level": "TOPIK 1", "skills": ["vocabulary", "grammar", "listening", "reading"], "offlinePackId": "topik-1-pack" },
+    { "id": "business-korean-pack", "title": "Business Korean Pack", "level": "TOPIK 3", "skills": ["speaking", "writing", "culture"], "offlinePackId": "business-korean-pack" },
+    { "id": "travel-korean-pack", "title": "Travel Korean Pack", "level": "TOPIK 1", "skills": ["speaking", "listening", "culture"], "offlinePackId": "travel-korean-pack" }
+  ],
+  "seedEntities": [
+    { "id": "p75-listening-introduction", "type": "listening", "title": "Nghe lời chào đầu tiên", "level": "Foundation", "topic": "introduction", "skill": "listening", "difficulty": "Beginner", "author": "TamHoanq curriculum", "review_status": "approved", "version": 1, "created_at": "2026-09-01T00:00:00.000Z", "updated_at": "2026-09-16T00:00:00.000Z" },
+    { "id": "p75-reading-cafe", "type": "reading", "title": "Đọc menu quán cà phê", "level": "TOPIK 1", "topic": "cafe", "skill": "reading", "difficulty": "Elementary", "author": "TamHoanq curriculum", "review_status": "approved", "version": 1, "created_at": "2026-09-01T00:00:00.000Z", "updated_at": "2026-09-16T00:00:00.000Z" },
+    { "id": "p75-writing-introduction", "type": "writing", "title": "Viết câu tự giới thiệu", "level": "TOPIK 1", "topic": "introduction", "skill": "writing", "difficulty": "Elementary", "author": "TamHoanq curriculum", "review_status": "human_review", "version": 1, "created_at": "2026-09-01T00:00:00.000Z", "updated_at": "2026-09-16T00:00:00.000Z" },
+    { "id": "p75-speaking-order", "type": "speaking", "title": "Gọi món lịch sự", "level": "TOPIK 1", "topic": "restaurant", "skill": "speaking", "difficulty": "Elementary", "author": "TamHoanq curriculum", "review_status": "approved", "version": 1, "created_at": "2026-09-01T00:00:00.000Z", "updated_at": "2026-09-16T00:00:00.000Z" },
+    { "id": "p75-culture-honorific", "type": "culture", "title": "Lịch sự khi gặp người lớn tuổi", "level": "TOPIK 1", "topic": "formality", "skill": "culture", "difficulty": "Elementary", "author": "TamHoanq curriculum", "review_status": "approved", "version": 1, "created_at": "2026-09-01T00:00:00.000Z", "updated_at": "2026-09-16T00:00:00.000Z" },
+    { "id": "p75-story-first-day", "type": "story", "title": "Ngày đầu ở Seoul", "level": "TOPIK 1", "topic": "daily-life", "skill": "reading", "difficulty": "Elementary", "author": "TamHoanq curriculum", "review_status": "human_review", "version": 1, "created_at": "2026-09-01T00:00:00.000Z", "updated_at": "2026-09-16T00:00:00.000Z" }
+  ],
+  "privacy": {
+    "aggregateOnly": true,
+    "minimumCohortSize": 20,
+    "forbiddenFields": ["email", "password", "token", "access_token", "refresh_token"]
+  }
+}
