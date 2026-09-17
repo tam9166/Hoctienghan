@@ -2,8 +2,8 @@
 const rateLimit = require('../_rate-limit');
 const applyCors = require('../_cors');
 
-const allowedPlans = new Set(['premium', 'pro']);
-const allowedProviders = new Set(['stripe', 'google_play', 'apple_store', 'local_payment']);
+const allowedPlans = new Set(['premium', 'pro', 'teacher_pro']);
+const allowedProviders = new Set(['mock', 'stripe', 'google_play', 'apple_store', 'local_payment', 'vietnam_gateway']);
 const clean = (value, max = 500) => String(value || '').normalize('NFC').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max);
 function bearer(req) { const value = String(req.headers?.authorization || ''); return /^Bearer\s+\S+$/i.test(value) ? value.replace(/^Bearer\s+/i, '') : ''; }
 function environment() {

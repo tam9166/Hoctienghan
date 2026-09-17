@@ -17,6 +17,7 @@
     productDelight: { dependencies: ['productDelightCore', 'retention', 'practical', 'context', 'career', 'growth', 'realUserRetention'] },
     contentIntelligence: { dependencies: ['content', 'contentQuality', 'contentScience', 'aiContent', 'practical', 'scale'], styles: ['content-intelligence-platform.css?v=1'], scripts: ['data/content-intelligence-platform.js?v=1'] },
     teacherCreator: { dependencies: ['education', 'contentIntelligence'], styles: ['teacher-creator-ecosystem.css?v=1'], scripts: ['data/teacher-creator-ecosystem.js?v=1'] },
+    premiumPlatform: { dependencies: ['monetization', 'teacherCreator'], styles: ['premium-monetization-platform.css?v=1'], scripts: ['data/premium-monetization-platform.js?v=1'] },
     practical: { scripts: ['data/practical-study.js?v=5'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
@@ -98,6 +99,8 @@
   routes('language-exchange community-moderation', ['community']);
   routes('business-center billing-center organization-plans revenue-center crm-center', ['enterprise', 'monetization']);
   routes('premium-center subscription-admin', ['monetization']);
+  routes('premium-center subscription-admin', ['monetization', 'premiumPlatform']);
+  routes('premium-benefits-p77 premium-courses-p77 premium-course-p77 my-purchases-p77 admin-business-p77 teacher-business-p77', ['premiumPlatform']);
   routes('future-language-platform cross-language-lab language-brain future-integrations global-course-marketplace', ['globalLanguage', 'futureLanguage']);
   routes('global-language-platform global-language-profiles global-exam-framework global-language-comparison global-expansion', ['globalLanguage']);
   routes('global-language-onboarding global-writing-system global-content-packs global-language-search global-adaptive-plan', ['globalLanguage']);

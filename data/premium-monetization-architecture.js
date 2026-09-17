@@ -7,7 +7,7 @@
   const routes = new Set(['premium-center', 'subscription-admin']);
   const runtime = state.premiumMonetization || (state.premiumMonetization = { content: null, loading: null, error: '', projection: null, quota: null, adminResult: null, adminSnapshot: null, adminLoading: null });
   const CORE_FEATURES = new Set(['hangul_foundation', 'basic_lessons', 'basic_vocabulary', 'basic_srs', 'progress_tracking', 'beginner_path', 'basic_grammar', 'basic_listening', 'basic_speaking', 'basic_writing', 'dictionary_translation', 'handwriting_pronunciation', 'offline_core', 'daily_learning', 'mastery_error_notebook', 'journal_achievements', 'community_foundation', 'core_learning', 'standard_practice', 'basic_progress']);
-  const rank = Object.freeze({ free: 0, premium: 1, pro: 2 });
+  const rank = Object.freeze({ free: 0, premium: 1, pro: 2, teacher_pro: 2 });
   const now = () => new Date().toISOString();
   const clean = (value, max = 500) => String(value || '').normalize('NFC').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max);
   const cloudUser = () => global.SupabaseService?.session?.user || null;
@@ -46,7 +46,7 @@
 
   const ServerEntitlementService = {
     normalize(value = {}, source = 'server') {
-      const plan = ['free','premium','pro'].includes(String(value.plan || value.tier).toLowerCase()) ? String(value.plan || value.tier).toLowerCase() : 'free';
+      const plan = ['free','premium','pro','teacher_pro'].includes(String(value.plan || value.tier).toLowerCase()) ? String(value.plan || value.tier).toLowerCase() : 'free';
       const status = plan === 'free' ? 'active' : statusName(value.status);
       const endDate = value.endDate || value.end_date || value.currentPeriodEnd || value.current_period_end || null;
       const notEnded = !endDate || new Date(endDate).getTime() > Date.now();

@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-17",
+  "principles": {
+    "learningQualityFirst": true,
+    "coreLearningAlwaysFree": true,
+    "existingLearningDataNeverLocked": true,
+    "serverAuthoritativeAccess": true,
+    "clientCanGrantEntitlement": false,
+    "storesCardData": false,
+    "storesPaymentSecrets": false
+  },
+  "plans": [
+    {
+      "id": "free",
+      "name": "Free",
+      "features": ["beginner_foundation", "topik_1_basic", "basic_srs", "learning_journey", "basic_report"]
+    },
+    {
+      "id": "premium",
+      "name": "Premium",
+      "features": ["beginner_foundation", "topik_1_basic", "basic_srs", "learning_journey", "basic_report", "advanced_topik", "advanced_ai_speaking", "advanced_learning_report", "extended_offline_pack", "career_korean", "premium_courses"]
+    },
+    {
+      "id": "teacher_pro",
+      "name": "Teacher Pro",
+      "features": ["beginner_foundation", "topik_1_basic", "basic_srs", "learning_journey", "basic_report", "advanced_creator_studio", "classroom", "student_analytics", "course_management"]
+    }
+  ],
+  "legacyPlanAliases": {
+    "pro": "premium"
+  },
+  "subscriptionStatuses": ["trial", "active", "expired", "cancelled", "pending"],
+  "accessLevels": ["free", "premium", "teacher_pro"],
+  "resourceExamples": [
+    { "resourceKey": "beginner_lesson", "resourceType": "lesson", "accessLevel": "free" },
+    { "resourceKey": "topik_5_course", "resourceType": "course", "accessLevel": "premium" },
+    { "resourceKey": "teacher_analytics", "resourceType": "dashboard", "accessLevel": "teacher_pro" }
+  ],
+  "trial": {
+    "plan": "premium",
+    "days": 7,
+    "onePerAccount": true,
+    "antiAbuseHash": true,
+    "paymentMethodRequired": false,
+    "autoRenew": false,
+    "events": ["trial_started", "trial_completed", "trial_expired", "converted"]
+  },
+  "payments": {
+    "activeProvider": "mock",
+    "interface": ["createCheckout", "verifyTransaction", "refund", "normalizeEvent"],
+    "providerTransactionIdOnly": true,
+    "adapters": ["mock", "stripe", "google_play", "apple_store", "vietnam_gateway"],
+    "livePaymentsEnabled": false
+  },
+  "creatorRevenue": {
+    "defaultRevenueShare": 70,
+    "platformShare": 30,
+    "currency": "VND",
+    "realPayoutsEnabled": false
+  },
+  "purchaseStatuses": ["pending", "completed", "failed", "refunded", "cancelled"],
+  "analyticsEvents": ["free_to_trial", "trial_to_premium", "premium_retained", "premium_churned"],
+  "privacy": {
+    "sensitivePersonalDataCollected": false,
+    "teacherDashboardFields": ["students", "courseCount", "starts", "completions", "completionRate", "revenueEstimate"],
+    "forbiddenPaymentFields": ["card_number", "card_cvc", "payment_secret", "provider_secret", "access_token", "refresh_token"]
+  },
+  "ux": {
+    "upgradeSpam": false,
+    "upgradeCopy": "Bạn vẫn có thể học nền tảng miễn phí. Premium chỉ mở rộng nội dung và phân tích khi bạn cần.",
+    "purchaseCopy": "Xem bài học mẫu trước khi quyết định. Tiến độ học hiện có luôn được giữ nguyên."
+  }
+}
