@@ -1,0 +1,16 @@
+{
+  "tracking": false,
+  "soldData": false,
+  "biometricDataCollected": false,
+  "audioUploadedByDefault": false,
+  "transcriptAnalytics": false,
+  "analyticsConsentRequired": true,
+  "collected": [
+    { "type": "email", "purpose": "account", "linked": true },
+    { "type": "user_id", "purpose": "authentication_and_sync", "linked": true },
+    { "type": "product_interaction", "purpose": "consented_analytics", "linked": false },
+    { "type": "crash_and_performance", "purpose": "consented_app_quality", "linked": false }
+  ],
+  "localOnly": ["microphone_audio_during_attempt", "biometric_result", "download_index"],
+  "sessionProtection": "iOS Keychain / Android Keystore through native secure storage"
+}

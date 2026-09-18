@@ -17,6 +17,9 @@
   button, [role="button"], input, select, textarea, .btn, .nav-item { touch-action: manipulation; }
   .btn, .nav-item, .header-control, .back-link, .mobile-capability-grid button { min-height: 48px; }
   .bottom-nav { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  #bottomNav .nav-item[data-route="ai-coach"] { display: flex; }
+  #bottomNav .nav-item[data-route="topik"] { display: none !important; }
+  .bottom-nav { grid-template-columns: repeat(5,minmax(0,1fr)); }
   .app-content { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
   .mobile-capability-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .mobile-setting-row { align-items: stretch; flex-direction: column; }
@@ -26,6 +29,11 @@
 @media (max-width: 380px) {
   .mobile-experience-panel { padding-inline: 15px; }
   .mobile-capability-grid button { padding-inline: 8px; }
+}
+
+@media (max-width: 340px) {
+  .bottom-nav .nav-item { padding-inline: 2px; }
+  .bottom-nav .nav-item span:last-child { font-size: 9px; }
 }
 
 .low-performance *, .low-performance *::before, .low-performance *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }

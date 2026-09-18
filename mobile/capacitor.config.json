@@ -14,6 +14,18 @@
     "preferredContentMode": "mobile"
   },
   "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#F7FFD1",
+      "showSpinner": false,
+      "androidScaleType": "CENTER_CROP"
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#F7FFD1",
+      "overlaysWebView": false
+    },
     "PushNotifications": {
       "presentationOptions": ["badge", "sound", "alert"]
     },

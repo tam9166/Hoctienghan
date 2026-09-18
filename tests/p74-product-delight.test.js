@@ -163,7 +163,7 @@ assert.match(app, /mergeProductDelight/);
 assert.match(app, /STORAGE_KEYS\.productDelight/);
 assert.match(loader, /productDelightCore/);
 assert.match(loader, /routes\('home', \['growth', 'realUserRetentionCore', 'productDelightCore'\]\)/);
-assert.match(index, /route-loader\.js\?v=26/);
+assert.match(index, /route-loader\.js\?v=27/);
 assert.match(index, /app\.js\?v=83/);
 assert.match(worker, /klearn-v102/);
 assert.match(worker, /content\/product-delight\.json/);

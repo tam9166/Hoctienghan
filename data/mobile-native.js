@@ -77,13 +77,14 @@
 
   const NativeReminderService = {
     ids: [5601, 5602],
-    async refresh({ requestPermission = false } = {}) {
+    async refresh({ requestPermission = false, disabled = false, preferences = null } = {}) {
       const Local = plugins().LocalNotifications;
       if (!native || !Local?.schedule) return { status: 'unsupported', scheduled: 0 };
       if (requestPermission) { const permission = await Local.requestPermissions?.(); if (permission && permission.display !== 'granted') return { status: 'denied', scheduled: 0 }; }
       await Local.cancel?.({ notifications: this.ids.map((id) => ({ id })) }).catch(() => {});
+      if (disabled) return { status: 'disabled', scheduled: 0 };
       const notices = (global.MobileNotificationService?.pending?.() || []).slice(0, 2); const policy = global.MobileNotificationService?.policy?.() || { quietHours: { start: 22, end: 7 } };
-      const base = new Date(); base.setSeconds(0, 0); base.setMinutes(base.getMinutes() + 10);
+      const base = new Date(); const preferred = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(String(preferences?.time || '')); base.setSeconds(0, 0); if (preferred) { base.setHours(Number(preferred[1]), Number(preferred[2]), 0, 0); if (base.getTime() <= Date.now()) base.setDate(base.getDate() + 1); } else base.setMinutes(base.getMinutes() + 10);
       if (base.getHours() >= Number(policy.quietHours?.start ?? 22) || base.getHours() < Number(policy.quietHours?.end ?? 7)) { base.setDate(base.getDate() + (base.getHours() >= 22 ? 1 : 0)); base.setHours(Number(policy.quietHours?.end ?? 7), 30, 0, 0); }
       const notifications = notices.map((notice, index) => ({ id: this.ids[index], title: 'Tiếng Hàn - TamHoanq', body: String(notice.text || 'Đến giờ học một bài ngắn.').slice(0, 160), schedule: { at: new Date(base.getTime() + index * 6 * 60 * 60 * 1000), allowWhileIdle: false }, extra: { route: cleanRoute(notice.route) }, autoCancel: true }));
       if (notifications.length) await Local.schedule({ notifications });
@@ -124,8 +125,8 @@
       state.initialized = true; await installationId();
       const { App, Network, PushNotifications: Push } = plugins();
       if (App?.addListener) {
-        state.listeners.push(await App.addListener('appUrlOpen', ({ url }) => NativeAuthBridge.handleUrl(url).catch(() => {})));
-        state.listeners.push(await App.addListener('appStateChange', ({ isActive }) => isActive ? NativeSyncBridge.flush('native-resume').then(() => NativeWidgetBridge.refresh()).catch(() => {}) : NativeSyncBridge.checkpoint('native-background')));
+        state.listeners.push(await App.addListener('appUrlOpen', ({ url }) => (global.NativeDeepLinkService?.handle?.(url) || NativeAuthBridge.handleUrl(url)).catch(() => {})));
+        state.listeners.push(await App.addListener('appStateChange', async ({ isActive }) => { if (!isActive) return NativeSyncBridge.checkpoint('native-background'); if (await global.NativeBiometricService?.enabled?.()) { const unlock = await global.NativeBiometricService.authenticate(); if (unlock.status !== 'authenticated') return; } await NativeSyncBridge.flush('native-resume'); await NativeWidgetBridge.refresh(); }));
       }
       if (Network?.addListener) state.listeners.push(await Network.addListener('networkStatusChange', ({ connected }) => { if (connected) NativeSyncBridge.flush('native-network-restored').catch(() => {}); }));
       if (Push?.addListener) {

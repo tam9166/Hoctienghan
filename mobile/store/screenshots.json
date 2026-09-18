@@ -1,0 +1,11 @@
+{
+  "device": "390x844",
+  "locale": "vi",
+  "required": [
+    { "id": "home", "route": "home", "file": "screenshots/vi/01-home-390x844.png" },
+    { "id": "learn", "route": "lessons", "file": "screenshots/vi/02-learn-390x844.png" },
+    { "id": "practice", "route": "review", "file": "screenshots/vi/03-practice-390x844.png" },
+    { "id": "speaking", "route": "speaking-hub", "file": "screenshots/vi/04-speaking-390x844.png" },
+    { "id": "profile", "route": "profile", "file": "screenshots/vi/05-profile-390x844.png" }
+  ]
+}

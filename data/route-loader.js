@@ -18,6 +18,7 @@
     contentIntelligence: { dependencies: ['content', 'contentQuality', 'contentScience', 'aiContent', 'practical', 'scale'], styles: ['content-intelligence-platform.css?v=1'], scripts: ['data/content-intelligence-platform.js?v=1'] },
     teacherCreator: { dependencies: ['education', 'contentIntelligence'], styles: ['teacher-creator-ecosystem.css?v=1'], scripts: ['data/teacher-creator-ecosystem.js?v=1'] },
     premiumPlatform: { dependencies: ['monetization', 'teacherCreator'], styles: ['premium-monetization-platform.css?v=1'], scripts: ['data/premium-monetization-platform.js?v=1'] },
+    p78Mobile: { styles: ['p78-mobile-native.css?v=2'], scripts: ['data/mobile-native-platform.js?v=2'] },
     practical: { scripts: ['data/practical-study.js?v=5'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
@@ -101,6 +102,7 @@
   routes('premium-center subscription-admin', ['monetization']);
   routes('premium-center subscription-admin', ['monetization', 'premiumPlatform']);
   routes('premium-benefits-p77 premium-courses-p77 premium-course-p77 my-purchases-p77 admin-business-p77 teacher-business-p77', ['premiumPlatform']);
+  routes('mobile-native-p78', ['p78Mobile']);
   routes('future-language-platform cross-language-lab language-brain future-integrations global-course-marketplace', ['globalLanguage', 'futureLanguage']);
   routes('global-language-platform global-language-profiles global-exam-framework global-language-comparison global-expansion', ['globalLanguage']);
   routes('global-language-onboarding global-writing-system global-content-packs global-language-search global-adaptive-plan', ['globalLanguage']);
@@ -128,7 +130,7 @@
   routes('topik', ['topik', 'analytics', 'advancedAnalytics', 'science', 'outcomes']);
   routes('practice speaking-hub', ['voice', 'realKoreanExperience', 'immersiveSpoken']);
   routes('home', ['growth', 'realUserRetentionCore', 'productDelightCore']);
-  routes('profile', ['longTerm', 'education', 'communityLearning', 'enterprise', 'retention', 'contentQuality', 'globalLanguage', 'edtech', 'premium', 'aiContent', 'community', 'monetization', 'futureLanguage', 'outcomes', 'growth', 'intelligenceMemory']);
+  routes('profile', ['longTerm', 'education', 'communityLearning', 'enterprise', 'retention', 'contentQuality', 'globalLanguage', 'edtech', 'premium', 'aiContent', 'community', 'monetization', 'futureLanguage', 'outcomes', 'growth', 'intelligenceMemory', 'p78Mobile']);
   routes('search', ['resources', 'practical', 'context', 'content', 'competitiveContent', 'globalLanguage']);
   const discoveryRoutes = new Set(['lessons', 'review', 'topik', 'practice', 'speaking-hub', 'profile', 'search']);
 

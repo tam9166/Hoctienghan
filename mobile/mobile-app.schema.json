@@ -4,7 +4,7 @@
   "type": "object",
   "required": ["contractVersion", "appId", "appName", "webDir", "platforms", "bridge", "api", "identity", "offline", "releaseChannels", "security"],
   "properties": {
-    "contractVersion": { "type": "integer", "minimum": 2 },
+    "contractVersion": { "type": "integer", "minimum": 3 },
     "appId": { "type": "string", "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$" },
     "appName": { "type": "string", "minLength": 1 },
     "webDir": { "type": "string" },

@@ -229,7 +229,7 @@ const PrivacyPreferenceService = {
 window.PrivacyPreferenceService = PrivacyPreferenceService;
 
 const FOUNDATION_VIEWS = ['foundation', 'hangul-academy', 'syllable-builder', 'reading-first', 'batchim-academy', 'minimal-pairs', 'first-words', 'first-sentence', 'beginner-checkpoint'];
-const MAIN_VIEWS = ['home', 'lessons', 'courses', 'course-detail', 'theory', 'roadmap', 'topik', 'strategy-lab', 'strategy-detail', 'listening-studio', 'sentence-writing', 'writing-room', 'speaking-room', 'topik-exam', 'topik-exam-result', 'resources', 'resource-view', 'notes', 'bookmarks', 'videos', 'video-view', 'support', 'review-dashboard', 'ai-coach', 'adaptive-plan', 'error-notebook', 'grammar-compare', 'grammar-notebook', 'typing-trainer', 'repair-path', 'focus-study', 'chapter-checkpoint', 'offline-packs', 'shadowing-recorder', 'study-calendar', 'progress-timeline', 'achievements', 'admin-content', 'vocabulary-collections', 'sentence-builder', 'real-life-missions', 'study-settings', ...FOUNDATION_VIEWS, 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'progress-reports', 'practical-korean', 'vocabulary-notebook', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
+const MAIN_VIEWS = ['home', 'lessons', 'courses', 'course-detail', 'theory', 'roadmap', 'topik', 'strategy-lab', 'strategy-detail', 'listening-studio', 'sentence-writing', 'writing-room', 'speaking-room', 'topik-exam', 'topik-exam-result', 'resources', 'resource-view', 'notes', 'bookmarks', 'videos', 'video-view', 'support', 'review-dashboard', 'ai-coach', 'adaptive-plan', 'error-notebook', 'grammar-compare', 'grammar-notebook', 'typing-trainer', 'repair-path', 'focus-study', 'chapter-checkpoint', 'offline-packs', 'shadowing-recorder', 'study-calendar', 'progress-timeline', 'achievements', 'admin-content', 'vocabulary-collections', 'sentence-builder', 'real-life-missions', 'study-settings', 'mobile-native-p78', ...FOUNDATION_VIEWS, 'lesson', 'lesson-preview', 'dictionary', 'translation-hub', 'phrasebook', 'handwriting', 'review', 'smart-review', 'search', 'analytics', 'weekly-insights', 'progress-reports', 'practical-korean', 'vocabulary-notebook', 'review-start', 'vocab-pretest', 'pretest-result', 'vocab-test-setup', 'vocab-test', 'vocab-test-result', 'vocabulary-hub', 'practice', 'speaking-hub', 'speaking-session', 'speaking-result', 'writing-hub', 'writing-editor', 'writing-result', 'skill-hub', 'practice-hub', 'exam-catalog', 'random-exam', 'advanced-practice', 'wrong-practice', 'saved-exams', 'practice-history', 'practice-session', 'practice-result', 'practice-review', 'quick-practice', 'profile', 'edit-profile'];
 MAIN_VIEWS.push('conversation-simulator');
 MAIN_VIEWS.push('natural-korean');
 MAIN_VIEWS.push('reading-lab', 'reading-session', 'word-network', 'collocation-trainer', 'dictation-master');
@@ -1823,15 +1823,19 @@ function setView(view, options = {}) {
   const routeLoader = window.KLEARN_ROUTE_LOADER;
   const pendingAssets = routeLoader?.load?.(target);
   if (pendingAssets) {
-    pendingAssets.then(() => {
-      if (state.currentView === target) render();
-    }).catch((error) => {
-      if (state.currentView !== target) return;
+    let routeLoadSettled = false;
+    const showRouteLoadError = (error) => {
+      if (state.currentView !== target || routeLoadSettled) return;
+      routeLoadSettled = true;
       const offline = navigator.onLine === false;
       appElement().innerHTML = `<section class="empty-state route-load-error section" role="alert"><h1>${offline ? 'Bạn đang ngoại tuyến' : 'Không thể tải chức năng'}</h1><p>${offline ? 'Chức năng này chưa được lưu trên thiết bị. Các bài học cốt lõi, từ vựng và tiến độ ngoại tuyến vẫn dùng được.' : escapeHtml(error?.message || 'Vui lòng thử lại.')}</p><p class="subtle">${window.BackgroundSyncQueueService?.pending?.() || 0} thay đổi đang chờ đồng bộ.</p><button class="btn primary" data-route-retry="${escapeHtml(target)}">Thử lại</button><button class="btn secondary" data-view="home">Về trang chủ</button></section>`;
       document.querySelector('[data-route-retry]')?.addEventListener('click', () => setView(target));
       document.querySelector('[data-view="home"]')?.addEventListener('click', () => setView('home'));
-    });
+    };
+    pendingAssets.then(() => {
+      if (state.currentView === target && !routeLoadSettled) { routeLoadSettled = true; render(); }
+    }).catch(showRouteLoadError);
+    if (navigator.onLine === false) window.setTimeout(() => showRouteLoadError(new Error('offline route timeout')), 1500);
     if (routeLoader.blocking?.(target) !== false) {
       syncShell();
       appElement().innerHTML = `<section class="route-loading section" role="status" aria-live="polite"><span class="route-loading-spinner" aria-hidden="true"></span><h1>Đang mở chức năng…</h1><p>Chỉ tải tài nguyên cần cho màn hình này.</p></section>`;

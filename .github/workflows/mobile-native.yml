@@ -3,10 +3,10 @@ name: Mobile native
 on:
   push:
     branches: [main]
-    paths: ['mobile/**', 'api/**', 'data/**', 'content/mobile-experience.json', 'supabase/migrations/**', 'index.html', 'app.js', 'sw.js', 'version.json', '.github/workflows/mobile-native.yml']
+    paths: ['mobile/**', 'api/**', 'data/**', 'content/mobile-experience.json', 'content/mobile-native-platform.json', 'supabase/migrations/**', 'index.html', 'app.js', 'sw.js', 'version.json', '.github/workflows/mobile-native.yml']
   pull_request:
     branches: [main]
-    paths: ['mobile/**', 'api/**', 'data/**', 'content/mobile-experience.json', 'supabase/migrations/**', 'index.html', 'app.js', 'sw.js', 'version.json', '.github/workflows/mobile-native.yml']
+    paths: ['mobile/**', 'api/**', 'data/**', 'content/mobile-experience.json', 'content/mobile-native-platform.json', 'supabase/migrations/**', 'index.html', 'app.js', 'sw.js', 'version.json', '.github/workflows/mobile-native.yml']
   workflow_dispatch:
     inputs:
       channel:
@@ -39,6 +39,7 @@ jobs:
       - run: npm run build --prefix mobile
       - run: npm run doctor --prefix mobile
       - run: node tests/mobile-native-ecosystem.test.js
+      - run: node tests/p78-mobile-native-platform.test.js
 
   android:
     if: github.event_name == 'workflow_dispatch'

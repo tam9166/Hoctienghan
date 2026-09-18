@@ -48,8 +48,9 @@ fs.writeFileSync(path.join(output, 'mobile-runtime-config.js'), `window.__KLEARN
 
 const indexPath = path.join(output, 'index.html');
 let html = fs.readFileSync(indexPath, 'utf8');
-html = html.replace('<script src="data/mobile-native.js?v=1"></script>', '<script src="mobile-native-plugins.js"></script>\n  <script src="data/mobile-native.js?v=1"></script>');
+html = html.replace('<script src="data/mobile-native.js?v=1"></script>', '<script src="mobile-native-plugins.js"></script>\n  <script src="data/mobile-native.js?v=1"></script>\n  <script src="data/mobile-native-platform.js?v=2"></script>');
 assert.match(html, /mobile-native-plugins\.js/);
+assert.match(html, /mobile-native-platform\.js\?v=2/);
 fs.writeFileSync(indexPath, html);
 
 await build({ entryPoints: [path.join(mobileRoot, 'src', 'native-plugins.js')], bundle: true, minify: true, platform: 'browser', target: ['es2022'], outfile: path.join(output, 'mobile-native-plugins.js') });

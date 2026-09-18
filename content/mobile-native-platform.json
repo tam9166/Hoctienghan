@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-17",
+  "status": "release-foundation",
+  "architecture": {
+    "strategy": "capacitor-shared-learning-core",
+    "sharedComponents": ["app-shell", "lesson-player", "practice-player", "speaking-ui", "srs-review", "ai-coach", "profile"],
+    "sharedServices": ["AuthService", "CloudSyncService", "VocabularyService", "AdaptiveEngine", "AIService", "OfflinePackService", "SubscriptionService"],
+    "sharedStorage": ["progress", "srs", "mastery", "practiceHistory", "learningMemory", "settings"],
+    "separateMobileLearningEngine": false,
+    "separateMobileProgressStore": false
+  },
+  "identity": {
+    "appId": "com.tamhoanq.korean",
+    "appName": "Tiếng Hàn - TamHoanq",
+    "versionSource": "version.json",
+    "iconSource": "icons/logo-source.svg",
+    "splashBackground": "#F7FFD1"
+  },
+  "navigation": [
+    { "id": "home", "label": "Home", "route": "home" },
+    { "id": "learn", "label": "Learn", "route": "lessons" },
+    { "id": "practice", "label": "Practice", "route": "review" },
+    { "id": "ai", "label": "AI", "route": "ai-coach" },
+    { "id": "profile", "label": "Profile", "route": "profile" }
+  ],
+  "mobileWidths": [320, 360, 390, 430],
+  "touchTargetMinimum": 48,
+  "audio": {
+    "uses": ["listening", "shadowing", "pronunciation", "story", "radio"],
+    "backgroundPlayback": true,
+    "cache": true,
+    "offline": true,
+    "playbackSpeeds": [0.75, 1, 1.25, 1.5],
+    "speechSynthesisIsOfflineAsset": false
+  },
+  "microphone": {
+    "permission": "user-initiated",
+    "states": ["idle", "requesting", "recording", "processing", "denied", "unavailable", "error"],
+    "visualization": "local-rms-only",
+    "retry": true,
+    "fallback": "text",
+    "audioPersisted": false
+  },
+  "notifications": {
+    "permission": "user-initiated",
+    "types": ["learning_reminder", "goal_reminder", "milestone_celebration", "streak_reminder"],
+    "defaultTime": "19:30",
+    "quietHours": { "start": 22, "end": 7 },
+    "maximumPerDay": 2,
+    "userConfigurable": true
+  },
+  "offline": {
+    "downloadTypes": ["lesson", "audio", "practice"],
+    "learningAvailable": true,
+    "vocabularyPracticeAvailable": true,
+    "listeningAvailableForDownloadedAudio": true,
+    "progressQueue": "BackgroundSyncQueueService",
+    "syncOnReconnect": true
+  },
+  "storage": {
+    "index": "native-preferences",
+    "largeAssets": "filesystem-or-cache-storage",
+    "authSession": "native-secure-storage",
+    "usageVisible": true,
+    "clearCache": true,
+    "manageDownloads": true
+  },
+  "biometric": {
+    "types": ["fingerprint", "face_id", "device_credential"],
+    "storesBiometricData": false,
+    "purpose": "unlock_existing_session",
+    "fallback": "regular_login"
+  },
+  "deepLinks": {
+    "schemes": ["tamhoanq", "com.tamhoanq.korean"],
+    "targets": ["lesson", "course", "challenge", "achievement"],
+    "example": "tamhoanq://lesson/topik1/unit5"
+  },
+  "performance": {
+    "nativePluginBundleMaxBytes": 430000,
+    "initialRouteGroups": 0,
+    "lazyImages": true,
+    "lazyAudio": true,
+    "lowPerformanceMode": true
+  },
+  "analytics": {
+    "events": ["app_open", "lesson_start", "lesson_complete", "crash", "performance"],
+    "requiresConsent": true,
+    "privateDataCollected": false,
+    "audioCollected": false,
+    "transcriptCollected": false
+  },
+  "security": {
+    "apiSecretsInBundle": false,
+    "publishableKeyOnly": true,
+    "sessionStorage": "native-keychain-or-keystore",
+    "cleartextTraffic": false,
+    "certificatePolicy": "system-trust-https-only",
+    "biometricDataStored": false
+  },
+  "store": {
+    "category": "Education",
+    "androidArtifacts": ["APK", "AAB"],
+    "iosArtifact": "unsigned-simulator-archive-validation",
+    "metadata": "mobile/store/metadata.json",
+    "privacy": "mobile/store/privacy.json",
+    "screenshots": "mobile/store/screenshots.json",
+    "signedReleaseRequiresOwnerCredentials": true
+  }
+}

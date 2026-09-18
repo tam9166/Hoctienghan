@@ -135,7 +135,7 @@ const worker = read('sw.js');
 const practical = read('data/practical-study.js');
 assert.match(app, /contentIntelligence: 'klearn_content_intelligence'/);
 assert.match(loader, /contentIntelligence/);
-assert.match(index, /route-loader\.js\?v=26/);
+assert.match(index, /route-loader\.js\?v=27/);
 assert.match(index, /app\.js\?v=83/);
 assert.match(worker, /klearn-v102/);
 assert.match(worker, /content-intelligence-platform\.json/);

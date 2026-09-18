@@ -16,7 +16,7 @@ const directStyles = [...index.matchAll(/<link rel="stylesheet" href="([^"]+)"/g
 
 assert.equal(directScripts.length, 28, 'critical script budget changed');
 assert.equal(directStyles.length, 7, 'critical stylesheet budget changed');
-assert.match(index, /data\/route-loader\.js\?v=26/);
+assert.match(index, /data\/route-loader\.js\?v=27/);
 assert.doesNotMatch(index, /data\/advanced-learning-analytics\.js/);
 assert.doesNotMatch(index, /advanced-voice\.css/);
 assert.match(loader, /const discoveryRoutes = new Set/);

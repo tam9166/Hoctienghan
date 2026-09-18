@@ -1,0 +1,15 @@
+{
+  "appName": "Tiếng Hàn - TamHoanq",
+  "packageId": "com.tamhoanq.korean",
+  "category": "Education",
+  "defaultLanguage": "vi",
+  "shortDescription": "Học tiếng Hàn cho người Việt: Hangul, TOPIK, SRS, nghe nói và AI Coach.",
+  "fullDescription": "Ứng dụng học tiếng Hàn mobile-first dùng chung Learning Core với TamHoanq Web/PWA. Học theo lộ trình, ôn SRS, luyện nghe nói, tải bài để học offline và đồng bộ tiến độ khi trực tuyến.",
+  "keywords": ["tiếng Hàn", "Korean", "TOPIK", "Hangul", "SRS", "luyện nói"],
+  "supportUrl": "https://github.com/tam9166/Hoctienghan/issues",
+  "privacyPolicy": "docs/privacy-policy-draft.md",
+  "contentRating": "Everyone",
+  "containsAds": false,
+  "inAppPurchases": "foundation-only-mock-provider",
+  "releaseNotes": "Mobile-first navigation, offline learning, audio controls, speaking fallback, configurable reminders, biometric session unlock and deep links."
+}

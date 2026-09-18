@@ -1,6 +1,6 @@
 {
   "$schema": "./mobile-app.schema.json",
-  "contractVersion": 2,
+  "contractVersion": 3,
   "appId": "com.tamhoanq.korean",
   "appName": "Tiếng Hàn - TamHoanq",
   "webDir": "www",
@@ -17,7 +17,12 @@
     "widget": "MobileWidgetService",
     "shortcuts": "AppShortcutService",
     "auth": "NativeAuthBridge",
-    "sync": "NativeSyncBridge"
+    "sync": "NativeSyncBridge",
+    "microphone": "MobileMicrophoneExperienceService",
+    "biometric": "NativeBiometricService",
+    "deepLinks": "NativeDeepLinkService",
+    "storage": "MobileDownloadManagerService",
+    "analytics": "MobileAnalyticsService"
   },
   "api": {
     "resolver": "KLearnPlatform.apiUrl",
@@ -38,8 +43,11 @@
   "releaseChannels": ["internal", "beta", "production"],
   "security": {
     "allowCleartext": false,
+    "authSessionStorage": "native-keychain-or-keystore",
+    "biometricDataStored": false,
     "cameraProcessing": "on-device",
     "notificationPermission": "user-initiated",
-    "privateDataInWebCache": false
+    "privateDataInWebCache": false,
+    "certificatePolicy": "system-trust-https-only"
   }
 }

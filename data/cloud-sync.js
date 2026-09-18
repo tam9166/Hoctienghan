@@ -36,7 +36,8 @@
           if (!response.ok) throw new Error('config request failed'); const config = await response.json();
           if (!config.configured || !validConfig(config)) { state.configStatus = 'unconfigured'; emit('klearn-cloud-ready', { configured: false }); return null; }
           await Promise.race([loadOfficialClient(), timeout(8000)]);
-          state.client = window.supabase.createClient(config.supabaseUrl, config.supabasePublishableKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: !window.KLearnPlatform?.isNative?.(), flowType: 'pkce', storageKey: 'klearn_supabase_auth' } });
+          const nativeAuthStorage = window.KLearnPlatform?.isNative?.() ? window.KLearnNativePlugins?.SecureStorageAdapter : null;
+          state.client = window.supabase.createClient(config.supabaseUrl, config.supabasePublishableKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: !window.KLearnPlatform?.isNative?.(), flowType: 'pkce', storageKey: 'klearn_supabase_auth', ...(nativeAuthStorage ? { storage: nativeAuthStorage } : {}) } });
           state.client.auth.onAuthStateChange((event, session) => { state.session = session || null; emit('klearn-cloud-auth', { event, user: session?.user || null }); });
           const { data, error } = await state.client.auth.getSession(); if (error) throw error; state.session = data.session || null; state.configStatus = 'ready';
           window.KLEARN_CLOUD_PROVIDER = this.createProvider(); emit('klearn-cloud-ready', { configured: true, user: state.session?.user || null });

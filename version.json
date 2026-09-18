@@ -1,8 +1,8 @@
 {
-  "version": "1.2.0-rc.1",
+  "version": "1.3.0-rc.1",
   "channel": "release-candidate",
-  "releaseId": "p60-ai-language-operating-system",
-  "releasedAt": "2026-09-10",
+  "releaseId": "p78-mobile-native-experience-platform",
+  "releasedAt": "2026-09-17",
   "schemaVersion": 13,
   "minimumSupportedVersion": "1.0.0-rc.1"
 }

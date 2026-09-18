@@ -19,7 +19,7 @@ function responseRecorder() {
 
 function bootPlatform() {
   const window = {
-    __KLEARN_RUNTIME_CONFIG__: { platform: 'native', apiBaseUrl: 'https://learn.example.test/', authRedirectUrl: 'com.tamhoanq.korean://auth/callback', version: '1.2.0-rc.1', channel: 'beta' },
+    __KLEARN_RUNTIME_CONFIG__: { platform: 'native', apiBaseUrl: 'https://learn.example.test/', authRedirectUrl: 'com.tamhoanq.korean://auth/callback', version: '1.3.0-rc.1', channel: 'beta' },
     Capacitor: { isNativePlatform: () => true, getPlatform: () => 'android' },
     location: { origin: 'capacitor://localhost', pathname: '/' }
   };
@@ -98,10 +98,15 @@ function bootNative(platform) {
   assert.equal(nativeContract.identity.sharedWithWeb, true);
   assert.equal(experience.authSync.separateMobileProgressStore, false);
   assert.ok(experience.offline.contentTypes.includes('practice'));
-  assert.equal(version.version, '1.2.0-rc.1');
+  assert.equal(version.version, '1.3.0-rc.1');
   const nativeBundle = path.join(root, 'mobile', 'www', 'mobile-native-plugins.js');
-  if (fs.existsSync(nativeBundle)) assert.ok(fs.statSync(nativeBundle).size < 350 * 1024, 'native plugin bundle exceeds 350 KB budget');
+  if (fs.existsSync(nativeBundle)) assert.ok(fs.statSync(nativeBundle).size < 430000, 'native plugin bundle exceeds P78 budget');
+  assert.equal(nativeContract.contractVersion, 3);
+  assert.equal(nativeContract.security.authSessionStorage, 'native-keychain-or-keystore');
+  assert.equal(packageJson.dependencies['@aparajita/capacitor-biometric-auth'], '10.0.0');
+  assert.equal(packageJson.dependencies['@aparajita/capacitor-secure-storage'], '8.0.0');
   assert.match(read('data/cloud-sync.js'), /flowType: 'pkce'/);
+  assert.match(read('data/cloud-sync.js'), /SecureStorageAdapter/);
   assert.match(read('data/cloud-sync.js'), /createSupabaseClient/);
   assert.match(read('api/_cors.js'), /capacitor:\/\/localhost/);
   assert.match(read('app.js'), /!window\.KLearnPlatform\?\.isNative/);
@@ -111,5 +116,5 @@ function bootNative(platform) {
   assert.match(read('.github/workflows/mobile-native.yml'), /CODE_SIGNING_ALLOWED=NO/);
   assert.match(read('mobile/native/ios/PrivacyInfo.xcprivacy'), /NSPrivacyTracking/);
   assert.match(read('docs/privacy-policy-draft.md'), /Trạng thái: draft/);
-  console.log('P56: native API boundary, shared Supabase PKCE identity, offline sync, push policy, safe widget, camera/store/release contracts and RLS passed');
+  console.log('P78: native API boundary, shared Supabase PKCE identity, secure session storage, biometric unlock, offline sync, push policy and store contracts passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });
