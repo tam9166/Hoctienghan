@@ -29,7 +29,7 @@ const copyDirectory = (source, destination) => {
     else if (entry.isFile()) fs.copyFileSync(from, to);
   }
 };
-for (const directory of ['content', 'data', 'icons', 'locales']) copyDirectory(path.join(root, directory), path.join(output, directory));
+for (const directory of ['content', 'data', 'icons', 'locales', 'vendor']) copyDirectory(path.join(root, directory), path.join(output, directory));
 for (const file of fs.readdirSync(root)) {
   if (['.css', '.js'].includes(path.extname(file)) || ['index.html', 'manifest.json', 'version.json'].includes(file)) fs.copyFileSync(path.join(root, file), path.join(output, file));
 }
@@ -48,7 +48,7 @@ fs.writeFileSync(path.join(output, 'mobile-runtime-config.js'), `window.__KLEARN
 
 const indexPath = path.join(output, 'index.html');
 let html = fs.readFileSync(indexPath, 'utf8');
-html = html.replace('<script src="data/mobile-native.js?v=1"></script>', '<script src="mobile-native-plugins.js"></script>\n  <script src="data/mobile-native.js?v=1"></script>\n  <script src="data/mobile-native-platform.js?v=2"></script>');
+html = html.replace(/<script src="data\/mobile-native\.js\?v=\d+"><\/script>/, (tag) => `<script src="mobile-native-plugins.js"></script>\n  ${tag}\n  <script src="data/mobile-native-platform.js?v=2"></script>`);
 assert.match(html, /mobile-native-plugins\.js/);
 assert.match(html, /mobile-native-platform\.js\?v=2/);
 fs.writeFileSync(indexPath, html);
