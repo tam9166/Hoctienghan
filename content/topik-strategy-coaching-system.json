@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "title": "P81 TOPIK Strategy & Coaching System",
+  "contentPolicy": {
+    "language": "vi",
+    "sourceType": "ORIGINAL_EDUCATIONAL_CONTENT",
+    "notice": "Nội dung chiến thuật và ví dụ dưới đây do TamHoanq biên soạn để luyện tập, không phải câu hỏi TOPIK chính thức.",
+    "reasoningNotice": "Phần cách nghĩ là hướng dẫn sư phạm ngắn gọn, có thể kiểm tra; không phải chain-of-thought nội bộ của AI.",
+    "aiNotice": "AI chỉ đưa phản hồi hỗ trợ từ dữ liệu đã có, không thay thế giám khảo hoặc kết quả TOPIK chính thức.",
+    "readinessNotice": "Readiness là chỉ báo từ bằng chứng luyện tập, không phải cam kết đỗ hoặc dự báo chính thức.",
+    "verifiedBy": "TamHoanq editorial review",
+    "reviewedAt": "2026-09-20"
+  },
+  "strategies": [
+    {
+      "id": "p81-ti-reading-sign-detail", "title": "Biển báo, thông báo và chi tiết trực tiếp", "section": "reading", "questionType": "detail", "level": "TOPIK I",
+      "explanation": "Đọc câu hỏi trước, xác định đúng loại dữ kiện cần tìm rồi đối chiếu từng từ về thời gian, địa điểm, đối tượng và phủ định.",
+      "thinkAloud": "Tôi cần tìm giờ đóng cửa, vì vậy chỉ đối chiếu dòng có 시간 và không suy diễn từ thông tin khác.",
+      "commonMistakes": ["Nhầm ngày với giờ", "Bỏ sót 안, 못 hoặc 금지", "Chọn phương án gần đúng nhưng thiếu một điều kiện"],
+      "recommendedApproach": ["Gạch chân dữ kiện câu hỏi", "Quét văn bản để tìm từ khóa", "Đối chiếu đủ chủ thể–hành động–thời gian", "Kiểm tra phủ định trước khi chọn"],
+      "example": { "label": "Practice Example", "prompt": "도서관은 월요일에 쉽니다. Thông tin nào đúng?", "analysis": "쉽니다 cho biết ngày nghỉ, 월요일 là thứ Hai.", "answer": "Thư viện nghỉ thứ Hai." },
+      "practiceReference": { "level": "TOPIK I", "section": "reading", "questionType": "detail" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-ti-reading-sentence-fit", "title": "Chọn câu phù hợp với ngữ cảnh", "section": "reading", "questionType": "conversation", "level": "TOPIK I",
+      "explanation": "Xác định chức năng giao tiếp của câu trước: hỏi, mời, xin lỗi, nhờ giúp hay cảm ơn; sau đó chọn câu đáp đúng chức năng và mức lịch sự.",
+      "thinkAloud": "Câu trước là lời xin lỗi trang trọng, nên câu sau cần chấp nhận hoặc trấn an, không phải một lời chào mới.",
+      "commonMistakes": ["Chọn câu đúng ngữ pháp nhưng sai lượt thoại", "Bỏ qua mức độ lịch sự"],
+      "recommendedApproach": ["Xác định quan hệ người nói", "Đánh dấu đuôi câu", "Loại phương án khác chức năng", "Đọc lại hội thoại hoàn chỉnh"],
+      "example": { "label": "Practice Example", "prompt": "가: 늦어서 죄송합니다. 나: ____", "analysis": "Đây là lời xin lỗi; phản hồi tự nhiên là trấn an.", "answer": "괜찮습니다." },
+      "practiceReference": { "level": "TOPIK I", "section": "reading", "questionType": "conversation" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-ti-reading-grammar-vocabulary", "title": "Từ vựng và ngữ pháp trong câu ngắn", "section": "reading", "questionType": "grammar", "level": "TOPIK I",
+      "explanation": "Dùng quan hệ thời gian, nguyên nhân, đối lập và tiểu từ trong toàn câu; không dịch từng từ theo tiếng Việt rồi ghép máy móc.",
+      "thinkAloud": "Hai hành động xảy ra theo thứ tự nên tôi kiểm tra cấu trúc thời gian trước, rồi mới xét nghĩa của từng lựa chọn.",
+      "commonMistakes": ["Dịch từng từ theo trật tự tiếng Việt", "Chỉ nhìn từ ngay trước chỗ trống"],
+      "recommendedApproach": ["Đọc hết câu", "Xác định quan hệ logic", "Kiểm tra dạng từ và tiểu từ", "Đọc lại câu sau khi điền"],
+      "example": { "label": "Practice Example", "prompt": "밥을 먹은 ____ 학교에 갔어요.", "analysis": "Ăn xong rồi mới đến trường, cần cấu trúc sau khi.", "answer": "후에" },
+      "practiceReference": { "level": "TOPIK I", "section": "reading", "questionType": "grammar" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-ti-reading-order", "title": "Sắp xếp câu theo mạch", "section": "reading", "questionType": "main-idea", "level": "TOPIK I",
+      "explanation": "Tìm câu mở có chủ thể rõ, sau đó lần theo đại từ, từ nối và trình tự thời gian để tạo mạch tự nhiên.",
+      "thinkAloud": "Câu có 그래서 không thể mở đoạn vì nó cần nguyên nhân phía trước; tôi tìm câu giới thiệu tình huống trước.",
+      "commonMistakes": ["Chỉ ghép theo từ giống nhau", "Đặt câu có đại từ trước khi đối tượng xuất hiện"],
+      "recommendedApproach": ["Tìm câu mở", "Nối cặp nguyên nhân–kết quả", "Theo dõi đại từ", "Đọc toàn đoạn để kiểm tra"],
+      "example": { "label": "Practice Example", "prompt": "(가) 그래서 우산을 샀다. (나) 아침부터 비가 왔다.", "analysis": "그래서 nối kết quả với nguyên nhân đứng trước.", "answer": "(나) → (가)" },
+      "practiceReference": { "level": "TOPIK I", "section": "reading", "questionType": "main-idea" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-reading-main-idea", "title": "Tìm ý chính", "section": "reading", "questionType": "main-idea", "level": "TOPIK II",
+      "explanation": "Ý chính phải bao quát luận điểm và hướng kết luận của toàn đoạn, không chỉ lặp lại một ví dụ nổi bật.",
+      "thinkAloud": "Các ví dụ khác nhau đều chứng minh việc ghi chép giúp làm rõ suy nghĩ; tôi chọn phương án bao quát quan hệ đó.",
+      "commonMistakes": ["Chọn chi tiết có nhiều từ trùng", "Chọn phương án rộng hơn nội dung", "Bỏ qua câu kết"],
+      "recommendedApproach": ["Xác định chủ đề lặp", "Tách luận điểm khỏi ví dụ", "Tóm tắt đoạn trong một câu", "So từng phương án với bản tóm tắt"],
+      "example": { "label": "Practice Example", "prompt": "기록은 기억을 돕고 생각의 빈틈을 보여 준다. Nội dung chính?", "analysis": "Hai vế đều nói vai trò của ghi chép, không chỉ trí nhớ.", "answer": "Ghi chép giúp ghi nhớ và cấu trúc suy nghĩ." },
+      "practiceReference": { "level": "TOPIK II", "section": "reading", "questionType": "main-idea" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-reading-detail", "title": "Tìm thông tin chi tiết", "section": "reading", "questionType": "detail", "level": "TOPIK II",
+      "explanation": "Đối chiếu quan hệ và điều kiện, không chỉ tìm từ giống. Chú ý 하되, 만, 뿐, 제외 và các giới hạn phạm vi.",
+      "thinkAloud": "Phương án có cùng từ 재택근무 nhưng thiếu điều kiện ngày có họp, nên chưa thể chọn.",
+      "commonMistakes": ["Khớp từ nhưng sai quan hệ", "Bỏ sót ngoại lệ", "Đổi chủ thể"],
+      "recommendedApproach": ["Chia câu thành mệnh đề", "Đánh dấu điều kiện/ngoại lệ", "Đối chiếu từng phương án", "Loại phương án tuyệt đối hóa"],
+      "example": { "label": "Practice Example", "prompt": "재택근무를 허용하되 회의 날에는 출근한다.", "analysis": "Được làm từ xa nhưng có ngoại lệ vào ngày họp.", "answer": "Phải đến công ty khi có họp." },
+      "practiceReference": { "level": "TOPIK II", "section": "reading", "questionType": "detail" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-reading-blank", "title": "Điền chỗ trống theo logic", "section": "reading", "questionType": "grammar", "level": "TOPIK II",
+      "explanation": "Đọc câu trước và sau chỗ trống để xác định vai trò: bổ sung, đối lập, nguyên nhân, kết quả hay kết luận.",
+      "thinkAloud": "Câu sau giới hạn lợi ích nêu ở câu trước, nên chỗ trống cần tín hiệu đối lập chứ không phải kết quả.",
+      "commonMistakes": ["Chỉ xét ngữ pháp quanh chỗ trống", "Không kiểm tra mạch toàn đoạn"],
+      "recommendedApproach": ["Tóm tắt hai phía", "Gọi tên quan hệ logic", "Thử từng lựa chọn", "Đọc lại toàn đoạn"],
+      "example": { "label": "Practice Example", "prompt": "절차는 간단해졌다. __ 정보가 부족한 사람에게는 어렵다.", "analysis": "Vế sau nêu giới hạn trái với cải thiện ở vế trước.", "answer": "그러나" },
+      "practiceReference": { "level": "TOPIK II", "section": "reading", "questionType": "grammar" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-reading-sequence", "title": "Sắp xếp đoạn và câu", "section": "reading", "questionType": "main-idea", "level": "TOPIK II",
+      "explanation": "Dùng câu giới thiệu, tham chiếu, từ nối và tiến triển lập luận để tìm thứ tự; không dựa duy nhất vào một từ lặp.",
+      "thinkAloud": "Cụm 이러한 변화 cần một thay đổi đã được nêu trước, nên câu đó không thể đứng đầu.",
+      "commonMistakes": ["Bỏ qua từ tham chiếu", "Ghép câu chỉ vì lặp danh từ"],
+      "recommendedApproach": ["Tìm câu độc lập nhất", "Nối đại từ với danh từ", "Theo dõi từ nối", "Kiểm tra tiến triển ý"],
+      "example": { "label": "Practice Example", "prompt": "Sắp xếp câu có 먼저, 이러한 변화, 따라서.", "analysis": "먼저 mở tiến trình; 이러한 변화 tham chiếu; 따라서 kết luận.", "answer": "먼저 → 이러한 변화 → 따라서" },
+      "practiceReference": { "level": "TOPIK II", "section": "reading", "questionType": "main-idea" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-reading-inference", "title": "Suy luận có căn cứ", "section": "reading", "questionType": "inference", "level": "TOPIK II",
+      "explanation": "Chọn kết luận tối thiểu được dữ kiện hỗ trợ. Không dùng kiến thức ngoài và tránh phương án có từ tuyệt đối như luôn luôn, hoàn toàn.",
+      "thinkAloud": "Đoạn nói khảo sát ngắn nên chưa thể kết luận chắc; tôi chỉ suy ra cần thận trọng, không phủ nhận toàn bộ kết quả.",
+      "commonMistakes": ["Suy luận quá xa", "Đưa quan điểm cá nhân", "Chọn khẳng định tuyệt đối"],
+      "recommendedApproach": ["Liệt kê dữ kiện", "Viết kết luận vừa đủ", "Kiểm tra từng từ trong phương án", "Loại ý cần bằng chứng ngoài"],
+      "example": { "label": "Practice Example", "prompt": "조사 기간이 짧아 효과를 단정하기 어렵다. Có thể suy ra?", "analysis": "Giới hạn là thời gian khảo sát, không phải mọi số liệu đều sai.", "answer": "Cần thêm bằng chứng trước khi kết luận." },
+      "practiceReference": { "level": "TOPIK II", "section": "reading", "questionType": "inference" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-reading-vocabulary", "title": "Từ vựng trong ngữ cảnh", "section": "reading", "questionType": "vocabulary", "level": "TOPIK II",
+      "explanation": "Dùng sắc thái, collocation và câu xung quanh để đoán nghĩa; không chọn nghĩa tiếng Việt quen thuộc nếu không khớp ngữ cảnh.",
+      "thinkAloud": "-으로만 cho biết tác giả phê bình việc thu hẹp nguyên nhân, nên 치부하다 ở đây mang nghĩa quy kết đơn giản.",
+      "commonMistakes": ["Chọn nghĩa phổ biến nhưng sai ngữ cảnh", "Bỏ qua collocation"],
+      "recommendedApproach": ["Xác định loại từ", "Tìm từ đi kèm", "Thay nghĩa vào câu", "Kiểm tra sắc thái tích cực/tiêu cực"],
+      "example": { "label": "Practice Example", "prompt": "문제를 개인 탓으로만 치부하다", "analysis": "으로만 giới hạn vấn đề vào một nguyên nhân.", "answer": "Quy kết đơn giản cho cá nhân." },
+      "practiceReference": { "level": "TOPIK II", "section": "reading", "questionType": "vocabulary" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-reading-grammar", "title": "Ngữ pháp học thuật", "section": "reading", "questionType": "grammar", "level": "TOPIK II",
+      "explanation": "Xác định quan hệ logic và ràng buộc hình thái của cả cấu trúc trước khi chọn; ưu tiên chức năng trong câu thay vì bản dịch một-một.",
+      "thinkAloud": "Có 반대가 많았음에도 nhưng kết quả vẫn thực hiện, nên cần cấu trúc nhượng bộ.",
+      "commonMistakes": ["Nhầm nguyên nhân với nhượng bộ", "Chọn theo bản dịch giống tiếng Việt"],
+      "recommendedApproach": ["Xác định quan hệ", "Kiểm tra dạng đứng trước/sau", "Loại cấu trúc sai kết hợp", "Đọc lại sắc thái"],
+      "example": { "label": "Practice Example", "prompt": "반대가 많았음에도 ____ 계획을 시행했다.", "analysis": "Kết quả trái dự đoán, cần nhượng bộ.", "answer": "불구하고" },
+      "practiceReference": { "level": "TOPIK II", "section": "reading", "questionType": "grammar" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-reading-chart", "title": "Biểu đồ và bảng", "section": "reading", "questionType": "chart", "level": "TOPIK II",
+      "explanation": "Ghi giá trị đầu–cuối, đơn vị và chiều thay đổi trước khi tính. Phân biệt phần trăm với điểm phần trăm.",
+      "thinkAloud": "45% trừ 30% là 15 điểm phần trăm; tôi không gọi đó là tăng 15% nếu đề không yêu cầu tỷ lệ tăng.",
+      "commonMistakes": ["Đổi sai đơn vị", "Nhầm phần trăm và điểm phần trăm", "Đọc ngược chiều thời gian"],
+      "recommendedApproach": ["Đọc tiêu đề và đơn vị", "Lập bảng đầu–cuối", "Tính trên giấy", "Đối chiếu phát biểu"],
+      "example": { "label": "Practice Example", "prompt": "Tàu điện 45%, xe buýt 30%.", "analysis": "So sánh trực tiếp theo cùng đơn vị.", "answer": "Tàu điện cao hơn 15 điểm phần trăm." },
+      "practiceReference": { "level": "TOPIK II", "section": "reading", "questionType": "chart" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-ti-listening-preview", "title": "Đọc câu hỏi trước khi nghe", "section": "listening", "questionType": "conversation", "level": "TOPIK I",
+      "explanation": "Dùng vài giây trước audio để nhận diện nhiệm vụ và khác biệt giữa các phương án; không cố dịch toàn bộ.",
+      "thinkAloud": "Các đáp án khác nhau ở địa điểm, nên tôi nghe đặc biệt các từ 학교, 회사, 병원.",
+      "commonMistakes": ["Đọc quá kỹ một phương án", "Cố ghi mọi từ nghe được"],
+      "recommendedApproach": ["Đọc yêu cầu", "So sánh phương án", "Chọn 1–2 tín hiệu cần nghe", "Giữ mắt ở câu hiện tại"],
+      "example": { "label": "Practice Example", "prompt": "Các đáp án: trường, công ty, bệnh viện, ngân hàng.", "analysis": "Dự đoán audio sẽ chứa tín hiệu địa điểm hoặc hành động đặc trưng.", "answer": "Nghe keyword địa điểm và động từ liên quan." },
+      "practiceReference": { "level": "TOPIK I", "section": "listening", "questionType": "conversation" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-ti-listening-keyword", "title": "Keyword và dự đoán ngữ cảnh", "section": "listening", "questionType": "detail", "level": "TOPIK I",
+      "explanation": "Dự đoán nhóm từ có thể xuất hiện, rồi nghe cụm mang thông tin thay vì bám một từ đơn lẻ.",
+      "thinkAloud": "Câu hỏi hỏi thời gian nên tôi chờ số giờ và tín hiệu 변경, không chọn ngay con số đầu tiên.",
+      "commonMistakes": ["Chọn keyword đầu tiên", "Bỏ qua thông tin sửa lại"],
+      "recommendedApproach": ["Xác định loại thông tin", "Dự đoán từ liên quan", "Nghe cả cụm", "Kiểm tra có thay đổi hay không"],
+      "example": { "label": "Practice Example", "prompt": "세 시가 아니라 네 시에 만나요.", "analysis": "아니라 sửa thông tin 3 giờ thành 4 giờ.", "answer": "Gặp lúc 4 giờ." },
+      "practiceReference": { "level": "TOPIK I", "section": "listening", "questionType": "detail" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-ti-listening-speaker", "title": "Người nói, mục đích và hành động tiếp theo", "section": "listening", "questionType": "conversation", "level": "TOPIK I",
+      "explanation": "Theo dõi vai trò người nói, đuôi câu hỏi/yêu cầu và động từ cuối để nhận diện mục đích hoặc hành động tiếp theo.",
+      "thinkAloud": "Người nói hỏi đường bằng -어떻게 가요?, nên phản hồi cần chỉ dẫn chứ không mô tả cảm xúc.",
+      "commonMistakes": ["Đảo vai người nói", "Bỏ qua động từ ở cuối câu"],
+      "recommendedApproach": ["Gán A/B cho người nói", "Nghe đuôi câu", "Tóm tắt mục đích bằng một động từ", "Chọn hành động phù hợp"],
+      "example": { "label": "Practice Example", "prompt": "여기에서 은행에 어떻게 가요?", "analysis": "Mục đích là hỏi cách đi đến ngân hàng.", "answer": "Chọn lời chỉ đường." },
+      "practiceReference": { "level": "TOPIK I", "section": "listening", "questionType": "conversation" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-listening-purpose", "title": "Nhận diện mục đích và thái độ", "section": "listening", "questionType": "main-idea", "level": "TOPIK II",
+      "explanation": "Tách nội dung được nhắc đến khỏi điều người nói muốn làm: giải thích, phản đối, đề nghị, cảnh báo hay đánh giá.",
+      "thinkAloud": "Người nói đưa dữ kiện rồi kết bằng cần thận trọng; mục đích là cảnh báo, không chỉ cung cấp con số.",
+      "commonMistakes": ["Chọn chủ đề thay vì mục đích", "Bỏ qua câu kết"],
+      "recommendedApproach": ["Ghi chủ đề", "Nghe động từ đánh giá", "Chú ý câu kết", "Chọn mục đích khớp toàn bài"],
+      "example": { "label": "Practice Example", "prompt": "수치만 보고 효과를 단정해서는 안 됩니다.", "analysis": "-어서는 안 됩니다 thể hiện cảnh báo.", "answer": "Cảnh báo không kết luận chỉ từ số liệu." },
+      "practiceReference": { "level": "TOPIK II", "section": "listening", "questionType": "main-idea" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-listening-change", "title": "Nghe thông tin thay đổi", "section": "listening", "questionType": "detail", "level": "TOPIK II",
+      "explanation": "Thông tin đúng thường nằm sau tín hiệu sửa, đối lập hoặc ngoại lệ như 원래, 그런데, 대신, 아니라, 변경되다.",
+      "thinkAloud": "Con số đầu là kế hoạch cũ; 변경되었습니다 báo rằng thông tin sau mới là đáp án cuối.",
+      "commonMistakes": ["Chọn thông tin đầu tiên", "Không cập nhật ghi chú sau từ chuyển ý"],
+      "recommendedApproach": ["Ghi thông tin ban đầu", "Khoanh tín hiệu đổi", "Gạch thông tin cũ", "Xác nhận thông tin cuối"],
+      "example": { "label": "Practice Example", "prompt": "원래 금요일이었지만 월요일로 변경되었습니다.", "analysis": "지만 và 변경 chỉ thay đổi từ thứ Sáu sang thứ Hai.", "answer": "Thứ Hai." },
+      "practiceReference": { "level": "TOPIK II", "section": "listening", "questionType": "detail" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-listening-distractor", "title": "Tránh distractor", "section": "listening", "questionType": "detail", "level": "TOPIK II",
+      "explanation": "Đáp án nhiễu thường lặp đúng từ audio nhưng sai người, thời điểm, quan hệ hoặc trạng thái cuối cùng.",
+      "thinkAloud": "Audio có từ 예산 nhưng nói ngân sách đủ; nguyên nhân thật nằm sau -지만 là thiếu nhân lực.",
+      "commonMistakes": ["Chọn phương án có từ trùng", "Không theo dõi quan hệ trước/sau -지만"],
+      "recommendedApproach": ["Đừng chọn khi vừa nghe từ trùng", "Ghi quan hệ logic", "Kiểm tra chủ thể", "Ưu tiên thông tin trả lời đúng câu hỏi"],
+      "example": { "label": "Practice Example", "prompt": "예산은 충분했지만 인력을 구하지 못했습니다.", "analysis": "Ngân sách là distractor; thiếu nhân lực mới là vấn đề.", "answer": "Không tuyển được nhân lực." },
+      "practiceReference": { "level": "TOPIK II", "section": "listening", "questionType": "detail" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-listening-inference", "title": "Suy luận khi nghe", "section": "listening", "questionType": "inference", "level": "TOPIK II",
+      "explanation": "Kết hợp thái độ, cấu trúc so sánh và giới hạn bằng chứng; chỉ chọn điều được lời nói hỗ trợ.",
+      "thinkAloud": "A보다 B가 중요하다 cho biết ưu tiên B; tôi không suy ra người nói phủ nhận hoàn toàn A.",
+      "commonMistakes": ["Cực đoan hóa lập trường", "Dùng kiến thức ngoài audio"],
+      "recommendedApproach": ["Ghi lập trường từng người", "Nhận diện từ so sánh", "Tách phát biểu khỏi suy luận", "Chọn kết luận tối thiểu"],
+      "example": { "label": "Practice Example", "prompt": "기술보다 사용 기준이 더 중요합니다.", "analysis": "Người nói ưu tiên tiêu chuẩn sử dụng, không nói công nghệ vô ích.", "answer": "Cách sử dụng quan trọng hơn bản thân công nghệ." },
+      "practiceReference": { "level": "TOPIK II", "section": "listening", "questionType": "inference" },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-writing-51", "title": "Writing 51 · Hoàn thành ngữ cảnh ngắn", "section": "writing", "questionType": "grammar", "level": "TOPIK II",
+      "explanation": "Giữ đúng chức năng văn bản, mức lịch sự và liên kết với câu trước; ưu tiên một câu hoàn chỉnh, tự nhiên.",
+      "thinkAloud": "Đây là thông báo trang trọng, nên tôi dùng đuôi đề nghị lịch sự và giữ chủ đề đã nêu.",
+      "commonMistakes": ["Đổi chủ đề", "Dùng văn nói thân mật", "Lặp nguyên câu trước"],
+      "recommendedApproach": ["Xác định loại văn bản", "Tìm quan hệ với câu trước", "Viết một ý đủ", "Kiểm tra đuôi câu"],
+      "checklist": ["Đúng ngữ cảnh", "Đủ chủ ngữ ngầm", "Đuôi câu nhất quán", "Không thêm thông tin lạ"],
+      "example": { "label": "Practice Example", "prompt": "회의 시간이 바뀌었습니다. 늦지 않도록 ____.", "analysis": "Thông báo cần lời nhắc trang trọng.", "answer": "확인해 주시기 바랍니다." },
+      "practiceReference": { "level": "TOPIK II", "section": "writing", "questionType": "grammar", "questionNumber": 51 },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-writing-52", "title": "Writing 52 · Hoàn thiện quan hệ logic", "section": "writing", "questionType": "grammar", "level": "TOPIK II",
+      "explanation": "Dùng từ nối và nội dung hai phía để hoàn thiện nguyên nhân, đối lập hoặc kết quả; tránh viết một câu đúng riêng lẻ nhưng lệch mạch.",
+      "thinkAloud": "그러나 và 오히려 báo hiệu kết quả trái với lợi ích trước đó, nên ý điền phải là tác hại.",
+      "commonMistakes": ["Đúng ngữ pháp nhưng sai logic", "Bỏ tín hiệu từ nối"],
+      "recommendedApproach": ["Khoanh từ nối", "Tóm tắt vế trước", "Dự đoán hướng nghĩa", "Kiểm tra câu hoàn chỉnh"],
+      "checklist": ["Quan hệ logic đúng", "Từ vựng phù hợp", "Đuôi câu thống nhất", "Không mâu thuẫn"],
+      "example": { "label": "Practice Example", "prompt": "무리하게 운동하면 오히려 ____.", "analysis": "오히려 yêu cầu hệ quả ngược mong đợi.", "answer": "건강을 해칠 수 있습니다." },
+      "practiceReference": { "level": "TOPIK II", "section": "writing", "questionType": "grammar", "questionNumber": 52 },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-writing-53", "title": "Writing 53 · Mô tả biểu đồ", "section": "writing", "questionType": "chart", "level": "TOPIK II",
+      "explanation": "Mở bằng tổng quan, chọn số liệu tiêu biểu và so sánh chính xác; không tự bịa nguyên nhân khi biểu đồ không cung cấp.",
+      "thinkAloud": "Tôi nêu nhóm cao nhất trước, sau đó một so sánh có số liệu và giữ đúng đơn vị phần trăm.",
+      "commonMistakes": ["Liệt kê mọi số liệu", "Nêu ý kiến cá nhân", "Nhầm đơn vị", "Bịa nguyên nhân"],
+      "recommendedApproach": ["Đọc tiêu đề/đơn vị", "Chọn 2–3 điểm nổi bật", "Viết tổng quan", "Thêm so sánh", "Kiểm tra số"],
+      "checklist": ["Có tổng quan", "Số liệu chính xác", "Có so sánh", "Không bịa nguyên nhân", "Đủ độ dài luyện tập"],
+      "example": { "label": "Practice Example", "prompt": "지하철 45%, 버스 30%, 자동차 15%, 기타 10%.", "analysis": "Tàu điện cao nhất; cao hơn xe buýt 15 điểm phần trăm.", "answer": "지하철 이용자가 45%로 가장 많았으며 버스보다 15%포인트 높았다." },
+      "practiceReference": { "level": "TOPIK II", "section": "writing", "questionType": "chart", "questionNumber": 53 },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    },
+    {
+      "id": "p81-tii-writing-54", "title": "Writing 54 · Bài nghị luận", "section": "writing", "questionType": "main-idea", "level": "TOPIK II",
+      "explanation": "Lập dàn ý luận điểm–lý do–ví dụ/hệ quả–giải pháp trước khi viết; mỗi đoạn phục vụ một chức năng rõ.",
+      "thinkAloud": "Đề hỏi vì sao và giải pháp, nên dàn ý phải trả lời cả hai; tôi không dành toàn bài chỉ để mô tả hiện tượng.",
+      "commonMistakes": ["Lạc một vế của đề", "Ví dụ không hỗ trợ luận điểm", "Dùng template rỗng", "Kết luận thêm ý mới"],
+      "recommendedApproach": ["Gạch yêu cầu đề", "Viết luận điểm", "Chọn 2 lý do", "Thêm ví dụ/hệ quả", "Đưa giải pháp", "Kết luận ngắn"],
+      "checklist": ["Trả lời đủ yêu cầu", "Bố cục rõ", "Mỗi đoạn một ý", "Từ nối có chức năng", "Ví dụ liên quan", "Kiểm tra độ dài và chính tả"],
+      "example": { "label": "Practice Example", "prompt": "Vì sao cần kiểm chứng thông tin trong xã hội số?", "analysis": "Cần nêu tầm quan trọng, hệ quả của tin sai và cách kiểm chứng.", "answer": "Luận điểm → hệ quả → ví dụ → giải pháp → kết luận." },
+      "practiceReference": { "level": "TOPIK II", "section": "writing", "questionType": "main-idea", "questionNumber": 54 },
+      "provenance": { "sourceType": "PRACTICE_EXAMPLE", "source": "TamHoanq original educational content", "examYear": null, "examNumber": null, "questionReference": null }
+    }
+  ],
+  "writingTemplates": [
+    { "id": "connective", "category": "Liên kết", "expression": "또한 / 반면에 / 따라서", "when": "Khi bổ sung, đối lập hoặc kết luận từ ý trước.", "why": "Làm rõ quan hệ logic giữa hai câu.", "variants": ["게다가", "그러나", "그러므로"], "example": "비용이 줄었다. 또한 처리 시간도 짧아졌다.", "warning": "Chỉ chọn từ nối sau khi xác định quan hệ; không chèn để trang trí." },
+    { "id": "academic", "category": "Học thuật", "expression": "-는 것으로 나타났다", "when": "Khi tóm tắt kết quả khảo sát hoặc dữ liệu.", "why": "Giữ giọng văn khách quan.", "variants": ["-는 경향을 보였다", "-라고 볼 수 있다"], "example": "이용자가 증가한 것으로 나타났다.", "warning": "Không dùng nếu không có dữ liệu hoặc quan sát hỗ trợ." },
+    { "id": "comparison", "category": "So sánh", "expression": "A는 B보다 N%포인트 높다", "when": "Khi hai giá trị cùng đơn vị phần trăm.", "why": "Nêu chênh lệch chính xác.", "variants": ["A는 B의 두 배이다", "A에 비해 B는 낮다"], "example": "지하철은 버스보다 15%포인트 높다.", "warning": "Phân biệt % với điểm phần trăm và kiểm tra điều kiện dùng ‘gấp đôi’." },
+    { "id": "cause-effect", "category": "Nguyên nhân–kết quả", "expression": "-기 때문에 / 그 결과", "when": "Khi nguyên nhân có bằng chứng dẫn đến kết quả.", "why": "Tách rõ lý do và hệ quả.", "variants": ["-로 인해", "이에 따라"], "example": "정보가 빠르게 퍼지기 때문에 확인이 필요하다.", "warning": "Không gán quan hệ nhân quả nếu đề chỉ cho thấy tương quan." },
+    { "id": "contrast", "category": "Đối lập", "expression": "-는 반면에", "when": "Khi so hai đặc điểm tương phản trên cùng tiêu chí.", "why": "Tạo đối chiếu cân bằng.", "variants": ["그러나", "-음에도 불구하고"], "example": "온라인 수업은 편리한 반면에 집중하기 어려울 수 있다.", "warning": "Hai vế phải thực sự đối lập và cùng phạm vi." },
+    { "id": "opinion", "category": "Quan điểm", "expression": "-아/어야 한다고 본다", "when": "Khi nêu quan điểm có thể bảo vệ bằng lý do.", "why": "Thể hiện lập trường rõ nhưng không tuyệt đối hóa.", "variants": ["-할 필요가 있다", "-는 것이 바람직하다"], "example": "학교는 미디어 교육을 제공해야 한다고 본다.", "warning": "Luôn theo sau bằng lý do hoặc bằng chứng; tránh khẳng định chắc chắn vô căn cứ." },
+    { "id": "introduction", "category": "Mở bài", "expression": "최근 -에 대한 관심이 높아지고 있다", "when": "Khi giới thiệu bối cảnh thật sự liên quan đề.", "why": "Đưa người đọc vào vấn đề trước luận điểm.", "variants": ["오늘날 -는 중요한 문제이다", "-의 중요성이 커지고 있다"], "example": "최근 정보 검증에 대한 관심이 높아지고 있다.", "warning": "Không dùng mở bài chung chung nếu không nối được với luận điểm." },
+    { "id": "conclusion", "category": "Kết luận", "expression": "따라서 -할 필요가 있다", "when": "Khi tổng hợp lập luận và đưa hành động phù hợp.", "why": "Khép lại đúng hướng đã chứng minh.", "variants": ["이러한 점에서", "결국"], "example": "따라서 여러 출처를 비교할 필요가 있다.", "warning": "Không thêm luận điểm hoặc số liệu mới trong kết luận." }
+  ],
+  "timePlans": [
+    { "id": "topik-i", "level": "TOPIK I", "totalMinutes": 100, "sections": [{ "id": "listening", "label": "Listening", "minutes": 38 }, { "id": "reading", "label": "Reading", "minutes": 52 }, { "id": "review", "label": "Kiểm tra", "minutes": 7 }, { "id": "buffer", "label": "Dự phòng", "minutes": 3 }], "notice": "Điểm khởi đầu để luyện; hãy điều chỉnh theo tốc độ và định dạng kỳ thi bạn đăng ký." },
+    { "id": "topik-ii", "level": "TOPIK II", "totalMinutes": 180, "sections": [{ "id": "listening", "label": "Listening", "minutes": 55 }, { "id": "writing", "label": "Writing", "minutes": 47 }, { "id": "reading", "label": "Reading", "minutes": 68 }, { "id": "review", "label": "Kiểm tra", "minutes": 7 }, { "id": "buffer", "label": "Dự phòng", "minutes": 3 }], "notice": "Đây là kế hoạch luyện linh hoạt, không phải công thức bắt buộc hoặc thông báo thời lượng chính thức." }
+  ],
+  "offlinePacks": [
+    { "id": "p81-topik-i-strategy", "title": "TOPIK I Strategy", "levels": ["TOPIK I"], "sections": ["listening", "reading"] },
+    { "id": "p81-topik-ii-reading", "title": "TOPIK II Reading Strategy", "levels": ["TOPIK II"], "sections": ["reading"] },
+    { "id": "p81-topik-ii-writing", "title": "TOPIK II Writing Strategy", "levels": ["TOPIK II"], "sections": ["writing"] }
+  ]
+}
