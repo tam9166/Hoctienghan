@@ -148,7 +148,7 @@ const worker = read('sw.js');
 const migrationSql = read('supabase/migrations/20260916_p76_teacher_creator_ecosystem.sql');
 assert.match(loader, /teacherCreator/);
 assert.match(loader, /creator-studio-p76/);
-assert.match(index, /route-loader\.js\?v=27/);
+assert.match(index, /route-loader\.js\?v=28/);
 assert.match(worker, /klearn-v102/);
 assert.match(worker, /teacher-creator-ecosystem\.json/);
 assert.match(migrationSql, /education_teacher_profiles/);

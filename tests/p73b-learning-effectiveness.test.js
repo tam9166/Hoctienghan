@@ -77,7 +77,7 @@ assert.equal(restored.window.ActiveRecallService.history().length, 1);
 
 const app = read('app.js'); const index = read('index.html'); const worker = read('sw.js'); const loader = read('data/route-loader.js'); const css = read('learning-effectiveness.css');
 assert.match(app, /learningEffectiveness: 'klearn_learning_effectiveness'/); assert.match(app, /mergeLearningEffectiveness/); assert.match(app, /STORAGE_KEYS\.learningEffectiveness/);
-assert.doesNotMatch(index, /data\/learning-effectiveness\.js\?v=1/); assert.match(index, /app\.js\?v=83/);
+assert.doesNotMatch(index, /data\/learning-effectiveness\.js\?v=1/); assert.match(index, /app\.js\?v=84/);
 assert.match(worker, /klearn-v102/); assert.match(worker, /content\/learning-effectiveness\.json/); assert.match(worker, /learning-effectiveness\.css\?v=1/);
 assert.match(loader, /learningEffectiveness: \{ dependencies: \['intelligenceMemory', 'realKoreanExperience', 'science'\]/); assert.match(loader, /routes\('lessons'.*'learningEffectiveness'/);
 assert.match(css, /@media\(max-width:720px\)/); assert.match(css, /prefers-reduced-motion/); assert.match(css, /overflow-wrap/);

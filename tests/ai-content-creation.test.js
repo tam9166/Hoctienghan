@@ -107,7 +107,7 @@ function boot(initialRole = 'content_editor') {
 
   assert.match(index, /ai-content-creation\.css\?v=1/);
   assert.match(index, /data\/ai-content-creation\.js\?v=1/);
-  assert.match(index, /app\.js\?v=83/);
+  assert.match(index, /app\.js\?v=84/);
   assert.match(css, /@media\(max-width:600px\)/);
   assert.match(worker, /klearn-v102/);
   assert.match(worker, /ai-content-creation\.json/);

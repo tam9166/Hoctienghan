@@ -70,7 +70,7 @@ function createRuntime(values = new Map(), userId = 'p72b-a') {
 
   const app = read('app.js'); const index = read('index.html'); const worker = read('sw.js'); const css = read('micro-learning-experience.css');
   assert.match(app, /microLearning: 'klearn_micro_learning'/); assert.match(app, /mergeMicroLearning/); assert.match(app, /STORAGE_KEYS\.microLearning/); assert.match(app, /'micro-path', 'character-room'/);
-  assert.match(index, /micro-learning-experience\.css\?v=1/); assert.match(index, /data\/micro-learning-experience\.js\?v=1/); assert.match(index, /app\.js\?v=83/);
+  assert.match(index, /micro-learning-experience\.css\?v=1/); assert.match(index, /data\/micro-learning-experience\.js\?v=1/); assert.match(index, /app\.js\?v=84/);
   assert.match(worker, /klearn-v102/); assert.match(worker, /content\/micro-learning-experience\.json/); assert.match(css, /@media \(max-width: 600px\)/); assert.match(css, /prefers-reduced-motion/);
   assert.deepEqual(content.privacy, { progressIsUserScoped: true, storesRawAudio: false, storesFreeResponse: false }); assert.equal(JSON.stringify(content).includes('Duo'), true, 'explicit non-copy exclusion should be documented');
   assert.equal(r.progress.marker, 'keep-progress'); assert.equal(r.srs[0].wordId, 'coffee'); assert.ok(r.syncReasons.includes('micro-node-complete'));

@@ -22,7 +22,8 @@
     "biometric": "NativeBiometricService",
     "deepLinks": "NativeDeepLinkService",
     "storage": "MobileDownloadManagerService",
-    "analytics": "MobileAnalyticsService"
+    "analytics": "MobileAnalyticsService",
+    "vocabularyImmersion": "VocabularyMasteryBridgeService"
   },
   "api": {
     "resolver": "KLearnPlatform.apiUrl",

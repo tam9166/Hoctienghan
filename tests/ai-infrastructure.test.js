@@ -53,7 +53,7 @@ assert.equal(typeof pending.then, 'function');
   assert.match(migration, /row level security/i);
   assert.match(migration, /auth\.uid\(\)/);
   assert.match(index, /data\/ai-infrastructure\.js\?v=5/);
-  assert.match(index, /app\.js\?v=83/);
+  assert.match(index, /app\.js\?v=84/);
   assert.match(worker, /klearn-v102/);
   assert.match(worker, /ai-infrastructure\.json/);
   console.log('AI infrastructure: orchestration, minimal context, routing, safety, quality, fallback, cost telemetry, experiments and RLS passed');
