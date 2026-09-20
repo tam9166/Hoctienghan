@@ -133,6 +133,8 @@ Không tạo endpoint mới. Mở rộng `/api/chat` hiện có cho `document_oc
 - Browser E2E Edge: XLSX 2 sheets, DOCX table, CSV, PDF scan, PDF text layer, 5 images PNG/JPG/JPEG/WEBP, reprocess preserving edits, commit/provenance/P82 learning/offline.
 - Responsive: 360, 390, 430, 768, 1024, 1440, 1920; no horizontal overflow; controls 44 px.
 - Production build audit pass; release-readiness pass; Vercel function audit 7/12.
+- Mobile native build, native doctor, mobile ecosystem test và P78 native platform test pass sau khi parser P83 được đưa vào native bundle.
+- GitHub CI và Mobile Native đều pass cho commit `b90e817a0a21533cab5968c231cbbacae5e3e8e6`.
 
 AI provider live OCR không được gọi trong local test vì môi trường không có/không sử dụng production `OPENAI_API_KEY`; contract, privacy gate, image bounds, structured-response validator và fallback đã được test. Đây không được báo cáo như live-provider pass.
 
@@ -153,7 +155,10 @@ AI provider live OCR không được gọi trong local test vì môi trường k
 - Import History không giữ binary nên reprocess sau khi rời phiên phải chọn lại file; đây là chủ đích privacy/storage.
 - Large-file coverage dùng 5,000 structured rows và multi-source fixtures; chưa benchmark PDF 100 page hoặc 20 ảnh trên thiết bị cấu hình thấp.
 - Release warnings hiện tại cần kiểm tra ở môi trường deploy: `PRODUCTION_URL`, Supabase production config và `OPENAI_API_KEY`.
-- Commit SHA, push và production deployment sẽ được cập nhật sau khi release pipeline hoàn tất.
+- Feature commit `279498e` và mobile-bundle fix `b90e817` đã push thành công lên `origin/main`.
+- Vercel Git integration đã deploy Production thành công commit `b90e817a0a21533cab5968c231cbbacae5e3e8e6`: `https://hoctienghan-ags1qqn6u-tam9166s-projects.vercel.app` (GitHub Deployment `6550541492`, trạng thái `success`, 20/09/2026 15:00 ICT).
+- URL deployment đang bật Vercel Deployment Protection nên smoke test ẩn danh chỉ nhận trang xác thực; chưa thể xác nhận canonical-domain smoke nếu không có bypass token/`PRODUCTION_URL`.
+- Workflow GitHub `Deploy production` được chạy kiểm chứng: job verify pass nhưng job deploy riêng dừng ở bước credential vì repository chưa cấu hình đủ `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, `VERCEL_TOKEN`. Việc này không phủ nhận Vercel Git integration deployment thành công ở trên, nhưng cần cấu hình để workflow release chủ động hoạt động.
 
 ## Definition of Done summary
 
