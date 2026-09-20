@@ -11,6 +11,7 @@ const OFFLINE_ASSETS = [
   './p78-mobile-native.css?v=2',
   './vocabulary-immersion-system.css?v=1',
   './personal-vocabulary-system.css?v=1',
+  './smart-document-vocabulary-import.css?v=1',
   './topik-exam-intelligence-system.css?v=2',
   './immersive-spoken-content.css?v=1',
   './social-engagement.css?v=1',
@@ -190,12 +191,16 @@ const OFFLINE_ASSETS = [
   './data/security-privacy.js?v=3',
   './content/security-privacy.json',
   './data/mobile-experience.js?v=3',
-  './data/mobile-native.js?v=1',
+  './data/mobile-native.js?v=2',
   './data/mobile-native-platform.js?v=2',
   './content/mobile-native-platform.json',
   './data/vocabulary-immersion-system.js?v=2',
   './content/vocabulary-immersion-system.json',
-  './data/personal-vocabulary-system.js?v=1',
+  './data/personal-vocabulary-system.js?v=2',
+  './vendor/fflate-0.8.2.min.js',
+  './vendor/pdfjs-5.4.624.min.mjs',
+  './vendor/pdfjs-5.4.624.worker.min.mjs',
+  './data/smart-document-vocabulary-import.js?v=1',
   './data/topik-exam-intelligence-system.js?v=2',
   './content/topik-exam-intelligence-system.json',
   './topik-strategy-coaching-system.css?v=1',
@@ -240,7 +245,7 @@ const INSTALL_ASSETS = new Set([
   './data/curriculum.js?v=1', './data/adaptive-engine.js?v=8', './data/beginner-foundation.js?v=2', './data/daily-learning-experience.js?v=6',
   './data/product-ux.js?v=2', './content/product-ux.json', './data/user-research.js?v=2', './content/user-research-experiments.json',
   './engagement-core.css?v=1', './data/engagement-core.js?v=2', './content/engagement-core.json', './micro-learning-experience.css?v=1', './data/micro-learning-experience.js?v=1', './content/micro-learning-experience.json', './immersive-spoken-content.css?v=1', './data/immersive-spoken-content.js?v=1', './content/immersive-spoken-content.json',
-  './data/production-stability.js?v=5', './data/security-privacy.js?v=3', './data/mobile-experience.js?v=3', './data/mobile-native.js?v=1',
+  './data/production-stability.js?v=5', './data/security-privacy.js?v=3', './data/mobile-experience.js?v=3', './data/mobile-native.js?v=2',
   './p78-mobile-native.css?v=2', './data/mobile-native-platform.js?v=2', './content/mobile-native-platform.json',
   './vocabulary-immersion-system.css?v=1', './data/vocabulary-immersion-system.js?v=2', './content/vocabulary-immersion-system.json',
   './product-demo.css?v=1', './data/product-demo.js?v=1', './content/product-demo.json',
@@ -270,7 +275,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(fetch(request).then(cacheResponse).catch(() => caches.match(request).then((cached) => cached || caches.match('./index.html'))));
     return;
   }
-  if (!/\.(?:html?|css|js|json|svg|png|webp|woff2?|mp3|wav)$/i.test(url.pathname)) return;
+  if (!/\.(?:html?|css|m?js|json|svg|png|webp|woff2?|mp3|wav)$/i.test(url.pathname)) return;
   if (url.pathname.startsWith('/content/')) {
     event.respondWith(caches.match(request).then((cached) => { const update = fetch(request).then(cacheResponse).catch(() => null); return cached || update.then((response) => response || Response.error()); }));
     return;

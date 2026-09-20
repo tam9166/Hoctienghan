@@ -4,8 +4,11 @@ const billing = require('./billing/_shared');
 const aiQuality = require('./_ai-quality');
 const MAX_MESSAGES = 12;
 const ROUTES = new Set(['small', 'strong']);
-const TASKS = new Set(['tutor', 'coach', 'translation', 'definition', 'flashcard', 'short_feedback', 'grammar', 'grammar_support', 'speaking', 'speaking_feedback', 'realtime_voice_feedback', 'writing', 'sentence_correction', 'weekly_report', 'personalized_practice', 'learning_recommendation', 'vocabulary_classification', 'conversation', 'planning', 'study_advisor', 'content_explanation', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor', 'content_difficulty', 'content_translation', 'lesson_draft', 'example_generation', 'audio_script', 'quiz_generation']);
+const TASKS = new Set(['tutor', 'coach', 'translation', 'definition', 'flashcard', 'short_feedback', 'grammar', 'grammar_support', 'speaking', 'speaking_feedback', 'realtime_voice_feedback', 'writing', 'sentence_correction', 'weekly_report', 'personalized_practice', 'learning_recommendation', 'vocabulary_classification', 'document_ocr', 'conversation', 'planning', 'study_advisor', 'content_explanation', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor', 'content_difficulty', 'content_translation', 'lesson_draft', 'example_generation', 'audio_script', 'quiz_generation']);
 const MAX_CONTEXT_CHARS = 6000;
+const MAX_OCR_IMAGES = 3;
+const MAX_OCR_IMAGE_CHARS = 900000;
+const MAX_OCR_TOTAL_CHARS = 2400000;
 function cleanMessage(item) {
   if (!item || !['user', 'assistant'].includes(item.role)) return null;
   return { role: item.role, content: String(item.content || '').slice(0, 4000) };
@@ -20,6 +23,17 @@ function compact(value, depth = 0) {
   if (Array.isArray(value)) return value.slice(0, 10).map((item) => compact(item, depth + 1)).filter((item) => item !== undefined);
   if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).slice(0, 20).map(([key, item]) => [key.slice(0, 40), compact(item, depth + 1)]).filter(([, item]) => item !== undefined));
   return null;
+}
+function validatedOcrImages(value) {
+  if (!Array.isArray(value)) return [];
+  let total = 0;
+  return value.slice(0, MAX_OCR_IMAGES).map((item) => {
+    const dataUrl = String(item?.dataUrl || '');
+    if (!/^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]+$/i.test(dataUrl)) throw Object.assign(new Error('Invalid OCR image'), { code: 'AI_OCR_IMAGE_INVALID' });
+    if (dataUrl.length > MAX_OCR_IMAGE_CHARS) throw Object.assign(new Error('OCR image too large'), { code: 'AI_OCR_IMAGE_TOO_LARGE' });
+    total += dataUrl.length; if (total > MAX_OCR_TOTAL_CHARS) throw Object.assign(new Error('OCR batch too large'), { code: 'AI_OCR_BATCH_TOO_LARGE' });
+    return dataUrl;
+  });
 }
 async function recordEvaluation(auth, entry) {
   if (!auth?.ok) return;
@@ -42,6 +56,9 @@ module.exports = async function handler(req, res) {
   const language = ['vi', 'en', 'zh-CN', 'ko', 'ja', 'zh'].includes(body.learningLanguage) ? body.learningLanguage : 'vi';
   const requestedTask = TASKS.has(String(body.task || '').trim()) ? String(body.task).trim() : 'tutor';
   const task = aiQuality.inferTask(requestedTask, messages[messages.length - 1].content);
+  let ocrImages = [];
+  try { ocrImages = task === 'document_ocr' ? validatedOcrImages(body.images) : []; } catch (error) { return res.status(400).json({ code: error.code || 'AI_OCR_IMAGE_INVALID', error: 'Ảnh OCR không hợp lệ hoặc vượt giới hạn.' }); }
+  if (task === 'document_ocr' && !ocrImages.length) return res.status(400).json({ code: 'AI_OCR_IMAGE_REQUIRED', error: 'Cần ít nhất một ảnh OCR.' });
   const taskContract = aiQuality.contractFor(task);
   const requestedRoute = ROUTES.has(String(body.modelRoute || '').trim()) ? String(body.modelRoute).trim() : '';
   const modelRoute = taskContract.route || requestedRoute || 'small';
@@ -63,8 +80,10 @@ module.exports = async function handler(req, res) {
   try {
     const startedAt = Date.now();
     const model = modelRoute === 'strong' ? (process.env.OPENAI_STRONG_MODEL || process.env.OPENAI_MODEL || 'gpt-4o-mini') : (process.env.OPENAI_SMALL_MODEL || process.env.OPENAI_MODEL || 'gpt-4o-mini');
-    const requestBody = { model, input: [{ role: 'system', content: system }, ...messages], max_output_tokens: taskContract.maxOutputTokens, store: false };
+    const providerMessages = task === 'document_ocr' ? messages.map((message, index) => index === messages.length - 1 ? { role: 'user', content: [{ type: 'input_text', text: message.content }, ...ocrImages.map((imageUrl) => ({ type: 'input_image', image_url: imageUrl, detail: 'high' }))] } : message) : messages;
+    const requestBody = { model, input: [{ role: 'system', content: system }, ...providerMessages], max_output_tokens: taskContract.maxOutputTokens, store: false };
     if (task === 'realtime_voice_feedback') requestBody.text = { format: { type: 'json_schema', name: 'voice_feedback', strict: true, schema: { type: 'object', properties: { replyKo: { type: 'string' }, feedbackVi: { type: 'string' }, correctionKo: { type: 'string' }, naturalness: { type: 'number', minimum: 0, maximum: 100 }, reason: { type: 'string' }, confidence: { type: 'number', minimum: 0, maximum: 1 } }, required: ['replyKo', 'feedbackVi', 'correctionKo', 'naturalness', 'reason', 'confidence'], additionalProperties: false } } };
+    if (task === 'document_ocr') requestBody.text = { format: { type: 'json_schema', name: 'document_vocabulary_ocr', strict: true, schema: { type: 'object', properties: { rows: { type: 'array', items: { type: 'object', properties: { sourceIndex: { type: 'integer', minimum: 0, maximum: 2 }, korean: { type: 'string' }, meaning: { type: 'string' }, wordType: { type: 'string' }, topic: { type: 'string' }, example: { type: 'string' }, confidence: { type: 'number', minimum: 0, maximum: 1 } }, required: ['sourceIndex', 'korean', 'meaning', 'wordType', 'topic', 'example', 'confidence'], additionalProperties: false } } }, required: ['rows'], additionalProperties: false } } };
     const response = await fetch('https://api.openai.com/v1/responses', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify(requestBody), signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(20000) : undefined });
     const payload = await response.json();
     if (!response.ok) return res.status(502).json({ error: 'AI provider error' });

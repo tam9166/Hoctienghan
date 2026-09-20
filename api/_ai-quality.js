@@ -11,6 +11,7 @@ const contracts = Object.freeze({
   grammar_support: { route: 'strong', maxOutputTokens: 650, fields: ['userLanguage','currentTopikLevel','currentLesson','weakGrammar','recentMistakes'] },
   learning_recommendation: { route: 'small', maxOutputTokens: 300, fields: ['currentTopikLevel','targetTopikLevel','weakSkills','dueSrsCount','recentScores','dailyPlan','currentView'] },
   vocabulary_classification: { route: 'small', maxOutputTokens: 900, fields: ['userLanguage','currentTopikLevel'] },
+  document_ocr: { route: 'strong', maxOutputTokens: 1800, fields: [] },
   translation: { route: 'small', maxOutputTokens: 260, fields: ['userLanguage','currentTopikLevel','currentLesson'] },
   content_explanation: { route: 'small', maxOutputTokens: 450, fields: ['userLanguage','currentTopikLevel','currentLesson'] },
   writing_review: { route: 'strong', maxOutputTokens: 700, fields: ['currentTopikLevel','targetTopikLevel','weakGrammar','recentMistakes'] },
@@ -58,6 +59,7 @@ function outputRequirements(task) {
     personalized_practice: 'Tạo số câu được yêu cầu, có Đáp án và Giải thích; phù hợp level; không bịa dữ liệu người học.',
     learning_recommendation: 'Chỉ đề xuất một hành động tiếp theo và nêu bằng chứng trong context. Không tạo dự đoán chắc chắn.',
     vocabulary_classification: 'Chỉ trả về JSON array gồm index, topic, subtopic và confidence 0-1. Đây là gợi ý; dùng Chưa phân loại nếu confidence dưới 0.45.',
+    document_ocr: 'Chỉ đọc chữ nhìn thấy trong ảnh. Chỉ trả JSON theo schema rows. Mỗi mục gồm sourceIndex, korean, meaning, wordType, topic, example, confidence. Không suy đoán chữ mờ; dùng chuỗi rỗng và confidence thấp. Không chứa markdown.',
     translation: 'Trả bản dịch ngắn và ghi chú mức độ lịch sự/ngữ cảnh khi cần.',
     realtime_voice_feedback: 'Tuân thủ đúng JSON schema được cung cấp; không thêm markdown.'
   })[normalizeTask(task)] || 'Trả lời trực tiếp, phù hợp trình độ, có ví dụ hoặc bước tiếp theo khi hữu ích; nói rõ khi không chắc chắn.';
@@ -96,6 +98,7 @@ function evaluateResponse(reply, options = {}) {
   }
   if (task === 'realtime_voice_feedback') { try { const value = JSON.parse(text); if (!['replyKo','feedbackVi','correctionKo','naturalness','reason','confidence'].every((key) => Object.prototype.hasOwnProperty.call(value, key))) throw new Error('schema'); } catch (_) { reasons.push('invalid-format'); critical.push('invalid-format'); } }
   if (task === 'vocabulary_classification') { try { const value = JSON.parse(text); if (!Array.isArray(value) || value.some((item) => !Number.isInteger(Number(item?.index)) || typeof item?.topic !== 'string' || Number(item?.confidence) < 0 || Number(item?.confidence) > 1)) throw new Error('schema'); } catch (_) { reasons.push('invalid-format'); critical.push('invalid-format'); } }
+  if (task === 'document_ocr') { try { const value = JSON.parse(text); if (!Array.isArray(value?.rows) || value.rows.some((item) => !Number.isInteger(Number(item?.sourceIndex)) || typeof item?.korean !== 'string' || typeof item?.meaning !== 'string' || Number(item?.confidence) < 0 || Number(item?.confidence) > 1)) throw new Error('schema'); } catch (_) { reasons.push('invalid-format'); critical.push('invalid-format'); } }
   const level = Number(options.level || 0); const referenced = [...text.matchAll(/TOPIK\s*([1-6])/gi)].map((match) => Number(match[1])); if (level && referenced.some((item) => item > level + 2) && !/(chưa|không nên|sau này)/i.test(text)) reasons.push('level-mismatch');
   const completeness = completenessScore(task, text); if (completeness < 67) reasons.push('incomplete-structure');
   const accuracy = critical.length ? 0 : reasons.includes('level-mismatch') ? 65 : 92;

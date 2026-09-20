@@ -99,13 +99,18 @@
   };
 
   const NativeCameraBridge = {
-    async capture(mode = 'text') {
+    available() { return Boolean(native && plugins().Camera?.getPhoto); },
+    async captureFile() {
       const Camera = plugins().Camera;
-      if (!native || !Camera?.getPhoto) return { status: 'text-fallback', route: 'korean-document-assistant' };
+      if (!native || !Camera?.getPhoto) return null;
       const photo = await Camera.getPhoto({ quality: 82, allowEditing: false, resultType: 'uri', source: 'camera', saveToGallery: false, correctOrientation: true });
-      if (!photo?.webPath) return { status: 'cancelled' };
+      if (!photo?.webPath) return null;
       const response = await fetch(photo.webPath); const blob = await response.blob();
-      const file = new File([blob], `korean-scan.${photo.format || 'jpeg'}`, { type: blob.type || 'image/jpeg' });
+      return new File([blob], `korean-scan-${Date.now()}.${photo.format || 'jpeg'}`, { type: blob.type || 'image/jpeg', lastModified: Date.now() });
+    },
+    async capture(mode = 'text') {
+      const file = await this.captureFile();
+      if (!file) return this.available() ? { status: 'cancelled' } : { status: 'text-fallback', route: 'korean-document-assistant' };
       const mapped = mode === 'text' ? 'document' : mode;
       const result = await global.KoreanDocumentAssistantService?.scan?.(file, mapped);
       return result || { status: 'text-fallback', persisted: false };
