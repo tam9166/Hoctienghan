@@ -1,0 +1,37 @@
+.p84-today-card { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:20px; align-items:center; padding:clamp(18px,3vw,28px); border:1px solid color-mix(in srgb,var(--primary) 42%,var(--outline)); border-radius:20px; background:linear-gradient(135deg,color-mix(in srgb,var(--primary-soft) 72%,var(--surface)),var(--surface)); box-shadow:var(--shadow-sm); }
+.p84-today-card h2,.p84-today-card p { margin:0; }
+.p84-today-card h2 { margin:6px 0; font-size:clamp(1.25rem,2.4vw,1.8rem); color:var(--heading); }
+.p84-today-card > div > p:last-of-type { color:var(--muted); }
+.p84-today-card ul { display:flex; flex-wrap:wrap; gap:8px 16px; margin:14px 0 0; padding:0; list-style:none; color:var(--muted); }
+.p84-today-card li b { color:var(--heading); }
+.p84-today-actions { min-width:min(100%,250px); display:grid; gap:8px; }
+.p84-today-actions .btn { min-height:48px; }
+.p84-link { min-height:44px; padding:8px 12px; border:0; background:transparent; color:var(--text); text-align:left; font-weight:750; }
+.p84-link:hover:not(:disabled),.p84-link:focus-visible { color:var(--primary-strong); text-decoration:underline; }
+.p84-link:disabled { opacity:.45; }
+.p84-complete { width:52px; height:52px; display:grid; place-items:center; justify-self:end; border-radius:50%; background:var(--success-soft); color:var(--success); font-size:1.5rem; font-weight:900; }
+.p84-selection { max-width:780px; display:grid; gap:18px; }
+.p84-selection .back-link { min-height:44px; }
+.p84-selection h1,.p84-selection p { margin:0; }
+.p84-size { margin:0; padding:18px; border:1px solid var(--outline); border-radius:18px; background:var(--surface); }
+.p84-size legend { padding:0 8px; color:var(--heading); font-weight:850; }
+.p84-size > div { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+.p84-size > div button { min-height:52px; border:1px solid var(--outline); border-radius:14px; background:var(--surface-soft); color:var(--text); font-size:1rem; font-weight:850; }
+.p84-size > div button:hover,.p84-size > div button:focus-visible,.p84-size > div button.active { border-color:var(--primary); background:var(--primary-soft); color:var(--heading); }
+.p84-recall-mode { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:0; padding:18px; border:1px solid var(--outline); border-radius:18px; }
+.p84-recall-mode legend { padding:0 8px; font-weight:850; }
+.p84-recall-mode button { min-height:48px; border:1px solid var(--outline); border-radius:12px; background:var(--surface); color:var(--text); font-weight:800; }
+.p84-recall-mode button.active { border-color:var(--primary); background:var(--primary-soft); }
+.p84-custom { margin-top:16px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:end; }
+.p84-custom.hidden { display:none; }
+.p84-custom label { grid-column:1/-1; font-weight:700; }
+.p84-custom input { width:100%; min-height:48px; }
+.p84-message { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; padding:14px; border:1px solid var(--warning); border-radius:14px; background:var(--warning-soft); }
+.p84-preview { display:grid; gap:8px; margin:0; padding:0; list-style:none; }
+.p84-preview li { min-width:0; display:grid; grid-template-columns:minmax(90px,.5fr) minmax(0,1fr) auto; gap:12px; align-items:center; padding:12px 14px; border:1px solid var(--outline); border-radius:13px; background:var(--surface); }
+.p84-preview li b { font-size:1.08rem; }
+.p84-preview li span { overflow-wrap:anywhere; color:var(--muted); }
+.p84-preview li small { color:var(--danger); font-weight:750; }
+@media (max-width:700px) { .p84-today-card { grid-template-columns:1fr; } .p84-today-actions { width:100%; } .p84-complete { justify-self:start; } }
+@media (max-width:430px) { .p84-today-card { padding:16px; border-radius:16px; } .p84-size > div,.p84-recall-mode { grid-template-columns:repeat(2,minmax(0,1fr)); } .p84-custom { grid-template-columns:1fr; } .p84-preview li { grid-template-columns:1fr; gap:3px; } }
+@media (prefers-reduced-motion:reduce) { .p84-today-card * { scroll-behavior:auto!important; transition:none!important; } }
