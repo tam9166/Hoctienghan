@@ -274,6 +274,7 @@ MAIN_VIEWS.push('social-engagement', 'korean-league', 'friend-quests', 'social-c
 MAIN_VIEWS.push('learning-score-explanation', 'xp-explanation', 'progress-explanation', 'engagement-balance');
 MAIN_VIEWS.push('learning-effectiveness', 'vietnamese-learning-assistant', 'word-life', 'learning-health-report', 'improvement-plan', 'listening-journey', 'active-recall-lab', 'complete-course');
 MAIN_VIEWS.push('vocabulary-immersion-p79', 'vocabulary-topic-p79', 'vocabulary-learn-p79', 'vocabulary-practice-p79', 'personal-vocabulary-p79', 'vocabulary-offline-p79', 'vocabulary-analytics-p79');
+MAIN_VIEWS.push('topik-intelligence-p80', 'topik-bank-p80', 'topik-section-p80', 'topik-types-p80', 'topik-generator-p80', 'topik-exam-p80', 'topik-result-p80', 'topik-report-p80');
 const PUBLIC_VIEWS = ['welcome', 'login', 'register', 'demo'];
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'onboarding-time', 'beginner-placement', 'placement', 'onboarding-result'];
 
@@ -910,7 +911,7 @@ const PracticeService = {
     const topik = history.filter((attempt) => /^t[1-6]-/.test(attempt.setId));
     const bestTopik = topik.length ? Math.max(...topik.map((attempt) => attempt.score)) : 0;
     const byTopik = Object.fromEntries([1,2,3,4,5,6].map((level) => {
-      const attempts = history.filter((attempt) => attempt.level === `TOPIK_${level}` || attempt.setId.startsWith(`t${level}-`));
+      const attempts = history.filter((attempt) => attempt.level === `TOPIK_${level}` || String(attempt.setId || '').startsWith(`t${level}-`));
       const skills = {};
       attempts.forEach((attempt) => Object.entries(attempt.skillBreakdown || {}).forEach(([skill, score]) => { if (!skills[skill]) skills[skill] = []; skills[skill].push(score); }));
       return [level, Object.fromEntries(Object.entries(skills).map(([skill, scores]) => [skill, Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)]))];

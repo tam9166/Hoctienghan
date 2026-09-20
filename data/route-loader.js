@@ -21,6 +21,7 @@
     p78Mobile: { styles: ['p78-mobile-native.css?v=2'], scripts: ['data/mobile-native-platform.js?v=2'] },
     p79Vocabulary: { dependencies: ['practical', 'scale'], styles: ['vocabulary-immersion-system.css?v=1'], scripts: ['data/vocabulary-immersion-system.js?v=1'] },
     p79VocabularyVoice: { dependencies: ['p79Vocabulary', 'voice'] },
+    p80Topik: { dependencies: ['topik', 'ai'], styles: ['topik-exam-intelligence-system.css?v=1'], scripts: ['data/topik-exam-intelligence-system.js?v=1'] },
     practical: { scripts: ['data/practical-study.js?v=5'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
@@ -107,6 +108,7 @@
   routes('mobile-native-p78', ['p78Mobile']);
   routes('vocabulary-immersion-p79 vocabulary-topic-p79 vocabulary-learn-p79 personal-vocabulary-p79 vocabulary-offline-p79 vocabulary-analytics-p79', ['p79Vocabulary']);
   routes('vocabulary-practice-p79', ['p79VocabularyVoice']);
+  routes('topik-intelligence-p80 topik-bank-p80 topik-section-p80 topik-types-p80 topik-generator-p80 topik-exam-p80 topik-result-p80 topik-report-p80', ['p80Topik']);
   routes('future-language-platform cross-language-lab language-brain future-integrations global-course-marketplace', ['globalLanguage', 'futureLanguage']);
   routes('global-language-platform global-language-profiles global-exam-framework global-language-comparison global-expansion', ['globalLanguage']);
   routes('global-language-onboarding global-writing-system global-content-packs global-language-search global-adaptive-plan', ['globalLanguage']);
@@ -131,7 +133,7 @@
   // Category pages load their discovery extensions only after the user enters them.
   routes('lessons', ['resources', 'practical', 'scale', 'conversation', 'context', 'reading', 'languageMastery', 'immersion', 'immersive', 'ecosystem', 'realWorld', 'content', 'career', 'immersiveKorean', 'marketplace', 'competitiveContent', 'realKoreanExperience', 'immersiveSpoken', 'learningEffectiveness', 'p79Vocabulary']);
   routes('review', ['practical', 'scale', 'science']);
-  routes('topik', ['topik', 'analytics', 'advancedAnalytics', 'science', 'outcomes']);
+  routes('topik', ['topik', 'analytics', 'advancedAnalytics', 'science', 'outcomes', 'p80Topik']);
   routes('practice speaking-hub', ['voice', 'realKoreanExperience', 'immersiveSpoken']);
   routes('home', ['growth', 'realUserRetentionCore', 'productDelightCore']);
   routes('profile', ['longTerm', 'education', 'communityLearning', 'enterprise', 'retention', 'contentQuality', 'globalLanguage', 'edtech', 'premium', 'aiContent', 'community', 'monetization', 'futureLanguage', 'outcomes', 'growth', 'intelligenceMemory', 'p78Mobile']);

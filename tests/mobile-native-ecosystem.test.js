@@ -98,7 +98,7 @@ function bootNative(platform) {
   assert.equal(nativeContract.identity.sharedWithWeb, true);
   assert.equal(experience.authSync.separateMobileProgressStore, false);
   assert.ok(experience.offline.contentTypes.includes('practice'));
-  assert.equal(version.version, '1.4.0-rc.1');
+  assert.equal(version.version, '1.5.0-rc.1');
   const nativeBundle = path.join(root, 'mobile', 'www', 'mobile-native-plugins.js');
   if (fs.existsSync(nativeBundle)) assert.ok(fs.statSync(nativeBundle).size < 430000, 'native plugin bundle exceeds P78 budget');
   assert.equal(nativeContract.contractVersion, 3);

@@ -1,7 +1,7 @@
 {
-  "version": "1.4.0-rc.1",
+  "version": "1.5.0-rc.1",
   "channel": "release-candidate",
-  "releaseId": "p79-vocabulary-immersion-system",
+  "releaseId": "p80-topik-exam-intelligence-system",
   "releasedAt": "2026-09-20",
   "schemaVersion": 13,
   "minimumSupportedVersion": "1.0.0-rc.1"

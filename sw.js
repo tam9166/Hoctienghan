@@ -1,4 +1,4 @@
-const CACHE = 'klearn-v102';
+const CACHE = 'klearn-v103';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=32',
@@ -10,6 +10,7 @@ const OFFLINE_ASSETS = [
   './micro-learning-experience.css?v=1',
   './p78-mobile-native.css?v=2',
   './vocabulary-immersion-system.css?v=1',
+  './topik-exam-intelligence-system.css?v=1',
   './immersive-spoken-content.css?v=1',
   './social-engagement.css?v=1',
   './learning-ux-explainability.css?v=1',
@@ -107,8 +108,8 @@ const OFFLINE_ASSETS = [
   './locales/en.js?v=8',
   './locales/zh-CN.js?v=8',
   './data/content-locales.js?v=1',
-  './data/route-loader.js?v=28',
-  './app.js?v=84',
+  './data/route-loader.js?v=29',
+  './app.js?v=85',
   './data/engagement-core.js?v=2',
   './content/engagement-core.json',
   './data/micro-learning-experience.js?v=1',
@@ -193,6 +194,8 @@ const OFFLINE_ASSETS = [
   './content/mobile-native-platform.json',
   './data/vocabulary-immersion-system.js?v=1',
   './content/vocabulary-immersion-system.json',
+  './data/topik-exam-intelligence-system.js?v=1',
+  './content/topik-exam-intelligence-system.json',
   './content/mobile-experience.json',
   './data/advanced-voice.js?v=2',
   './data/realtime-voice-coach.js?v=1',
@@ -228,7 +231,7 @@ const INSTALL_ASSETS = new Set([
   './index.html', './styles.css?v=32', './product-ux.css?v=2', './production-stability.css?v=2', './security-privacy.css?v=1', './mobile-experience.css?v=1',
   './locales/vi.js?v=5', './locales/en.js?v=8', './locales/zh-CN.js?v=8', './data/content-locales.js?v=1',
   './data/romanization.js?v=8', './data/vocabulary-bank.js?v=8', './data/dictionary.js?v=1', './data/theory-lessons.js?v=1', './data/handwriting.js?v=1',
-  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=28', './app.js?v=84',
+  './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=29', './app.js?v=85',
   './data/curriculum.js?v=1', './data/adaptive-engine.js?v=8', './data/beginner-foundation.js?v=2', './data/daily-learning-experience.js?v=6',
   './data/product-ux.js?v=2', './content/product-ux.json', './data/user-research.js?v=2', './content/user-research-experiments.json',
   './engagement-core.css?v=1', './data/engagement-core.js?v=2', './content/engagement-core.json', './micro-learning-experience.css?v=1', './data/micro-learning-experience.js?v=1', './content/micro-learning-experience.json', './immersive-spoken-content.css?v=1', './data/immersive-spoken-content.js?v=1', './content/immersive-spoken-content.json',

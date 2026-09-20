@@ -105,9 +105,9 @@ assert.equal(veteran.window.EvidenceAchievementService.refresh().find((item) => 
 
 const app = read('app.js'); const index = read('index.html'); const worker = read('sw.js'); const loader = read('data/route-loader.js'); const css = read('real-user-retention.css'); const moduleSource = read('data/real-user-retention.js');
 assert.match(app, /realUserRetention: 'klearn_real_user_retention'/); assert.match(app, /mergeRealUserRetention/); assert.match(app, /STORAGE_KEYS\.realUserRetention/);
-assert.doesNotMatch(index, /data\/real-user-retention\.js\?v=4/); assert.match(index, /app\.js\?v=84/); assert.match(index, /route-loader\.js\?v=28/);
+assert.doesNotMatch(index, /data\/real-user-retention\.js\?v=4/); assert.match(index, /app\.js\?v=85/); assert.match(index, /route-loader\.js\?v=29/);
 assert.match(loader, /realUserRetentionCore/); assert.match(loader, /routes\('home', \['growth', 'realUserRetentionCore', 'productDelightCore'\]\)/);
-assert.match(worker, /klearn-v102/); assert.match(worker, /content\/real-user-retention\.json/); assert.match(worker, /real-user-retention\.css\?v=2/);
+assert.match(worker, /klearn-v103/); assert.match(worker, /content\/real-user-retention\.json/); assert.match(worker, /real-user-retention\.css\?v=2/);
 assert.match(read('data/ai-coach.js'), /\.\.\.\(window\.KLEARN_EXTRA_VIEWS \|\| \{\}\)/); assert.match(read('data/ai-coach.js'), /previousAfterRender\?\.\(\)/);
 assert.match(css, /@media \(max-width: 560px\)/); assert.match(css, /prefers-reduced-motion/);
 assert.doesNotMatch(moduleSource, /mất streak|mất chuỗi|bạn sẽ tụt hậu/i);
