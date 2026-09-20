@@ -164,6 +164,7 @@
 - AI classification rất lớn được giới hạn 1.500 word cho mỗi thao tác để bảo vệ chi phí/rate. User có thể yêu cầu tiếp phần chưa có suggestion; quota server/account vẫn có thể yêu cầu chia qua nhiều lần.
 - AI classification phụ thuộc consent, network, rate quota và `OPENAI_API_KEY`; manual topic và learning core là fallback đầy đủ.
 - Local environment không có `PRODUCTION_URL`, Supabase production variables hoặc `MOBILE_API_BASE_URL`; canonical-domain smoke và mobile release bundle phải chạy trong CI/environment có secrets. Web production asset build và mobile development/native doctor đã pass.
+- Vercel Production deployment đã success, nhưng anonymous app-level smoke trên deployment URL bị chuyển sang Vercel Deployment Protection. Deployment status và CI là xanh; nội dung app sau lớp protection cần canonical URL hoặc protection bypass token được quản lý bên ngoài repository.
 - Cần QA thêm bằng bàn phím Hàn thật, screen reader thật, storage pressure và hai thiết bị CloudSync production.
 - Không có phase sau P82 nào được triển khai.
 
@@ -171,5 +172,8 @@
 
 - Feature commit: `fdd417a4fe89b971299be3e2c322cb2a1505f111`
 - Feature message: `feat: add P82 personal vocabulary system`
+- Report/deployment commit: `3a6e18a87ee46ead79b17eed5b1d03e13cb2e6ec`
 - Branch: `main`
-- Push/deployment status được xác minh sau commit báo cáo.
+- Push: `origin/main` đã nhận feature và report commit.
+- GitHub CI: **success**; Mobile native workflow: **success**.
+- Vercel Production: **success**, deployment `https://hoctienghan-km6a8k8j8-tam9166s-projects.vercel.app`.
