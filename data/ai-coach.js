@@ -14,9 +14,9 @@
     all() { return read(); },
     add(input = {}) {
       if (!uid()) return null;
-      const item = { type: input.type || 'grammar', question: String(input.question || '').slice(0, 500), mistake: String(input.mistake || '').slice(0, 800), correction: String(input.correction || '').slice(0, 800), explanation: String(input.explanation || '').slice(0, 1200) };
+      const item = { type: input.type || 'grammar', question: String(input.question || '').slice(0, 500), mistake: String(input.mistake || '').slice(0, 800), correction: String(input.correction || '').slice(0, 800), explanation: String(input.explanation || '').slice(0, 1200), deckId: String(input.deckId || '').slice(0, 120), topic: String(input.topic || '').slice(0, 120), wordId: String(input.wordId || '').slice(0, 120), source: String(input.source || '').slice(0, 80) };
       if (!item.mistake && !item.question) return null;
-      const fingerprint = [item.type, item.question, item.mistake, item.correction].map(normalize).join('|');
+      const fingerprint = [item.type, item.question, item.mistake, item.correction, item.deckId, item.wordId].map(normalize).join('|');
       const list = read(); const existing = list.find((entry) => entry.fingerprint === fingerprint);
       if (existing) { existing.count = Math.max(1, Number(existing.count) || 1) + 1; existing.lastSeen = now(); existing.resolved = false; existing.explanation = item.explanation || existing.explanation; write(list); window.LearningMemoryService?.captureError?.(existing); return existing; }
       const result = { id: `error-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, ...item, fingerprint, count: 1, resolved: false, createdAt: now(), lastSeen: now() };

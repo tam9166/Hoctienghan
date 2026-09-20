@@ -10,6 +10,7 @@ const contracts = Object.freeze({
   personalized_practice: { route: 'strong', maxOutputTokens: 800, fields: ['currentTopikLevel','targetTopikLevel','currentLesson','weakGrammar','weakVocabulary','weakSkills','recentMistakes'] },
   grammar_support: { route: 'strong', maxOutputTokens: 650, fields: ['userLanguage','currentTopikLevel','currentLesson','weakGrammar','recentMistakes'] },
   learning_recommendation: { route: 'small', maxOutputTokens: 300, fields: ['currentTopikLevel','targetTopikLevel','weakSkills','dueSrsCount','recentScores','dailyPlan','currentView'] },
+  vocabulary_classification: { route: 'small', maxOutputTokens: 900, fields: ['userLanguage','currentTopikLevel'] },
   translation: { route: 'small', maxOutputTokens: 260, fields: ['userLanguage','currentTopikLevel','currentLesson'] },
   content_explanation: { route: 'small', maxOutputTokens: 450, fields: ['userLanguage','currentTopikLevel','currentLesson'] },
   writing_review: { route: 'strong', maxOutputTokens: 700, fields: ['currentTopikLevel','targetTopikLevel','weakGrammar','recentMistakes'] },
@@ -56,6 +57,7 @@ function outputRequirements(task) {
     weekly_report: 'Chỉ dùng số liệu trong context. Có Bằng chứng; Điểm mạnh; Cần cải thiện; tối đa ba Hành động. Nói rõ khi thiếu dữ liệu.',
     personalized_practice: 'Tạo số câu được yêu cầu, có Đáp án và Giải thích; phù hợp level; không bịa dữ liệu người học.',
     learning_recommendation: 'Chỉ đề xuất một hành động tiếp theo và nêu bằng chứng trong context. Không tạo dự đoán chắc chắn.',
+    vocabulary_classification: 'Chỉ trả về JSON array gồm index, topic, subtopic và confidence 0-1. Đây là gợi ý; dùng Chưa phân loại nếu confidence dưới 0.45.',
     translation: 'Trả bản dịch ngắn và ghi chú mức độ lịch sự/ngữ cảnh khi cần.',
     realtime_voice_feedback: 'Tuân thủ đúng JSON schema được cung cấp; không thêm markdown.'
   })[normalizeTask(task)] || 'Trả lời trực tiếp, phù hợp trình độ, có ví dụ hoặc bước tiếp theo khi hữu ích; nói rõ khi không chắc chắn.';
@@ -93,6 +95,7 @@ function evaluateResponse(reply, options = {}) {
     if (prohibitedTerms.some((term) => normalizedText.includes(term))) { reasons.push(reference.issue === 'unnatural-example' ? 'unnatural-example' : 'reference-contradiction'); critical.push('reference-contradiction'); }
   }
   if (task === 'realtime_voice_feedback') { try { const value = JSON.parse(text); if (!['replyKo','feedbackVi','correctionKo','naturalness','reason','confidence'].every((key) => Object.prototype.hasOwnProperty.call(value, key))) throw new Error('schema'); } catch (_) { reasons.push('invalid-format'); critical.push('invalid-format'); } }
+  if (task === 'vocabulary_classification') { try { const value = JSON.parse(text); if (!Array.isArray(value) || value.some((item) => !Number.isInteger(Number(item?.index)) || typeof item?.topic !== 'string' || Number(item?.confidence) < 0 || Number(item?.confidence) > 1)) throw new Error('schema'); } catch (_) { reasons.push('invalid-format'); critical.push('invalid-format'); } }
   const level = Number(options.level || 0); const referenced = [...text.matchAll(/TOPIK\s*([1-6])/gi)].map((match) => Number(match[1])); if (level && referenced.some((item) => item > level + 2) && !/(chưa|không nên|sau này)/i.test(text)) reasons.push('level-mismatch');
   const completeness = completenessScore(task, text); if (completeness < 67) reasons.push('incomplete-structure');
   const accuracy = critical.length ? 0 : reasons.includes('level-mismatch') ? 65 : 92;

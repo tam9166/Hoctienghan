@@ -4,7 +4,7 @@
   const groups = Object.freeze({
     resources: { scripts: ['data/resource-library.js?v=1', 'data/content-review.js?v=2'] },
     topik: { scripts: ['data/topik-strategy.js?v=1'] },
-    ai: { scripts: ['data/ai-coach.js?v=7', 'data/learning-memory.js?v=3', 'data/personal-intelligence.js?v=3', 'data/learning-intelligence-data.js?v=1', 'data/learning-intelligence.js?v=2'] },
+    ai: { scripts: ['data/ai-coach.js?v=8', 'data/learning-memory.js?v=3', 'data/personal-intelligence.js?v=3', 'data/learning-intelligence-data.js?v=1', 'data/learning-intelligence.js?v=2'] },
     intelligenceMemory: { dependencies: ['ai'], styles: ['learning-intelligence-memory.css?v=1'], scripts: ['data/learning-intelligence-memory.js?v=1'] },
     realKoreanExperience: { dependencies: ['voice', 'conversation', 'languageMastery', 'practical'], styles: ['real-korean-experience.css?v=1'], scripts: ['data/real-korean-experience.js?v=1'] },
     immersiveSpoken: { dependencies: ['voice'], styles: ['immersive-spoken-content.css?v=1'], scripts: ['data/immersive-spoken-content.js?v=1'] },
@@ -19,11 +19,12 @@
     teacherCreator: { dependencies: ['education', 'contentIntelligence'], styles: ['teacher-creator-ecosystem.css?v=1'], scripts: ['data/teacher-creator-ecosystem.js?v=1'] },
     premiumPlatform: { dependencies: ['monetization', 'teacherCreator'], styles: ['premium-monetization-platform.css?v=1'], scripts: ['data/premium-monetization-platform.js?v=1'] },
     p78Mobile: { styles: ['p78-mobile-native.css?v=2'], scripts: ['data/mobile-native-platform.js?v=2'] },
-    p79Vocabulary: { dependencies: ['practical', 'scale'], styles: ['vocabulary-immersion-system.css?v=1'], scripts: ['data/vocabulary-immersion-system.js?v=1'] },
+    p79Vocabulary: { dependencies: ['practical', 'scale'], styles: ['vocabulary-immersion-system.css?v=1'], scripts: ['data/vocabulary-immersion-system.js?v=2'] },
     p79VocabularyVoice: { dependencies: ['p79Vocabulary', 'voice'] },
+    p82Vocabulary: { dependencies: ['p79Vocabulary', 'ai'], styles: ['personal-vocabulary-system.css?v=1'], scripts: ['data/personal-vocabulary-system.js?v=1'] },
     p80Topik: { dependencies: ['topik', 'ai'], styles: ['topik-exam-intelligence-system.css?v=2'], scripts: ['data/topik-exam-intelligence-system.js?v=2'] },
     p81Topik: { dependencies: ['p80Topik'], styles: ['topik-strategy-coaching-system.css?v=1'], scripts: ['data/topik-strategy-coaching-system.js?v=1'] },
-    practical: { scripts: ['data/practical-study.js?v=5'] },
+    practical: { scripts: ['data/practical-study.js?v=6'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
     context: { scripts: ['data/korean-context-data.js?v=1', 'data/korean-context-system.js?v=1'] },
@@ -42,7 +43,7 @@
     retention: { dependencies: ['practical'], styles: ['retention-system.css?v=1'], scripts: ['data/retention-system.js?v=1'] },
     contentQuality: { dependencies: ['content'], styles: ['content-quality.css?v=1'], scripts: ['data/content-quality-system.js?v=2'] },
     contentScience: { dependencies: ['contentQuality', 'advancedAnalytics', 'outcomes'], styles: ['content-science.css?v=1'], scripts: ['data/content-science-system.js?v=1'] },
-    aiInfra: { styles: ['ai-quality.css?v=1'], scripts: ['data/ai-infrastructure.js?v=5', 'data/ai-quality-optimization.js?v=1'] },
+    aiInfra: { styles: ['ai-quality.css?v=1'], scripts: ['data/ai-infrastructure.js?v=6', 'data/ai-quality-optimization.js?v=1'] },
     globalLanguage: { styles: ['global-language-platform.css?v=1', 'global-language-core.css?v=1'], scripts: ['data/global-language-platform.js?v=2', 'data/global-language-core-v2.js?v=1'] },
     advancedAnalytics: { scripts: ['data/advanced-learning-analytics.js?v=1'] },
     edtech: { styles: ['edtech-business-intelligence.css?v=1'], scripts: ['data/edtech-business-intelligence.js?v=1'] },
@@ -109,6 +110,7 @@
   routes('mobile-native-p78', ['p78Mobile']);
   routes('vocabulary-immersion-p79 vocabulary-topic-p79 vocabulary-learn-p79 personal-vocabulary-p79 vocabulary-offline-p79 vocabulary-analytics-p79', ['p79Vocabulary']);
   routes('vocabulary-practice-p79', ['p79VocabularyVoice']);
+  routes('my-vocabulary-p82 vocabulary-deck-p82 vocabulary-import-p82 vocabulary-classify-p82 vocabulary-session-p82', ['p82Vocabulary']);
   routes('topik-intelligence-p80 topik-bank-p80 topik-section-p80 topik-types-p80 topik-generator-p80 topik-exam-p80 topik-result-p80 topik-report-p80', ['p80Topik']);
   routes('topik-strategy-p81 topik-strategies-p81 topik-strategy-detail-p81 topik-writing-p81 topik-time-p81 topik-simulation-p81 topik-goal-p81 topik-coach-p81 topik-dashboard-p81 topik-readiness-p81 topik-offline-p81', ['p81Topik']);
   routes('future-language-platform cross-language-lab language-brain future-integrations global-course-marketplace', ['globalLanguage', 'futureLanguage']);

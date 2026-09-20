@@ -274,6 +274,7 @@ MAIN_VIEWS.push('social-engagement', 'korean-league', 'friend-quests', 'social-c
 MAIN_VIEWS.push('learning-score-explanation', 'xp-explanation', 'progress-explanation', 'engagement-balance');
 MAIN_VIEWS.push('learning-effectiveness', 'vietnamese-learning-assistant', 'word-life', 'learning-health-report', 'improvement-plan', 'listening-journey', 'active-recall-lab', 'complete-course');
 MAIN_VIEWS.push('vocabulary-immersion-p79', 'vocabulary-topic-p79', 'vocabulary-learn-p79', 'vocabulary-practice-p79', 'personal-vocabulary-p79', 'vocabulary-offline-p79', 'vocabulary-analytics-p79');
+MAIN_VIEWS.push('my-vocabulary-p82', 'vocabulary-deck-p82', 'vocabulary-import-p82', 'vocabulary-classify-p82', 'vocabulary-session-p82');
 MAIN_VIEWS.push('topik-intelligence-p80', 'topik-bank-p80', 'topik-section-p80', 'topik-types-p80', 'topik-generator-p80', 'topik-exam-p80', 'topik-result-p80', 'topik-report-p80');
 MAIN_VIEWS.push('topik-strategy-p81', 'topik-strategies-p81', 'topik-strategy-detail-p81', 'topik-writing-p81', 'topik-time-p81', 'topik-simulation-p81', 'topik-goal-p81', 'topik-coach-p81', 'topik-dashboard-p81', 'topik-readiness-p81', 'topik-offline-p81');
 const PUBLIC_VIEWS = ['welcome', 'login', 'register', 'demo'];
@@ -1354,6 +1355,36 @@ const CloudSyncService = {
     });
     return [...map.values()].sort((a, b) => String(a.wordId).localeCompare(String(b.wordId)));
   },
+  mergeVocabularyCollections(local = [], remote = []) {
+    const stamp = (value = {}) => new Date(value.updatedAt || value.deletedAt || value.createdAt || 0).getTime() || 0;
+    const latest = (left, right) => stamp(right) >= stamp(left) ? { ...left, ...right } : { ...right, ...left };
+    const mergeItems = (left = [], right = []) => {
+      const map = new Map();
+      [...(Array.isArray(left) ? left : []), ...(Array.isArray(right) ? right : [])].forEach((item) => {
+        if (!item?.id) return;
+        const previous = map.get(item.id);
+        map.set(item.id, previous ? latest(previous, item) : item);
+      });
+      return [...map.values()];
+    };
+    const decks = new Map();
+    [...(Array.isArray(local) ? local : []), ...(Array.isArray(remote) ? remote : [])].forEach((raw) => {
+      if (!raw?.id) return;
+      const previous = decks.get(raw.id);
+      if (!previous) { decks.set(raw.id, raw); return; }
+      const rawIsNewer = stamp(raw) >= stamp(previous); const newer = rawIsNewer ? raw : previous; const older = rawIsNewer ? previous : raw; const merged = latest(previous, raw);
+      const words = mergeItems(previous.customWords || previous.words, raw.customWords || raw.words);
+      const topics = mergeItems(previous.topics, raw.topics);
+      const imports = mergeItems(previous.imports, raw.imports);
+      const sessionHistory = mergeItems(previous.sessionHistory, raw.sessionHistory).sort((a, b) => stamp(b) - stamp(a)).slice(0, 30);
+      const activity = mergeItems(previous.activity, raw.activity).sort((a, b) => stamp(b) - stamp(a)).slice(0, 50);
+      const leftSession = previous.activeSession; const rightSession = raw.activeSession;
+      const newerDefinesSession = Object.prototype.hasOwnProperty.call(newer, 'activeSession'); const activeSession = newerDefinesSession ? newer.activeSession : older.activeSession || null;
+      const deletionWins = Boolean(merged.deletedAt) && stamp(merged) >= Math.max(stamp(previous), stamp(raw));
+      decks.set(raw.id, { ...merged, customWords: deletionWins ? [] : words, words: undefined, wordIds: deletionWins ? [] : merged.wordIds, topics, imports, sessionHistory, activity, activeSession: deletionWins ? null : activeSession });
+    });
+    return [...decks.values()].sort((a, b) => stamp(b) - stamp(a)).slice(0, 100);
+  },
   mergeProgress(local = {}, remote = {}) {
     const merged = this.mergeValue(local, remote) || {}; const lessons = {};
     const ids = new Set([...Object.keys(local.lessonProgress || {}), ...Object.keys(remote.lessonProgress || {})]);
@@ -1410,7 +1441,7 @@ const CloudSyncService = {
     const latest = stamp(right) > stamp(left) ? right : left; const mergedStamp = Math.max(stamp(left), stamp(right));
     return [{ schemaVersion: 1, celebrations: union('celebrations', 20), feedback: union('feedback', 100), careerPath: latest.careerPath || '', reminder: latest.reminder || { enabled: false, hour: 20 }, companionOpenedAt: latest.companionOpenedAt || null, updatedAt: mergedStamp ? new Date(mergedStamp).toISOString() : null }];
   },
-  mergeDomain(key, local, remote) { if (key === STORAGE_KEYS.srs) return this.mergeSrs(local, remote); if (key === STORAGE_KEYS.progress) return this.mergeProgress(local, remote); if (key === STORAGE_KEYS.languageLearningState) return this.mergeLanguageLearningState(local, remote); if (key === STORAGE_KEYS.engagement) return this.mergeEngagement(local, remote); if (key === STORAGE_KEYS.microLearning) return this.mergeMicroLearning(local, remote); if (key === STORAGE_KEYS.immersiveSpoken) return this.mergeImmersiveSpoken(local, remote); if (key === STORAGE_KEYS.socialEngagement) return this.mergeSocialEngagement(local, remote); if (key === STORAGE_KEYS.learningEffectiveness) return this.mergeLearningEffectiveness(local, remote); if (key === STORAGE_KEYS.realUserRetention) return this.mergeRealUserRetention(local, remote); if (key === STORAGE_KEYS.productDelight) return this.mergeProductDelight(local, remote); return this.mergeValue(local, remote); },
+  mergeDomain(key, local, remote) { if (key === STORAGE_KEYS.srs) return this.mergeSrs(local, remote); if (key === STORAGE_KEYS.vocabularyCollections) return this.mergeVocabularyCollections(local, remote); if (key === STORAGE_KEYS.progress) return this.mergeProgress(local, remote); if (key === STORAGE_KEYS.languageLearningState) return this.mergeLanguageLearningState(local, remote); if (key === STORAGE_KEYS.engagement) return this.mergeEngagement(local, remote); if (key === STORAGE_KEYS.microLearning) return this.mergeMicroLearning(local, remote); if (key === STORAGE_KEYS.immersiveSpoken) return this.mergeImmersiveSpoken(local, remote); if (key === STORAGE_KEYS.socialEngagement) return this.mergeSocialEngagement(local, remote); if (key === STORAGE_KEYS.learningEffectiveness) return this.mergeLearningEffectiveness(local, remote); if (key === STORAGE_KEYS.realUserRetention) return this.mergeRealUserRetention(local, remote); if (key === STORAGE_KEYS.productDelight) return this.mergeProductDelight(local, remote); return this.mergeValue(local, remote); },
   mergeSnapshot(remote) {
     if (!remote?.data || !state.currentUser) return;
     const allKeys = new Set(USER_SYNC_KEYS); allKeys.forEach((key) => { const all = storage.get(key, {}); if (key === STORAGE_KEYS.settings) { const safeSettings = all && typeof all === 'object' && !Array.isArray(all) ? { ...all, users: { ...(all.users || {}) } } : { users: {} }; safeSettings.users[state.currentUser.id] = this.mergeDomain(key, safeSettings.users[state.currentUser.id], remote.data[key]); storage.set(key, safeSettings); return; } const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; safe[state.currentUser.id] = this.mergeDomain(key, safe[state.currentUser.id], remote.data[key]); storage.set(key, safe); });
@@ -1629,6 +1660,28 @@ const VocabularyService = {
     const cards = state.srsData.map((card) => card.wordId === wordId ? normalizeSrsCard({ ...card, ...changes }, card) : card);
     saveUserSrs(cards);
     return cards.find((card) => card.wordId === wordId);
+  },
+  recordRecall(cardOrId, correct, response = '', metadata = {}) {
+    const wordId = typeof cardOrId === 'string' ? cardOrId : cardOrId?.wordId || cardOrId?.id;
+    const card = state.srsData.find((item) => item.wordId === wordId);
+    if (!card) return null;
+    const recalled = Boolean(correct); const at = new Date(); const streakCorrect = recalled ? Number(card.streakCorrect || 0) + 1 : 0;
+    const rating = metadata.rating || (recalled ? 'remember' : 'forgot');
+    const days = rating === 'hard' ? 1 : rating === 'remember' ? (streakCorrect >= 5 ? 30 : streakCorrect >= 3 ? 14 : 3) : rating === 'easy' ? (streakCorrect >= 5 ? 30 : streakCorrect >= 3 ? 14 : 7) : 0;
+    const interval = rating === 'forgot' ? 10 * 60_000 : days * 86400000;
+    const mastery = Math.max(0, Math.min(100, Number(card.mastery || 0) + (rating === 'forgot' ? -18 : rating === 'hard' ? 4 : rating === 'remember' ? 10 : 15)));
+    const updated = this.updateCard(wordId, {
+      lastReviewed: at.toISOString(), nextReview: new Date(at.getTime() + interval).toISOString(),
+      reviewCount: Number(card.reviewCount || 0) + 1, correctCount: Number(card.correctCount || 0) + (recalled ? 1 : 0), wrongCount: Number(card.wrongCount || 0) + (recalled ? 0 : 1),
+      streakCorrect, difficulty: rating, mastery, status: mastery >= 85 && streakCorrect >= 3 ? 'mastered' : recalled ? 'review' : 'learning', skipCurrentSession: false,
+      lastResult: { wordId, result: recalled ? 'correct' : 'wrong', rating, testedAt: at.toISOString(), response: String(response || '').slice(0, 160), correct: recalled, source: metadata.source || 'active-recall' },
+      personalVocabularyEvidence: metadata.personalVocabularyEvidence || card.personalVocabularyEvidence,
+      updatedAt: at.toISOString()
+    });
+    const mutationBase = `${state.currentUser.id}:${wordId}:${at.toISOString()}`;
+    emitLearningMutation('srs_updated', wordId, { status: updated.status, rating, nextReview: updated.nextReview, source: metadata.source || 'active-recall' }, `srs_updated:${mutationBase}`);
+    emitLearningMutation('vocabulary_updated', wordId, { mastery: updated.mastery, reviewCount: updated.reviewCount, source: metadata.source || 'active-recall' }, `vocabulary_updated:${mutationBase}`);
+    return updated;
   },
   pretestResult(card, correct, response) {
     const now = new Date().toISOString();
@@ -1863,7 +1916,7 @@ function syncShell() {
     const activeView = ['daily-session', 'command-center'].includes(state.currentView) ? 'home'
       : ['conversation-simulator','natural-korean','reading-lab','reading-session','word-network','collocation-trainer','dictation-master','language-mastery','subtitle-learning','vocabulary-image-memory','grammar-mastery','immersion-journey','survival-kit','media-learning','slang-dictionary','daily-korean-feed','monthly-challenge','achievement-room','personal-portfolio','immersive-world','virtual-korean-city','immersive-session','roleplay-game','debate-studio','career-korean','university-life','travel-simulator','voice-world','speaking-journey','learning-avatar-research','immersive-daily-life','immersive-story','immersive-culture-game','immersive-readiness','ecosystem-expansion','journey-intelligence','real-korean-life','life-simulator','document-reader','address-number-trainer','language-science','korean-thinking','skill-world','career-purpose','career-practice','learning-architecture','real-world-assistant','korean-document-assistant','korean-menu-reader','korean-sign-reader','real-world-guide','survival-checklist','content-platform','content-explorer','content-detail','korean-notebook','content-feedback','career-center','career-vocabulary','workplace-scenarios','workplace-scenario','job-interview-trainer','korean-resume-builder','business-email-writing','presentation-coach','workplace-culture','career-report'].includes(state.currentView) ? 'lessons'
       : state.currentView === 'lesson' ? 'lessons'
-      : ['lessons','courses','course-detail','theory','lesson-preview','handwriting','dictionary','translation-hub','phrasebook','practical-korean','vocabulary-notebook','vocabulary-hub','vocabulary-immersion-p79','vocabulary-topic-p79','vocabulary-learn-p79','vocabulary-practice-p79','personal-vocabulary-p79','vocabulary-offline-p79','vocabulary-analytics-p79','vocab-test-setup','vocab-test','vocab-test-result','resources','resource-view','videos','video-view','global-education-marketplace','marketplace-course','marketplace-teacher','creator-studio','marketplace-moderation','creator-revenue','marketplace-certificates', ...FOUNDATION_VIEWS].includes(state.currentView) ? 'lessons'
+      : ['lessons','courses','course-detail','theory','lesson-preview','handwriting','dictionary','translation-hub','phrasebook','practical-korean','vocabulary-notebook','vocabulary-hub','vocabulary-immersion-p79','vocabulary-topic-p79','vocabulary-learn-p79','vocabulary-practice-p79','personal-vocabulary-p79','vocabulary-offline-p79','vocabulary-analytics-p79','my-vocabulary-p82','vocabulary-deck-p82','vocabulary-import-p82','vocabulary-classify-p82','vocabulary-session-p82','vocab-test-setup','vocab-test','vocab-test-result','resources','resource-view','videos','video-view','global-education-marketplace','marketplace-course','marketplace-teacher','creator-studio','marketplace-moderation','creator-revenue','marketplace-certificates', ...FOUNDATION_VIEWS].includes(state.currentView) ? 'lessons'
       : state.currentView === 'roadmap' ? 'profile'
       : ['review','smart-review','review-start','vocab-pretest','pretest-result'].includes(state.currentView) ? 'review'
       : ['topik','strategy-lab','strategy-detail','topik-strategy-center','practice-hub','exam-catalog','random-exam','advanced-practice','wrong-practice','saved-exams','practice-history','skill-hub','writing-hub','writing-editor','writing-result','practice-session','practice-result','practice-review','quick-practice','analytics','search','topik-strategy-p81','topik-strategies-p81','topik-strategy-detail-p81','topik-writing-p81','topik-time-p81','topik-simulation-p81','topik-goal-p81','topik-coach-p81','topik-dashboard-p81','topik-readiness-p81','topik-offline-p81'].includes(state.currentView) ? 'topik'
@@ -3453,28 +3506,8 @@ function rateSrs(rating) {
   const session = state.reviewSession;
   const card = session?.cardIds?.length ? state.srsData.find((item) => item.wordId === session.cardIds[session.index]) : null;
   if (!card || !state.flashcardFlipped) return;
-  const now = Date.now();
   const remembered = rating !== 'forgot';
-  const streakCorrect = remembered ? card.streakCorrect + 1 : 0;
-  const days = rating === 'hard' ? 1 : rating === 'remember' ? (streakCorrect >= 5 ? 30 : streakCorrect >= 3 ? 14 : 3) : rating === 'easy' ? (streakCorrect >= 5 ? 30 : streakCorrect >= 3 ? 14 : 7) : 0;
-  const interval = rating === 'forgot' ? 10 * 60_000 : days * 86400000;
-  const mastery = Math.max(0, Math.min(100, card.mastery + (rating === 'forgot' ? -18 : rating === 'hard' ? 4 : rating === 'remember' ? 10 : 15)));
-  const updated = VocabularyService.updateCard(card.wordId, {
-    lastReviewed: new Date(now).toISOString(),
-    nextReview: new Date(now + interval).toISOString(),
-    reviewCount: card.reviewCount + 1,
-    correctCount: card.correctCount + (remembered ? 1 : 0),
-    wrongCount: card.wrongCount + (remembered ? 0 : 1),
-    streakCorrect,
-    difficulty: rating,
-    mastery,
-    status: mastery >= 85 && streakCorrect >= 3 ? 'mastered' : remembered ? 'review' : 'learning',
-    skipCurrentSession: false,
-    lastResult: { wordId: card.wordId, result: remembered ? 'correct' : 'wrong', rating, testedAt: new Date(now).toISOString(), response: rating, correct: remembered }
-  });
-  const mutationBase = `${state.currentUser.id}:${card.wordId}:${new Date(now).toISOString()}`;
-  emitLearningMutation('srs_updated', card.wordId, { status: updated.status, rating, nextReview: updated.nextReview }, `srs_updated:${mutationBase}`);
-  emitLearningMutation('vocabulary_updated', card.wordId, { mastery: updated.mastery, reviewCount: updated.reviewCount }, `vocabulary_updated:${mutationBase}`);
+  const updated = VocabularyService.recordRecall(card, remembered, rating, { rating, source: 'srs-review' });
   const progress = getUserProgress();
   progress.daily.tasks.vocabulary = true;
   progress.stats.wordsLearned = Math.max(progress.stats.wordsLearned, state.srsData.filter((item) => item.reviewCount > 0).length);

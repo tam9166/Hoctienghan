@@ -4,7 +4,7 @@ const billing = require('./billing/_shared');
 const aiQuality = require('./_ai-quality');
 const MAX_MESSAGES = 12;
 const ROUTES = new Set(['small', 'strong']);
-const TASKS = new Set(['tutor', 'coach', 'translation', 'definition', 'flashcard', 'short_feedback', 'grammar', 'grammar_support', 'speaking', 'speaking_feedback', 'realtime_voice_feedback', 'writing', 'sentence_correction', 'weekly_report', 'personalized_practice', 'learning_recommendation', 'conversation', 'planning', 'study_advisor', 'content_explanation', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor', 'content_difficulty', 'content_translation', 'lesson_draft', 'example_generation', 'audio_script', 'quiz_generation']);
+const TASKS = new Set(['tutor', 'coach', 'translation', 'definition', 'flashcard', 'short_feedback', 'grammar', 'grammar_support', 'speaking', 'speaking_feedback', 'realtime_voice_feedback', 'writing', 'sentence_correction', 'weekly_report', 'personalized_practice', 'learning_recommendation', 'vocabulary_classification', 'conversation', 'planning', 'study_advisor', 'content_explanation', 'practice_creator', 'conversation_partner', 'writing_review', 'career_coach', 'culture_advisor', 'content_difficulty', 'content_translation', 'lesson_draft', 'example_generation', 'audio_script', 'quiz_generation']);
 const MAX_CONTEXT_CHARS = 6000;
 function cleanMessage(item) {
   if (!item || !['user', 'assistant'].includes(item.role)) return null;
