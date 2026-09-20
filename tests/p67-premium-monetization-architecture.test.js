@@ -14,9 +14,9 @@ const appSource = read('app.js');
 const loader = read('data/route-loader.js');
 const worker = read('sw.js');
 const chat = read('api/chat.js');
-const checkout = read('api/billing/checkout.js');
-const trial = read('api/billing/trial.js');
-const cancellation = read('api/billing/cancel.js');
+const checkout = read('api/billing/_checkout.js');
+const trial = read('api/billing/_trial.js');
+const cancellation = read('api/billing/_cancel.js');
 
 function boot({ userId = 'p67-user', role = 'student', metadata = null, shared = new Map() } = {}) {
   const state = { currentUser: { id: userId, fullName: 'P67 User', onboardingCompleted: true }, currentView: 'profile' };

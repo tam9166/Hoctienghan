@@ -6,12 +6,12 @@ const path = require('node:path');
 
 const root = path.join(__dirname, '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
-const mockProvider = require('../api/billing/providers/mock');
-const providerRegistry = require('../api/billing/providers');
-const checkoutHandler = require('../api/billing/checkout');
-const trialHandler = require('../api/billing/trial');
-const accessHandler = require('../api/commerce/access');
-const purchaseHandler = require('../api/commerce/purchase');
+const mockProvider = require('../api/billing/providers/_mock');
+const providerRegistry = require('../api/billing/providers/_index');
+const checkoutHandler = require('../api/billing/_checkout');
+const trialHandler = require('../api/billing/_trial');
+const accessHandler = require('../api/commerce/_access');
+const purchaseHandler = require('../api/commerce/_purchase');
 
 function response() {
   return { statusCode: 200, headers: {}, payload: null, setHeader(name, value) { this.headers[name] = value; }, status(code) { this.statusCode = code; return this; }, json(value) { this.payload = value; return this; }, end() { return this; } };
@@ -61,7 +61,7 @@ async function main() {
     if (previousKey == null) delete process.env.SUPABASE_ANON_KEY; else process.env.SUPABASE_ANON_KEY = previousKey;
   }
 
-  const serverFiles = ['api/billing/providers/mock.js','api/billing/checkout.js','api/billing/trial.js','api/commerce/purchase.js','api/commerce/purchases.js','api/commerce/course.js'].map(read).join('\n');
+  const serverFiles = ['api/billing/providers/_mock.js','api/billing/_checkout.js','api/billing/_trial.js','api/commerce/_purchase.js','api/commerce/_purchases.js','api/commerce/_course.js'].map(read).join('\n');
   assert.doesNotMatch(serverFiles, /(STRIPE_SECRET|APPLE_SHARED_SECRET|service_role|card_number|card_cvc|payment_secret)\s*[:=]/i);
   assert.match(read('api/billing/providers/_interface.js'), /createCheckout/);
   assert.match(read('api/billing/providers/_interface.js'), /verifyTransaction/);

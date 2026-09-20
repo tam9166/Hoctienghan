@@ -6,8 +6,23 @@
     "api/chat.js": { "maxDuration": 30 },
     "api/health.js": { "maxDuration": 10 },
     "api/config.js": { "maxDuration": 10 },
-    "api/version.js": { "maxDuration": 10 }
+    "api/version.js": { "maxDuration": 10 },
+    "api/ai/feedback.js": { "maxDuration": 10 },
+    "api/billing.js": { "maxDuration": 10 },
+    "api/commerce.js": { "maxDuration": 10 }
   },
+  "rewrites": [
+    { "source": "/api/billing/cancel", "destination": "/api/billing?action=cancel" },
+    { "source": "/api/billing/checkout", "destination": "/api/billing?action=checkout" },
+    { "source": "/api/billing/entitlements", "destination": "/api/billing?action=entitlements" },
+    { "source": "/api/billing/trial", "destination": "/api/billing?action=trial" },
+    { "source": "/api/commerce/access", "destination": "/api/commerce?action=access" },
+    { "source": "/api/commerce/catalog", "destination": "/api/commerce?action=catalog" },
+    { "source": "/api/commerce/course", "destination": "/api/commerce?action=course" },
+    { "source": "/api/commerce/dashboard", "destination": "/api/commerce?action=dashboard" },
+    { "source": "/api/commerce/purchase", "destination": "/api/commerce?action=purchase" },
+    { "source": "/api/commerce/purchases", "destination": "/api/commerce?action=purchases" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

@@ -25,6 +25,8 @@ jobs:
           node-version: 22
       - name: Syntax check
         run: find api data scripts tests -name '*.js' -print0 | xargs -0 -n1 node --check
+      - name: Vercel Hobby function budget
+        run: node scripts/vercel-function-audit.js
       - name: Production build contract
         run: node scripts/verify-production-build.js
       - name: Launch readiness contract

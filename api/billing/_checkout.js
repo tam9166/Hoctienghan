@@ -1,6 +1,6 @@
 'use strict';
 const { allowedPlans, allowedProviders, clean, authenticate, begin } = require('./_shared');
-const paymentProviders = require('./providers');
+const paymentProviders = require('./providers/_index');
 module.exports = async function handler(req, res) {
   if (begin(req, res, ['POST']).stopped) return;
   const auth = await authenticate(req); if (!auth.ok) return res.status(auth.status).json({ error: auth.error });

@@ -22,6 +22,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Vercel Hobby function budget
+        run: node scripts/vercel-function-audit.js
       - name: Require release tag to match version
         if: github.ref_type == 'tag'
         run: |

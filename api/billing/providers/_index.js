@@ -1,6 +1,6 @@
 'use strict';
 const { assertProvider } = require('./_interface');
-const mock = require('./mock');
+const mock = require('./_mock');
 
 const providers = new Map([['mock', assertProvider(mock)]]);
 

@@ -103,7 +103,7 @@ async function main() {
   const admin = boot({ rawRole: 'admin' });
   assert.equal(admin.window.BusinessDashboardService.can('admin'), true);
 
-  const loader = read('data/route-loader.js'); const worker = read('sw.js'); const checkout = read('api/billing/checkout.js'); const trialApi = read('api/billing/trial.js'); const purchaseApi = read('api/commerce/purchase.js');
+  const loader = read('data/route-loader.js'); const worker = read('sw.js'); const checkout = read('api/billing/_checkout.js'); const trialApi = read('api/billing/_trial.js'); const purchaseApi = read('api/commerce/_purchase.js');
   assert.match(loader, /premiumPlatform/); assert.match(loader, /my-purchases-p77/);
   assert.match(worker, /premium-monetization-platform\.json/); assert.match(worker, /premium-monetization-platform\.css\?v=1/);
   assert.match(checkout, /paymentProviders\.get\('mock'\)/); assert.match(checkout, /entitlementChanged: false/);
