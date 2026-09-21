@@ -23,7 +23,7 @@
     p79VocabularyVoice: { dependencies: ['p79Vocabulary', 'voice'] },
     p82Vocabulary: { dependencies: ['p79Vocabulary', 'ai'], styles: ['personal-vocabulary-system.css?v=1'], scripts: ['data/personal-vocabulary-system.js?v=2'] },
     p83SmartImport: { dependencies: ['p82Vocabulary', 'teacherCreator'], styles: ['smart-document-vocabulary-import.css?v=1'], scripts: ['vendor/fflate-0.8.2.min.js', 'data/smart-document-vocabulary-import.js?v=1'] },
-    p84VocabularyDaily: { dependencies: ['p82Vocabulary'], styles: ['vocabulary-daily-action.css?v=1', 'personal-vocabulary-organization.css?v=1'], scripts: ['data/vocabulary-daily-action.js?v=1', 'data/personal-vocabulary-organization.js?v=1'] },
+    p84VocabularyDaily: { dependencies: ['p82Vocabulary'], styles: ['vocabulary-daily-action.css?v=1', 'personal-vocabulary-organization.css?v=1', 'vocabulary-mastery-real-usage.css?v=1'], scripts: ['data/vocabulary-daily-action.js?v=1', 'data/personal-vocabulary-organization.js?v=1', 'data/vocabulary-mastery-real-usage.js?v=1'] },
     p80Topik: { dependencies: ['topik', 'ai'], styles: ['topik-exam-intelligence-system.css?v=2'], scripts: ['data/topik-exam-intelligence-system.js?v=2'] },
     p81Topik: { dependencies: ['p80Topik'], styles: ['topik-strategy-coaching-system.css?v=1'], scripts: ['data/topik-strategy-coaching-system.js?v=1'] },
     practical: { scripts: ['data/practical-study.js?v=6'] },
@@ -112,7 +112,7 @@
   routes('mobile-native-p78', ['p78Mobile']);
   routes('vocabulary-immersion-p79 vocabulary-topic-p79 vocabulary-learn-p79 personal-vocabulary-p79 vocabulary-offline-p79 vocabulary-analytics-p79', ['p79Vocabulary']);
   routes('vocabulary-practice-p79', ['p79VocabularyVoice']);
-  routes('my-vocabulary-p82 vocabulary-deck-p82 vocabulary-import-p82 vocabulary-classify-p82 vocabulary-session-p82 vocabulary-today-p84 vocabulary-organize-p84 vocabulary-session-setup-p84', ['p84VocabularyDaily']);
+  routes('my-vocabulary-p82 vocabulary-deck-p82 vocabulary-import-p82 vocabulary-classify-p82 vocabulary-session-p82 vocabulary-today-p84 vocabulary-organize-p84 vocabulary-session-setup-p84 vocabulary-mastery-p84 vocabulary-mastery-session-p84', ['p84VocabularyDaily']);
   routes('smart-vocabulary-import-p83 vocabulary-import-history-p83', ['p83SmartImport']);
   routes('topik-intelligence-p80 topik-bank-p80 topik-section-p80 topik-types-p80 topik-generator-p80 topik-exam-p80 topik-result-p80 topik-report-p80', ['p80Topik']);
   routes('topik-strategy-p81 topik-strategies-p81 topik-strategy-detail-p81 topik-writing-p81 topik-time-p81 topik-simulation-p81 topik-goal-p81 topik-coach-p81 topik-dashboard-p81 topik-readiness-p81 topik-offline-p81', ['p81Topik']);
