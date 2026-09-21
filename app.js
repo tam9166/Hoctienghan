@@ -277,7 +277,7 @@ MAIN_VIEWS.push('vocabulary-immersion-p79', 'vocabulary-topic-p79', 'vocabulary-
 MAIN_VIEWS.push('my-vocabulary-p82', 'vocabulary-deck-p82', 'vocabulary-import-p82', 'vocabulary-classify-p82', 'vocabulary-session-p82');
 MAIN_VIEWS.push('smart-vocabulary-import-p83', 'vocabulary-import-history-p83');
 MAIN_VIEWS.push('vocabulary-today-p84');
-MAIN_VIEWS.push('vocabulary-organize-p84', 'vocabulary-session-setup-p84');
+MAIN_VIEWS.push('vocabulary-organize-p84', 'vocabulary-session-setup-p84', 'vocabulary-mastery-p84', 'vocabulary-mastery-session-p84', 'vocabulary-intelligence-p84', 'vocabulary-report-p84', 'vocabulary-recovery-p84');
 MAIN_VIEWS.push('topik-intelligence-p80', 'topik-bank-p80', 'topik-section-p80', 'topik-types-p80', 'topik-generator-p80', 'topik-exam-p80', 'topik-result-p80', 'topik-report-p80');
 MAIN_VIEWS.push('topik-strategy-p81', 'topik-strategies-p81', 'topik-strategy-detail-p81', 'topik-writing-p81', 'topik-time-p81', 'topik-simulation-p81', 'topik-goal-p81', 'topik-coach-p81', 'topik-dashboard-p81', 'topik-readiness-p81', 'topik-offline-p81');
 const PUBLIC_VIEWS = ['welcome', 'login', 'register', 'demo'];
