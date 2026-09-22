@@ -8,6 +8,7 @@ const OFFLINE_ASSETS = [
   './mobile-experience.css?v=1',
   './engagement-core.css?v=1',
   './micro-learning-experience.css?v=1',
+  './beginner-learning-assistant.css?v=1',
   './p78-mobile-native.css?v=2',
   './vocabulary-immersion-system.css?v=1',
   './personal-vocabulary-system.css?v=1',
@@ -109,6 +110,7 @@ const OFFLINE_ASSETS = [
   './data/community-learning.js?v=1',
   './data/enterprise-platform.js?v=1',
   './data/product-ux.js?v=2',
+  './data/beginner-learning-assistant.js?v=1',
   './data/retention-system.js?v=1',
   './data/content-quality-system.js?v=2',
   './data/learning-modules.js?v=9',
@@ -246,12 +248,12 @@ const OFFLINE_ASSETS = [
 // Install only the app shell and core offline-learning assets. Optional routes are
 // cached on first use, so installation no longer downloads the complete platform.
 const INSTALL_ASSETS = new Set([
-  './index.html', './styles.css?v=32', './product-ux.css?v=2', './production-stability.css?v=2', './security-privacy.css?v=1', './mobile-experience.css?v=1',
+  './index.html', './styles.css?v=32', './product-ux.css?v=2', './beginner-learning-assistant.css?v=1', './production-stability.css?v=2', './security-privacy.css?v=1', './mobile-experience.css?v=1',
   './locales/vi.js?v=5', './locales/en.js?v=8', './locales/zh-CN.js?v=8', './data/content-locales.js?v=1',
   './data/romanization.js?v=8', './data/vocabulary-bank.js?v=8', './data/dictionary.js?v=1', './data/theory-lessons.js?v=1', './data/handwriting.js?v=1',
   './mobile-runtime-config.js?v=1', './data/platform-runtime.js?v=1', './data/cloud-sync.js?v=4', './data/learning-modules.js?v=9', './data/practice-bank.js?v=8', './data/route-loader.js?v=31', './app.js?v=87',
   './data/curriculum.js?v=1', './data/adaptive-engine.js?v=8', './data/beginner-foundation.js?v=2', './data/daily-learning-experience.js?v=6',
-  './data/product-ux.js?v=2', './content/product-ux.json', './data/user-research.js?v=2', './content/user-research-experiments.json',
+  './data/product-ux.js?v=2', './data/beginner-learning-assistant.js?v=1', './content/product-ux.json', './data/user-research.js?v=2', './content/user-research-experiments.json',
   './engagement-core.css?v=1', './data/engagement-core.js?v=2', './content/engagement-core.json', './micro-learning-experience.css?v=1', './data/micro-learning-experience.js?v=1', './content/micro-learning-experience.json', './immersive-spoken-content.css?v=1', './data/immersive-spoken-content.js?v=1', './content/immersive-spoken-content.json',
   './data/production-stability.js?v=5', './data/security-privacy.js?v=3', './data/mobile-experience.js?v=3', './data/mobile-native.js?v=2',
   './p78-mobile-native.css?v=2', './data/mobile-native-platform.js?v=2', './content/mobile-native-platform.json',
