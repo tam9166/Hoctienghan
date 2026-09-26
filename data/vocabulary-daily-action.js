@@ -116,7 +116,7 @@
   }
   function bind() {
     if (state.currentView === 'home' && !global.document?.querySelector('[data-p84-home]')) {
-      const anchor = global.document?.querySelector('.ux-today-strip, .daily-home-header, .foundation-welcome, .daily-start-panel, .dashboard-hero');
+      const anchor = global.document?.querySelector('.ux-today-strip, .daily-home-header, .foundation-welcome, .daily-start-panel, .dashboard-hero, .bla-home-hero');
       anchor?.insertAdjacentHTML('afterend', homeCard());
     }
     global.document?.querySelectorAll?.('[data-p84-open]')?.forEach((button) => { button.onclick = () => { const mode = button.dataset.p84Open; if (mode === 'resume') { const snapshot = selectedSnapshot(); if (snapshot?.activeSession) { state.p82Vocabulary.deckId = snapshot.deck.id; global.P82LearningSessionService.resume(snapshot.deck.id); setView('vocabulary-session-p82'); } return; } open(mode); }; });

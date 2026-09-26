@@ -26,6 +26,8 @@ const STORAGE_KEYS = Object.freeze({
 });
 
 const storage = {
+  lastError: null,
+  lastFailedWrite: null,
   get(key, fallback = null) {
     try {
       const raw = localStorage.getItem(key);
@@ -41,12 +43,28 @@ const storage = {
       const serialized = JSON.stringify(value);
       if (localStorage.getItem(key) === serialized) return true;
       localStorage.setItem(key, serialized);
+      if (!this.lastFailedWrite || this.lastFailedWrite.key === key) {
+        this.lastError = null;
+        this.lastFailedWrite = null;
+      }
       return true;
     } catch (error) {
       console.warn(`[Tiếng Hàn - TamHoanq] Không thể lưu ${key}.`, error);
+      const quota = error?.name === 'QuotaExceededError' || error?.code === 22 || /quota/i.test(String(error?.message || ''));
+      this.lastError = { key, code: quota ? 'QUOTA_EXCEEDED' : 'STORAGE_UNAVAILABLE', at: new Date().toISOString() };
+      this.lastFailedWrite = { key, value };
+      if (quota) window.dispatchEvent(new CustomEvent('klearn-storage-error', { detail: this.lastError }));
       return false;
     }
   },
+  retryLast() {
+    if (!this.lastFailedWrite) return false;
+    const pending = this.lastFailedWrite;
+    const ok = this.set(pending.key, pending.value);
+    if (ok) this.lastError = null;
+    return ok;
+  },
+  clearError() { this.lastError = null; this.lastFailedWrite = null; },
   remove(key) {
     try { localStorage.removeItem(key); } catch (_) { /* Storage may be unavailable. */ }
   }
@@ -199,7 +217,7 @@ const state = {
   roleplayHintVisible: false
   ,resourceFilters: { type: 'all', level: 'all', search: '' }, selectedResourceId: '', selectedVideoId: '', selectedNoteId: '', selectedBookmarkType: 'all', videoChapterTime: 0, supportDraft: { type: 'general', sourceId: '' }
   ,dictionaryQuery: '', dictionarySelectedId: '', dictionaryFilter: 'all', translationDraft: '', translationDirection: 'vi-ko', translationResult: null, handwritingCharacter: '한', handwritingStage: 1
-  ,aiOpen: false, aiConversationId: '', aiDraft: '', aiBusy: false
+  ,aiOpen: false, aiConversationId: '', aiDraft: '', aiBusy: false, storageIssue: null, sampleLessonStep: 0
   ,globalQuery: '', smartReviewMinutes: 20, cloudUser: null, cloudAuthBusy: false, cloudAuthMessage: ''
 };
 
@@ -284,6 +302,7 @@ MAIN_VIEWS.push('vocabulary-organize-p84', 'vocabulary-session-setup-p84', 'voca
 MAIN_VIEWS.push('topik-intelligence-p80', 'topik-bank-p80', 'topik-section-p80', 'topik-types-p80', 'topik-generator-p80', 'topik-exam-p80', 'topik-result-p80', 'topik-report-p80');
 MAIN_VIEWS.push('topik-strategy-p81', 'topik-strategies-p81', 'topik-strategy-detail-p81', 'topik-writing-p81', 'topik-time-p81', 'topik-simulation-p81', 'topik-goal-p81', 'topik-coach-p81', 'topik-dashboard-p81', 'topik-readiness-p81', 'topik-offline-p81');
 const PUBLIC_VIEWS = ['welcome', 'login', 'register', 'demo'];
+PUBLIC_VIEWS.push('sample-lesson');
 const ONBOARDING_VIEWS = ['onboarding-goals', 'onboarding-level', 'onboarding-time', 'beginner-placement', 'placement', 'onboarding-result'];
 
 function escapeHtml(value = '') {
@@ -635,6 +654,17 @@ function toast(message) {
   element.classList.add('show');
   state.toastTimer = setTimeout(() => element.classList.remove('show'), 2400);
 }
+
+function storageIssueMarkup() {
+  if (!state.storageIssue || state.storageIssue.code !== 'QUOTA_EXCEEDED') return '';
+  return `<aside class="storage-recovery-banner" role="alert" aria-live="assertive"><div><strong>Bộ nhớ thiết bị đã đầy</strong><p>Dữ liệu học chưa bị xóa. Hãy thử lại hoặc mở Quản lý dữ liệu để xuất bản sao lưu trước khi tiếp tục.</p></div><div class="action-row"><button class="btn primary" data-storage-retry>Thử lại</button><button class="btn secondary" data-storage-manage>Quản lý dữ liệu</button></div></aside>`;
+}
+
+window.addEventListener('klearn-storage-error', (event) => {
+  state.storageIssue = event.detail || { code: 'QUOTA_EXCEEDED' };
+  toast('Bộ nhớ đầy — dữ liệu học vẫn được giữ. Hãy thử lại hoặc quản lý dữ liệu.');
+  if (state.currentView) window.setTimeout(() => render(), 0);
+});
 
 function setFormError(message = '') {
   const error = document.getElementById('formError');
@@ -1138,8 +1168,9 @@ function getUserSrs() {
   APP_DATA.vocabulary.forEach((word) => {
     if (!knownIds.has(word.id)) migrated.push(normalizeSrsCard({ ...word, status: SRS_STATES.NOT_STARTED, nextReview: null }, word, { learningEvidence }));
   });
-  safeSrs[state.currentUser.id] = migrated;
-  storage.set(STORAGE_KEYS.srs, safeSrs);
+  const before = JSON.stringify(existing);
+  const after = JSON.stringify(migrated);
+  if (before !== after && storage.lastError?.key !== STORAGE_KEYS.srs) storage.set(STORAGE_KEYS.srs, safeSrs);
   return migrated;
 }
 
@@ -1150,10 +1181,16 @@ function saveUserSrs(cards) {
   const learningEvidence = srsLearningEvidence();
   const normalized = (Array.isArray(cards) ? cards : []).map((card) => normalizeSrsCard(card, null, { learningEvidence }));
   safeSrs[state.currentUser.id] = normalized;
-  storage.set(STORAGE_KEYS.srs, safeSrs);
+  const persisted = storage.set(STORAGE_KEYS.srs, safeSrs);
   state.srsData = normalized;
-  LearnerProfileService.get();
-  CloudSyncService.schedule('srs');
+  if (persisted) {
+    state.storageIssue = null;
+    LearnerProfileService.get();
+    CloudSyncService.schedule('srs');
+  } else {
+    state.storageIssue = storage.lastError || { key: STORAGE_KEYS.srs, code: 'STORAGE_UNAVAILABLE' };
+  }
+  return { ok: persisted, cards: normalized };
 }
 
 function initializeUserData(userId) {
@@ -2101,8 +2138,15 @@ function welcomeView() {
     <h1 class="welcome-title">${I18nService.t('welcome.title')}</h1>
     <p class="subtle">${I18nService.t('welcome.value')}</p>
     <div class="welcome-points"><span>${I18nService.t('welcome.point.level')}</span><span>${I18nService.t('welcome.point.goal')}</span><span>${I18nService.t('welcome.point.progress')}</span></div>
-    <div class="auth-actions"><button class="btn primary full" data-view="register">Bắt đầu học</button><p class="auth-switch">Đã có tài khoản?</p><button class="btn secondary full" data-view="login">Đăng nhập</button><button class="btn secondary full" data-view="demo">Xem bản demo</button></div>${renderThemeControl(true)}
+    <div class="auth-actions"><button class="btn primary full" data-view="sample-lesson">Bắt đầu học thử</button><button class="btn secondary full" data-view="register">Đăng ký để lưu tiến độ</button><p class="auth-switch">Đã có tài khoản?</p><button class="btn secondary full" data-view="login">Đăng nhập</button><button class="btn secondary full" data-view="demo">Xem bản demo</button></div>${renderThemeControl(true)}
   </section>`;
+}
+
+function sampleLessonView() {
+  const step = Math.max(0, Math.min(2, Number(state.sampleLessonStep) || 0));
+  if (step === 2) return `<section class="auth-page sample-lesson" data-sample-lesson><p class="eyebrow">HỌC THỬ HOÀN TẤT</p><h1 class="headline">Bạn vừa học một bài ngắn</h1><p class="subtle">Đăng ký để lưu tiến độ, mở SRS và tiếp tục trên thiết bị khác. Bài học thử không ghi dữ liệu vào tài khoản.</p><div class="action-row"><button class="btn primary" data-view="register">Đăng ký để lưu tiến độ</button><button class="btn secondary" data-sample-restart>Học lại mẫu</button></div></section>`;
+  const content = step === 0 ? `<div class="sample-lesson-card"><span class="sample-korean" lang="ko">안녕하세요</span><p>Xin chào</p><small>Nghe và đọc một câu cơ bản trong tiếng Hàn.</small></div>` : `<div class="sample-lesson-card"><p class="eyebrow">KIỂM TRA NHANH</p><h2>안녕하세요 nghĩa là gì?</h2><div class="answer-list"><button class="answer-button" data-sample-answer="wrong">Cảm ơn</button><button class="answer-button" data-sample-answer="right">Xin chào</button></div></div>`;
+  return `<section class="auth-page sample-lesson" data-sample-lesson><button class="back-link" data-view="welcome">← Trang đầu</button><p class="eyebrow">HỌC THỬ · ${step + 1}/2</p><h1 class="headline">Một bài học mẫu, không cần tài khoản</h1><p class="subtle">Bạn có thể trải nghiệm trước. Chỉ khi muốn lưu tiến độ hoặc dùng chức năng cá nhân hóa, ứng dụng mới yêu cầu đăng ký.</p>${content}<button class="btn primary full" data-sample-next>${step === 0 ? 'Tiếp tục' : 'Xem kết quả'}</button><p class="security-note">Không có dữ liệu học nào bị ghi hoặc xóa trong chế độ học thử.</p></section>`;
 }
 
 function existingLearningSummary() {
@@ -2961,7 +3005,7 @@ function render() {
   ThemeService.apply();
   syncShell();
   const views = {
-    welcome: welcomeView, register: registerView, login: loginView,
+    welcome: welcomeView, register: registerView, login: loginView, 'sample-lesson': sampleLessonView,
     'onboarding-goals': goalsView, 'onboarding-level': levelView, placement: placementView, 'onboarding-result': onboardingResultView,
     home: homeView, lessons: lessonsView, theory: theoryView, roadmap: roadmapView, topik: practiceHubView, lesson: lessonView, 'lesson-preview': lessonPreviewView, dictionary: dictionaryView, 'translation-hub': translationHubView, phrasebook: phrasebookView, handwriting: handwritingView,
     'practice-hub': practiceHubView, 'exam-catalog': examCatalogView, 'random-exam': randomExamView, 'advanced-practice': advancedPracticeView, 'wrong-practice': wrongPracticeView, 'saved-exams': savedExamsView, 'practice-history': practiceHistoryView, 'skill-hub': skillHubView,
@@ -2973,7 +3017,7 @@ function render() {
     profile: profileView, 'edit-profile': editProfileView, courses: coursesView, 'course-detail': courseDetailView, 'strategy-lab': strategyLabView, 'strategy-detail': strategyDetailView, 'progress-reports': progressReportsView, 'practical-korean': practicalKoreanView, 'vocabulary-notebook': vocabularyNotebookView,
     ...(window.KLEARN_EXTRA_VIEWS || {})
   };
-  appElement().innerHTML = (views[state.currentView] || welcomeView)();
+  appElement().innerHTML = `${storageIssueMarkup()}${(views[state.currentView] || welcomeView)()}`;
   const viewLabels = { welcome: '', login: 'Đăng nhập', register: 'Đăng ký', demo: 'Bản demo', 'demo-center': 'Trung tâm demo', profile: 'Hồ sơ', 'edit-profile': 'Chỉnh sửa hồ sơ' };
   document.title = viewLabels[state.currentView] ? `Tiếng Hàn - TamHoanq · ${I18nService.translateText(viewLabels[state.currentView])}` : 'Tiếng Hàn - TamHoanq';
   I18nService.applyDocument();
@@ -2987,6 +3031,15 @@ function render() {
 
 function bindEvents() {
   document.querySelectorAll('[data-view]').forEach((button) => { button.onclick = () => setView(button.dataset.view); });
+  document.querySelector('[data-sample-next]')?.addEventListener('click', () => { state.sampleLessonStep = Math.min(2, (Number(state.sampleLessonStep) || 0) + 1); render(); });
+  document.querySelector('[data-sample-restart]')?.addEventListener('click', () => { state.sampleLessonStep = 0; render(); });
+  document.querySelectorAll('[data-sample-answer]').forEach((button) => { button.onclick = () => { toast(button.dataset.sampleAnswer === 'right' ? 'Chính xác! Bạn đã hoàn thành phần kiểm tra.' : 'Gần đúng — hãy thử lại hoặc tiếp tục để xem kết quả.'); if (button.dataset.sampleAnswer === 'right') { state.sampleLessonStep = 2; render(); } }; });
+  document.querySelector('[data-storage-retry]')?.addEventListener('click', () => {
+    const ok = storage.retryLast();
+    if (ok) { state.storageIssue = null; toast('Đã lưu lại dữ liệu học.'); render(); }
+    else toast('Chưa thể lưu lại. Hãy giải phóng một ít bộ nhớ rồi thử lại.');
+  });
+  document.querySelector('[data-storage-manage]')?.addEventListener('click', () => setView('profile'));
   document.querySelectorAll('[data-resource-id]').forEach((button) => { button.onclick = () => { state.selectedResourceId = button.dataset.resourceId; setView('resource-view'); }; });
   document.querySelectorAll('[data-video-id]').forEach((button) => { button.onclick = () => { state.selectedVideoId = button.dataset.videoId; state.videoChapterTime = 0; setView('video-view'); }; });
   document.querySelectorAll('[data-resource-filter]').forEach((select) => { select.onchange = () => { state.resourceFilters[select.dataset.resourceFilter] = select.value; render(); }; });

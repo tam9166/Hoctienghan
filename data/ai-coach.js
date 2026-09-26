@@ -76,9 +76,30 @@
   // Home stays focused on learning actions; the assistant remains available
   // from primary navigation and contextual entry points.
   window.KLEARN_EXTRA_HOME = () => '';
+  const simplifyForBeginners = () => {
+    if (!window.document || !state.currentUser) return;
+    const appRoot = window.document.getElementById('app');
+    if (state.currentView === 'profile' && appRoot && !appRoot.querySelector('.learner-profile-summary')) {
+      appRoot.insertAdjacentHTML('afterbegin', `<section class="card learner-profile-summary section"><p class="eyebrow">HỒ SƠ HỌC TẬP</p><h1 class="headline">Bức tranh học tập của bạn</h1><p class="subtle">Tập trung vào bước tiếp theo; các tùy chọn kỹ thuật nằm trong phần chi tiết.</p><div class="action-row"><button class="btn primary" data-view="home">Học tiếp hôm nay</button><button class="btn secondary" data-view="edit-profile">Chỉnh sửa mục tiêu</button></div></section>`);
+    }
+    if (state.currentView === 'profile' && appRoot && !appRoot.querySelector('.profile-advanced')) {
+      const summary = appRoot.querySelector('.learner-profile-summary'); const head = appRoot.querySelector('.profile-head'); const advanced = window.document.createElement('details'); advanced.className = 'profile-advanced'; advanced.innerHTML = '<summary>⚙ Xem chi tiết dữ liệu, cài đặt và đồng bộ</summary>';
+      [...appRoot.children].forEach((node) => { if (node !== summary && node !== head && !node.classList.contains('logout-button')) advanced.appendChild(node); });
+      appRoot.appendChild(advanced);
+    }
+    if (state.currentView === 'ai-coach' && appRoot && !appRoot.querySelector('.learner-assistant-summary')) {
+      appRoot.insertAdjacentHTML('afterbegin', `<section class="card learner-assistant-summary section"><p class="eyebrow">TRỢ LÝ DÀNH CHO BẠN</p><h2 class="section-title">Bắt đầu từ một việc nhỏ</h2><p class="subtle">Hỏi cách học tiếp theo, sửa một câu hoặc mở bài luyện. Chi tiết kỹ thuật và chi phí AI không làm gián đoạn bước học đầu tiên.</p><div class="action-row"><button class="btn primary" data-view="daily-session">Học theo kế hoạch hôm nay</button><button class="btn secondary" data-view="error-notebook">Xem lỗi cần sửa</button></div></section>`);
+    }
+    if (state.currentView === 'ai-coach' && appRoot && !appRoot.querySelector('.assistant-advanced')) {
+      const summary = appRoot.querySelector('.learner-assistant-summary'); const heading = appRoot.querySelector('.page-heading'); const advanced = window.document.createElement('details'); advanced.className = 'assistant-advanced'; advanced.innerHTML = '<summary>⚙ Mở công cụ nâng cao và chi tiết kỹ thuật</summary>';
+      [...appRoot.children].forEach((node) => { if (node !== summary && node !== heading) advanced.appendChild(node); });
+      appRoot.appendChild(advanced);
+    }
+  };
   const previousAfterRender = window.KLEARN_AFTER_RENDER;
   window.KLEARN_AFTER_RENDER = () => {
     previousAfterRender?.();
+    simplifyForBeginners();
     if (state.currentView === 'error-notebook') document.querySelectorAll('.error-card').forEach((card, index) => { const item = ErrorNotebookService.top(50)[index]; if (!item || card.querySelector('[data-error-retry]')) return; const count = Number(item.repetitionCount || item.count || 1); card.insertAdjacentHTML('beforeend', `<div class="action-row error-2-actions">${count > 1 ? `<span class="error-repeated">⚠️ Repeated mistake · Bạn đã sai dạng này ${count} lần.</span>` : '<span></span>'}<button class="btn secondary" data-error-retry="${escapeHtml(item.id)}">LUYỆN LẠI</button></div>`); });
     if (state.currentView === 'profile' && !document.querySelector('.coach-summary')) document.getElementById('app')?.insertAdjacentHTML('afterbegin', window.KLEARN_EXTRA_PROFILE());
     if (state.currentView === 'speaking-result' && !document.querySelector('.ai-speaking-feedback')) { const speakingResult = state.speakingResult || {}; document.getElementById('app')?.insertAdjacentHTML('beforeend', `<section class="card section ai-speaking-feedback"><h2 class="section-title">Phân tích lượt nói</h2>${pronunciationCompare(speakingResult)}<p class="subtle">Kết hợp transcript, câu mẫu và điểm pronunciation MVP để đưa ra góp ý cụ thể.</p><button class="btn secondary" id="analyzeSpeaking" ${coachState.speakingBusy ? 'disabled' : ''}>${coachState.speakingBusy ? 'Đang phân tích...' : 'Nhận góp ý'}</button></section>`); }
