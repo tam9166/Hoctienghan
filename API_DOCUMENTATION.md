@@ -193,3 +193,17 @@ node scripts/smoke-production.js https://your-deployment.example
 ```
 
 `REQUIRE_FULL_SERVICES=1` makes the smoke test require configured dependencies. Do not point destructive test data at production; current smoke test is read-only.
+
+## 9. Vercel Function surface
+
+The Hobby-compatible deployment intentionally exposes seven Function entrypoints:
+
+- `api/ai/feedback.js`
+- `api/billing.js`
+- `api/chat.js`
+- `api/commerce.js`
+- `api/config.js`
+- `api/health.js`
+- `api/version.js`
+
+Legacy billing and commerce paths are preserved by exact rewrites to the two allowlisted domain routers. Files whose basename starts with `_` are internal modules, not public handlers. Any new non-underscore JavaScript file below `api/` changes the deployed Function count and must pass `node scripts/vercel-function-audit.js`; do not move authentication, authorization or secret-bearing work into the browser to reduce that count.

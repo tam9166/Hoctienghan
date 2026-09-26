@@ -172,6 +172,19 @@ Generated `mobile/www`, `mobile/android` and `mobile/ios` are not source-of-trut
 - Verify query-string versions in `index.html` and service worker match.
 - Test with an isolated browser profile before asking users to clear data.
 
-## 12. Deploy
+## 12. Vercel Function budget
+
+The current Vercel Hobby deployment has seven intentional Function entrypoints. Billing and commerce subroutes are dispatched through `api/billing.js` and `api/commerce.js`; underscore-prefixed files are internal dependencies.
+
+Run this before adding or renaming anything below `api/`:
+
+```powershell
+node scripts/vercel-function-audit.js
+node scripts/verify-production-build.js
+```
+
+Keep new actions behind an existing allowlisted domain router when they share the same authentication, rate-limit and error boundary. Do not consolidate unrelated trust boundaries merely to reduce the count.
+
+## 13. Deploy
 
 Production deployment is defined in `.github/workflows/deploy-production.yml` and uses Vercel secrets. Follow [`docs/production/RELEASE_CHECKLIST.md`](docs/production/RELEASE_CHECKLIST.md); do not manually declare production readiness from local tests alone.

@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-09 consolidated feature milestones
+
+- P84 expanded personal vocabulary with folders, tags, notes, examples, multi-recall practice, context/confusing-word training, weakness analysis, learning-health reports and adaptive recovery plans.
+- P83 added reviewed CSV/XLSX/TXT/JSON/DOCX/PDF/image vocabulary extraction with local parsers, provenance, privacy gates and optional OCR fallback; unsupported or low-confidence input remains user-reviewed.
+- P82 added owner-scoped vocabulary decks, large-file import, topic organization, paginated browsing, focus sessions and shared SRS/Mastery/Error Notebook evidence.
+- P81 added Vietnamese-first TOPIK reading/listening/writing strategies, templates, time management, goal planning and evidence-based readiness guidance on top of the P80 exam engine.
+- P79 added topic-based vocabulary immersion and personal collections while reusing the shared SRS, adaptive, error and journey stores.
+- P78 added the Capacitor mobile foundation and consolidated Vercel billing/commerce handlers to seven deployed Functions, preserving existing public API paths through allowlisted rewrites.
+- P77 added provider-neutral premium, trial, entitlement, purchase and creator-revenue foundations; production payment activation still requires owner credentials and server verification.
+- P76 added teacher/creator profiles, gated course authoring, human review and classroom foundations without exposing learner-private records.
+- P75 added versioned content entities, CMS workflow, quality evidence, analytics, recommendations and content-gap reporting.
+- P74 added learning-companion, celebration, habit, focus, return-loop, offline-pack, culture, career and feedback experiences.
+- P73 added account activation, a shorter beginner journey, Vietnamese-focused learning plans, real-Korean missions, evidence achievements, reflection and retention reports.
+- P72 added XP/quests, micro paths, immersive spoken content, privacy-aware social challenges and clearer practice/score explanations. `P72A_ENGAGEMENT_CORE_REPORT.md` remains because its regression contract references it directly.
+- The beginner personal assistant now derives Home, path, progress, vocabulary review and lesson mini-tests from persisted learning evidence.
+
+Detailed behavior remains source-controlled in the corresponding modules, migrations and automated tests. Historical phase-completion reports were consolidated here during documentation cleanup so release history does not depend on transient test counts or deployment snapshots.
+
 ## P71C — Content Trust & Learning Science System
 
 - Added transparent content authorship/reviewer metadata and four-dimensional human-review quality scoring.
