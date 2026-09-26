@@ -19,12 +19,12 @@
     teacherCreator: { dependencies: ['education', 'contentIntelligence'], styles: ['teacher-creator-ecosystem.css?v=1'], scripts: ['data/teacher-creator-ecosystem.js?v=1'] },
     premiumPlatform: { dependencies: ['monetization', 'teacherCreator'], styles: ['premium-monetization-platform.css?v=1'], scripts: ['data/premium-monetization-platform.js?v=1'] },
     p78Mobile: { styles: ['p78-mobile-native.css?v=2'], scripts: ['data/mobile-native-platform.js?v=2'] },
-    p79Vocabulary: { dependencies: ['practical', 'scale'], styles: ['vocabulary-immersion-system.css?v=1'], scripts: ['data/vocabulary-immersion-system.js?v=2'] },
+    p79Vocabulary: { dependencies: ['practical', 'scale'], styles: ['vocabulary-immersion-system.css?v=2'], scripts: ['data/vocabulary-immersion-system.js?v=3'] },
     p79VocabularyVoice: { dependencies: ['p79Vocabulary', 'voice'] },
     p82Vocabulary: { dependencies: ['p79Vocabulary', 'ai'], styles: ['personal-vocabulary-system.css?v=1'], scripts: ['data/personal-vocabulary-system.js?v=2'] },
     p83SmartImport: { dependencies: ['p82Vocabulary', 'teacherCreator'], styles: ['smart-document-vocabulary-import.css?v=1'], scripts: ['vendor/fflate-0.8.2.min.js', 'data/smart-document-vocabulary-import.js?v=1'] },
     p84VocabularyDaily: { dependencies: ['p82Vocabulary'], styles: ['vocabulary-daily-action.css?v=1', 'personal-vocabulary-organization.css?v=1', 'vocabulary-mastery-real-usage.css?v=1', 'personal-learning-intelligence.css?v=1'], scripts: ['data/vocabulary-daily-action.js?v=1', 'data/personal-vocabulary-organization.js?v=1', 'data/vocabulary-mastery-real-usage.js?v=1', 'data/personal-learning-intelligence.js?v=1'] },
-    beginnerAssistant: { styles: ['beginner-learning-assistant.css?v=1'], scripts: ['data/beginner-learning-assistant.js?v=2'] },
+    beginnerAssistant: { styles: ['beginner-learning-assistant.css?v=2'], scripts: ['data/beginner-learning-assistant.js?v=3'] },
     p80Topik: { dependencies: ['topik', 'ai'], styles: ['topik-exam-intelligence-system.css?v=3'], scripts: ['data/topik-exam-intelligence-system.js?v=3'] },
     p81Topik: { dependencies: ['p80Topik'], styles: ['topik-strategy-coaching-system.css?v=1'], scripts: ['data/topik-strategy-coaching-system.js?v=1'] },
     practical: { scripts: ['data/practical-study.js?v=6'] },
@@ -140,7 +140,7 @@
 
   // Category pages load their discovery extensions only after the user enters them.
   routes('lessons', ['resources', 'practical', 'scale', 'conversation', 'context', 'reading', 'languageMastery', 'immersion', 'immersive', 'ecosystem', 'realWorld', 'content', 'career', 'immersiveKorean', 'marketplace', 'competitiveContent', 'realKoreanExperience', 'immersiveSpoken', 'learningEffectiveness', 'p79Vocabulary']);
-  routes('review', ['practical', 'scale', 'science']);
+  routes('review', ['practical', 'scale', 'science', 'p84VocabularyDaily', 'beginnerAssistant']);
   routes('topik', ['topik', 'analytics', 'advancedAnalytics', 'science', 'outcomes', 'p80Topik', 'p81Topik']);
   routes('practice speaking-hub', ['voice', 'realKoreanExperience', 'immersiveSpoken']);
   routes('home', ['growth', 'realUserRetentionCore', 'productDelightCore']);
