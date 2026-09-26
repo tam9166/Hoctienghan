@@ -89,5 +89,5 @@ begin
 end;
 $$;
 
-revoke all on function public.compare_and_swap_learning_sync(bigint, jsonb, integer, text) from public;
+revoke all on function public.compare_and_swap_learning_sync(bigint, jsonb, integer, text) from public, anon, authenticated;
 grant execute on function public.compare_and_swap_learning_sync(bigint, jsonb, integer, text) to authenticated;

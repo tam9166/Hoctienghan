@@ -57,6 +57,32 @@
           if (result.error && ['42703', 'PGRST204'].includes(result.error.code)) result = await state.client.from('learning_sync').select('payload,schema_version,updated_at').eq('user_id', userId).maybeSingle();
           if (result.error) throw result.error; return { snapshot: result.data?.payload || null, revision: Math.max(0, Number(result.data?.revision) || 0) };
         },
+        async pullRecords(options = {}) {
+          ensureSyncAllowed(); const userId = state.session?.user?.id; if (!userId) throw new Error('Cloud authentication required');
+          const pageSize = Math.max(50, Math.min(1000, Number(options.limit) || 500)); const records = []; let offset = 0;
+          while (true) {
+            let query = state.client.from('user_learning_records').select('domain,record_id,payload,version,device_id,client_updated_at,updated_at,deleted_at').eq('user_id', userId).order('updated_at', { ascending: true }).order('domain', { ascending: true }).order('record_id', { ascending: true }).range(offset, offset + pageSize - 1);
+            if (options.since) query = query.gte('updated_at', options.since);
+            const result = await query;
+            if (result.error) {
+              if (['42P01', 'PGRST205'].includes(result.error.code) || /user_learning_records/i.test(result.error.message || '')) return { supported: false, records: [] };
+              throw result.error;
+            }
+            const page = result.data || []; records.push(...page); if (page.length < pageSize) break; offset += pageSize;
+          }
+          return { supported: true, records };
+        },
+        async pushRecords(records = [], options = {}) {
+          ensureSyncAllowed(); const userId = state.session?.user?.id; if (!userId) throw new Error('Cloud authentication required');
+          if (!state.client?.rpc) return { supported: false, status: 'unavailable', records: [] };
+          const mutationId = String(options.mutationId || ''); const deviceId = String(options.deviceId || '');
+          const { data, error } = await state.client.rpc('apply_learning_record_batch', { p_records: records, p_mutation_id: mutationId, p_device_id: deviceId });
+          if (error) {
+            if (['42883', 'PGRST202'].includes(error.code) || /apply_learning_record_batch/i.test(error.message || '')) return { supported: false, status: 'unavailable', records: [] };
+            const safeError = new Error(error.message || 'Record CloudSync failed'); safeError.code = error.code || 'CLOUD_RECORD_SYNC_FAILED'; throw safeError;
+          }
+          return { supported: true, ...(data || {}) };
+        },
         async push(snapshot, options = {}) {
           ensureSyncAllowed(); const userId = state.session?.user?.id; if (!userId) throw new Error('Cloud authentication required');
           if (!state.client?.rpc) { const error = new Error('CloudSync CAS migration is required.'); error.code = 'CLOUD_SYNC_CAS_UNAVAILABLE'; throw error; }

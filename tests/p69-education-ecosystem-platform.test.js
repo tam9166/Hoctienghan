@@ -164,7 +164,7 @@ function boot() {
   assert.match(loader, /education-ecosystem-platform\.js\?v=1/);
   assert.match(worker, /const CACHE = 'klearn-v105'/);
   assert.match(worker, /content\/education-ecosystem-platform\.json/);
-  assert.match(read('index.html'), /app\.js\?v=87/);
+  assert.match(read('index.html'), /app\.js\?v=89/);
   assert.match(read('app.js'), /educationEcosystem: 'klearn_education_ecosystem'/);
   console.log('P69 education ecosystem: five roles, classes/courses/assignments, assessments, consent, safe reports, risks, creator human review, certificates, aggregate teacher AI, B2C/B2B plans and RLS passed');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

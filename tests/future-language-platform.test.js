@@ -112,7 +112,7 @@ function boot(userId = 'learner-a', shared = new Map()) {
   assert.match(migration, /browser clients cannot forge quality or usage records/);
   assert.match(index, /future-language-platform\.css\?v=1/);
   assert.match(index, /data\/future-language-platform\.js\?v=1/);
-  assert.match(index, /app\.js\?v=87/);
+  assert.match(index, /app\.js\?v=89/);
   assert.match(worker, /klearn-v105/);
   assert.match(worker, /content\/future-language-platform\.json/);
   assert.match(appSource, /'future-language-platform', 'cross-language-lab', 'language-brain', 'future-integrations', 'global-course-marketplace'/);

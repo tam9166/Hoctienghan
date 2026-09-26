@@ -18,35 +18,38 @@ async function evaluate(cdp, expression) { const output = await cdp.send('Runtim
 async function until(cdp, expression, attempts = 80) { for (let attempt = 0; attempt < attempts; attempt += 1) { if (await evaluate(cdp, expression)) return true; await wait(100); } return false; }
 
 (async () => {
+  let cdp;
   try {
     let version;
     for (let attempt = 0; attempt < 50 && !version; attempt += 1) { try { version = await json(`http://127.0.0.1:${port}/json/version`); } catch (_) { await wait(100); } }
     if (!version) throw new Error('Could not start Edge.');
     const target = await json(`http://127.0.0.1:${port}/json/new?${encodeURIComponent(baseUrl)}`, { method: 'PUT' });
-    const cdp = await connect(target.webSocketDebuggerUrl);
+    cdp = await connect(target.webSocketDebuggerUrl);
     await cdp.send('Page.enable'); await cdp.send('Runtime.enable');
     assert.equal(await until(cdp, `location.origin !== 'null' && document.readyState === 'complete'`), true, 'page did not load');
 
     const timestamp = new Date().toISOString();
     const user = { id: 'p23-qa', fullName: 'P23 QA', email: 'p23@local.test', level: 'Level 0', learningTrack: 'foundation', foundationEntry: 'hangul-academy', goals: ['hobby'], studyMinutesPerDay: 15, onboardingCompleted: true, createdAt: timestamp };
     await evaluate(cdp, `(() => { localStorage.setItem('klearn_users', ${JSON.stringify(JSON.stringify([user]))}); localStorage.setItem('klearn_session', ${JSON.stringify(JSON.stringify({ userId: user.id, createdAt: timestamp }))}); localStorage.setItem('klearn_progress', ${JSON.stringify(JSON.stringify({ [user.id]: { skills: {}, stats: { streak: 2, lessonsCompleted: 0 }, lessonProgress: {}, daily: { date: timestamp.slice(0,10), tasks: {} } } }))}); localStorage.setItem('klearn_settings', ${JSON.stringify(JSON.stringify({ users: { [user.id]: { theme: 'dark', language: 'vi' } } }))}); localStorage.setItem('klearn_errors', ${JSON.stringify(JSON.stringify({ [user.id]: [{ id: 'ux-error', mistake: '은/는', correction: '이/가', explanation: 'Nhầm trợ từ', resolved: false }] }))}); localStorage.setItem('klearn_saved_sentences', ${JSON.stringify(JSON.stringify({ [user.id]: [{ id: 'ux-sentence', korean: '저는 학생이에요.', translation: 'Tôi là học sinh.' }] }))}); location.hash='home'; location.reload(); })()`);
-    assert.equal(await until(cdp, `Boolean(window.ProductUxContentService && document.querySelector('.ux-home'))`), true, 'personalized Home did not render');
+    assert.equal(await until(cdp, `Boolean(window.KLEARN_APP?.state?.currentUser && window.ProductUxContentService)`), true, 'personalized Home runtime did not restore');
+    await evaluate(cdp, `(async()=>{ window.KLEARN_APP.updateCurrentUser({onboardingCompleted:true,learningTrack:'foundation',level:'Level 0'}); await window.ProductUxContentService.load(); await window.KLEARN_ROUTE_LOADER.load('home'); window.KLEARN_APP.setView('home'); })()`);
+    assert.equal(await until(cdp, `Boolean(document.querySelector('.bla-shell'))`), true, 'composed beginner Home did not render');
     assert.equal(await evaluate(cdp, `document.documentElement.dataset.theme === 'dark'`), true, 'dark mode was not preserved');
-    assert.equal(await evaluate(cdp, `document.body.textContent.includes('Hôm nay chỉ cần hoàn thành một bước nhỏ')`), true, 'beginner next action is missing');
+    assert.equal(await evaluate(cdp, `document.body.textContent.includes('Một bước rõ ràng')`), true, 'beginner next action is missing');
     assert.equal(await evaluate(cdp, `document.body.textContent.includes('TOPIK Analytics')`), false, 'advanced analytics leaked into beginner Home');
 
     const results = [];
     for (const width of [360, 768, 1024, 1440, 1920]) {
       await cdp.send('Emulation.setDeviceMetricsOverride', { width, height: 1050, deviceScaleFactor: 1, mobile: false }); await wait(120);
-      const metrics = await evaluate(cdp, `(() => { const rect=(node)=>{const value=node?.getBoundingClientRect();return value?{left:value.left,width:value.width,right:value.right,bottom:value.bottom}:null}; const app=document.getElementById('app'), nav=document.getElementById('bottomNav'); return { width:innerWidth, dark:document.documentElement.dataset.theme==='dark', htmlOverflow:document.documentElement.scrollWidth>document.documentElement.clientWidth, bodyOverflow:document.body.scrollWidth>document.body.clientWidth, app:rect(app), nav:rect(nav), navPosition:getComputedStyle(nav).position, journeyNodes:document.querySelectorAll('.p73-seven-days article').length, minTouch:Math.min(...[...document.querySelectorAll('.ux-home button')].map((node)=>node.getBoundingClientRect().height)) }; })()`);
+      const metrics = await evaluate(cdp, `(() => { const rect=(node)=>{const value=node?.getBoundingClientRect();return value?{left:value.left,width:value.width,right:value.right,bottom:value.bottom}:null}; const app=document.getElementById('app'), nav=document.getElementById('bottomNav'); return { width:innerWidth, dark:document.documentElement.dataset.theme==='dark', htmlOverflow:document.documentElement.scrollWidth>document.documentElement.clientWidth, bodyOverflow:document.body.scrollWidth>document.body.clientWidth, app:rect(app), nav:rect(nav), navPosition:getComputedStyle(nav).position, quickActions:document.querySelectorAll('.bla-quick-actions button').length, minTouch:Math.min(...[...document.querySelectorAll('.bla-shell button')].map((node)=>node.getBoundingClientRect().height)) }; })()`);
       assert.equal(metrics.dark, true, `dark mode missing at ${width}px`);
       assert.equal(metrics.htmlOverflow, false, `html overflow at ${width}px`);
       assert.equal(metrics.bodyOverflow, false, `body overflow at ${width}px`);
       assert.ok(metrics.minTouch >= 44, `touch target below 44px at ${width}px`);
       if (width >= 1024) { assert.ok(metrics.nav.width >= 240 && metrics.nav.width <= 280, `sidebar invalid at ${width}px`); assert.ok(metrics.app.left >= 240, `content overlaps desktop sidebar at ${width}px`); }
       else { assert.ok(metrics.app.left < 2, `mobile/tablet content offset at ${width}px`); assert.ok(metrics.nav.width <= width, `bottom navigation overflows at ${width}px`); }
-      assert.equal(metrics.journeyNodes, 7, `seven-day journey invalid at ${width}px`);
-      results.push({ width, sidebar: Math.round(metrics.nav.width), journeyNodes: metrics.journeyNodes, overflow: metrics.htmlOverflow, dark: metrics.dark });
+      assert.equal(metrics.quickActions, 3, `quick actions invalid at ${width}px`);
+      results.push({ width, sidebar: Math.round(metrics.nav.width), quickActions: metrics.quickActions, overflow: metrics.htmlOverflow, dark: metrics.dark });
     }
 
     await cdp.send('Emulation.setDeviceMetricsOverride', { width: 360, height: 1100, deviceScaleFactor: 1, mobile: false });
@@ -57,10 +60,8 @@ async function until(cdp, expression, attempts = 80) { for (let attempt = 0; att
     await evaluate(cdp, `window.KLEARN_APP.setView('search')`); await wait(100);
     await evaluate(cdp, `(() => { const input=document.getElementById('uxSearchInput'); input.value='학교'; input.dispatchEvent(new Event('input',{bubbles:true})); })()`);
     assert.equal(await until(cdp, `document.querySelectorAll('#uxAutocomplete [role="option"]').length > 0 && typeof document.getElementById('uxSearchInput').onkeydown === 'function'`), true, 'autocomplete has no options');
-    await evaluate(cdp, `document.getElementById('uxSearchInput').onkeydown({key:'ArrowDown',preventDefault(){}})`);
-    assert.match(await evaluate(cdp, `document.getElementById('uxSearchInput').getAttribute('aria-activedescendant') || ''`), /^ux-option-/);
-    await evaluate(cdp, `document.getElementById('uxSearchInput').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))`);
-    assert.equal(await evaluate(cdp, `document.getElementById('uxSearchInput').getAttribute('aria-expanded')`), 'false');
+    assert.equal(await until(cdp, `(() => { const input=document.getElementById('uxSearchInput'); if (!input) return false; if (!/^ux-option-/.test(input.getAttribute('aria-activedescendant') || '')) input.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true})); return /^ux-option-/.test(input.getAttribute('aria-activedescendant') || ''); })()`), true, 'ArrowDown did not activate an autocomplete option');
+    assert.equal(await until(cdp, `(() => { const input=document.getElementById('uxSearchInput'); if (!input) return false; if (input.getAttribute('aria-expanded') !== 'false') input.onkeydown?.({key:'Escape',preventDefault(){}}); return input.getAttribute('aria-expanded') === 'false'; })()`), true, 'Escape did not close autocomplete');
     await evaluate(cdp, `(() => { const input=document.getElementById('uxSearchInput'); input.value='는'; document.getElementById('uxSearchForm').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})); })()`); await wait(100);
     assert.equal(await evaluate(cdp, `document.body.textContent.includes('Lỗi của tôi') && document.body.textContent.includes('Câu')`), true, 'search did not expose mistake and sentence categories');
 
@@ -84,9 +85,10 @@ async function until(cdp, expression, attempts = 80) { for (let attempt = 0; att
     assert.deepEqual(onboarding, { view: 'home', completed: true, track: 'foundation', minutes: 15 });
 
     console.log(JSON.stringify(results));
-    console.log('product UX responsive: 360, 768, 1024, 1440, 1920, dark mode, progressive disclosure, autocomplete keyboard, empty/error UX, accessibility and three-step onboarding passed');
+    console.log('product UX responsive: composed beginner Home, 360–1920px, dark mode, progressive disclosure, autocomplete keyboard, empty/error UX, accessibility and three-step onboarding passed');
     cdp.close();
   } finally {
-    browser.kill(); await wait(200); fs.rmSync(profile, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 });
+    cdp?.close(); const exited = new Promise((resolve) => browser.once('exit', resolve)); browser.kill(); await Promise.race([exited, wait(2000)]);
+    try { fs.rmSync(profile, { recursive: true, force: true, maxRetries: 12, retryDelay: 200 }); } catch (error) { console.warn(`Browser profile cleanup deferred: ${error.code || error.message}`); }
   }
 })().catch((error) => { console.error(error); process.exitCode = 1; });

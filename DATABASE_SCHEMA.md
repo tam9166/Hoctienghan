@@ -10,6 +10,8 @@ Tài liệu này phản ánh [`supabase/schema.sql`](supabase/schema.sql) và mi
 erDiagram
     AUTH_USERS ||--|| LEARNING_SYNC : owns
     AUTH_USERS ||--o{ LEARNING_SYNC_MUTATIONS : applies
+    AUTH_USERS ||--o{ USER_LEARNING_RECORDS : owns
+    AUTH_USERS ||--o{ LEARNING_RECORD_MUTATIONS : applies
     AUTH_USERS ||--o{ USER_ROLES : has
     AUTH_USERS ||--o{ SUPPORT_REQUESTS : creates
     AUTH_USERS ||--o{ USER_PRIVACY_PREFERENCES : controls
@@ -49,16 +51,24 @@ Security:
 
 Tracks applied mutation IDs for idempotency. Direct access is revoked. The compare-and-swap function reads/writes it using a security-definer boundary and records `user_id`, `mutation_id`, `applied_at`.
 
+### `public.user_learning_records` — physical record-sync table
+
+This table is the primary multi-device write path introduced by `20260922_learning_record_sync.sql`. Its composite key is `(user_id, domain, record_id)`; each row has a monotonic `version`, device ID, client/server timestamps, JSON payload and optional tombstone. Profile, lesson progress, activity days, SRS cards, favorites, error-notebook entries, quiz attempts, achievements and sessions therefore merge independently instead of overwriting an entire account snapshot.
+
+Authenticated clients may only select rows where `auth.uid() = user_id`. Direct insert/update/delete is revoked. `apply_learning_record_batch(...)` validates identity from Auth, takes per-record transaction locks, checks every expected version before writing, and records an idempotency mutation. A conflict returns current server records and applies none of the batch.
+
+`learning_sync` remains during rollout as an atomic compatibility snapshot and off-device fallback. The client backs up all local domains before its first record migration, pulls and merges first, then pushes record batches, and finally refreshes the legacy snapshot CAS.
+
 ## 3. Logical learning domains
 
-The task vocabulary “profile, progress, SRS, errors” refers to logical domains. They are not separate physical tables in the current core database.
+The task vocabulary “profile, progress, SRS, errors” refers to logical domains, not separate physical tables. They are represented as independent rows in the shared `user_learning_records` table; the legacy snapshot also retains them for rollout compatibility.
 
 | Logical domain | Local source | Cloud representation | Main fields |
 |---|---|---|---|
-| User/profile | `klearn_users`, `klearn_learner_profile` | `learning_sync.payload.user` and `payload.data[...]` | level, goals, learning track/mode, preferences, weak/strong skills |
-| Progress | `klearn_progress` | `payload.data.klearn_progress` | lesson progress, stats, skills, daily tasks, foundation, attempts |
-| SRS | `klearn_srs` | `payload.data.klearn_srs` | word ID, status, counts, mastery, interval, last/next review |
-| Errors | `klearn_errors` | `payload.data.klearn_errors` | type, prompt/mistake/correction, recurrence, resolution evidence |
+| User/profile | `klearn_users`, `klearn_learner_profile` | `__profile/profile`, profile-domain records, plus legacy snapshot | level, goals, learning track/mode, preferences, weak/strong skills |
+| Progress | `klearn_progress` | summary, `lesson:<id>` and `activity:<date>` records | lesson progress, stats, skills, daily tasks, activity-day evidence |
+| SRS | `klearn_srs` | one `klearn_srs/<wordId>` record per card | status, counts, mastery, interval, last/next review |
+| Favorites/errors/history | corresponding local keys | one record per stable item ID | favorites, mistake evidence, quiz attempts, achievements and sessions |
 
 Each local object is scoped by the local learner ID. When a cloud account is linked, snapshot creation extracts only the current user’s values and applies per-domain size limits.
 
@@ -136,9 +146,11 @@ Required pattern for new user-owned tables:
 
 The function locks/compares the current revision, returns conflict information when stale, ignores already-applied mutation IDs and increments the revision for accepted updates. Client code pulls and merges before retrying a conflict.
 
+For normalized records, `apply_learning_record_batch` accepts at most 200 records. Every item includes `domain`, `recordId`, `payload`, `expectedVersion`, `clientUpdatedAt` and optional `deletedAt`. The server derives `user_id` exclusively from `auth.uid()` and the device cannot select or mutate another user's rows. Activity-day records are unioned by date and mutation ID, so two devices studying on the same day contribute one learning day rather than inflating the streak.
+
 ## 10. Backup and deletion
 
 - Supabase backup/PITR is an owner-side operational configuration, not created by frontend code.
-- Local recovery snapshots cover selected learning domains and are not an off-device backup.
+- Daily recovery snapshots cover selected high-value domains. The pre-record-sync migration backup and user-exported JSON cover every synchronized local domain and are kept without deleting local data.
 - Account deletion is a request workflow; destructive execution must happen in a trusted backend/admin process.
 - Follow [`docs/production/BACKUP_RESTORE.md`](docs/production/BACKUP_RESTORE.md) and test restore separately from backup creation.

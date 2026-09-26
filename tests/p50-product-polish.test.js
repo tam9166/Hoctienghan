@@ -36,7 +36,7 @@ assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
 assert.match(styles, /:focus-visible/);
 assert.match(worker, /const CACHE = 'klearn-v105'/);
 assert.match(index, /styles\.css\?v=32/);
-assert.match(index, /app\.js\?v=87/);
+assert.match(index, /app\.js\?v=89/);
 
 function pngSize(file) {
   const data = fs.readFileSync(path.join(root, file));

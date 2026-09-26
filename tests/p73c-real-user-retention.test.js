@@ -105,7 +105,7 @@ assert.equal(veteran.window.EvidenceAchievementService.refresh().find((item) => 
 
 const app = read('app.js'); const index = read('index.html'); const worker = read('sw.js'); const loader = read('data/route-loader.js'); const css = read('real-user-retention.css'); const moduleSource = read('data/real-user-retention.js');
 assert.match(app, /realUserRetention: 'klearn_real_user_retention'/); assert.match(app, /mergeRealUserRetention/); assert.match(app, /STORAGE_KEYS\.realUserRetention/);
-assert.doesNotMatch(index, /data\/real-user-retention\.js\?v=4/); assert.match(index, /app\.js\?v=87/); assert.match(index, /route-loader\.js\?v=31/);
+assert.doesNotMatch(index, /data\/real-user-retention\.js\?v=4/); assert.match(index, /app\.js\?v=89/); assert.match(index, /route-loader\.js\?v=31/);
 assert.match(loader, /realUserRetentionCore/); assert.match(loader, /routes\('home', \['growth', 'realUserRetentionCore', 'productDelightCore'\]\)/);
 assert.match(worker, /klearn-v105/); assert.match(worker, /content\/real-user-retention\.json/); assert.match(worker, /real-user-retention\.css\?v=2/);
 assert.match(read('data/ai-coach.js'), /\.\.\.\(window\.KLEARN_EXTRA_VIEWS \|\| \{\}\)/); assert.match(read('data/ai-coach.js'), /previousAfterRender\?\.\(\)/);

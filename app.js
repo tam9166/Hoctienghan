@@ -291,7 +291,7 @@ function escapeHtml(value = '') {
 }
 
 function normalizeEmail(value = '') { return String(value).trim().toLowerCase(); }
-function todayKey() { return new Date().toISOString().slice(0, 10); }
+function todayKey(reference = new Date()) { const value = reference instanceof Date ? reference : new Date(reference); return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`; }
 function firstName(fullName = '') { return fullName.trim().split(/\s+/).filter(Boolean).pop() || 'bạn'; }
 function initials(fullName = '') { return (firstName(fullName).charAt(0) || '한').toUpperCase(); }
 function appElement() { return document.getElementById('app'); }
@@ -987,7 +987,8 @@ function defaultProgress() {
   return {
     daily: { date: todayKey(), tasks: { vocabulary: false, lesson: false, practice: false, listening: false, speaking: false, writing: false } },
     lessonProgress: {},
-    stats: { lessonsCompleted: 0, learningDays: 1, streak: 1, wordsLearned: 0 },
+    activityDays: {},
+    stats: { lessonsCompleted: 0, learningDays: 0, streak: 0, longestStreak: 0, wordsLearned: 0 },
     skills: { vocabulary: 0, grammar: 0, listening: 0, speaking: 0, reading: 0, writing: 0 },
     pronunciationAttempts: [],
     writingSubmissions: [],
@@ -1013,6 +1014,7 @@ function getUserProgress() {
     stats: { ...defaults.stats, ...(progress.stats && typeof progress.stats === 'object' ? progress.stats : {}) },
     skills: { ...defaults.skills, ...(progress.skills && typeof progress.skills === 'object' ? progress.skills : {}) },
     lessonProgress: progress.lessonProgress && typeof progress.lessonProgress === 'object' ? progress.lessonProgress : {},
+    activityDays: progress.activityDays && typeof progress.activityDays === 'object' && !Array.isArray(progress.activityDays) ? progress.activityDays : {},
     pronunciationAttempts: Array.isArray(progress.pronunciationAttempts) ? progress.pronunciationAttempts : [],
     writingSubmissions: Array.isArray(progress.writingSubmissions) ? progress.writingSubmissions : [],
     mockTests: Array.isArray(progress.mockTests) ? progress.mockTests : defaults.mockTests
@@ -1182,8 +1184,31 @@ function saveUserScoped(key, items, limit = 100) { if (!state.currentUser) retur
 function emitLearningMutation(type, entityId, details = {}, mutationId = '') {
   if (!state.currentUser || !type || !entityId) return null;
   const id = mutationId || `${type}:${state.currentUser.id}:${entityId}:${Date.now().toString(36)}`;
+  recordLearningActivity(type, id, details);
   window.dispatchEvent(new CustomEvent('klearn-sync-action', { detail: { ...details, type, entityId, mutationId: id, id } }));
   return id;
+}
+
+const LEARNING_ACTIVITY_TYPES = new Set(['completed_lesson', 'practice_completed', 'topik_completed', 'listening_completed', 'speaking_completed', 'writing_completed', 'srs_updated']);
+function calculateLearningStreak(activityDays = {}, referenceDate = todayKey()) {
+  const keys = Object.keys(activityDays || {}).filter((value) => /^\d{4}-\d{2}-\d{2}$/.test(value)).sort();
+  let longestStreak = 0; let run = 0; let previous = null;
+  keys.forEach((key) => { const day = Date.parse(`${key}T00:00:00Z`); run = previous !== null && day - previous === 86400000 ? run + 1 : 1; longestStreak = Math.max(longestStreak, run); previous = day; });
+  const active = new Set(keys); let streak = 0; const cursor = new Date(`${referenceDate}T00:00:00Z`);
+  if (!active.has(referenceDate)) cursor.setUTCDate(cursor.getUTCDate() - 1);
+  while (active.has(cursor.toISOString().slice(0, 10))) { streak += 1; cursor.setUTCDate(cursor.getUTCDate() - 1); }
+  return { learningDays: keys.length, streak, longestStreak };
+}
+function recordLearningActivity(type, mutationId, details = {}) {
+  if (!state.currentUser || !LEARNING_ACTIVITY_TYPES.has(type)) return false;
+  if (type === 'srs_updated' && !details.rating && !['srs-review', 'active-recall'].includes(details.source)) return false;
+  const all = storage.get(STORAGE_KEYS.progress, {}); const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; const progress = { ...defaultProgress(), ...(safe[state.currentUser.id] || {}) };
+  const date = todayKey(); const activityDays = { ...(progress.activityDays || {}) }; const current = activityDays[date] || { date, activityIds: [], types: [], count: 0 };
+  if ((current.activityIds || []).includes(mutationId)) return false;
+  activityDays[date] = { ...current, activityIds: [...new Set([...(current.activityIds || []), mutationId])].slice(-200), types: [...new Set([...(current.types || []), type])], count: Number(current.count || 0) + 1, updatedAt: new Date().toISOString() };
+  const boundedDays = Object.fromEntries(Object.entries(activityDays).sort(([a], [b]) => b.localeCompare(a)).slice(0, 730)); const streak = calculateLearningStreak(boundedDays);
+  safe[state.currentUser.id] = { ...progress, activityDays: boundedDays, stats: { ...(progress.stats || {}), ...streak }, updatedAt: new Date().toISOString() };
+  storage.set(STORAGE_KEYS.progress, safe); syncUserData(); return true;
 }
 
 function contentResources() { return window.KLEARN_RESOURCE_LIBRARY?.resources || []; }
@@ -1279,11 +1304,29 @@ function boundedCloudValue(key, value) {
   return { value: selected, archivedLocally: value.length - selected.length };
 }
 
+const RECORD_SYNC_SPECIAL_DOMAINS = Object.freeze({ profile: '__profile', progress: STORAGE_KEYS.progress, srs: STORAGE_KEYS.srs });
+function stableRecordId(item, index = 0) {
+  if (item && typeof item === 'object') return String(item.id || item.wordId || item.questionId || item.key || item.date || item.createdAt || item.created_at || `item-${index}`);
+  return `value-${String(item)}`;
+}
+function srsSyncPayload(card = {}) {
+  return Object.fromEntries(['wordId', 'status', 'reviewCount', 'correctCount', 'wrongCount', 'streakCorrect', 'mastery', 'difficulty', 'ease', 'interval', 'intervalDays', 'lastReviewed', 'nextReview', 'activatedAt', 'activationSource', 'pretestPassed', 'pretestPassedAt', 'skipCurrentSession', 'lastResult', 'updatedAt', 'foundationWord', 'sourceLessonId', 'languageId'].filter((key) => card[key] !== undefined).map((key) => [key, card[key]]));
+}
+function stableSyncJson(value) {
+  const normalize = (item) => Array.isArray(item) ? item.map(normalize) : item && typeof item === 'object' ? Object.fromEntries(Object.keys(item).sort().map((key) => [key, normalize(item[key])])) : item;
+  return JSON.stringify(normalize(value));
+}
+
 const CloudSyncService = {
   timer: null,
   status: 'local',
   provider: null,
   revision: 0,
+  inFlight: null,
+  pendingReason: '',
+  meta() { return state.currentUser ? (storage.get(STORAGE_KEYS.syncMeta, {})?.[state.currentUser.id] || {}) : {}; },
+  updateMeta(changes = {}) { if (!state.currentUser) return {}; const all = storage.get(STORAGE_KEYS.syncMeta, {}) || {}; const next = { ...(all[state.currentUser.id] || {}), ...changes, updatedAt: new Date().toISOString() }; storage.set(STORAGE_KEYS.syncMeta, { ...all, [state.currentUser.id]: next }); return next; },
+  deviceId() { const current = this.meta().deviceId; if (current) return current; const value = `device-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`; this.updateMeta({ deviceId: value }); return value; },
   getProvider() {
     if (this.provider) return this.provider;
     const configured = window.KLEARN_CLOUD_PROVIDER;
@@ -1295,12 +1338,19 @@ const CloudSyncService = {
   allowed() { return PrivacyPreferenceService.allows('cloudSync'); },
   setStatus(status, detail = '') {
     this.status = status;
-    if (state.currentUser) { const all = storage.get(STORAGE_KEYS.syncMeta, {}) || {}; const current = all[state.currentUser.id]; if (current?.status !== status || current?.detail !== detail) storage.set(STORAGE_KEYS.syncMeta, { ...all, [state.currentUser.id]: { status, detail, updatedAt: new Date().toISOString() } }); }
+    if (state.currentUser) { const current = this.meta(); if (current?.status !== status || current?.detail !== detail) this.updateMeta({ status, detail }); }
     document.dispatchEvent(new CustomEvent('klearn-sync-status', { detail: { status, detail } }));
   },
   getStatus() {
     const saved = state.currentUser && storage.get(STORAGE_KEYS.syncMeta, {})?.[state.currentUser.id];
     return saved?.status || (navigator.onLine === false ? 'offline' : this.isConfigured() ? 'synced' : 'local');
+  },
+  createMigrationBackup() {
+    if (!state.currentUser || this.meta().recordMigrationBackupAt) return true;
+    const snapshot = this.exportLocalData(); if (!snapshot) return false;
+    const all = storage.get(STORAGE_KEYS.learningBackups, {}) || {}; const current = Array.isArray(all[state.currentUser.id]) ? all[state.currentUser.id] : [];
+    const entry = { backupId: `record-sync-${Date.now().toString(36)}`, period: 'migration', reason: 'before-record-sync-v1', capturedAt: new Date().toISOString(), userId: state.currentUser.id, snapshot };
+    const saved = storage.set(STORAGE_KEYS.learningBackups, { ...all, [state.currentUser.id]: [entry, ...current].slice(0, 20) }); if (saved) this.updateMeta({ recordMigrationBackupAt: entry.capturedAt }); return saved;
   },
   snapshot() {
     if (!state.currentUser) return null;
@@ -1308,6 +1358,62 @@ const CloudSyncService = {
     const truncatedDomains = {}; const data = Object.fromEntries(USER_SYNC_KEYS.map((key) => { const value = storage.get(key, {}); const localValue = key === STORAGE_KEYS.settings ? (value?.users?.[localUserId] || null) : (value?.[localUserId] ?? null); const bounded = boundedCloudValue(key, localValue); if (bounded.archivedLocally) truncatedDomains[key] = bounded.archivedLocally; return [key, bounded.value]; }));
     const user = normalizeUser(state.currentUser); if (user) { delete user.passwordHash; delete user.passwordSalt; delete user.passwordIterations; delete user.passwordHashVersion; delete user.credentialUpgradeRequired; delete user.id; }
     return { userId, user, data, revision: Math.max(0, Number(this.revision) || 0), updatedAt: new Date().toISOString(), schemaVersion: 4, syncPolicy: { version: 1, truncatedDomains } };
+  },
+  snapshotToRecords(snapshot = null) {
+    const source = snapshot || this.exportLocalData(); if (!source) return [];
+    const versions = this.meta().recordVersions || {}; const hashes = this.meta().recordHashes || {}; const deleted = this.meta().recordDeleted || {}; const updatedAt = source.updatedAt || source.exportedAt || new Date().toISOString(); const records = []; const currentKeys = new Set();
+    const add = (domain, recordId, payload, deletedAt = null) => { const safeId = String(recordId).slice(0, 180); const key = `${domain}|${safeId}`; currentKeys.add(key); const body = payload ?? {}; const fingerprint = stableSyncJson([body, deletedAt || null]); if (hashes[key] === fingerprint) return; records.push({ domain, recordId: safeId, payload: body, expectedVersion: Math.max(0, Number(versions[key]) || 0), clientUpdatedAt: body?.updatedAt || body?.updated_at || body?.createdAt || updatedAt, deletedAt }); };
+    const profile = { ...(source.user || {}) }; delete profile.id; delete profile.passwordHash; delete profile.passwordSalt; delete profile.passwordIterations; delete profile.passwordHashVersion; add(RECORD_SYNC_SPECIAL_DOMAINS.profile, 'profile', profile);
+    Object.entries(source.data || {}).forEach(([domain, value]) => {
+      if (value === null || value === undefined) return;
+      if (domain === RECORD_SYNC_SPECIAL_DOMAINS.progress) {
+        const { lessonProgress = {}, activityDays = {}, ...summary } = value && typeof value === 'object' ? value : {};
+        add(domain, 'summary', summary); Object.entries(lessonProgress).forEach(([id, payload]) => add(domain, `lesson:${id}`, payload)); Object.entries(activityDays).forEach(([date, payload]) => add(domain, `activity:${date}`, payload)); return;
+      }
+      if (domain === RECORD_SYNC_SPECIAL_DOMAINS.srs && Array.isArray(value)) { value.filter((item) => SRSStateService.hasLearningEvidence(item)).forEach((item) => add(domain, item.wordId || item.id, srsSyncPayload(item))); return; }
+      if (Array.isArray(value)) { value.forEach((item, index) => add(domain, stableRecordId(item, index), item && typeof item === 'object' ? item : { value: item })); return; }
+      add(domain, 'state', value);
+    });
+    Object.keys(versions).forEach((key) => { if (currentKeys.has(key) || deleted[key]) return; const separator = key.indexOf('|'); const domain = key.slice(0, separator); const recordId = key.slice(separator + 1); if (domain === RECORD_SYNC_SPECIAL_DOMAINS.profile || !USER_SYNC_KEYS.includes(domain) || source.data?.[domain] === null || source.data?.[domain] === undefined) return; const deletedAt = new Date().toISOString(); records.push({ domain, recordId, payload: {}, expectedVersion: Math.max(0, Number(versions[key]) || 0), clientUpdatedAt: deletedAt, deletedAt }); });
+    return records;
+  },
+  recordsToSnapshot(rows = []) {
+    const data = {}; let user = null; const arrayDomains = new Set([STORAGE_KEYS.srs, STORAGE_KEYS.practiceHistory, STORAGE_KEYS.examAttempts, STORAGE_KEYS.listeningSessions, STORAGE_KEYS.speakingSessions, STORAGE_KEYS.writingAttempts, STORAGE_KEYS.dictionaryFavorites, STORAGE_KEYS.savedSentences, STORAGE_KEYS.translationHistory, STORAGE_KEYS.recentSearches, STORAGE_KEYS.errors, STORAGE_KEYS.achievements, STORAGE_KEYS.focusSessions, STORAGE_KEYS.milestones, STORAGE_KEYS.notes, STORAGE_KEYS.bookmarks, STORAGE_KEYS.highlights, STORAGE_KEYS.vocabularyCollections, STORAGE_KEYS.vocabularyOrganization, 'klearn_ai_conversations']);
+    rows.filter((row) => !row.deleted_at && !row.deletedAt).forEach((row) => {
+      const domain = row.domain; const id = row.record_id || row.recordId; const payload = row.payload ?? {};
+      if (domain === RECORD_SYNC_SPECIAL_DOMAINS.profile) { user = payload; return; }
+      if (domain === RECORD_SYNC_SPECIAL_DOMAINS.progress) { const progress = data[domain] || { lessonProgress: {}, activityDays: {} }; if (id === 'summary') Object.assign(progress, payload); else if (String(id).startsWith('lesson:')) progress.lessonProgress[String(id).slice(7)] = payload; else if (String(id).startsWith('activity:')) progress.activityDays[String(id).slice(9)] = payload; data[domain] = progress; return; }
+      if (id === 'state' && !arrayDomains.has(domain)) data[domain] = payload;
+      else { if (!Array.isArray(data[domain])) data[domain] = []; data[domain].push(Object.keys(payload || {}).length === 1 && Object.prototype.hasOwnProperty.call(payload, 'value') ? payload.value : payload); }
+    });
+    return { user, data, schemaVersion: 5, updatedAt: new Date().toISOString() };
+  },
+  rememberRecordVersions(rows = []) {
+    const versions = { ...(this.meta().recordVersions || {}) }; const hashes = { ...(this.meta().recordHashes || {}) }; const deleted = { ...(this.meta().recordDeleted || {}) }; let cursor = this.meta().recordCursor || null;
+    rows.forEach((row) => { const domain = row.domain; const recordId = row.record_id || row.recordId; if (domain && recordId) { const key = `${domain}|${recordId}`; const deletedAt = row.deleted_at || row.deletedAt || null; versions[key] = Math.max(0, Number(row.version) || 0); hashes[key] = stableSyncJson([row.payload ?? {}, deletedAt]); deleted[key] = Boolean(deletedAt); } const stamp = row.updated_at || row.updatedAt; if (stamp && (!cursor || stamp > cursor)) cursor = stamp; });
+    this.updateMeta({ recordVersions: versions, recordHashes: hashes, recordDeleted: deleted, recordCursor: cursor });
+  },
+  applyRecordTombstones(rows = []) {
+    if (!state.currentUser) return;
+    rows.filter((row) => row.deleted_at || row.deletedAt).forEach((row) => { const domain = row.domain; const recordId = String(row.record_id || row.recordId || ''); if (!USER_SYNC_KEYS.includes(domain) || domain === STORAGE_KEYS.settings) return; const all = storage.get(domain, {}); const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; const local = safe[state.currentUser.id];
+      if (domain === STORAGE_KEYS.progress && local && typeof local === 'object' && !Array.isArray(local)) { const progress = { ...local, lessonProgress: { ...(local.lessonProgress || {}) }, activityDays: { ...(local.activityDays || {}) } }; if (recordId.startsWith('lesson:')) delete progress.lessonProgress[recordId.slice(7)]; else if (recordId.startsWith('activity:')) delete progress.activityDays[recordId.slice(9)]; else return; progress.stats = { ...(progress.stats || {}), ...calculateLearningStreak(progress.activityDays) }; safe[state.currentUser.id] = progress; storage.set(domain, safe); return; }
+      if (!Array.isArray(local)) return; safe[state.currentUser.id] = local.filter((item, index) => stableRecordId(item, index) !== recordId); storage.set(domain, safe); });
+  },
+  async synchronizeRecords(provider, baseMutationId) {
+    if (typeof provider.pullRecords !== 'function' || typeof provider.pushRecords !== 'function') return { supported: false };
+    if (!this.createMigrationBackup()) { const error = new Error('Không thể tạo backup trước migration; đồng bộ đã dừng.'); error.code = 'CLOUD_MIGRATION_BACKUP_FAILED'; throw error; }
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const pulled = await provider.pullRecords({ since: this.meta().recordCursor || null, limit: 500 }); if (!pulled?.supported) return { supported: false };
+      this.applyRecordTombstones(pulled.records || []); this.rememberRecordVersions(pulled.records); if (pulled.records?.length) this.mergeSnapshot(this.recordsToSnapshot(pulled.records));
+      const records = this.snapshotToRecords(); let conflict = false;
+      for (let offset = 0, chunk = 0; offset < records.length; offset += 200, chunk += 1) {
+        const result = await provider.pushRecords(records.slice(offset, offset + 200), { deviceId: this.deviceId(), mutationId: `${baseMutationId}:a${attempt}:c${chunk}`.slice(0, 160) });
+        if (!result?.supported) return { supported: false }; this.rememberRecordVersions(result.records || []);
+        if (result.status === 'conflict') { if (result.records?.length) this.mergeSnapshot(this.recordsToSnapshot(result.records)); conflict = true; break; }
+      }
+      if (!conflict) { this.updateMeta({ recordSyncVersion: 1, recordMigratedAt: this.meta().recordMigratedAt || new Date().toISOString() }); return { supported: true, applied: true }; }
+    }
+    const error = new Error('Record sync conflict retry exhausted'); error.code = 'CLOUD_RECORD_SYNC_CONFLICT'; throw error;
   },
   normalizePull(value) {
     if (value && typeof value === 'object' && Object.prototype.hasOwnProperty.call(value, 'snapshot')) return { snapshot: value.snapshot || null, revision: Math.max(0, Number(value.revision) || 0) };
@@ -1406,6 +1512,9 @@ const CloudSyncService = {
     const ids = new Set([...Object.keys(local.lessonProgress || {}), ...Object.keys(remote.lessonProgress || {})]);
     ids.forEach((id) => { const a = local.lessonProgress?.[id] || {}; const b = remote.lessonProgress?.[id] || {}; const latest = new Date(b.updatedAt || b.completedAt || 0) >= new Date(a.updatedAt || a.completedAt || 0) ? { ...a, ...b } : { ...b, ...a }; lessons[id] = { ...latest, completed: Boolean(a.completed || b.completed), score: Math.max(a.score || 0, b.score || 0), masteryScore: Math.max(a.masteryScore || 0, b.masteryScore || 0), masteryStatus: MasteryService.status(Math.max(a.masteryScore || 0, b.masteryScore || 0)) }; });
     merged.lessonProgress = lessons; merged.stats = Object.fromEntries([...new Set([...Object.keys(local.stats || {}), ...Object.keys(remote.stats || {})])].map((key) => [key, Math.max(local.stats?.[key] || 0, remote.stats?.[key] || 0)])); merged.skills = Object.fromEntries([...new Set([...Object.keys(local.skills || {}), ...Object.keys(remote.skills || {})])].map((key) => [key, Math.max(local.skills?.[key] || 0, remote.skills?.[key] || 0)]));
+    const activityDays = {};
+    [...Object.keys(local.activityDays || {}), ...Object.keys(remote.activityDays || {})].forEach((date) => { const a = local.activityDays?.[date] || {}; const b = remote.activityDays?.[date] || {}; const activityIds = [...new Set([...(a.activityIds || []), ...(b.activityIds || [])])].slice(-200); activityDays[date] = { ...(new Date(b.updatedAt || 0) >= new Date(a.updatedAt || 0) ? { ...a, ...b } : { ...b, ...a }), date, activityIds, types: [...new Set([...(a.types || []), ...(b.types || [])])], count: Math.max(activityIds.length, Number(a.count) || 0, Number(b.count) || 0) }; });
+    merged.activityDays = Object.fromEntries(Object.entries(activityDays).sort(([a], [b]) => b.localeCompare(a)).slice(0, 730)); if (Object.keys(merged.activityDays).length) merged.stats = { ...merged.stats, ...calculateLearningStreak(merged.activityDays) };
     const localFoundation = local.foundation && typeof local.foundation === 'object' ? local.foundation : {}; const remoteFoundation = remote.foundation && typeof remote.foundation === 'object' ? remote.foundation : {}; const latestFoundation = new Date(remoteFoundation.updatedAt || 0) >= new Date(localFoundation.updatedAt || 0) ? { ...localFoundation, ...remoteFoundation } : { ...remoteFoundation, ...localFoundation };
     merged.foundation = { ...latestFoundation, learnedCharacters: [...new Set([...(Array.isArray(localFoundation.learnedCharacters) ? localFoundation.learnedCharacters : []), ...(Array.isArray(remoteFoundation.learnedCharacters) ? remoteFoundation.learnedCharacters : [])])], completedActivities: [...new Set([...(Array.isArray(localFoundation.completedActivities) ? localFoundation.completedActivities : []), ...(Array.isArray(remoteFoundation.completedActivities) ? remoteFoundation.completedActivities : [])])], firstWords: [...new Set([...(Array.isArray(localFoundation.firstWords) ? localFoundation.firstWords : []), ...(Array.isArray(remoteFoundation.firstWords) ? remoteFoundation.firstWords : [])])] };
     merged.pronunciationAttempts = this.mergeValue(local.pronunciationAttempts, remote.pronunciationAttempts); merged.writingSubmissions = this.mergeValue(local.writingSubmissions, remote.writingSubmissions); return merged;
@@ -1468,7 +1577,7 @@ const CloudSyncService = {
   mergeSnapshot(remote) {
     if (!remote?.data || !state.currentUser) return;
     const allKeys = new Set(USER_SYNC_KEYS); allKeys.forEach((key) => { const all = storage.get(key, {}); if (key === STORAGE_KEYS.settings) { const safeSettings = all && typeof all === 'object' && !Array.isArray(all) ? { ...all, users: { ...(all.users || {}) } } : { users: {} }; safeSettings.users[state.currentUser.id] = this.mergeDomain(key, safeSettings.users[state.currentUser.id], remote.data[key]); storage.set(key, safeSettings); return; } const safe = all && typeof all === 'object' && !Array.isArray(all) ? all : {}; safe[state.currentUser.id] = this.mergeDomain(key, safe[state.currentUser.id], remote.data[key]); storage.set(key, safe); });
-    if (remote.user) { const local = getUsers().find((item) => item.id === state.currentUser.id); if (local) { const localId = local.id; const credential = { passwordHash: local.passwordHash, passwordSalt: local.passwordSalt, passwordIterations: local.passwordIterations, passwordHashVersion: local.passwordHashVersion, credentialUpgradeRequired: local.credentialUpgradeRequired }; const merged = normalizeUser({ ...local, ...remote.user, id: localId, ...credential, cloudUserId: this.cloudUserId() }); const users = getUsers(); users[users.findIndex((item) => item.id === localId)] = merged; saveUsers(users); state.currentUser = merged; } }
+    if (remote.user) { const local = normalizeUser(getUsers().find((item) => item.id === state.currentUser.id)); if (local) { const localId = local.id; const credential = { passwordHash: local.passwordHash, passwordSalt: local.passwordSalt, passwordIterations: local.passwordIterations, passwordHashVersion: local.passwordHashVersion, credentialUpgradeRequired: local.credentialUpgradeRequired }; const localUpdatedAt = new Date(local.updatedAt || 0).getTime() || 0; const remoteUpdatedAt = new Date(remote.user.updatedAt || 0).getTime() || 0; const profile = remoteUpdatedAt >= localUpdatedAt ? { ...local, ...remote.user } : { ...remote.user, ...local }; const merged = normalizeUser({ ...profile, id: localId, ...credential, cloudUserId: this.cloudUserId() }); const users = getUsers(); users[users.findIndex((item) => item.id === localId)] = merged; saveUsers(users); state.currentUser = merged; } }
     syncUserData();
   },
   async synchronize(reason = 'local-change') {
@@ -1478,6 +1587,11 @@ const CloudSyncService = {
     this.setStatus('syncing');
     const mutationId = `sync-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
     try {
+      const recordWasReady = this.meta().recordSyncVersion === 1;
+      const recordResult = await this.synchronizeRecords(provider, mutationId);
+      const legacyAge = Date.now() - new Date(this.meta().lastLegacySnapshotAt || 0).getTime();
+      const legacyRequired = !recordResult.supported || !recordWasReady || ['manual', 'migration-or-login'].includes(reason) || !Number.isFinite(legacyAge) || legacyAge >= 24 * 60 * 60 * 1000;
+      if (!legacyRequired) { this.updateMeta({ lastSyncedAt: new Date().toISOString(), lastReason: reason }); this.setStatus('synced'); return true; }
       for (let attempt = 0; attempt < 4; attempt += 1) {
         if (!this.allowed()) { this.setStatus('privacy-disabled', 'CLOUD_SYNC_DISABLED_BY_USER'); return false; }
         const pulled = this.normalizePull(await provider.pull());
@@ -1491,29 +1605,46 @@ const CloudSyncService = {
           continue;
         }
         this.revision = result?.duplicate ? Math.max(0, Number(result.revision) || this.revision) : Math.max(this.revision + 1, Number(result?.revision) || 0);
-        this.setStatus('synced'); return true;
+        this.updateMeta({ lastSyncedAt: new Date().toISOString(), lastLegacySnapshotAt: new Date().toISOString(), lastReason: reason }); this.setStatus('synced'); return true;
       }
       this.setStatus('error', 'CLOUD_SYNC_CONFLICT_RETRY_EXHAUSTED'); return false;
     } catch (error) { this.setStatus(navigator.onLine === false ? 'offline' : 'error', error?.code || error?.message || 'Cloud unavailable'); return false; }
   },
   async hydrate() {
-    return this.synchronize('migration-or-login');
+    return this.flush('migration-or-login');
   },
   schedule(reason = 'local-change') {
     if (!state.currentUser) return;
     if (!this.allowed()) { clearTimeout(this.timer); this.setStatus('privacy-disabled', 'CLOUD_SYNC_DISABLED_BY_USER'); return false; }
     if (!this.isConfigured() || !this.cloudUserId() || state.currentUser.cloudUserId !== this.cloudUserId()) { this.setStatus(navigator.onLine === false ? 'offline' : 'local'); return; }
-    clearTimeout(this.timer); this.timer = setTimeout(() => this.flush(reason), 1200);
+    this.pendingReason = reason || this.pendingReason || 'local-change';
+    clearTimeout(this.timer); this.timer = setTimeout(() => { this.timer = null; const nextReason = this.pendingReason || reason; this.pendingReason = ''; this.flush(nextReason); }, 1200);
     return true;
   },
   async flush(reason = 'local-change') {
     if (!state.currentUser) return false;
-    return this.synchronize(reason);
+    if (this.inFlight) { this.pendingReason = reason || this.pendingReason || 'local-change'; return this.inFlight; }
+    const activeReason = this.pendingReason || reason; this.pendingReason = '';
+    this.inFlight = this.synchronize(activeReason).finally(() => {
+      this.inFlight = null;
+      if (!this.pendingReason || !state.currentUser) return;
+      const nextReason = this.pendingReason; this.pendingReason = '';
+      clearTimeout(this.timer); this.timer = setTimeout(() => { this.timer = null; this.flush(nextReason); }, 0);
+    });
+    return this.inFlight;
+  },
+  exportLocalData() {
+    if (!state.currentUser) return null;
+    const localUserId = state.currentUser.id; const data = Object.fromEntries(USER_SYNC_KEYS.map((key) => { const value = storage.get(key, {}); return [key, key === STORAGE_KEYS.settings ? value?.users?.[localUserId] ?? null : value?.[localUserId] ?? null]; }));
+    const user = { ...state.currentUser }; delete user.passwordHash; delete user.passwordSalt; delete user.passwordIterations; delete user.passwordHashVersion;
+    return { format: 'klearn-local-backup', version: 1, exportedAt: new Date().toISOString(), user, data };
   }
 };
 window.CloudSyncService = CloudSyncService;
 window.addEventListener('online', () => CloudSyncService.flush('back-online'));
 window.addEventListener('offline', () => CloudSyncService.setStatus('offline'));
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') (window.BackgroundSyncQueueService?.pending?.() ? window.BackgroundSyncQueueService.flush() : CloudSyncService.flush('foreground')); });
+window.setInterval(() => { if (document.visibilityState !== 'hidden' && navigator.onLine !== false) (window.BackgroundSyncQueueService?.pending?.() ? window.BackgroundSyncQueueService.flush() : CloudSyncService.flush('periodic')); }, 5 * 60 * 1000);
 
 const MasteryService = {
   status(score = 0) { const value = Number(score) || 0; return value >= 80 ? 'mastered' : value >= 50 ? 'understood' : value > 0 ? 'learning' : 'not_started'; },
@@ -1841,7 +1972,7 @@ const CloudAccountService = {
     }
     if (!local) {
       const now = new Date().toISOString();
-      local = normalizeUser({ id: `cloud-${cloudUser.id}`, cloudUserId: cloudUser.id, cloudEmail: cloudUser.email, fullName: cloudUser.user_metadata?.full_name || cloudUser.email?.split('@')[0] || 'Người học', email: cloudUser.email || '', avatar: 'TH', goals: [], level: 'Beginner', currentTopikLevel: 1, targetTopikLevel: 2, onboardingCompleted: false, onboardingStep: 'goals', createdAt: now, updatedAt: now });
+      local = normalizeUser({ id: `cloud-${cloudUser.id}`, cloudUserId: cloudUser.id, cloudEmail: cloudUser.email, fullName: cloudUser.user_metadata?.full_name || cloudUser.email?.split('@')[0] || 'Người học', email: cloudUser.email || '', avatar: 'TH', goals: [], level: 'Beginner', currentTopikLevel: 1, targetTopikLevel: 2, onboardingCompleted: false, onboardingStep: 'goals', createdAt: now, updatedAt: '1970-01-01T00:00:00.000Z' });
       saveUsers([...getUsers(), local]); initializeUserData(local.id);
     } else if (local.cloudUserId !== cloudUser.id) {
       const users = getUsers(); const index = users.findIndex((item) => item.id === local.id); users[index] = normalizeUser({ ...local, cloudUserId: cloudUser.id, cloudEmail: cloudUser.email, updatedAt: new Date().toISOString() }); saveUsers(users); local = users[index];
@@ -2698,8 +2829,8 @@ function practiceView() {
 }
 
 function cloudAccountPanel() {
-  const cloud = state.cloudUser; const linked = Boolean(cloud && state.currentUser?.cloudUserId === cloud.id); const status = CloudSyncService.getStatus(); const configured = window.SupabaseService?.status === 'ready';
-  if (linked) return `<section class="card section cloud-account"><div class="section-heading"><div><p class="eyebrow">☁ Cloud Account</p><h2 class="section-title">Đã kết nối</h2></div><span class="sync-status ${status}">${status === 'syncing' ? '↻ Đang đồng bộ' : status === 'synced' ? '☁ Đã đồng bộ' : status === 'offline' ? '💾 Ngoại tuyến' : '⚠ Chưa đồng bộ'}</span></div><p class="subtle"><span>${escapeHtml(cloud.email)}</span> · <span>dữ liệu local vẫn là nguồn hoạt động chính.</span></p><div class="action-row"><button class="btn primary" id="syncNowButton">Đồng bộ ngay</button><button class="btn secondary" id="cloudSignOutButton">Ngắt cloud</button></div>${state.cloudAuthMessage ? `<p class="support-message">${escapeHtml(state.cloudAuthMessage)}</p>` : ''}</section>`;
+  const cloud = state.cloudUser; const linked = Boolean(cloud && state.currentUser?.cloudUserId === cloud.id); const status = CloudSyncService.getStatus(); const configured = window.SupabaseService?.status === 'ready'; const meta = CloudSyncService.meta(); const pending = window.BackgroundSyncQueueService?.pending?.() || 0; const lastSync = meta.lastSyncedAt ? new Date(meta.lastSyncedAt).toLocaleString('vi-VN') : 'Chưa có';
+  if (linked) return `<section class="card section cloud-account"><div class="section-heading"><div><p class="eyebrow">☁ Cloud Account</p><h2 class="section-title">Đã kết nối</h2></div><span class="sync-status ${status}">${status === 'syncing' ? '↻ Đang đồng bộ' : status === 'synced' ? '☁ Đã đồng bộ' : status === 'offline' ? '💾 Ngoại tuyến' : status === 'conflict' ? '↻ Đang hợp nhất' : '⚠ Chưa đồng bộ'}</span></div><p class="subtle"><span>${escapeHtml(cloud.email)}</span> · local-first · ${pending} thay đổi chờ · lần cuối: ${escapeHtml(lastSync)}.</p><p class="subtle">${meta.recordSyncVersion ? 'Đồng bộ bản ghi an toàn đã hoạt động.' : 'Snapshot tương thích đang hoạt động; bản ghi chi tiết sẽ tự nâng cấp khi migration Supabase được cài.'}</p><div class="action-row"><button class="btn primary" id="syncNowButton">Đồng bộ ngay</button><button class="btn secondary" id="exportLocalDataButton">Xuất bản sao local</button><button class="btn secondary" id="cloudSignOutButton">Ngắt cloud</button></div>${state.cloudAuthMessage ? `<p class="support-message">${escapeHtml(state.cloudAuthMessage)}</p>` : ''}</section>`;
   return `<section class="card section cloud-account"><p class="eyebrow">☁ Đồng bộ đa thiết bị</p><h2 class="section-title">${configured ? 'Kết nối tài khoản cloud' : 'Cloud chưa được cấu hình hoặc đang ngoại tuyến'}</h2><p class="subtle">Dữ liệu hiện chỉ được lưu trên thiết bị này. Hãy chủ động đăng nhập hoặc đăng ký Supabase để liên kết đúng tài khoản local hiện tại.</p><form id="cloudConnectForm" class="auth-form"><label>Email cloud<input name="email" type="email" value="${escapeHtml(state.currentUser?.email || '')}" required></label><label>Mật khẩu cloud<input name="password" type="password" minlength="6" required></label><div class="action-row"><button class="btn primary" type="submit" name="action" value="signin">Đăng nhập & liên kết</button><button class="btn secondary" type="submit" name="action" value="signup">Đăng ký & liên kết</button></div></form>${state.cloudAuthMessage ? `<p class="support-message">${escapeHtml(state.cloudAuthMessage)}</p>` : ''}</section>`;
 }
 
@@ -2925,7 +3056,8 @@ function bindEvents() {
   const cloudLoginButton = document.getElementById('cloudLoginButton'); if (cloudLoginButton) cloudLoginButton.onclick = async () => { const form = new FormData(loginForm); showFormError(''); try { await CloudAccountService.signIn(normalizeEmail(form.get('email')), String(form.get('password') || ''), false); setView('home'); } catch (error) { showFormError(error.message); } };
   const cloudRegisterButton = document.getElementById('cloudRegisterButton'); if (cloudRegisterButton) cloudRegisterButton.onclick = async () => { const form = new FormData(registerForm); showFormError(''); try { const result = await CloudAccountService.signUp(normalizeEmail(form.get('email')), String(form.get('password') || ''), false); if (result.confirmationRequired) { showFormError(state.cloudAuthMessage); return; } setView('home'); } catch (error) { showFormError(error.message); } };
   const cloudConnectForm = document.getElementById('cloudConnectForm'); if (cloudConnectForm) cloudConnectForm.onsubmit = async (event) => { event.preventDefault(); const form = new FormData(cloudConnectForm); state.cloudAuthMessage = ''; try { if (event.submitter?.value === 'signup') await CloudAccountService.signUp(normalizeEmail(form.get('email')), String(form.get('password') || ''), true); else await CloudAccountService.signIn(normalizeEmail(form.get('email')), String(form.get('password') || ''), true); render(); } catch (error) { state.cloudAuthMessage = error.message; render(); } };
-  const syncNowButton = document.getElementById('syncNowButton'); if (syncNowButton) syncNowButton.onclick = async () => { await CloudSyncService.flush('manual'); render(); };
+  const syncNowButton = document.getElementById('syncNowButton'); if (syncNowButton) syncNowButton.onclick = async () => { if (window.BackgroundSyncQueueService?.pending?.()) await window.BackgroundSyncQueueService.flush(); else await CloudSyncService.flush('manual'); render(); };
+  const exportLocalDataButton = document.getElementById('exportLocalDataButton'); if (exportLocalDataButton) exportLocalDataButton.onclick = () => { const payload = CloudSyncService.exportLocalData(); if (!payload) return; const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })); const link = document.createElement('a'); link.href = url; link.download = `klearn-backup-${todayKey()}.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
   const cloudSignOutButton = document.getElementById('cloudSignOutButton'); if (cloudSignOutButton) cloudSignOutButton.onclick = () => CloudAccountService.signOut();
   const editForm = document.getElementById('editProfileForm'); if (editForm) editForm.onsubmit = handleEditProfile;
   const forgot = document.getElementById('forgotPassword'); if (forgot) forgot.onclick = () => toast('Hãy dùng email đã đăng ký để nhận hướng dẫn khôi phục mật khẩu khi dịch vụ sẵn sàng.');
@@ -3722,7 +3854,7 @@ window.addEventListener('klearn-cloud-auth', (event) => {
 });
 window.SupabaseService?.init?.().then(() => CloudAccountService.restore()).then(() => { if (state.currentUser && state.currentView === 'profile') render(); });
 
-window.KLEARN_APP = { storage, state, STORAGE_KEYS, SRS_STATES, SRSStateService, render, setView, toast, escapeHtml, normalizeSearch, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, updateCurrentUser, emitLearningMutation, LearnerProfileService, MasteryService, VocabularyService, DictionaryService, PracticeService, startTopikExam, lessonVocabulary, completeLesson, CloudSyncService, CloudAccountService, AITutorService, PrivacyPreferenceService, LocalAuthCredentialService, auth, createSessionRecord, sessionExpired, PronunciationProvider, getDisplayPronunciation, speakKorean, AccessControlService, ContentReviewService: window.ContentReviewService, NotesService, BookmarkService, SupportService, QuestionBankService };
+window.KLEARN_APP = { storage, state, STORAGE_KEYS, SRS_STATES, SRSStateService, render, setView, toast, escapeHtml, normalizeSearch, getUserProgress, saveUserProgress, getUserSrs, saveUserSrs, userScoped, saveUserScoped, updateCurrentUser, emitLearningMutation, calculateLearningStreak, LearnerProfileService, MasteryService, VocabularyService, DictionaryService, PracticeService, startTopikExam, lessonVocabulary, completeLesson, CloudSyncService, CloudAccountService, AITutorService, PrivacyPreferenceService, LocalAuthCredentialService, auth, createSessionRecord, sessionExpired, PronunciationProvider, getDisplayPronunciation, speakKorean, AccessControlService, ContentReviewService: window.ContentReviewService, NotesService, BookmarkService, SupportService, QuestionBankService };
 
 if ('serviceWorker' in navigator && !window.KLearnPlatform?.isNative?.()) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch((error) => console.warn('[Tiếng Hàn - TamHoanq] Service worker không đăng ký được.', error)));

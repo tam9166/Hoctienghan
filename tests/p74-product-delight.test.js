@@ -164,7 +164,7 @@ assert.match(app, /STORAGE_KEYS\.productDelight/);
 assert.match(loader, /productDelightCore/);
 assert.match(loader, /routes\('home', \['growth', 'realUserRetentionCore', 'productDelightCore'\]\)/);
 assert.match(index, /route-loader\.js\?v=31/);
-assert.match(index, /app\.js\?v=87/);
+assert.match(index, /app\.js\?v=89/);
 assert.match(worker, /klearn-v105/);
 assert.match(worker, /content\/product-delight\.json/);
 assert.match(practical, /id:'vocabulary-pack'/);

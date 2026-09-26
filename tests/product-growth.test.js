@@ -16,7 +16,7 @@ const daysAgo = (days) => new Date(Date.now() - days * 86400000).toISOString();
 
 function boot({ evidence = true } = {}) {
   const values = new Map(); const tracked = []; const copied = []; const experimentLogs = [];
-  const state = { currentUser: { id: 'growth-user', fullName: 'Growth QA', onboardingCompleted: true, createdAt: daysAgo(40) }, currentView: 'home', srsData: evidence ? [{ wordId: 'school', lastReviewed: daysAgo(39), correctCount: 1, mastery: 80 }] : [], lessonProgress: {} };
+  const state = { currentUser: { id: 'growth-user', fullName: 'Growth QA', onboardingCompleted: true, createdAt: daysAgo(40) }, currentView: 'home', srsData: evidence ? [{ wordId: 'school', lastReviewed: daysAgo(38), correctCount: 1, mastery: 80 }] : [], lessonProgress: {} };
   const progress = { lessonProgress: evidence ? { hangul: { completed: true, completedAt: daysAgo(33) } } : {}, stats: {}, skills: {} };
   const history = evidence ? [
     { id: 'activation', completedAt: daysAgo(39), percentage: 70, skillBreakdown: { vocabulary: 70 } },
@@ -81,9 +81,9 @@ function boot({ evidence = true } = {}) {
   assert.match(locales, /Start at the right level/);
   assert.match(routes, /data\/product-growth\.js\?v=1/);
   assert.match(routes, /routes\('home', \['growth', 'realUserRetentionCore', 'productDelightCore'\]\)/);
-  assert.match(index, /app\.js\?v=87/);
+  assert.match(index, /app\.js\?v=89/);
   assert.match(worker, /klearn-v105/);
-  assert.match(worker, /app\.js\?v=87/);
+  assert.match(worker, /app\.js\?v=89/);
   assert.match(worker, /content\/product-growth\.json/);
   assert.match(migration, /product_growth_referral_codes/);
   assert.match(migration, /referrer_id <> referred_user_id/);

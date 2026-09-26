@@ -136,7 +136,7 @@ const practical = read('data/practical-study.js');
 assert.match(app, /contentIntelligence: 'klearn_content_intelligence'/);
 assert.match(loader, /contentIntelligence/);
 assert.match(index, /route-loader\.js\?v=31/);
-assert.match(index, /app\.js\?v=87/);
+assert.match(index, /app\.js\?v=89/);
 assert.match(worker, /klearn-v105/);
 assert.match(worker, /content-intelligence-platform\.json/);
 assert.match(practical, /business-korean-pack/);
