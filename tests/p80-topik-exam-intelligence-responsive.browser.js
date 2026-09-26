@@ -34,6 +34,8 @@ async function until(cdp, expression, attempts = 260) { for (let attempt = 0; at
     await evaluate(cdp, `document.querySelector('[data-p80-entry]').click()`);
     assert.equal(await until(cdp, `KLEARN_APP.state.currentView==='topik-intelligence-p80' && Boolean(document.querySelector('.p80-hero'))`), true, 'P80 TOPIK entry did not open the hub');
     assert.equal(await evaluate(cdp, `P80TopikQuestionBankService.coverage().total`), 44);
+    assert.equal(await evaluate(cdp, `P80ExamCatalogService.all().length`), 12);
+    assert.equal(await evaluate(cdp, `P80ExamCatalogService.get('topik-pbt-108-2026').canStart`), false);
     assert.equal(await evaluate(cdp, `P80SmartTestGeneratorService.generate({level:'TOPIK II'}).questions.length`), 20);
 
     const widths = []; const responsiveRoutes = ['topik-intelligence-p80','topik-bank-p80','topik-section-p80','topik-types-p80','topik-generator-p80'];
@@ -54,15 +56,16 @@ async function until(cdp, expression, attempts = 260) { for (let attempt = 0; at
     const result = await evaluate(cdp, `(() => { const session=P80SmartTestGeneratorService.start({level:'TOPIK II',weakSkill:'inference',goal:'reading'}); session.questions.forEach((question,index)=>P80TopikExamService.answer(question.id,index===0?'sai':question.answer)); return P80TopikExamService.finish('submitted'); })()`);
     assert.equal(result.total, 20); assert.equal(result.wrong, 1); assert.equal(result.percentage, 95); assert.equal(result.scaledScore, 285);
     assert.equal(await until(cdp, `KLEARN_APP.state.currentView==='topik-result-p80' && Boolean(document.querySelector('.p80-result-hero'))`), true, 'result view missing');
-    assert.equal(await evaluate(cdp, `JSON.parse(localStorage.getItem('klearn_errors'))['p80-topik-user'].length`), 1, 'wrong answer not synced to Error Notebook');
+    assert.equal(await evaluate(cdp, `JSON.parse(localStorage.getItem('klearn_errors')||'{}')['p80-topik-user']?.length||0`), 0, 'wrong answer was saved without user confirmation');
+    assert.equal(await evaluate(cdp, `(() => { document.querySelector('[data-p80-add-error]').click(); return JSON.parse(localStorage.getItem('klearn_errors'))['p80-topik-user'].length; })()`), 1, 'confirmed wrong answer not saved to Error Notebook');
     assert.equal(await evaluate(cdp, `JSON.parse(localStorage.getItem('klearn_exam_attempts'))['p80-topik-user'].history[0].source==='p80-topik-intelligence'`), true, 'exam history missing');
     assert.equal(await evaluate(cdp, `JSON.parse(localStorage.getItem('klearn_practice_history'))['p80-topik-user'].some((item)=>item.id==='p80-existing-attempt')`), true, 'existing practice history changed');
     assert.equal(await evaluate(cdp, `JSON.parse(localStorage.getItem('klearn_progress'))['p80-topik-user'].p80Marker==='keep-progress'`), true, 'existing progress marker changed');
     assert.equal(await evaluate(cdp, `JSON.parse(localStorage.getItem('klearn_srs'))['p80-topik-user'].some((item)=>item.id==='p80-existing-srs')`), true, 'existing SRS changed');
     await evaluate(cdp, `KLEARN_APP.setView('topik-report-p80')`); assert.equal(await until(cdp, `Boolean(document.querySelector('.p80-report'))`), true, 'report view missing');
     const report = await evaluate(cdp, `P80TopikReportService.diagnose(4)`); assert.equal(report.prediction.attempts, 1); assert.ok(report.actions.length >= 1);
-    await cdp.send('Network.emulateNetworkConditions', { offline:true, latency:0, downloadThroughput:0, uploadThroughput:0 }); await evaluate(cdp, `KLEARN_APP.setView('topik-bank-p80')`); await wait(120); assert.equal(await evaluate(cdp, `document.querySelectorAll('.p80-question-list article').length===20`), true, 'offline bank render failed');
-    console.log(JSON.stringify({ status:'passed', widths, responsiveRoutes, checks:widths.length*responsiveRoutes.length+5, questions:44, smartDistribution:'5-10-5', score:result.percentage, errorSync:true, historyPreserved:true, srsPreserved:true, offlineBank:true }, null, 2));
+    await cdp.send('Network.emulateNetworkConditions', { offline:true, latency:0, downloadThroughput:0, uploadThroughput:0 }); await evaluate(cdp, `KLEARN_APP.setView('topik-bank-p80')`); await wait(120); assert.equal(await evaluate(cdp, `document.querySelectorAll('.p80-catalog-card').length===12`), true, 'offline catalog render failed');
+    console.log(JSON.stringify({ status:'passed', widths, responsiveRoutes, checks:widths.length*responsiveRoutes.length+7, questions:44, catalog:12, smartDistribution:'5-10-5', score:result.percentage, explicitErrorSync:true, historyPreserved:true, srsPreserved:true, offlineBank:true }, null, 2));
   } finally {
     try { cdp?.close(); } catch (_) {}
     browser.kill(); await wait(300);

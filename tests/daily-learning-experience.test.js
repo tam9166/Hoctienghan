@@ -65,11 +65,13 @@ assert.deepEqual(newcomer.progress, { stats: { streak: 4, lessonsCompleted: 3 },
 
 const existing = boot({ userId: 'existing-user', errors: [{ id: 'e-1', type: 'grammar', mistake: '저가 학생', correction: '제가 학생', explanation: 'Dùng 제가.', count: 2 }] });
 const service = existing.window.DailyLearningExperienceService;
-assert.deepEqual([...service.durations], [5, 15, 30, 60]);
+assert.deepEqual([...service.durations], [5, 15, 30, 45, 60, 90]);
 assert.equal(service.plan.build(5).tasks.length, 1);
 assert.equal(service.plan.build(15).tasks.reduce((sum, task) => sum + task.minutes, 0), 15);
 assert.equal(service.plan.build(30).tasks.reduce((sum, task) => sum + task.minutes, 0), 30);
+assert.equal(service.plan.build(45).tasks.reduce((sum, task) => sum + task.minutes, 0), 45);
 assert.equal(service.plan.build(60).tasks.reduce((sum, task) => sum + task.minutes, 0), 60);
+assert.equal(service.plan.build(90).tasks.reduce((sum, task) => sum + task.minutes, 0), 90);
 assert.match(service.homeView(), /저가 학생/);
 const session = service.sessions.start(15);
 assert.equal(session.source, 'daily-experience');

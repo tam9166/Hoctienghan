@@ -172,6 +172,12 @@
     const session = runtime.session; if (!session || !runtime.result) return; runtime.result = null; session.index += 1; if (session.index >= session.cards.length) completeReviewSession(); render();
   }
 
+  function adaptiveTodayMarkup() {
+    const goal = global.GoalTrackingService?.getGoal?.(); const plan = global.AdaptiveLearningEngine?.generateLearningSession?.({ availableMinutes: Number(goal?.dailyMinutes || state.currentUser?.studyMinutesPerDay || 15) }); const profile = global.AdaptiveLearningProfileService?.snapshot?.(); const weaknesses = global.WeaknessDetectionService?.detect?.({ learningProfile: profile })?.slice(0, 3) || [];
+    if (!plan?.tasks?.length) return '';
+    return `<section class="bla-adaptive-today daily-timeline section"><div class="daily-section-heading"><div><p class="eyebrow">HÔM NAY HỌC GÌ?</p><h2>${plan.minutes} phút theo dữ liệu của bạn</h2></div><span>TOPIK ${Number(goal?.targetLevel || profile?.targetTopikLevel || 2)}</span></div><ol>${plan.tasks.map((item, index) => `<li><time>${item.minutes}′</time><span>${index + 1}</span><div><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.reason)}</small></div></li>`).join('')}</ol><button class="btn primary full" data-bla-adaptive-start="${plan.minutes}">▶ BẮT ĐẦU HỌC HÔM NAY</button></section><section class="bla-adaptive-weakness daily-weakness-panel section"><div class="daily-section-heading"><div><p class="eyebrow">🧠 Bạn đang yếu gì?</p><h2>${weaknesses.length ? 'Ưu tiên cải thiện' : 'Cần thêm dữ liệu'}</h2></div><button class="text-link" data-view="adaptive-plan">Xem phân tích</button></div>${weaknesses.map((item) => `<article><span class="${item.priority}">${item.score}%</span><div><b>${escapeHtml(item.label)}</b><small>${escapeHtml(item.reason)}</small></div><button data-view="adaptive-plan">Luyện ngay</button></article>`).join('') || '<p class="subtle">Hoàn thành quiz hoặc đề TOPIK để nhận phân tích có căn cứ.</p>'}</section>`;
+  }
+
   function chooseMatch(wordId, meaningId) {
     const session = runtime.session; if (!session || session.mode !== 'matching') return;
     if (wordId) { session.selectedWordId = wordId; runtime.result = null; return render(); }
@@ -191,6 +197,8 @@
   installViews();
 
   function bind() {
+    if (state.currentView === 'home' && !global.document.querySelector('.bla-adaptive-today')) global.document.querySelector('.bla-home-hero')?.insertAdjacentHTML('afterend', adaptiveTodayMarkup());
+    global.document.querySelector('[data-bla-adaptive-start]')?.addEventListener('click', (event) => { const service = global.DailyLearningExperienceService?.sessions; if (!service) return toast('Phiên học chưa sẵn sàng.'); service.start(Number(event.currentTarget.dataset.blaAdaptiveStart) || 15); setView('daily-session'); });
     global.document.querySelectorAll('[data-bla-lesson]').forEach((button) => { button.onclick = () => openLesson(button.dataset.blaLesson); });
     global.document.querySelector('[data-bla-five]')?.addEventListener('click', () => { const service = global.DailyLearningExperienceService?.sessions; if (!service) return toast('Phiên học nhanh chưa sẵn sàng.'); service.start(5); setView('daily-session'); });
     const status = global.document.getElementById('blaReviewStatus'); if (status) status.onchange = () => { runtime.reviewStatus = status.value; render(); };

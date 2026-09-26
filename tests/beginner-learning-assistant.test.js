@@ -12,7 +12,7 @@ test('beginner assistant is wired into the authenticated application shell', () 
   const loader = read('data/route-loader.js');
   assert.doesNotMatch(index, /beginner-learning-assistant\.css\?v=1/);
   assert.match(loader, /beginner-learning-assistant\.css\?v=1/);
-  assert.match(loader, /data\/beginner-learning-assistant\.js\?v=1/);
+  assert.match(loader, /data\/beginner-learning-assistant\.js\?v=2/);
   for (const route of ['learning-path', 'learning-progress', 'beginner-vocabulary-review', 'beginner-vocabulary-session']) {
     assert.match(app, new RegExp(`['"]${route}['"]`));
     assert.match(loader, new RegExp(route));
@@ -53,5 +53,5 @@ test('every lesson includes a five-question explained mini test', () => {
 test('assistant assets are part of the offline app shell', () => {
   const worker = read('sw.js');
   assert.match(worker, /beginner-learning-assistant\.css\?v=1/);
-  assert.match(worker, /data\/beginner-learning-assistant\.js\?v=1/);
+  assert.match(worker, /data\/beginner-learning-assistant\.js\?v=2/);
 });

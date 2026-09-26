@@ -217,7 +217,7 @@
     installed() { return userScoped(STORAGE_KEYS.offlinePacks).filter((item) => String(item.id).startsWith('p81-')); },
     async download(id) {
       const pack = this.all().find((item) => item.id === id); if (!pack || !uid()) return null;
-      const assets = ['./content/topik-strategy-coaching-system.json', './data/topik-strategy-coaching-system.js?v=1', './topik-strategy-coaching-system.css?v=1', './data/topik-exam-intelligence-system.js?v=2', './topik-exam-intelligence-system.css?v=2', './content/topik-exam-intelligence-system.json'];
+      const assets = ['./content/topik-strategy-coaching-system.json', './data/topik-strategy-coaching-system.js?v=1', './topik-strategy-coaching-system.css?v=1', './data/topik-exam-intelligence-system.js?v=3', './topik-exam-intelligence-system.css?v=3', './content/topik-exam-intelligence-system.json?v=2'];
       let cached = false;
       if (global.caches?.open) { try { const cache = await global.caches.open('klearn-p81-strategy-v1'); await cache.addAll(assets); cached = true; } catch (_) { cached = false; } }
       const item = { ...pack, status: 'downloaded', cached, assets, downloadedAt: now(), learningDataPreserved: true };
