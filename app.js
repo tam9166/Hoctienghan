@@ -533,6 +533,15 @@ const ProductLanguageService = {
       [/AI Companion/gi, locale === 'en' ? 'Learning companion' : locale === 'zh-CN' ? '学习伙伴' : 'Đồng hành học tập'],
       [/AI Study Advisor/gi, locale === 'en' ? 'Study advisor' : locale === 'zh-CN' ? '学习顾问' : 'Cố vấn học tập'],
       [/AI Analytics/gi, locale === 'en' ? 'Learning insights' : locale === 'zh-CN' ? '学习分析' : 'Phân tích học tập'],
+      [/Original questions/gi, locale === 'en' ? 'Original questions' : locale === 'zh-CN' ? '自编题目' : 'Câu hỏi tự biên soạn'],
+      [/Score Prediction/gi, locale === 'en' ? 'Practice score estimate' : locale === 'zh-CN' ? '练习分数估计' : 'Ước tính điểm luyện tập'],
+      [/Careless Mistake/gi, locale === 'en' ? 'Careless mistake' : locale === 'zh-CN' ? '粗心错误' : 'Lỗi do bất cẩn'],
+      [/Repeated Mistake/gi, locale === 'en' ? 'Repeated mistake' : locale === 'zh-CN' ? '重复错误' : 'Lỗi lặp lại'],
+      [/\bmastered\b/gi, locale === 'en' ? 'Mastered' : locale === 'zh-CN' ? '已掌握' : 'Đã thành thạo'],
+      [/\bgrammar\b/gi, locale === 'en' ? 'Grammar' : locale === 'zh-CN' ? '语法' : 'Ngữ pháp'],
+      [/\bvocabulary\b/gi, locale === 'en' ? 'Vocabulary' : locale === 'zh-CN' ? '词汇' : 'Từ vựng'],
+      [/\bStrategy\b/gi, locale === 'en' ? 'Strategy' : locale === 'zh-CN' ? '策略' : 'Chiến lược làm bài'],
+      [/\bReadiness\b/gi, locale === 'en' ? 'Readiness' : locale === 'zh-CN' ? '准备度' : 'Mức sẵn sàng'],
       [/TOPIK Analytics/gi, locale === 'en' ? 'TOPIK progress' : locale === 'zh-CN' ? 'TOPIK 进度' : 'Tiến độ TOPIK'],
       [/AI Content Studio/gi, locale === 'en' ? 'Content workspace' : locale === 'zh-CN' ? '内容工作区' : 'Không gian biên soạn'],
       [/AI draft/gi, locale === 'en' ? 'assisted draft' : locale === 'zh-CN' ? '辅助草稿' : 'bản nháp hỗ trợ'],
@@ -585,6 +594,7 @@ function getUserSettings() {
     theme: ThemeService.isValid(saved?.theme) ? saved.theme : (ThemeService.isValid(settings?.theme) ? settings.theme : 'system'),
     language: I18nService.isValid(saved?.language) ? saved.language : (I18nService.isValid(settings?.language) ? settings.language : 'vi'),
     translationDisplay: ['always', 'tap', 'hidden'].includes(saved?.translationDisplay) ? saved.translationDisplay : 'always',
+    listeningMeaning: ['always', 'hidden'].includes(saved?.listeningMeaning) ? saved.listeningMeaning : 'hidden',
     audioSpeed: [0.5, 0.75, 1, 1.25, 1.5].includes(Number(saved?.audioSpeed)) ? Number(saved.audioSpeed) : 1,
     autoPlayAudio: saved?.autoPlayAudio === true,
     koreanFontSize: ['small', 'medium', 'large'].includes(saved?.koreanFontSize) ? saved.koreanFontSize : 'medium',
@@ -592,6 +602,14 @@ function getUserSettings() {
     practiceDifficulty: ['easy', 'balanced', 'challenging'].includes(saved?.practiceDifficulty) ? saved.practiceDifficulty : 'balanced',
     guidanceLevel: ['self', 'guided', 'high'].includes(saved?.guidanceLevel) ? saved.guidanceLevel : 'guided'
   };
+}
+
+function setListeningMeaningPreference(visible) {
+  if (!state.currentUser) return;
+  const settings = storage.get(STORAGE_KEYS.settings, {});
+  const users = settings?.users && typeof settings.users === 'object' && !Array.isArray(settings.users) ? { ...settings.users } : {};
+  users[state.currentUser.id] = { ...(users[state.currentUser.id] || {}), listeningMeaning: visible ? 'always' : 'hidden', updatedAt: new Date().toISOString() };
+  storage.set(STORAGE_KEYS.settings, { ...settings, schemaVersion: 13, users, updatedAt: new Date().toISOString() });
 }
 
 function showRomanizationEnabled() { return getUserSettings().showRomanization; }
@@ -2057,6 +2075,21 @@ function persistOnboarding(step, changes = {}) {
 // ============================================================
 function isMainView(view) { return MAIN_VIEWS.includes(view); }
 
+function routeErrorMarkup(target, error) {
+  return `<section class="empty-state route-render-error section" role="alert"><h1>Không thể mở trang này.</h1><p>${escapeHtml(error?.message || 'Đã xảy ra lỗi khi hiển thị chức năng.')}</p><button class="btn primary" data-route-retry="${escapeHtml(target)}">Thử lại</button><button class="btn secondary" data-view="home">Về trang chủ</button></section>`;
+}
+
+function renderRouteSafely(target = state.currentView) {
+  try { render(); return true; } catch (error) {
+    if (state.currentView !== target) throw error;
+    appElement().innerHTML = routeErrorMarkup(target, error);
+    document.querySelector('[data-route-retry]')?.addEventListener('click', () => setView(target));
+    document.querySelector('[data-view="home"]')?.addEventListener('click', () => setView('home'));
+    console.error('Route render failed', target, error);
+    return false;
+  }
+}
+
 function setView(view, options = {}) {
   const aliases = { theory: 'theory', roadmap: 'roadmap', topik: 'topik' };
   let target = aliases[view] || view;
@@ -2080,7 +2113,7 @@ function setView(view, options = {}) {
       document.querySelector('[data-view="home"]')?.addEventListener('click', () => setView('home'));
     };
     pendingAssets.then(() => {
-      if (state.currentView === target && !routeLoadSettled) { routeLoadSettled = true; render(); }
+      if (state.currentView === target && !routeLoadSettled) { routeLoadSettled = true; renderRouteSafely(target); }
     }).catch(showRouteLoadError);
     if (navigator.onLine === false) window.setTimeout(() => showRouteLoadError(new Error('offline route timeout')), 1500);
     if (routeLoader.blocking?.(target) !== false) {
@@ -2089,7 +2122,7 @@ function setView(view, options = {}) {
       return;
     }
   }
-  render();
+  renderRouteSafely(target);
 }
 
 function syncShell() {
@@ -2739,6 +2772,12 @@ function listeningStudioQuestions() {
 }
 
 function listeningCurrentQuestion() { const questions = listeningStudioQuestions(); return questions[Math.min(state.listeningStudio.index || 0, questions.length - 1)]; }
+function listeningMeaningVisible() {
+  const preference = getUserSettings().listeningMeaning;
+  if (preference === 'always') return true;
+  if (preference === 'hidden') return false;
+  return state.listeningStudio.translationVisible === true;
+}
 function saveListeningSession() { if (!state.currentUser) return; const session = { id: `studio-${state.currentUser.id}`, ...state.listeningStudio, updatedAt: new Date().toISOString() }; const all = storage.get(STORAGE_KEYS.listeningSessions, {}); storage.set(STORAGE_KEYS.listeningSessions, { ...(all && typeof all === 'object' ? all : {}), [state.currentUser.id]: session }); CloudSyncService.schedule('listening'); }
 function listeningTextComparison(expected, actual) {
   const target = String(expected || '').trim(); const value = String(actual || '').trim(); const out = []; const max = Math.max(target.length, value.length);
@@ -2746,9 +2785,9 @@ function listeningTextComparison(expected, actual) {
   return out.join('');
 }
 function listeningStudioView() {
-  const session = state.listeningStudio; const question = listeningCurrentQuestion(); const korean = question.koreanText || question.audioText || ''; const speed = Number(session.speed || 1); const duration = Math.max(8, Math.round(korean.length * 0.42));
+  const session = state.listeningStudio; const question = listeningCurrentQuestion(); const korean = question.koreanText || question.audioText || ''; const speed = Number(session.speed || 1); const duration = Math.max(8, Math.round(korean.length * 0.42)); const meaningVisible = listeningMeaningVisible(); session.translationVisible = meaningVisible;
   const modes = [['listen', 'Listen', 'Nghe bình thường'], ['dictation', 'Dictation', 'Nghe và nhập Hangul'], ['shadowing', 'Shadowing', 'Nghe rồi nói lại'], ['quiz', 'Quiz', 'Nghe và trả lời']];
-  const dictationResult = session.dictationResult; const quizResult = session.quizAnswer; const transcript = session.transcriptVisible || session.romanizationVisible || session.translationVisible;
+  const dictationResult = session.dictationResult; const quizResult = session.quizAnswer; const transcript = session.transcriptVisible || session.romanizationVisible || meaningVisible;
   return `<section class="section page-heading"><button class="back-link" data-view="lessons">← Học tập</button><p class="eyebrow">🎧 Listening Studio</p><h1 class="headline">Phòng luyện Nghe</h1><p class="subtle">Tập trung vào âm thanh, transcript và phản xạ. Âm mẫu dùng trình đọc tiếng Hàn của trình duyệt.</p></section><section class="listening-room section"><nav class="listening-mode-tabs" aria-label="Chế độ nghe">${modes.map(([id,label,description]) => `<button class="${session.mode === id ? 'active' : ''}" data-listening-mode="${id}"><b>${label}</b><small>${description}</small></button>`).join('')}</nav><section class="listening-player"><div class="player-kicker">${escapeHtml(question.questionTypeLabel || 'Listening practice')} · ${session.index + 1}/${listeningStudioQuestions().length}</div><h2 lang="ko">${session.transcriptVisible ? escapeHtml(korean) : '••• ••• •••'}</h2><div class="player-controls"><button class="player-control" data-listening-seek="-5" aria-label="Lùi 5 giây">−5s</button><button class="player-play" data-listening-play aria-label="${session.playing ? 'Tạm dừng' : 'Phát'}">${session.playing ? 'Ⅱ' : '▶'}</button><button class="player-control" data-listening-seek="5" aria-label="Tiến 5 giây">+5s</button></div><input id="listeningTimeline" type="range" min="0" max="${duration}" value="${Math.min(duration, session.position || 0)}" aria-label="Tiến trình audio"><div class="player-time"><span>${Math.floor((session.position || 0) / 60)}:${String(Math.floor((session.position || 0) % 60)).padStart(2, '0')}</span><span>${Math.floor(duration / 60)}:${String(duration % 60).padStart(2, '0')}</span></div><div class="speed-row" aria-label="Tốc độ phát">${[0.5,0.75,1,1.25,1.5].map((value) => `<button class="${speed === value ? 'selected' : ''}" data-listening-speed="${value}">${value}x</button>`).join('')}</div><div class="ab-loop"><button class="btn secondary" data-listening-loop="a">A: ${session.loopA === null ? '—' : `${session.loopA}s`}</button><button class="btn secondary" data-listening-loop="b">B: ${session.loopB === null ? '—' : `${session.loopB}s`}</button><button class="text-link" data-listening-loop="clear">Xóa A-B</button></div></section><section class="transcript-panel"><div class="transcript-controls"><label><input type="checkbox" data-listening-toggle="transcript" ${session.transcriptVisible ? 'checked' : ''}> Hangul</label><label><input type="checkbox" data-listening-toggle="romanization" ${session.romanizationVisible ? 'checked' : ''}> Romanization</label><label><input type="checkbox" data-listening-toggle="translation" ${session.translationVisible ? 'checked' : ''}> Translation</label></div>${transcript ? `<div class="transcript-content">${session.transcriptVisible ? `<b lang="ko">${escapeHtml(korean)}</b>` : ''}${session.romanizationVisible ? `<span>${escapeHtml(getRomanization({ korean }))}</span>` : ''}${session.translationVisible ? `<small>${escapeHtml(I18nService.localizedText(question, 'meaning') || question.explanationVi || '')}</small>` : ''}</div>` : '<p class="exam-lock-note">Transcript đang ẩn.</p>'}</section>${session.mode === 'dictation' ? `<section class="listening-task"><h2>Dictation</h2><p>Nghe câu rồi nhập lại bằng Hangul.</p><textarea id="dictationInput" rows="3" placeholder="Nhập câu bạn nghe được...">${escapeHtml(session.dictation || '')}</textarea><button class="btn primary" data-listening-dictation>Kiểm tra bản chép</button>${dictationResult ? `<div class="dictation-result ${dictationResult.score >= 80 ? 'success' : 'error'}"><b>Text comparison: ${dictationResult.score}%</b><p class="diff-line">${listeningTextComparison(korean, dictationResult.answer)}</p><small>Đúng: xanh · Thiếu: ∅ · Sai: đỏ</small><button class="text-link" data-listening-save-error>Lưu lỗi vào Sổ lỗi</button></div>` : ''}</section>` : session.mode === 'quiz' ? `<section class="listening-task"><h2>Quiz</h2><p>${escapeHtml(question.prompt || 'Nghe và chọn đáp án.')}</p><div class="answer-list">${(question.options || []).map((option) => `<button class="answer-button ${quizResult ? option === question.correctAnswer ? 'correct' : option === quizResult.answer ? 'wrong' : '' : ''}" data-listening-quiz="${escapeHtml(option)}" ${quizResult ? 'disabled' : ''}>${escapeHtml(option)}</button>`).join('')}</div>${quizResult ? `<div class="answer-feedback ${quizResult.correct ? 'success' : 'error'}">${quizResult.correct ? '✓ Chính xác' : `Đáp án: ${escapeHtml(question.correctAnswer)}`}<p>${escapeHtml(question.explanationVi || '')}</p></div>` : ''}</section>` : session.mode === 'shadowing' ? `<section class="listening-task"><h2>Shadowing</h2><p>Nghe câu mẫu, sau đó mở Phòng luyện Nói để ghi âm và so sánh văn bản.</p><button class="btn primary" data-view="speaking-room">Mở Phòng luyện Nói</button></section>` : `<section class="listening-task"><h2>Listen</h2><p>Nghe lại nhiều lần, điều chỉnh tốc độ và đánh dấu đoạn A-B để lặp.</p><button class="btn secondary" data-listening-next>${session.index >= listeningStudioQuestions().length - 1 ? 'Bắt đầu lại' : 'Câu tiếp theo'}</button></section>`}</section>`;
 }
 
@@ -3069,7 +3108,7 @@ function bindEvents() {
   document.querySelectorAll('[data-listening-speed]').forEach((button) => { button.onclick = () => { state.listeningStudio.speed = Number(button.dataset.listeningSpeed); saveListeningSession(); render(); }; });
   const listeningTimeline = document.getElementById('listeningTimeline'); if (listeningTimeline) listeningTimeline.oninput = () => { state.listeningStudio.position = Number(listeningTimeline.value); saveListeningSession(); };
   document.querySelectorAll('[data-listening-loop]').forEach((button) => { button.onclick = () => { const key = button.dataset.listeningLoop; if (key === 'clear') { state.listeningStudio.loopA = null; state.listeningStudio.loopB = null; } else { state.listeningStudio[key === 'a' ? 'loopA' : 'loopB'] = Number(state.listeningStudio.position || 0); } saveListeningSession(); render(); }; });
-  document.querySelectorAll('[data-listening-toggle]').forEach((input) => { input.onchange = () => { state.listeningStudio[`${input.dataset.listeningToggle}Visible`] = input.checked; saveListeningSession(); render(); }; });
+  document.querySelectorAll('[data-listening-toggle]').forEach((input) => { if (input.dataset.listeningToggle === 'translation') { const label = input.closest('label'); if (label) label.lastChild.textContent = input.checked ? ' Ẩn nghĩa tiếng Việt' : ' Hiện nghĩa tiếng Việt'; } input.onchange = () => { state.listeningStudio[`${input.dataset.listeningToggle}Visible`] = input.checked; if (input.dataset.listeningToggle === 'translation') setListeningMeaningPreference(input.checked); saveListeningSession(); render(); }; });
   const dictationInput = document.getElementById('dictationInput'); const dictationButton = document.querySelector('[data-listening-dictation]'); if (dictationInput) dictationInput.oninput = () => { state.listeningStudio.dictation = dictationInput.value; }; if (dictationButton) dictationButton.onclick = () => { const q = listeningCurrentQuestion(); const answer = String(state.listeningStudio.dictation || dictationInput?.value || '').trim(); if (!answer) return toast('Hãy nhập bản chép trước khi kiểm tra.'); const eventId = uniqueId(); state.listeningStudio.dictationResult = { id: eventId, answer, score: similarityScore(q.koreanText || q.audioText || '', answer) }; saveListeningSession(); emitLearningMutation('listening_completed', q.id, { status: 'completed', evidenceId: eventId, score: state.listeningStudio.dictationResult.score, mode: 'dictation' }, `listening_completed:${state.currentUser.id}:${eventId}`); render(); };
   document.querySelectorAll('[data-listening-quiz]').forEach((button) => { button.onclick = () => { const q = listeningCurrentQuestion(); const eventId = uniqueId(); state.listeningStudio.quizAnswer = { id: eventId, answer: button.dataset.listeningQuiz, correct: button.dataset.listeningQuiz === q.correctAnswer }; saveListeningSession(); emitLearningMutation('listening_completed', q.id, { status: 'completed', evidenceId: eventId, score: state.listeningStudio.quizAnswer.correct ? 100 : 0, mode: 'quiz' }, `listening_completed:${state.currentUser.id}:${eventId}`); render(); }; });
   const listeningSaveError = document.querySelector('[data-listening-save-error]'); if (listeningSaveError) listeningSaveError.onclick = () => { const q = listeningCurrentQuestion(); const result = state.listeningStudio.dictationResult; window.ErrorNotebookService?.add?.({ type: 'listening', question: q.koreanText || q.audioText, mistake: result?.answer || '', correction: q.koreanText || q.audioText, explanation: `Text comparison ${result?.score || 0}%` }); toast('Đã lưu lỗi nghe vào Sổ lỗi.'); };

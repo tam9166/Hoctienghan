@@ -90,5 +90,5 @@
   global.AIQualityAnalyticsService = { summary: analytics, logs: () => [...readState().p68.logs] };
   global.AIHumanFeedbackService = feedbackService;
   const previous = global.KLEARN_AFTER_RENDER;
-  global.KLEARN_AFTER_RENDER = () => { previous?.(); if (state.currentView === 'ai-coach' && !global.document.querySelector('[data-p68-quality-summary]')) global.document.querySelector('.page-heading')?.insertAdjacentHTML('afterend', summaryMarkup()); feedbackService.bind(global.document); };
+  global.KLEARN_AFTER_RENDER = () => { previous?.(); const reviewer = global.AccessControlService?.canReview?.() === true; if (reviewer && state.currentView === 'ai-coach' && !global.document.querySelector('[data-p68-quality-summary]')) global.document.querySelector('.page-heading')?.insertAdjacentHTML('afterend', summaryMarkup()); feedbackService.bind(global.document); };
 })(window);

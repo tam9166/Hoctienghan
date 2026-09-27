@@ -134,6 +134,6 @@
   global.P84TodayVocabularyService = P84TodayVocabularyService;
   global.KLEARN_EXTRA_VIEWS = { ...(global.KLEARN_EXTRA_VIEWS || {}), 'vocabulary-today-p84': selectionView };
   const previousAfterRender = global.KLEARN_AFTER_RENDER;
-  global.KLEARN_AFTER_RENDER = () => { previousAfterRender?.(); bind(); };
+  global.KLEARN_AFTER_RENDER = () => { previousAfterRender?.(); bind(); const card = global.document?.querySelector('[data-p84-home]'); if (card && !card.querySelector('[data-srs-explanation]')) { const due = Number(selectedSnapshot()?.due?.length || 0); card.querySelector('h2')?.insertAdjacentHTML('afterend', `<p class="subtle" data-srs-explanation>${due ? `${due} từ đã đến lúc ôn. Ôn đúng lúc để nhớ lâu hơn.` : 'Bạn chưa có từ cần ôn. Hãy học từ mới để tạo lịch ôn.'}</p>`); } };
   render();
 })(window);

@@ -178,7 +178,7 @@
   };
 
   function task(type, minutes, title, reason, priority, extra = {}) {
-    const routes = { srs: 'review', repair: 'error-notebook', grammar: 'grammar-compare', listening: 'listening-studio', reading: 'practice-hub', vocabulary: 'vocabulary-hub', topik: 'topik-exam-catalog-p80', lesson: state.currentUser?.learningTrack === 'foundation' ? 'foundation' : 'lessons', quiz: 'quick-practice', writing: 'writing-hub', speaking: 'speaking-hub' };
+    const routes = { srs: 'review', repair: 'error-notebook', grammar: 'grammar-compare', listening: 'listening-studio', reading: 'practice-hub', vocabulary: 'vocabulary-hub', topik: 'topik-intelligence-p80', lesson: state.currentUser?.learningTrack === 'foundation' ? 'foundation' : 'lessons', quiz: 'quick-practice', writing: 'writing-hub', speaking: 'speaking-hub' };
     return { id: `${type}-${priority}`, type, minutes, title, reason, priority, route: routes[type] || 'lessons', actionView: routes[type] || 'lessons', completed: false, ...extra };
   }
 
@@ -339,6 +339,11 @@
   window.KLEARN_EXTRA_PROFILE = () => `${previousProfileExtra ? previousProfileExtra() : ''}${goalCard()}`;
   window.KLEARN_AFTER_RENDER = () => {
     previousAfterRender?.();
+    if (state.currentView === 'adaptive-plan' && !document.querySelector('.adaptive-progressive-disclosure')) {
+      const readiness = document.querySelector('.adaptive-readiness'); const goalForm = document.querySelector('.adaptive-goal-form');
+      if (readiness) { const details = document.createElement('details'); details.className = 'adaptive-progressive-disclosure adaptive-readiness-details'; details.innerHTML = '<summary>Vì sao app đề xuất?</summary>'; readiness.parentNode.insertBefore(details, readiness); details.appendChild(readiness); }
+      if (goalForm) { const details = document.createElement('details'); details.className = 'adaptive-progressive-disclosure adaptive-goal-details'; details.innerHTML = '<summary>Mục tiêu & lộ trình</summary>'; goalForm.parentNode.insertBefore(details, goalForm); details.appendChild(goalForm); }
+    }
     if (state.currentView === 'home' && !window.DailyLearningExperienceService && !document.querySelector('.adaptive-mission-home')) (document.getElementById('homeMissionAnchor') || document.getElementById('app'))?.insertAdjacentHTML(document.getElementById('homeMissionAnchor') ? 'afterend' : 'beforeend', missionCard());
     if (state.currentView === 'profile' && !document.querySelector('.adaptive-goal-home')) document.getElementById('app')?.insertAdjacentHTML('afterbegin', goalCard());
     document.querySelectorAll('[data-view="adaptive-plan"]').forEach((button) => { button.onclick = () => setView('adaptive-plan'); });

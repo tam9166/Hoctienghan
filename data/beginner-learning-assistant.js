@@ -268,6 +268,19 @@
   }
 
   const previousAfterRender = global.KLEARN_AFTER_RENDER;
-  global.KLEARN_AFTER_RENDER = () => { previousAfterRender?.(); installViews(); if (state.currentUser) bind(); if (state.currentView === 'home' && !global.document.querySelector('.bla-shell') && !runtime.repairingHome) { runtime.repairingHome = true; render(); runtime.repairingHome = false; } };
+  global.KLEARN_AFTER_RENDER = () => {
+    previousAfterRender?.(); installViews(); if (state.currentUser) bind();
+    if (state.currentView === 'beginner-vocabulary-review') {
+      const summary = global.document.querySelector('.bla-review-summary');
+      const reviewHeading = global.document.querySelector('.bla-shell .page-heading .eyebrow'); if (reviewHeading) reviewHeading.textContent = 'ÔN TẬP SRS';
+      if (summary && !summary.querySelector('[data-srs-explanation]')) summary.insertAdjacentHTML('afterbegin', '<p class="subtle" data-srs-explanation>SRS — hệ thống nhắc bạn ôn từ đúng lúc để nhớ lâu hơn. “Đến hạn” nghĩa là hôm nay là thời điểm phù hợp để ôn lại.</p>');
+      const primary = summary?.querySelector('[data-bla-review-mode="choice"]'); if (primary) primary.textContent = 'ÔN HÔM NAY';
+    }
+    if (state.currentView === 'home' && !global.document.querySelector('.p2-navigation-hub')) {
+      (global.document.querySelector('.foundation-home, .bla-shell, #homeMissionAnchor') || global.document.getElementById('app'))?.insertAdjacentHTML('beforeend', '<section class="p2-navigation-hub section"><p class="eyebrow">ÔN & THI</p><div class="action-row"><button class="btn secondary" data-view="beginner-vocabulary-review">Ôn tập SRS</button><button class="btn secondary" data-view="error-notebook">Sổ lỗi</button><button class="btn secondary" data-view="topik-intelligence-p80">TOPIK</button><button class="btn secondary" data-view="offline-packs">Công cụ offline</button><button class="btn secondary" data-view="learning-progress">Tiến độ</button></div></section>');
+      global.document.querySelectorAll('.p2-navigation-hub [data-view]').forEach((button) => { button.onclick = () => setView(button.dataset.view); });
+    }
+    if (state.currentView === 'home' && !global.document.querySelector('.bla-shell') && !runtime.repairingHome) { runtime.repairingHome = true; render(); runtime.repairingHome = false; }
+  };
   render();
 })(window);
