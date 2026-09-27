@@ -89,6 +89,19 @@ Không sử dụng deployment-specific URL, không lấy token/cookie/credential
 
 Canonical domain được kiểm tra lại trước khi deploy (2026-09-27T05:26Z): `/api/health` vẫn HTTP 503 trên commit cũ `93e3e1064ccb`; `/`, `/api/version`, `/manifest.json` và `/sw.js` lần lượt trả HTTP 200. Đây chỉ là baseline của deployment cũ, không phải post-deploy validation của bản sửa.
 
+## Production post-push validation
+
+Commit `c42e1130fdb041072a2348d8ee1a6a82d765b5d6` đã được push thành công lên `origin/main`. GitHub ghi nhận Vercel context `success` với mô tả `Deployment has completed`; CI và Mobile Native workflow cũng hoàn tất thành công.
+
+Kiểm tra trực tiếp canonical domain lúc 2026-09-27T05:50Z:
+
+- `/api/health` — HTTP 200; `status: ok`; `backend: ok`; `database.status: ok`; `database.latencyMs: 195`.
+- `/api/version` — HTTP 200; release commit `c42e1130fdb0`; environment `production`.
+- `/` — HTTP 200, app HTML/title hợp lệ.
+- `/manifest.json` — HTTP 200, JSON PWA hợp lệ.
+- `/sw.js` — HTTP 200, JavaScript service worker hợp lệ.
+- Health response không chứa secret, service-role key hoặc stack trace. `ai: unconfigured` chỉ là degraded feature không làm fail health.
+
 ## Trạng thái cuối
 
 | Hạng mục | Trạng thái |
@@ -98,11 +111,11 @@ Canonical domain được kiểm tra lại trước khi deploy (2026-09-27T05:26
 | Environment | PARTIAL — runtime configured; Vercel dashboard/values chưa kiểm tra được |
 | RLS | PARTIAL — anon boundary đã kiểm tra; cross-user authenticated matrix chưa kiểm tra |
 | `/api/health` local fix | PASS |
-| Production runtime sau fix | PENDING / NOT VERIFIED |
+| Production runtime sau fix | PASS — canonical domain đã trả HTTP 200 |
 | Security | PASS — không thêm secret, không dùng service-role |
 | Regression | PASS — 94/94 |
-| Commit | Sẽ được tạo với thay đổi P1 này |
-| Push | Sẽ xác nhận trong handoff sau thao tác remote |
-| Overall | **CONDITIONAL** — code fix đã sẵn sàng; production deployment còn pending |
+| Commit | PASS — `c42e1130fdb041072a2348d8ee1a6a82d765b5d6` |
+| Push | PASS — `origin/main` |
+| Overall | **PASS** — P1 health fix đã xác nhận trên production |
 
-Vercel deployment và production post-check vẫn là trách nhiệm của pipeline/integration sau khi commit được push. Không đánh dấu production PASS khi chưa xác nhận `GET https://hoctienghan-eight.vercel.app/api/health` trả HTTP 200 với `database.status = ok` và các endpoint smoke bắt buộc.
+P1 production validation hoàn tất với `GET https://hoctienghan-eight.vercel.app/api/health` trả HTTP 200 và `database.status = ok`; các endpoint smoke bắt buộc cũng đã PASS.
