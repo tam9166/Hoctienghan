@@ -27,6 +27,7 @@
     beginnerAssistant: { styles: ['beginner-learning-assistant.css?v=2'], scripts: ['data/beginner-learning-assistant.js?v=3'] },
     p80Topik: { dependencies: ['topik', 'ai'], styles: ['topik-exam-intelligence-system.css?v=3'], scripts: ['data/topik-exam-intelligence-system.js?v=3'] },
     p81Topik: { dependencies: ['p80Topik'], styles: ['topik-strategy-coaching-system.css?v=1'], scripts: ['data/topik-strategy-coaching-system.js?v=1'] },
+    dailyExperience: { dependencies: ['practical'], scripts: ['data/daily-learning-experience.js?v=8'] },
     practical: { scripts: ['data/practical-study.js?v=6'] },
     scale: { scripts: ['data/ecosystem-scale.js?v=8'] },
     conversation: { scripts: ['data/conversation-scenarios.js?v=1', 'data/conversation-simulator.js?v=1'] },
@@ -117,6 +118,7 @@
   routes('smart-vocabulary-import-p83 vocabulary-import-history-p83', ['p83SmartImport']);
   routes('topik-intelligence-p80 topik-bank-p80 topik-section-p80 topik-types-p80 topik-generator-p80 topik-exam-p80 topik-result-p80 topik-report-p80', ['p80Topik']);
   routes('topik-strategy-p81 topik-strategies-p81 topik-strategy-detail-p81 topik-writing-p81 topik-time-p81 topik-simulation-p81 topik-goal-p81 topik-coach-p81 topik-dashboard-p81 topik-readiness-p81 topik-offline-p81', ['p81Topik']);
+  routes('daily-session', ['dailyExperience']);
   routes('future-language-platform cross-language-lab language-brain future-integrations global-course-marketplace', ['globalLanguage', 'futureLanguage']);
   routes('global-language-platform global-language-profiles global-exam-framework global-language-comparison global-expansion', ['globalLanguage']);
   routes('global-language-onboarding global-writing-system global-content-packs global-language-search global-adaptive-plan', ['globalLanguage']);

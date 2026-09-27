@@ -4,6 +4,9 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'data', 'daily-learning-experience.js'), 'utf8');
+const routeLoader = fs.readFileSync(path.join(__dirname, '..', 'data', 'route-loader.js'), 'utf8');
+assert.match(routeLoader, /dailyExperience: \{ dependencies: \['practical'\], scripts: \['data\/daily-learning-experience\.js\?v=8'\] \}/, 'daily-session must load its FocusSession dependency on direct navigation');
+assert.match(routeLoader, /routes\('daily-session', \['dailyExperience'\]\)/, 'daily-session must be registered with the route loader');
 const scoped = new Map();
 const focusByUser = new Map();
 
