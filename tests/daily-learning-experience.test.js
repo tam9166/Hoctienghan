@@ -14,16 +14,17 @@ const questions = [
   ...Array.from({ length: 3 }, (_, index) => question(`g-${index}`, 'grammar'))
 ];
 
-function boot({ userId = 'learner-a', returning = false, history = [], errors = [], learningTrack = 'topik', calendarActivity = {} } = {}) {
+function boot({ userId = 'learner-a', returning = false, history = [], errors = [], learningTrack = 'topik', calendarActivity = {}, startReturnsNull = false, seedEmptyActive = false } = {}) {
   const originalProgress = { stats: { streak: 4, lessonsCompleted: 3 }, skills: { vocabulary: 62, grammar: 45, listening: 40 } };
   const state = { currentUser: { id: userId, fullName: 'Nguyễn Minh', learningTrack, goalLabel: 'TOPIK 1' }, currentView: 'home' };
   const focus = {
     all: () => focusByUser.get(userId) || [],
     active() { return this.all().find((item) => ['active', 'paused'].includes(item.status)); },
-    start(minutes) { const item = { id: `focus-${userId}`, targetMinutes: minutes, status: 'active', startedAt: new Date().toISOString(), tasks: [], currentTask: 0 }; focusByUser.set(userId, [item]); return item; },
+    start(minutes) { if (startReturnsNull) return null; const item = { id: `focus-${userId}`, targetMinutes: minutes, status: 'active', startedAt: new Date().toISOString(), tasks: [], currentTask: 0 }; focusByUser.set(userId, [item]); return item; },
     save(session) { focusByUser.set(userId, [session, ...this.all().filter((item) => item.id !== session.id)]); },
     completeTask(session) { session.tasks[session.currentTask].completed = true; if (session.tasks.every((item) => item.completed)) { session.status = 'completed'; session.completedAt = new Date().toISOString(); session.actualMinutes = session.targetMinutes; } else session.currentTask += 1; this.save(session); }
   };
+  if (seedEmptyActive) focusByUser.set(userId, [{ id: `stale-${userId}`, targetMinutes: 15, status: 'active', startedAt: new Date().toISOString(), tasks: [], currentTask: 0 }]);
   const window = {
     KLEARN_APP: {
       state,
@@ -63,6 +64,24 @@ assert.equal(newcomer.window.DailyLearningExperienceService.plan.build(15).tasks
 assert.equal(newcomer.window.DailyLearningExperienceService.plan.build(15).tasks.some((task) => task.type === 'srs'), false);
 assert.deepEqual(newcomer.progress, { stats: { streak: 4, lessonsCompleted: 3 }, skills: { vocabulary: 62, grammar: 45, listening: 40 } }, 'rendering does not mutate progress');
 
+const adaptiveCta = boot({ userId: 'adaptive-cta-new', learningTrack: 'topik' });
+const adaptiveCtaView = adaptiveCta.window.DailyLearningExperienceService.sessions;
+const adaptiveCtaHtml = adaptiveCta.window.KLEARN_EXTRA_VIEWS['daily-session']();
+assert.ok(adaptiveCtaView.active()?.tasks?.length, 'Adaptive CTA must materialize a non-empty session');
+assert.doesNotMatch(adaptiveCtaHtml, /Chưa có nội dung phù hợp|Chưa có phiên đang chạy/);
+assert.ok(adaptiveCtaView.active().tasks.every((task) => task.type && Number(task.minutes) > 0), 'Adaptive session tasks must be actionable');
+
+const unavailableCta = boot({ userId: 'adaptive-cta-unavailable', startReturnsNull: true });
+const unavailableHtml = unavailableCta.window.KLEARN_EXTRA_VIEWS['daily-session']();
+assert.match(unavailableHtml, /Chưa có nội dung phù hợp/);
+assert.match(unavailableHtml, /data-view="home"/);
+assert.equal(unavailableCta.window.DailyLearningExperienceService.sessions.active(), null);
+
+const staleCta = boot({ userId: 'adaptive-cta-stale', seedEmptyActive: true });
+const staleHtml = staleCta.window.KLEARN_EXTRA_VIEWS['daily-session']();
+assert.ok(staleCta.window.DailyLearningExperienceService.sessions.active()?.tasks?.length, 'stale empty active sessions must be replaced');
+assert.doesNotMatch(staleHtml, /Chưa có nội dung phù hợp/);
+
 const existing = boot({ userId: 'existing-user', errors: [{ id: 'e-1', type: 'grammar', mistake: '저가 학생', correction: '제가 학생', explanation: 'Dùng 제가.', count: 2 }] });
 const service = existing.window.DailyLearningExperienceService;
 assert.deepEqual([...service.durations], [5, 15, 30, 45, 60, 90]);
@@ -90,6 +109,7 @@ const completedUser = boot({ userId: 'completed-user' });
 completedUser.window.DailyLearningExperienceService.sessions.start(5);
 completedUser.window.DailyLearningExperienceService.sessions.completeCurrent();
 assert.match(completedUser.window.DailyLearningExperienceService.homeView(), /Đã hoàn thành hôm nay/);
+assert.match(completedUser.window.KLEARN_EXTRA_VIEWS['daily-session'](), /Bạn đã hoàn thành phiên học/);
 
 const quick = service.quickPractice.questions();
 assert.equal(quick.length, 9);

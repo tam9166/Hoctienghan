@@ -45,7 +45,13 @@ async function until(cdp, expression, attempts = 250) { for (let index = 0; inde
     assert.equal(await until(cdp, `KLEARN_APP.state.currentView==='daily-session'&&Boolean(document.querySelector('.daily-session-current'))`), true, 'one-click session did not start');
     const active = await evaluate(cdp, `(()=>{const s=DailyLearningExperienceService.sessions.active();return{source:s.source,minutes:s.tasks.reduce((sum,item)=>sum+item.minutes,0),first:s.tasks[0].type,reason:Boolean(s.tasks[0].reason)}})()`);
     assert.equal(active.source, 'daily-experience'); assert.equal(active.minutes, 30); assert.equal(active.first, 'srs'); assert.equal(active.reason, true);
-    console.log(JSON.stringify({ status: 'passed', widths, adaptivePlan: plan.types, oneClickStart: true, totalMinutes: 30 }, null, 2));
+    await evaluate(cdp, `KLEARN_APP.setView('ai-coach')`);
+    assert.equal(await until(cdp, `Boolean(document.querySelector('.learner-assistant-summary [data-view="daily-session"]'))`), true, 'adaptive coach CTA did not render');
+    await evaluate(cdp, `document.querySelector('.learner-assistant-summary [data-view="daily-session"]').click()`);
+    assert.equal(await until(cdp, `KLEARN_APP.state.currentView==='daily-session'&&Boolean(document.querySelector('.daily-session-current'))`), true, 'adaptive coach CTA did not open a usable session');
+    const coachCta = await evaluate(cdp, `(()=>{const s=DailyLearningExperienceService.sessions.active();return{hasSession:Boolean(s),taskCount:s?.tasks?.length||0,hasEmptyState:Boolean(document.querySelector('.daily-session-empty')),text:document.querySelector('.daily-session-current')?.innerText||''}})()`);
+    assert.equal(coachCta.hasSession, true); assert.ok(coachCta.taskCount > 0); assert.equal(coachCta.hasEmptyState, false); assert.doesNotMatch(coachCta.text, /Chưa có phiên đang chạy|Chưa có nội dung phù hợp/);
+    console.log(JSON.stringify({ status: 'passed', widths, adaptivePlan: plan.types, oneClickStart: true, adaptiveCoachCta: true, totalMinutes: 30 }, null, 2));
   } finally {
     try { cdp?.close(); } catch (_) {}
     browser.kill(); server.kill(); await wait(300);
