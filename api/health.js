@@ -19,7 +19,11 @@ module.exports = async function handler(req, res) {
   let database = { status: supabase.url && supabase.key ? 'configured' : 'unconfigured', latencyMs: null };
   if (supabase.url && supabase.key && typeof fetch === 'function') {
     const started = Date.now();
-    try { const response = await Promise.race([fetch(`${supabase.url}/rest/v1/`, { headers: { apikey: String(process.env.SUPABASE_ANON_KEY), Authorization: `Bearer ${String(process.env.SUPABASE_ANON_KEY)}` } }), timeout(2500)]); database = { status: response.ok || response.status === 404 ? 'ok' : 'degraded', latencyMs: Date.now() - started }; } catch (_) { database = { status: 'unreachable', latencyMs: Date.now() - started }; }
+    try {
+      const probeUrl = `${supabase.url}/rest/v1/learning_sync?select=user_id&limit=0`;
+      const response = await Promise.race([fetch(probeUrl, { headers: { apikey: String(process.env.SUPABASE_ANON_KEY), Authorization: `Bearer ${String(process.env.SUPABASE_ANON_KEY)}`, Accept: 'application/json' } }), timeout(2500)]);
+      database = { status: response.ok ? 'ok' : 'degraded', latencyMs: Date.now() - started };
+    } catch (_) { database = { status: 'unreachable', latencyMs: Date.now() - started }; }
   }
   const ai = process.env.OPENAI_API_KEY ? 'configured' : 'unconfigured';
   const production = release.environment === 'production';

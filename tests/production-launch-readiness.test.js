@@ -81,6 +81,19 @@ function responseRecorder() {
   assert.equal(failedDatabase.result.statusCode, 503);
   assert.equal(failedDatabase.result.body.database.status, 'degraded');
 
+  globalThis.fetch = async (url, options) => {
+    assert.equal(url, 'https://p55-health-test.supabase.co/rest/v1/learning_sync?select=user_id&limit=0');
+    assert.equal(options.headers.apikey, 'public-anon-test-key');
+    assert.equal(options.headers.Authorization, 'Bearer public-anon-test-key');
+    assert.equal(options.headers.Accept, 'application/json');
+    return { ok: true, status: 200 };
+  };
+  const reachableDatabase = responseRecorder();
+  await healthHandler({ method: 'GET', headers: { 'x-forwarded-for': 'p55-reachable-database-test' } }, reachableDatabase.response);
+  assert.equal(reachableDatabase.result.statusCode, 200);
+  assert.equal(reachableDatabase.result.body.status, 'ok');
+  assert.equal(reachableDatabase.result.body.database.status, 'ok');
+
   if (originalEnvironment === undefined) delete process.env.VERCEL_ENV; else process.env.VERCEL_ENV = originalEnvironment;
   if (originalUrl === undefined) delete process.env.SUPABASE_URL; else process.env.SUPABASE_URL = originalUrl;
   if (originalKey === undefined) delete process.env.SUPABASE_ANON_KEY; else process.env.SUPABASE_ANON_KEY = originalKey;
