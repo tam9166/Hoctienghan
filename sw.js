@@ -2,6 +2,7 @@
 // previous cache-first strategy could keep an old app.js indefinitely when the
 // URL stayed the same, so this version also invalidates already-installed SWs.
 // The retired cache key (const CACHE = 'klearn-v105') is removed during activation.
+// Deployment revalidation marker: publish this v106 artifact without touching learner data.
 const CACHE = 'klearn-v106';
 const APP_CACHE_PATTERN = /^klearn-v\d+$/;
 const OFFLINE_PACK_PREFIX = 'klearn-pack-';
