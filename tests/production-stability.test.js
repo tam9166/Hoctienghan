@@ -82,7 +82,11 @@ function boot(options = {}) {
   assert.match(appSource, /data-storage-export/);
   assert.match(index, /production-stability\.css\?v=2/);
   assert.match(index, /data\/production-stability\.js\?v=5/);
-  assert.match(sw, /klearn-v105/);
+  assert.match(sw, /klearn-v106/);
+  assert.match(sw, /APP_CACHE_PATTERN/);
+  assert.match(sw, /fetch\(request\)\.then\(cacheResponse\)\.catch\(\(\) => caches\.match\(request\)/);
+  assert.match(sw, /self\.clients\.claim\(\)/);
+  assert.match(sw, /OFFLINE_PACK_PREFIX/);
   assert.match(sw, /authorization/);
   assert.match(migration, /production_error_events/);
   assert.match(migration, /production_performance_metrics/);

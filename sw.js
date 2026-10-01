@@ -1,4 +1,10 @@
-const CACHE = 'klearn-v105';
+// Bump the application cache whenever the deployed shell/runtime changes. The
+// previous cache-first strategy could keep an old app.js indefinitely when the
+// URL stayed the same, so this version also invalidates already-installed SWs.
+// The retired cache key (const CACHE = 'klearn-v105') is removed during activation.
+const CACHE = 'klearn-v106';
+const APP_CACHE_PATTERN = /^klearn-v\d+$/;
+const OFFLINE_PACK_PREFIX = 'klearn-pack-';
 const OFFLINE_ASSETS = [
   './index.html',
   './styles.css?v=33',
@@ -270,7 +276,9 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE && !key.startsWith('klearn-pack-')).map((key) => caches.delete(key))))
+      // Remove only caches owned by this app. Offline language packs and caches
+      // belonging to other integrations must survive an app-shell update.
+      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE && APP_CACHE_PATTERN.test(key) && !key.startsWith(OFFLINE_PACK_PREFIX)).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
@@ -286,6 +294,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   if (!/\.(?:html?|css|m?js|json|svg|png|webp|woff2?|mp3|wav)$/i.test(url.pathname)) return;
+  // Application code and styles must observe a deployment as soon as the
+  // network is available. Keep a cache fallback so an offline learner can
+  // still open the last known-good runtime.
+  if (/\.(?:css|m?js)$/i.test(url.pathname)) {
+    event.respondWith(fetch(request).then(cacheResponse).catch(() => caches.match(request).then((cached) => cached || Response.error())));
+    return;
+  }
   if (url.pathname.startsWith('/content/')) {
     event.respondWith(caches.match(request).then((cached) => { const update = fetch(request).then(cacheResponse).catch(() => null); return cached || update.then((response) => response || Response.error()); }));
     return;
