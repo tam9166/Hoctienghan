@@ -1,6 +1,6 @@
 # V4 Remediation — Date Determinism & Local Backup Quota
 
-Ngày: 2026-10-01  
+Ngày: 2026-10-01
 Phạm vi: chỉ xử lý `learning-intelligence.test.js` và `QuotaExceededError` khi tạo local backup. Không xử lý Auth, RLS, multi-device, offline E2E, audio, TOPIK production hoặc PWA.
 
 ## A. `learning-intelligence.test.js`
@@ -62,33 +62,33 @@ Files thay đổi:
 
 ## Production Deployment
 
-Commit: `a63e618af724` (`fix: stabilize learning intelligence and storage quota recovery`)  
-Deployment: production domain reachable; `/api/version` and `/api/health` report the new commit.  
+Commit: `a63e618af724` (`fix: stabilize learning intelligence and storage quota recovery`)
+Deployment: production domain reachable; `/api/version` and `/api/health` report the new commit.
 Date: 2026-10-01.
 
 ## Production Health
 
-`/api/health`: HTTP 200, `status=ok`, `backend=ok`, `database.status=ok`, latency observed 216 ms, no secret or stack-trace leak.  
+`/api/health`: HTTP 200, `status=ok`, `backend=ok`, `database.status=ok`, latency observed 216 ms, no secret or stack-trace leak.
 `/api/version`: HTTP 200, version `1.5.0-rc.1`, release `p80-topik-exam-intelligence-system`, schema 13, commit `a63e618af724`, environment `production`, region `iad1`.
 
 Smoke `/`, `/manifest.json` and `/sw.js`: HTTP 200. No Vercel protection page or unexpected 5xx observed.
 
 ## Learning Intelligence
 
-Local: **PASS** — 94/94 test files, fixed clock and boundary coverage.  
+Local: **PASS** — 94/94 test files, fixed clock and boundary coverage.
 Production: **PARTIAL** — Home, Adaptive Assistant, Profile, Progress Report and Daily Session rendered without `NaN`, `undefined`, `Invalid Date`, `RangeError` or `Infinity`. A clean multi-date/timezone production mutation was not performed. Existing demo profile data remained visible.
 
 ## Quota Recovery
 
-Local: **PASS** — quota simulation covers compact/retry, hard failure, fallback event and preservation of recovery checkpoint.  
+Local: **PASS** — quota simulation covers compact/retry, hard failure, fallback event and preservation of recovery checkpoint.
 Production: **PARTIALLY VERIFIED** — an existing browser profile reproduced `QuotaExceededError` and the app preserved visible learning data. The browser still served the previous Service Worker-cached UI (old warning text, no `Xuất bản sao lưu` button), while direct HTTP assets for commit `a63e618af724` contain the new compact/export code. Therefore the deployed quota recovery UX and export button are **NOT VERIFIED** in this runtime; no storage-filling workaround was attempted.
 
 ## Data Safety
 
-Progress: **PARTIAL** — visible after the existing quota warning.  
-SRS: **PARTIAL** — due cards remained visible.  
-Error Notebook: **PARTIAL** — existing error remained visible.  
-Learning Session: **PARTIAL** — daily session route remained renderable.  
+Progress: **PARTIAL** — visible after the existing quota warning.
+SRS: **PARTIAL** — due cards remained visible.
+Error Notebook: **PARTIAL** — existing error remained visible.
+Learning Session: **PARTIAL** — daily session route remained renderable.
 No data-loss event was observed; a clean test-account trigger-and-compare was not performed.
 
 ## Backup Export
@@ -97,16 +97,16 @@ No data-loss event was observed; a clean test-account trigger-and-compare was no
 
 ## Regression
 
-94/94: **PASS**  
-Build: **PASS**  
-Readiness: **PASS**  
+94/94: **PASS**
+Build: **PASS**
+Readiness: **PASS**
 Production: **CONDITIONAL** — smoke health is good, but Service Worker cache prevented proof that the new quota UX is the runtime presented to users.
 
 ## Issues
 
-P0: **NONE OBSERVED**.  
-P1: **CONDITIONAL** — production browser cache served stale app assets after deployment; quota recovery UX is not proven on the runtime currently presented.  
-P2: **PARTIALLY VERIFIED** — quota warning and data preservation observed; compact/retry/export production path remains unverified.  
+P0: **NONE OBSERVED**.
+P1: **CONDITIONAL** — production browser cache served stale app assets after deployment; quota recovery UX is not proven on the runtime currently presented.
+P2: **PARTIALLY VERIFIED** — quota warning and data preservation observed; compact/retry/export production path remains unverified.
 P3: **NONE OBSERVED** beyond the cache-related verification gap.
 
 ## Final Status
