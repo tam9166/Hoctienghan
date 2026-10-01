@@ -6,9 +6,20 @@ const vm = require('node:vm');
 const dataSource = fs.readFileSync(path.join(__dirname, '..', 'data', 'learning-intelligence-data.js'), 'utf8');
 const systemSource = fs.readFileSync(path.join(__dirname, '..', 'data', 'learning-intelligence.js'), 'utf8');
 const scoped = new Map();
-const now = Date.now();
+// Keep the intelligence assertions independent of the month in which CI runs.
+// The production module intentionally reads Date.now()/new Date(); inject a
+// deterministic clock into its VM instead of weakening month-boundary asserts.
+const FIXED_NOW_ISO = '2026-10-15T12:00:00.000Z';
+const FIXED_NOW = Date.parse(FIXED_NOW_ISO);
+const fixedDate = (timestamp) => class FixedDate extends Date {
+  constructor(...args) { super(...(args.length ? args : [timestamp])); }
+  static now() { return timestamp; }
+};
+const now = FIXED_NOW;
 
 function boot(userId = 'learner-a', fixture = {}) {
+  const clock = Number.isFinite(fixture.clockMs) ? fixture.clockMs : FIXED_NOW;
+  const DateImpl = fixedDate(clock);
   const state = { currentUser: { id: userId, studyMinutesPerDay: 20, goalLabel: 'TOPIK 1' }, currentView: 'home', learningIntelligence: null };
   const progress = fixture.progress || { stats: { streak: 2 }, skills: { listening: 32, grammar: 62, vocabulary: 78, speaking: 55, reading: 70, writing: 45 } };
   const srs = fixture.srs || [{ wordId: 'v-1', korean: '학교', mastery: 35, status: 'review', nextReview: new Date(now - 86400000).toISOString(), lastReviewed: new Date(now - 8 * 86400000).toISOString() }];
@@ -35,7 +46,7 @@ function boot(userId = 'learner-a', fixture = {}) {
     I18nService: { getPreference: () => 'vi' }
   };
   const document = { documentElement: { lang: 'vi' }, querySelector: () => null, querySelectorAll: () => [], getElementById: () => null };
-  const context = { window, document, console, Date, String, Number, Object, Array, Math, Set, Map, FormData: class {}, setTimeout };
+  const context = { window, document, console, Date: DateImpl, String, Number, Object, Array, Math, Set, Map, FormData: class {}, setTimeout };
   vm.createContext(context);
   vm.runInContext(dataSource, context);
   vm.runInContext(systemSource, context);
@@ -75,6 +86,57 @@ assert.equal(app.PersonalLearningReportService.report().attempts, 1);
 assert.equal(app.PersonalLearningReportService.report().minutes, 10);
 assert.equal(app.PersonalLearningReportService.report().mastered, 0);
 assert.equal(app.FatigueDetectionService.shouldSuggest(), false);
+
+// Boundary coverage: same day, yesterday, 3/7 days ago stay in the fixed
+// month; 30 days ago is in the previous month and must not count in the
+// monthly report. This remains stable across local/CI timezone settings.
+const boundaryHistory = [0, 1, 3, 7, 30].map((days) => ({
+  percentage: 70,
+  durationSeconds: 600,
+  completedAt: new Date(FIXED_NOW - days * 86400000).toISOString()
+}));
+const boundary = boot('learner-boundaries', { history: boundaryHistory });
+assert.equal(boundary.PersonalLearningReportService.report().month, '2026-10');
+assert.equal(boundary.PersonalLearningReportService.report().attempts, 4);
+assert.equal(boundary.PersonalLearningReportService.report().minutes, 40);
+assert.equal(boundary.ComebackModeService.status().active, false);
+const comebackBoundary = boot('learner-comeback-boundary', {
+  history: [{ percentage: 50, wrong: 5, total: 6, completedAt: new Date(FIXED_NOW - 7 * 86400000).toISOString() }]
+});
+assert.equal(comebackBoundary.ComebackModeService.status().active, true);
+
+const firstOfMonth = boot('learner-first-of-month', {
+  clockMs: Date.parse('2026-10-01T12:00:00.000Z'),
+  history: [
+    { percentage: 80, durationSeconds: 600, completedAt: '2026-10-01T00:00:00.000Z' },
+    { percentage: 80, durationSeconds: 600, completedAt: '2026-09-30T23:59:59.000Z' }
+  ]
+});
+assert.equal(firstOfMonth.PersonalLearningReportService.report().attempts, 1);
+const lastOfMonth = boot('learner-last-of-month', {
+  clockMs: Date.parse('2026-10-31T12:00:00.000Z'),
+  history: [
+    { percentage: 80, durationSeconds: 600, completedAt: '2026-10-31T00:00:00.000Z' },
+    { percentage: 80, durationSeconds: 600, completedAt: '2026-10-01T00:00:00.000Z' },
+    { percentage: 80, durationSeconds: 600, completedAt: '2026-09-30T23:59:59.000Z' }
+  ]
+});
+assert.equal(lastOfMonth.PersonalLearningReportService.report().attempts, 2);
+const utcLocal = boot('learner-utc-local', {
+  clockMs: Date.parse('2026-10-01T12:00:00.000Z'),
+  history: [
+    { percentage: 80, durationSeconds: 600, completedAt: '2026-10-01T00:30:00Z' },
+    { percentage: 80, durationSeconds: 600, completedAt: '2026-10-01T00:30:00+07:00' }
+  ]
+});
+// The report deliberately groups persisted ISO strings by their serialized
+// date prefix, so a local-offset timestamp that starts on 2026-10-01 remains
+// in the October bucket regardless of the runner timezone.
+assert.equal(utcLocal.PersonalLearningReportService.report().attempts, 2);
+for (const iso of ['2026-10-05T12:00:00.000Z', '2026-10-11T12:00:00.000Z']) {
+  const weekBoundary = boot(`learner-week-${iso.slice(8, 10)}`, { clockMs: Date.parse(iso), history: [] });
+  assert.equal(weekBoundary.LearningDirectorService.plan().date, iso.slice(0, 10));
+}
 
 const awayHistory = [{ percentage: 50, wrong: 5, total: 6, completedAt: new Date(now - 9 * 86400000).toISOString() }];
 const away = boot('learner-away', { history: awayHistory });

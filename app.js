@@ -28,13 +28,21 @@ const STORAGE_KEYS = Object.freeze({
 const storage = {
   lastError: null,
   lastFailedWrite: null,
+  classifyError(error, fallback = 'STORAGE_UNAVAILABLE') {
+    if (error?.name === 'QuotaExceededError' || error?.code === 22 || /quota/i.test(String(error?.message || ''))) return 'QUOTA_EXCEEDED';
+    if (error?.name === 'SecurityError') return 'SECURITY_ERROR';
+    if (error instanceof SyntaxError) return 'MALFORMED_DATA';
+    return fallback;
+  },
   get(key, fallback = null) {
     try {
       const raw = localStorage.getItem(key);
       return raw === null ? fallback : JSON.parse(raw);
     } catch (error) {
       console.warn(`[Tiếng Hàn - TamHoanq] Dữ liệu ${key} bị lỗi và đã được bỏ qua.`, error);
-      try { localStorage.removeItem(key); } catch (_) { /* Storage may be unavailable. */ }
+      this.lastError = { key, code: this.classifyError(error, 'MALFORMED_DATA'), at: new Date().toISOString() };
+      // Preserve the raw value for a later export/recovery attempt. A
+      // malformed or inaccessible key must never be silently deleted.
       return fallback;
     }
   },
@@ -50,10 +58,10 @@ const storage = {
       return true;
     } catch (error) {
       console.warn(`[Tiếng Hàn - TamHoanq] Không thể lưu ${key}.`, error);
-      const quota = error?.name === 'QuotaExceededError' || error?.code === 22 || /quota/i.test(String(error?.message || ''));
-      this.lastError = { key, code: quota ? 'QUOTA_EXCEEDED' : 'STORAGE_UNAVAILABLE', at: new Date().toISOString() };
+      const code = this.classifyError(error);
+      this.lastError = { key, code, at: new Date().toISOString() };
       this.lastFailedWrite = { key, value };
-      if (quota) window.dispatchEvent(new CustomEvent('klearn-storage-error', { detail: this.lastError }));
+      if (code === 'QUOTA_EXCEEDED' || code === 'SECURITY_ERROR') window.dispatchEvent(new CustomEvent('klearn-storage-error', { detail: this.lastError }));
       return false;
     }
   },
@@ -674,13 +682,15 @@ function toast(message) {
 }
 
 function storageIssueMarkup() {
-  if (!state.storageIssue || state.storageIssue.code !== 'QUOTA_EXCEEDED') return '';
-  return `<aside class="storage-recovery-banner" role="alert" aria-live="assertive"><div><strong>Bộ nhớ thiết bị đã đầy</strong><p>Dữ liệu học chưa bị xóa. Hãy thử lại hoặc mở Quản lý dữ liệu để xuất bản sao lưu trước khi tiếp tục.</p></div><div class="action-row"><button class="btn primary" data-storage-retry>Thử lại</button><button class="btn secondary" data-storage-manage>Quản lý dữ liệu</button></div></aside>`;
+  if (!state.storageIssue) return '';
+  if (state.storageIssue.code === 'SECURITY_ERROR') return `<aside class="storage-recovery-banner" role="alert" aria-live="assertive"><div><strong>Bộ nhớ thiết bị không khả dụng</strong><p>Trình duyệt đang chặn quyền lưu dữ liệu. Dữ liệu học chưa bị xóa; hãy kiểm tra chế độ riêng tư hoặc quyền lưu trữ.</p></div><div class="action-row"><button class="btn secondary" data-storage-manage>Quản lý dữ liệu</button></div></aside>`;
+  if (state.storageIssue.code !== 'QUOTA_EXCEEDED') return '';
+  return `<aside class="storage-recovery-banner" role="alert" aria-live="assertive"><div><strong>Bộ nhớ thiết bị đã đầy</strong><p>Dữ liệu học chưa bị xóa. Hãy giải phóng bộ nhớ hoặc xuất bản sao lưu xuống máy trước khi thử lại.</p></div><div class="action-row"><button class="btn primary" data-storage-retry>Thử lại</button><button class="btn secondary" data-storage-export>Xuất bản sao lưu</button><button class="btn secondary" data-storage-manage>Quản lý dữ liệu</button></div></aside>`;
 }
 
 window.addEventListener('klearn-storage-error', (event) => {
   state.storageIssue = event.detail || { code: 'QUOTA_EXCEEDED' };
-  toast('Bộ nhớ đầy — dữ liệu học vẫn được giữ. Hãy thử lại hoặc quản lý dữ liệu.');
+  toast(state.storageIssue.code === 'SECURITY_ERROR' ? 'Trình duyệt đang chặn lưu dữ liệu. Dữ liệu học vẫn được giữ.' : 'Bộ nhớ đầy — dữ liệu học vẫn được giữ. Hãy thử lại, xuất backup hoặc quản lý dữ liệu.');
   if (state.currentView) window.setTimeout(() => render(), 0);
 });
 
@@ -1695,7 +1705,21 @@ const CloudSyncService = {
     return { format: 'klearn-local-backup', version: 1, exportedAt: new Date().toISOString(), user, data };
   }
 };
+function downloadLocalBackup() {
+  const payload = window.CloudSyncService?.exportLocalData?.();
+  if (!payload || !window.URL?.createObjectURL || typeof window.Blob !== 'function') { toast('Chưa thể xuất bản sao lưu trên trình duyệt này.'); return false; }
+  try {
+    const url = window.URL.createObjectURL(new window.Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+    const link = document.createElement('a'); link.href = url; link.download = `klearn-backup-${todayKey()}.json`; link.click();
+    window.setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+    storage.clearError(); state.storageIssue = null; toast('Đã xuất bản sao lưu xuống thiết bị.'); render(); return true;
+  } catch (error) {
+    toast('Không thể xuất bản sao lưu. Dữ liệu học chưa bị xóa.');
+    return false;
+  }
+}
 window.CloudSyncService = CloudSyncService;
+window.downloadLocalBackup = downloadLocalBackup;
 window.addEventListener('online', () => CloudSyncService.flush('back-online'));
 window.addEventListener('offline', () => CloudSyncService.setStatus('offline'));
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') (window.BackgroundSyncQueueService?.pending?.() ? window.BackgroundSyncQueueService.flush() : CloudSyncService.flush('foreground')); });
@@ -3078,6 +3102,7 @@ function bindEvents() {
     if (ok) { state.storageIssue = null; toast('Đã lưu lại dữ liệu học.'); render(); }
     else toast('Chưa thể lưu lại. Hãy giải phóng một ít bộ nhớ rồi thử lại.');
   });
+  document.querySelector('[data-storage-export]')?.addEventListener('click', () => { downloadLocalBackup(); });
   document.querySelector('[data-storage-manage]')?.addEventListener('click', () => setView('profile'));
   document.querySelectorAll('[data-resource-id]').forEach((button) => { button.onclick = () => { state.selectedResourceId = button.dataset.resourceId; setView('resource-view'); }; });
   document.querySelectorAll('[data-video-id]').forEach((button) => { button.onclick = () => { state.selectedVideoId = button.dataset.videoId; state.videoChapterTime = 0; setView('video-view'); }; });
@@ -3149,7 +3174,7 @@ function bindEvents() {
   const cloudRegisterButton = document.getElementById('cloudRegisterButton'); if (cloudRegisterButton) cloudRegisterButton.onclick = async () => { const form = new FormData(registerForm); showFormError(''); try { const result = await CloudAccountService.signUp(normalizeEmail(form.get('email')), String(form.get('password') || ''), false); if (result.confirmationRequired) { showFormError(state.cloudAuthMessage); return; } setView('home'); } catch (error) { showFormError(error.message); } };
   const cloudConnectForm = document.getElementById('cloudConnectForm'); if (cloudConnectForm) cloudConnectForm.onsubmit = async (event) => { event.preventDefault(); const form = new FormData(cloudConnectForm); state.cloudAuthMessage = ''; try { if (event.submitter?.value === 'signup') await CloudAccountService.signUp(normalizeEmail(form.get('email')), String(form.get('password') || ''), true); else await CloudAccountService.signIn(normalizeEmail(form.get('email')), String(form.get('password') || ''), true); render(); } catch (error) { state.cloudAuthMessage = error.message; render(); } };
   const syncNowButton = document.getElementById('syncNowButton'); if (syncNowButton) syncNowButton.onclick = async () => { if (window.BackgroundSyncQueueService?.pending?.()) await window.BackgroundSyncQueueService.flush(); else await CloudSyncService.flush('manual'); render(); };
-  const exportLocalDataButton = document.getElementById('exportLocalDataButton'); if (exportLocalDataButton) exportLocalDataButton.onclick = () => { const payload = CloudSyncService.exportLocalData(); if (!payload) return; const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })); const link = document.createElement('a'); link.href = url; link.download = `klearn-backup-${todayKey()}.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
+  const exportLocalDataButton = document.getElementById('exportLocalDataButton'); if (exportLocalDataButton) exportLocalDataButton.onclick = () => { downloadLocalBackup(); };
   const cloudSignOutButton = document.getElementById('cloudSignOutButton'); if (cloudSignOutButton) cloudSignOutButton.onclick = () => CloudAccountService.signOut();
   const editForm = document.getElementById('editProfileForm'); if (editForm) editForm.onsubmit = handleEditProfile;
   const forgot = document.getElementById('forgotPassword'); if (forgot) forgot.onclick = () => toast('Hãy dùng email đã đăng ký để nhận hướng dẫn khôi phục mật khẩu khi dịch vụ sẵn sàng.');

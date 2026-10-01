@@ -69,9 +69,66 @@
     }
   };
 
+  const compactBackupSnapshot = (snapshot = {}) => {
+    const progress = object(snapshot.progress);
+    const profile = object(snapshot.profile);
+    return {
+      ...snapshot,
+      compaction: 'v1',
+      // Derived profile lists can be rebuilt from progress/SRS and are the
+      // first large fields to drop when local backup storage is constrained.
+      profile: snapshot.profile ? {
+        currentTopikLevel: profile.currentTopikLevel,
+        targetTopikLevel: profile.targetTopikLevel,
+        goal: profile.goal,
+        learningStyle: profile.learningStyle,
+        learningMode: profile.learningMode,
+        explanationStyle: profile.explanationStyle,
+        studyMinutesPerDay: profile.studyMinutesPerDay,
+        skillScores: profile.skillScores,
+        streak: profile.streak
+      } : null,
+      progress: {
+        ...progress,
+        pronunciationAttempts: array(progress.pronunciationAttempts).slice(-20),
+        writingSubmissions: array(progress.writingSubmissions).slice(-20)
+      },
+      srs: array(snapshot.srs).slice(0, 200)
+    };
+  };
+  const compactBackupEntry = (entry) => compactBackupSnapshot(entry);
+  const backupErrorDetail = (error) => ({
+    key: backupKey,
+    code: error?.name === 'SecurityError' ? 'SECURITY_ERROR' : 'QUOTA_EXCEEDED',
+    operation: 'backup',
+    fallback: 'export',
+    message: error?.name === 'SecurityError' ? 'Không thể truy cập bộ nhớ thiết bị.' : 'Không đủ dung lượng để lưu bản sao lưu trên thiết bị.'
+  });
+  const notifyBackupFailure = (error) => {
+    const detail = backupErrorDetail(error);
+    if (typeof global.CustomEvent === 'function' && typeof global.dispatchEvent === 'function') global.dispatchEvent(new global.CustomEvent('klearn-storage-error', { detail }));
+    return null;
+  };
+  const persistBackups = (value) => {
+    try { return storage.set(backupKey, value) === true; } catch (error) { notifyBackupFailure(error); return false; }
+  };
+  const compactBackupStore = (all) => Object.fromEntries(Object.entries(all).map(([id, rows]) => [id, array(rows).slice(0, 3).map(compactBackupEntry)]));
   const BackupService = {
     payload() { const checkpoint = RecoveryService.capture(); return checkpoint ? { ...checkpoint, backupId: `backup-${Date.now()}` } : null; },
-    create(period = 'daily', reference = new Date()) { const safePeriod = ['daily', 'weekly'].includes(period) ? period : 'daily'; const payload = this.payload(); if (!payload) return null; const all = object(storage.get(backupKey, {})); const list = array(all[uid()]); const weekKey = `${reference.getUTCFullYear()}-W${String(Math.ceil((reference.getUTCDate() + new Date(Date.UTC(reference.getUTCFullYear(), reference.getUTCMonth(), 1)).getUTCDay()) / 7)).padStart(2, '0')}`; const entry = { ...payload, period: safePeriod, weekKey }; all[uid()] = [entry, ...list].filter((item, index, rows) => rows.findIndex((candidate) => candidate.period === item.period && (candidate.period === 'weekly' ? candidate.weekKey === item.weekKey : String(candidate.capturedAt).slice(0, 10) === String(item.capturedAt).slice(0, 10))) === index).sort((a, b) => String(b.capturedAt).localeCompare(String(a.capturedAt))).slice(0, safePeriod === 'daily' ? 14 : 12); storage.set(backupKey, all); return entry; },
+    create(period = 'daily', reference = new Date()) {
+      const safePeriod = ['daily', 'weekly'].includes(period) ? period : 'daily'; const payload = this.payload(); if (!payload) return null;
+      const all = object(storage.get(backupKey, {})); const list = array(all[uid()]); const weekKey = `${reference.getUTCFullYear()}-W${String(Math.ceil((reference.getUTCDate() + new Date(Date.UTC(reference.getUTCFullYear(), reference.getUTCMonth(), 1)).getUTCDay()) / 7)).padStart(2, '0')}`;
+      const entry = { ...payload, period: safePeriod, weekKey };
+      const merge = (rows, snapshotMapper = (item) => item) => [entry, ...rows].map(snapshotMapper).filter((item, index, items) => items.findIndex((candidate) => candidate.period === item.period && (candidate.period === 'weekly' ? candidate.weekKey === item.weekKey : String(candidate.capturedAt).slice(0, 10) === String(item.capturedAt).slice(0, 10))) === index).sort((a, b) => String(b.capturedAt).localeCompare(String(a.capturedAt)));
+      const full = { ...all, [uid()]: merge(list).slice(0, safePeriod === 'daily' ? 14 : 12) };
+      if (persistBackups(full)) return entry;
+      // Keep recent backup evidence, compact derived data and retry. This
+      // never removes progress/SRS/Error Notebook; only obsolete snapshots.
+      const compactAll = compactBackupStore(all); const compactList = array(compactAll[uid()]);
+      const compactEntry = compactBackupEntry(entry); const compactValue = { ...compactAll, [uid()]: merge(compactList, (item) => item === entry ? compactEntry : compactBackupEntry(item)).slice(0, 3) };
+      if (persistBackups(compactValue)) return compactEntry;
+      return notifyBackupFailure({ name: storage.lastError?.code === 'SECURITY_ERROR' ? 'SecurityError' : 'QuotaExceededError' });
+    },
     run(reference = new Date()) { const last = array(object(storage.get(backupKey, {}))[uid()]); const date = reference.toISOString().slice(0, 10); const weekKey = `${reference.getUTCFullYear()}-W${String(Math.ceil((reference.getUTCDate() + new Date(Date.UTC(reference.getUTCFullYear(), reference.getUTCMonth(), 1)).getUTCDay()) / 7)).padStart(2, '0')}`; const hasDaily = last.some((item) => item.period === 'daily' && String(item.capturedAt).slice(0, 10) === date); const hasWeekly = last.some((item) => item.period === 'weekly' && item.weekKey === weekKey); return { daily: hasDaily ? null : this.create('daily', reference), weekly: hasWeekly ? null : this.create('weekly', reference) }; },
     all() { return array(object(storage.get(backupKey, {}))[uid()]); }
   };

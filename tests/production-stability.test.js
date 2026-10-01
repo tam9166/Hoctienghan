@@ -14,10 +14,11 @@ const healthSource = fs.readFileSync(path.join(root, 'api', 'health.js'), 'utf8'
 const chatSource = fs.readFileSync(path.join(root, 'api', 'chat.js'), 'utf8');
 const configSource = fs.readFileSync(path.join(root, 'api', 'config.js'), 'utf8');
 
-function boot() {
+function boot(options = {}) {
   const values = new Map();
   const state = { currentUser: { id: 'stability-user' }, currentView: 'admin-analytics' };
-  const storage = { get(key, fallback = null) { return values.has(key) ? values.get(key) : fallback; }, set(key, value) { values.set(key, value); return true; } };
+  const dispatches = [];
+  const storage = { get(key, fallback = null) { return values.has(key) ? values.get(key) : fallback; }, set(key, value) { if (key === 'backups' && (options.quota || options.quotaFailures > 0)) { if (options.quotaFailures > 0) options.quotaFailures -= 1; throw Object.assign(new Error('storage quota reached'), { name: 'QuotaExceededError' }); } values.set(key, value); return true; } };
   const userScoped = (key) => { const all = values.get(key); return Array.isArray(all?.[state.currentUser.id]) ? all[state.currentUser.id] : []; };
   const saveUserScoped = (key, list) => { const all = values.get(key) || {}; all[state.currentUser.id] = list; values.set(key, all); };
   const progress = { stats: { streak: 3 }, lessonProgress: [{ id: 'l1', completed: true }] };
@@ -25,13 +26,15 @@ function boot() {
   const window = {
     KLEARN_APP: { storage, state, STORAGE_KEYS: { productionTelemetry: 'telemetry', backgroundSyncQueue: 'queue', learningBackups: 'backups', recoveryCheckpoint: 'checkpoint', learnerProfile: 'profile', settings: 'settings' }, CloudSyncService: cloud, getUserProgress: () => progress, saveUserProgress: (value) => { Object.assign(progress, value); }, getUserSrs: () => [{ wordId: '학교', mastery: 70 }], saveUserSrs: () => {}, userScoped, saveUserScoped, render: () => {}, escapeHtml: (value) => String(value ?? ''), AccessControlService: { role: () => 'admin' }
     },
-    navigator: { onLine: true }, performance: { getEntriesByType: () => [{ duration: 120 }] }, console
+    navigator: { onLine: true }, performance: { getEntriesByType: () => [{ duration: 120 }] }, console,
+    CustomEvent: class { constructor(type, init = {}) { this.type = type; this.detail = init.detail; } },
+    dispatchEvent(event) { dispatches.push(event); }
   };
   const events = {};
   window.addEventListener = (name, fn) => { events[name] = fn; };
   const context = { window, console, Date, String, Number, Object, Array, Math, Set, Map, RegExp, Promise, JSON };
   vm.createContext(context); vm.runInContext(source, context);
-  return { window, values, events, state };
+  return { window, values, events, state, dispatches };
 }
 
 (async () => {
@@ -57,10 +60,26 @@ function boot() {
   assert.equal(backup.period, 'daily');
   assert.equal(w.RecoveryService.latest().progress.stats.streak, 3);
   assert.equal(w.RecoveryService.restore().restored, true);
+  const quota = boot({ quota: true });
+  const quotaBackup = quota.window.BackupService.create('daily');
+  assert.equal(quotaBackup, null, 'quota must not be reported as a successful backup');
+  assert.equal(quota.window.RecoveryService.latest().progress.stats.streak, 3, 'critical recovery checkpoint must remain available');
+  assert.equal(quota.dispatches.at(-1).detail.code, 'QUOTA_EXCEEDED');
+  assert.equal(quota.dispatches.at(-1).detail.fallback, 'export');
+  // The module creates daily+weekly backups during boot; five failures cover
+  // those attempts plus one explicit retry in this scenario.
+  const compactRetry = boot({ quotaFailures: 5 });
+  const compactBackup = compactRetry.window.BackupService.create('daily');
+  assert.equal(compactBackup.compaction, 'v1', 'backup must compact and retry after a quota failure');
   assert.equal(w.ProductionCacheService.isPublicRequest({ method: 'GET', headers: { has: () => false } }, '/content/lesson.json'), true);
   assert.equal(w.ProductionCacheService.isPublicRequest({ method: 'GET', headers: { has: (name) => name === 'authorization' } }, '/content/lesson.json'), false);
   assert.equal(w.ProductionCacheService.policy().privateDataCached, false);
   assert.match(appSource, /productionTelemetry: 'klearn_production_telemetry'/);
+  assert.match(appSource, /classifyError\(error/);
+  assert.match(appSource, /MALFORMED_DATA/);
+  assert.match(appSource, /SECURITY_ERROR/);
+  assert.match(appSource, /function downloadLocalBackup\(\)/);
+  assert.match(appSource, /data-storage-export/);
   assert.match(index, /production-stability\.css\?v=2/);
   assert.match(index, /data\/production-stability\.js\?v=5/);
   assert.match(sw, /klearn-v105/);
