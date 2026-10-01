@@ -114,3 +114,116 @@ P3: **NONE OBSERVED** beyond the cache-related verification gap.
 **CONDITIONAL**
 
 Production deployment and health are PASS. The release cannot be called fully PASS for these two fixes until a fresh production runtime (with the updated Service Worker/assets) visibly shows the quota recovery UX and a safe test-profile export can be verified.
+# Final Re-Validation
+
+Date: 2026-10-01
+
+## Service Worker
+
+Status: **PASS**
+
+Evidence:
+
+- Production `/api/version` returned commit `2cf10cdd6f7a`.
+- Production `/sw.js` returned `klearn-v106` with no-store headers.
+- Existing profile reload rendered the current quota copy, including
+  “Xuất bản sao lưu”; the old quota copy was not rendered after the update.
+- Fresh production tab rendered the same current application assets with no
+  console errors.
+
+## Learning Intelligence
+
+Status: **PASS**
+
+Test data:
+
+- Existing controlled demo/test browser profile contained progress, vocabulary,
+  SRS due items, Error Notebook evidence, mock history and learning profile
+  signals. No separate authenticated account was created during this read-only
+  validation.
+- An adaptive recommendation materialized into the SRS review route and one
+  correct vocabulary answer was recorded without a crash.
+
+Date validation:
+
+- Dashboard, Progress, Learning Profile, Today Plan and Adaptive routes all
+  rendered production content.
+- No `Invalid Date`, `NaN`, `Infinity`, `undefined`, `RangeError`, `TypeError`,
+  blank screen or application-error copy appeared.
+- A browser reload and a second fresh production tab preserved valid dates,
+  progress, SRS counts, weaknesses and recommendations.
+
+Recommendation:
+
+- Learning Profile showed skill evidence and a tracked weakness.
+- Today Plan showed concrete SRS/listening/Error Notebook/next-lesson actions.
+- Adaptive Assistant showed a dated plan with actionable “Mở” controls; the
+  SRS control opened a real review session.
+
+## Quota Recovery
+
+Status: **CONDITIONAL**
+
+Normal backup:
+
+- Production automatically attempted the daily/weekly backup path. The
+  existing controlled profile was already storage-constrained, so the runtime
+  emitted a user-safe quota warning rather than crashing.
+- Existing progress, SRS, Error Notebook and session state remained visible.
+
+Quota simulation:
+
+- Safe controlled simulation in `tests/production-stability.test.js` passed
+  `QuotaExceededError` handling without filling or deleting real production
+  storage.
+- The production implementation distinguishes `QUOTA_EXCEEDED`,
+  `SECURITY_ERROR`, `MALFORMED_DATA` and `STORAGE_UNAVAILABLE`.
+
+Compact / retry:
+
+- Controlled simulation verified compact snapshot `v1` and retry behavior.
+
+Fallback:
+
+- Controlled simulation verified the explicit export fallback and safe failure
+  notification. The production quota copy exposes “Xuất bản sao lưu”.
+
+Export:
+
+- The current production profile exposed the new export CTA during the prior
+  Service Worker revalidation, but this run could not capture a browser download
+  event from the in-app browser. No JSON file was accepted as verified evidence.
+- A controlled browser quota override was unavailable; storage was not filled or
+  deleted to force the condition.
+
+Data safety:
+
+- No progress, SRS, Error Notebook or learning-session loss was observed before
+  or after the quota warnings. The profile remained usable and the SRS task
+  continued to a real answer.
+
+## Regression
+
+- 94/94 tests: PASS
+- Build/readiness: PASS
+- Function audit: PASS (7/12)
+- Service Worker simulation: PASS
+- Offline app shell/Home after the SW fix: PASS (previous production run)
+- Adaptive/SRS/Error Notebook route checks: PASS
+
+## Production
+
+- Commit: `2cf10cdd6f7a` (report-only commit after SW fix `c1cd19928e49`)
+- Health: HTTP 200
+- Database: `ok`
+- Runtime: production domain rendered current assets and Learning Intelligence
+  routes without runtime exceptions.
+
+## Final
+
+Learning Intelligence: **PASS**
+
+Quota Recovery: **CONDITIONAL** — controlled failure handling and data safety
+pass, but production JSON export could not be captured in this browser session.
+
+Overall: **CONDITIONAL**
