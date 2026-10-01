@@ -227,3 +227,99 @@ Quota Recovery: **CONDITIONAL** — controlled failure handling and data safety
 pass, but production JSON export could not be captured in this browser session.
 
 Overall: **CONDITIONAL**
+
+# Production Backup Export Final Verification
+
+Date: 2026-10-01
+
+## Export Pipeline
+
+Status: **PASS — functionally verified**
+
+The deployed implementation is unchanged and follows this pipeline:
+
+`CloudSyncService.exportLocalData()` → `JSON.stringify(payload, null, 2)` →
+`new Blob(..., { type: 'application/json' })` → `URL.createObjectURL()` →
+`<a download="klearn-backup-YYYY-MM-DD.json">` → `link.click()` → revoke the
+object URL after one second.
+
+## JSON Generation
+
+Status: **PASS**
+
+The exact production `exportLocalData()` and `downloadLocalBackup()` function
+bodies were exercised in a Node VM with an isolated test user and controlled
+storage. Generation and serialization completed without throwing.
+
+## JSON Integrity
+
+Status: **PASS**
+
+- Format: `klearn-local-backup`
+- Version: `1`
+- MIME: `application/json`
+- Test export size: 896 bytes
+- Filename: `klearn-backup-2026-10-01.json`
+- `JSON.parse()` succeeded
+- No `undefined`, `NaN`, `Infinity` or circular serialization error
+
+## Data Coverage
+
+Status: **PASS for the implemented contract**
+
+The isolated export contained non-null test data for progress, SRS, Error
+Notebook, listening/learning session evidence, achievements and settings. The
+export contract is driven by `USER_SYNC_KEYS`; fields outside that contract were
+not assumed to be included.
+
+## Security
+
+Status: **PASS**
+
+- Password hash, salt, iteration count and credential-version fields were
+  stripped from the exported user object.
+- Export text contained no secret key, service-role key, access/refresh token,
+  cookie or password pattern.
+
+## Browser Download
+
+Status: **FUNCTIONALLY VERIFIED / ENVIRONMENT-LIMITED DOWNLOAD CAPTURE**
+
+- The exact function created an object URL, assigned the expected `.json`
+  filename, and invoked the anchor `click()` trigger in the controlled test.
+- Production UI displayed the “Xuất bản sao lưu” CTA after the Service Worker
+  update and did not crash.
+- The in-app browser did not expose a capturable file-download event for the
+  production click attempt. This is a harness limitation; it is not evidence of
+  an export implementation failure.
+
+## Production Verification
+
+Status: **PASS for runtime/UI; download capture limited**
+
+- Domain: `https://hoctienghan-eight.vercel.app`
+- `/api/version`: HTTP 200, production commit `bc6f9caac6ba` at validation time
+- `/api/health`: HTTP 200, database `ok`
+- `/sw.js`: `klearn-v106`
+- Existing profile rendered the new quota banner and “Xuất bản sao lưu” without
+  a blank screen or production exception.
+
+## Regression
+
+94/94: **PASS**
+
+- Production stability/quota tests: PASS
+- Build/readiness: PASS
+- Service Worker: PASS
+- Offline, SRS, Error Notebook and Adaptive checks: PASS
+- No source, database, Supabase, Auth or RLS changes were made.
+
+## Final Quota Recovery
+
+**CONDITIONAL** — export pipeline, JSON integrity, data coverage, security and
+download trigger are functionally verified; the actual production file capture
+remains limited by the in-app browser environment.
+
+## Overall
+
+**CONDITIONAL**
