@@ -11,6 +11,17 @@ const indexSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8') + fs.
 const workerSource = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '20260906_advanced_retention_system.sql'), 'utf8');
 
+const FIXED_NOW = '2026-10-03T12:00:00.000Z';
+function fixedDateClass(iso) {
+  const RealDate = Date;
+  const timestamp = RealDate.parse(iso);
+  return class TestDate extends RealDate {
+    constructor(...args) { super(...(args.length ? args : [timestamp])); }
+    static now() { return timestamp; }
+  };
+}
+const TestDate = fixedDateClass(FIXED_NOW);
+
 function boot({ userId = 'retention-user', events = [], progress = 50, role = 'student', history = [], mastered = [] } = {}) {
   const scoped = new Map();
   const state = { currentUser: { id: userId, fullName: 'Nguyễn An', studyMinutesPerDay: 20, targetTopikLevel: 2 }, currentView: 'retention-center', lessonProgress: {}, srsData: mastered, retentionRuntime: null };
@@ -41,7 +52,7 @@ function boot({ userId = 'retention-user', events = [], progress = 50, role = 's
     KLEARN_AFTER_RENDER: null,
     document
   };
-  const context = { window, document, console, Date, Intl, String, Number, Object, Array, Math, Set, Map, RegExp, Promise, fetch: () => Promise.reject(new Error('unit test offline')), setTimeout, clearTimeout };
+  const context = { window, document, console, Date: TestDate, Intl, String, Number, Object, Array, Math, Set, Map, RegExp, Promise, fetch: () => Promise.reject(new Error('unit test offline')), setTimeout, clearTimeout };
   vm.createContext(context);
   vm.runInContext(source, context);
   window.RetentionContentService.hydrate(content);
@@ -53,12 +64,12 @@ assert.equal(content.reviewStatus, 'approved');
 assert.equal(content.goalMilestones.count, 50);
 assert.equal(Object.values(content.habit.weights).reduce((sum, item) => sum + item, 0), 100);
 
-const now = Date.now();
-const ago = (days, hour = 20) => new Date(now - days * 86400000).setHours(hour, 15, 0, 0);
+const now = new TestDate().getTime();
+const ago = (days, hour = 20) => { const date = new TestDate(now); date.setDate(date.getDate() - days); date.setHours(hour, 15, 0, 0); return date.getTime(); };
 const events = [
-  { id: 'today', status: 'completed', completedAt: new Date(now - 864000).toISOString(), actualMinutes: 20, tasks: [{ completed: true }] },
-  { id: 'yesterday', status: 'completed', completedAt: new Date(ago(1)).toISOString(), actualMinutes: 15, tasks: [{ completed: true }] },
-  { id: 'two-days', status: 'completed', completedAt: new Date(ago(2)).toISOString(), actualMinutes: 10, tasks: [{ completed: true }] }
+  { id: 'today', status: 'completed', completedAt: new TestDate(now - 60000).toISOString(), actualMinutes: 20, tasks: [{ completed: true }] },
+  { id: 'yesterday', status: 'completed', completedAt: new TestDate(ago(1)).toISOString(), actualMinutes: 15, tasks: [{ completed: true }] },
+  { id: 'two-days', status: 'completed', completedAt: new TestDate(ago(2)).toISOString(), actualMinutes: 10, tasks: [{ completed: true }] }
 ];
 const learner = boot({ events });
 const habit = learner.window.HabitFormationService.analyze();
@@ -66,7 +77,7 @@ assert.equal(habit.ready, true);
 assert.ok(habit.eventCount >= 3);
 assert.ok(habit.score >= 0 && habit.score <= 100);
 assert.ok(habit.timeConsistency > 0, 'habit score includes time consistency beyond streak');
-assert.equal(learner.window.SmartReminderService.candidate(new Date(), true), null, 'completed today suppresses reminder');
+assert.equal(learner.window.SmartReminderService.candidate(new TestDate(), true), null, 'completed today suppresses reminder');
 
 const weekly = learner.window.WeeklyReviewService.save();
 assert.equal(learner.window.WeeklyReviewService.current().id, weekly.id);
@@ -80,12 +91,12 @@ assert.equal(milestones.length, 50);
 assert.equal(learner.window.GoalMilestoneService.summary().reached, 25);
 assert.equal(new Set(milestones.map((item) => item.id)).size, 50);
 
-const return7 = boot({ events: [{ id: 'old', status: 'completed', completedAt: new Date(ago(8)).toISOString(), actualMinutes: 10, tasks: [{ completed: true }] }] });
+const return7 = boot({ events: [{ id: 'old', status: 'completed', completedAt: new TestDate(ago(8)).toISOString(), actualMinutes: 10, tasks: [{ completed: true }] }] });
 assert.equal(return7.window.ReactivationService.status().plan.id, 'return-7');
-const return30 = boot({ events: [{ id: 'old', status: 'completed', completedAt: new Date(ago(31)).toISOString(), actualMinutes: 10, tasks: [{ completed: true }] }] });
+const return30 = boot({ events: [{ id: 'old', status: 'completed', completedAt: new TestDate(ago(31)).toISOString(), actualMinutes: 10, tasks: [{ completed: true }] }] });
 assert.equal(return30.window.ReactivationService.status().plan.id, 'return-30');
 
-const celebration = boot({ mastered: Array.from({ length: 100 }, (_, index) => ({ id: `w-${index}`, status: 'mastered' })), events: Array.from({ length: 3 }, (_, index) => ({ id: `h-${index}`, status: 'completed', completedAt: new Date(ago(index + 1)).toISOString(), actualMinutes: 1000, tasks: [{ completed: true }] })), history: [{ setId: 't1-reading', percentage: 72 }] });
+const celebration = boot({ mastered: Array.from({ length: 100 }, (_, index) => ({ id: `w-${index}`, status: 'mastered' })), events: Array.from({ length: 3 }, (_, index) => ({ id: `h-${index}`, status: 'completed', completedAt: new TestDate(ago(index + 1)).toISOString(), actualMinutes: 1000, tasks: [{ completed: true }] })), history: [{ setId: 't1-reading', percentage: 72 }] });
 const unlocked = celebration.window.LearningCelebrationService.unlocked().map((item) => item.id);
 assert.deepEqual(unlocked.sort(), ['mastered-100', 'study-50-hours', 'topik-milestone'].sort());
 

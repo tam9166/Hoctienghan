@@ -32,6 +32,11 @@ test('UX-006 listening uses a persisted Korean-first translation preference', ()
   assert.match(app, /data-listening-toggle="translation"/);
 });
 
+test('UX-010 dictionary controls expose accessible names', () => {
+  assert.match(app, /<label for="dictionarySearch" class="sr-only">Từ cần tra<\/label>/);
+  assert.match(app, /<label for="dictionaryPos" class="sr-only">Loại từ<\/label>/);
+});
+
 test('UX-007 wrong answers expose contextual repair actions without changing primary flow', () => {
   assert.match(app, /Câu tiếp theo/);
   assert.match(coach, /lesson-error-actions/);
