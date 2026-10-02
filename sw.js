@@ -3,6 +3,7 @@
 // URL stayed the same, so this version also invalidates already-installed SWs.
 // The retired cache key (const CACHE = 'klearn-v105') is removed during activation.
 // Deployment revalidation marker: publish this v106 artifact without touching learner data.
+// P2 revalidation: force a fresh static artifact after CDN served the retired v105 body.
 const CACHE = 'klearn-v106';
 const APP_CACHE_PATTERN = /^klearn-v\d+$/;
 const OFFLINE_PACK_PREFIX = 'klearn-pack-';
